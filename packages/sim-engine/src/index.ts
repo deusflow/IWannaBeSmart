@@ -1,11 +1,15 @@
 /**
  * @file packages/sim-engine/src/index.ts
- * @description Simulation engine stub (Interactive Workbench, Block A, Item 5)
+ * @description Simulation engine exports, schemas, and level manifests
  */
 
 export const SIM_ENGINE_NAME = "@iw/sim-engine";
-export const SIM_ENGINE_VERSION = "0.0.1";
+export const SIM_ENGINE_VERSION = "0.1.0";
 
+export * from "./types/level";
+export * from "./data/tv-level-01";
+
+// Legacy engine stub compatibility
 export interface SimEngineState {
   isRunning: boolean;
   tickRateHz: number;

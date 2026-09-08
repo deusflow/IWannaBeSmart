@@ -8,6 +8,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        display: [
+          '"Space Grotesk"',
+          "Inter",
+          "-apple-system",
+          "sans-serif",
+        ],
         sans: [
           "Inter",
           "-apple-system",
