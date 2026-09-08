@@ -1,17 +1,16 @@
 /**
  * @file packages/ui/src/index.ts
- * @description Base export for the UI module stub (Interactive Workbench, Block A, Item 5)
+ * @description Base UI components and design tokens export for Interactive Workbench
+ * (Block B, Items 9, 10, 11, 12, 13, 15, 19)
  */
 
+// Package metadata
 export const UI_PACKAGE_NAME = "@iw/ui";
-export const UI_PACKAGE_VERSION = "0.0.1";
+export const UI_PACKAGE_VERSION = "0.1.0";
 
-export interface UIComponentStubMeta {
-  name: string;
-  ready: boolean;
-}
-
-export const uiStubStatus: UIComponentStubMeta = {
-  name: UI_PACKAGE_NAME,
-  ready: true,
-};
+// Components
+export * from "./components/Button";
+export * from "./components/Card";
+export * from "./components/Badge";
+export * from "./components/Tabs";
+export * from "./components/ProgressBar";
