@@ -11,11 +11,11 @@ export const WorkbenchScreen: React.FC = () => {
   const [stationId, setStationId] = useState("tv");
   const [tvState, setTvState] = useState<TVState>({ ...tvLevel01.tvInitialState });
   const [isIrEmitting, setIsIrEmitting] = useState(false);
-  const [lastOpcode, setLastOpcode] = useState<string>("STANDBY // IDLE");
+  const [lastOpcode, setLastOpcode] = useState<string>("Готов к приему");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
 
-  // Optical IR packet transmission pulse
+  // Optical IR transmission pulse
   const triggerIrPulse = (opcodeText: string, callback: () => void) => {
     setIsIrEmitting(true);
     setLastOpcode(opcodeText);
@@ -31,13 +31,13 @@ export const WorkbenchScreen: React.FC = () => {
 
   // Remote Actions
   const handlePowerPress = () => {
-    triggerIrPulse("NEC: 0x00FF (POWER_TOGGLE)", () => {
+    triggerIrPulse("Питание (Power)", () => {
       setTvState((prev) => ({ ...prev, power: !prev.power }));
     });
   };
 
   const handleChannelUp = () => {
-    triggerIrPulse("NEC: 0x001A (CH_UP)", () => {
+    triggerIrPulse("Следующий канал", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         const next = prev.channel >= prev.maxChannels ? 1 : prev.channel + 1;
@@ -47,7 +47,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleChannelDown = () => {
-    triggerIrPulse("NEC: 0x001B (CH_DOWN)", () => {
+    triggerIrPulse("Предыдущий канал", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         const prevChan = prev.channel <= 1 ? prev.maxChannels : prev.channel - 1;
@@ -57,7 +57,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleVolumeUp = () => {
-    triggerIrPulse("NEC: 0x002A (VOL_UP)", () => {
+    triggerIrPulse("Громкость +", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         return { ...prev, volume: Math.min(30, prev.volume + 2), isMuted: false };
@@ -66,7 +66,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleVolumeDown = () => {
-    triggerIrPulse("NEC: 0x002B (VOL_DOWN)", () => {
+    triggerIrPulse("Громкость -", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         return { ...prev, volume: Math.max(0, prev.volume - 2) };
@@ -75,7 +75,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleMuteToggle = () => {
-    triggerIrPulse("NEC: 0x000C (MUTE_TOGGLE)", () => {
+    triggerIrPulse("Без звука (Mute)", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         return { ...prev, isMuted: !prev.isMuted };
@@ -84,7 +84,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleSelectChannel = (ch: number) => {
-    triggerIrPulse(`NEC: 0x000${ch} (CH_DIRECT)`, () => {
+    triggerIrPulse(`Канал ${ch}`, () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         return { ...prev, channel: ch };
@@ -97,63 +97,64 @@ export const WorkbenchScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-paper text-ink flex flex-col font-sans relative overflow-x-hidden select-none">
-      {/* Background Millimeter Vellum Drafting Grid */}
+      {/* Background Millimeter Drafting Grid */}
       <div className="absolute inset-0 bg-notebook-grid opacity-75 pointer-events-none" />
 
-      {/* Top Engineering Navigation Bar */}
+      {/* Top Engineering Navigation Bar with Sniglet Typography */}
       <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-4 sm:px-6 flex items-center justify-between">
-        {/* Left: Technical Station Index */}
+        {/* Left: Station Index */}
         <div className="flex items-center gap-3 sm:gap-4">
           <BlueprintStationSwitcher
             currentStationId={stationId}
             onSelectStation={setStationId}
           />
 
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-ink-subtle">
+          <div className="hidden md:flex items-center gap-2 text-xs font-display text-ink-muted">
             <span>•</span>
-            <span className="text-ink-muted font-display">{tvLevel01.title}</span>
+            <span className="text-ink-muted font-bold">{tvLevel01.title}</span>
           </div>
         </div>
 
-        {/* Center: Live Telemetry Bus */}
-        <div className="hidden lg:flex items-center gap-3 px-3 py-1 rounded-lg bg-paper border border-paper-border font-mono text-[11px] text-ink-muted">
-          <span className="flex items-center gap-1.5">
+        {/* Center: Live Signal Status */}
+        <div className="hidden lg:flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-paper-subtle border border-paper-border font-sans text-xs text-ink-muted shadow-paper-sm">
+          <span className="flex items-center gap-1.5 text-ink">
             <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                isIrEmitting ? "bg-accent-break animate-ping" : "bg-ink-subtle"
+              className={`h-2 w-2 rounded-full transition-colors ${
+                isIrEmitting ? "bg-accent-break animate-ping" : "bg-accent-ok"
               }`}
             />
-            CARRIER: 38.0 kHz
+            <span className="font-semibold text-ink">ИК-приемник:</span>
+            <span className="text-ink-muted">38 kHz</span>
           </span>
-          <span className="text-ink-subtle">|</span>
-          <span className="text-accent-blue font-semibold">{lastOpcode}</span>
+          <span className="text-ink-subtle">•</span>
+          <span className="text-accent-blue font-bold">{lastOpcode}</span>
         </div>
 
-        {/* Right: Telemetry & Drawer Open Trigger */}
+        {/* Right: XP Stamp & Drawer Trigger */}
         <div className="flex items-center gap-3">
-          {/* XP Stamp */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-paper border border-paper-border text-xs font-mono text-ink">
-            <Sparkles size={12} strokeWidth={1.75} className="text-accent-signal" />
-            <span className="font-semibold text-accent-signal">0</span>
-            <span className="text-ink-subtle text-[10px]">XP</span>
+          {/* Friendly Game XP Pill */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper-subtle border border-paper-border text-xs font-bold text-ink shadow-paper-sm">
+            <Sparkles size={14} className="text-accent-signal" />
+            <span className="text-accent-signal font-sniglet text-sm font-extrabold">0</span>
+            <span className="text-ink-muted text-xs font-sans font-semibold">XP</span>
           </div>
 
-          {/* Drawer Trigger Button in Header */}
+          {/* Drawer Trigger Button in Sniglet Font */}
           <button
             onClick={() => {
               setIsDrawerOpen(!isDrawerOpen);
             }}
             aria-label="Toggle Code and Schematic"
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-display text-sm font-semibold shadow-paper-sm transition-all duration-200 active:scale-[0.98] cursor-pointer outline-none ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border font-sniglet text-sm font-bold shadow-paper-sm transition-all duration-200 active:scale-[0.98] cursor-pointer outline-none ${
               isDrawerActive
                 ? "bg-accent-blue-light text-accent-blue border-accent-blue-border"
                 : "bg-paper-subtle hover:bg-paper border-paper-border hover:border-accent-blue/40 text-ink"
             }`}
           >
             <BookOpen size={14} strokeWidth={2} className="text-accent-blue" />
-            <span className="hidden sm:inline">Code and Schematic</span>
-            <Badge variant="accent" size="sm" mono className="text-[9px]">
-              {isDrawerPinned ? "DOCKED" : isDrawerOpen ? "OPEN" : "EXPAND"}
+            <span className="hidden sm:inline font-sniglet text-[15px] font-extrabold tracking-wide">Code and Schematic</span>
+            <Badge variant="accent" size="sm" className="text-[10px] font-sans">
+              {isDrawerPinned ? "Закреплено" : isDrawerOpen ? "Открыто" : "Открыть"}
             </Badge>
           </button>
         </div>
@@ -191,9 +192,9 @@ export const WorkbenchScreen: React.FC = () => {
                 </div>
 
                 {/* Line-of-sight indicator connecting remote to TV */}
-                <div className="hidden lg:flex flex-col items-center justify-center text-[9px] font-mono text-ink-subtle px-1">
+                <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-display text-ink-subtle px-1">
                   <div className="border-t border-dashed border-ink-subtle/50 w-8" />
-                  <span className="text-[8px] tracking-tight py-0.5">38kHz IR</span>
+                  <span className="tracking-tight py-0.5">38 kHz ИК</span>
                   <div className="border-t border-dashed border-ink-subtle/50 w-8" />
                 </div>
 
@@ -227,7 +228,7 @@ export const WorkbenchScreen: React.FC = () => {
                 </div>
 
                 {/* Samsung Remote Lying Flat Horizontally Directly Underneath TV */}
-                <div className="w-full">
+                <div className="w-full flex items-center justify-center">
                   <RemoteBlueprintDevice
                     isIrEmitting={isIrEmitting}
                     orientation="horizontal"
@@ -243,14 +244,14 @@ export const WorkbenchScreen: React.FC = () => {
               </div>
             )}
 
-            {/* Bottom Telemetry & Status Pill */}
-            <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-mono text-ink-muted pt-1 w-full">
-              <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-paper-subtle border border-paper-border text-[11px] shadow-paper-sm">
-                <span className="text-accent-blue font-bold">BENCH STATUS:</span>
-                <span>
+            {/* Bottom Status Hint in Sniglet font-display */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1 w-full">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-subtle border border-paper-border font-display text-xs shadow-paper-sm text-ink-muted">
+                <span className="text-accent-blue font-bold">Подсказка:</span>
+                <span className="text-ink">
                   {tvState.power
-                    ? `Signal Synced • CH 0${tvState.channel}: ${tvState.channelNames[tvState.channel]}`
-                    : "Mains Connected. Press [PWR] on Samsung Remote."}
+                    ? `Канал ${tvState.channel}: ${tvState.channelNames[tvState.channel]} • Громкость: ${tvState.volume}/30`
+                    : "Телевизор в сети. Нажмите кнопку питания [PWR] на пульте Samsung"}
                 </span>
               </div>
             </div>
@@ -280,11 +281,11 @@ export const WorkbenchScreen: React.FC = () => {
         <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-30 hidden sm:block">
           <button
             onClick={() => setIsDrawerOpen(true)}
-            title="Open Code &amp; Hardware Schematics"
-            className="bg-paper-subtle hover:bg-paper border-l border-y border-paper-border text-ink font-display text-xs font-bold py-4 px-2.5 rounded-l-xl shadow-[-4px_2px_12px_rgba(26,29,32,0.06)] hover:border-accent-blue/40 transition-all duration-200 active:scale-95 cursor-pointer outline-none [writing-mode:vertical-rl] flex items-center gap-2 tracking-wider text-accent-blue"
+            title="Открыть Code and Schematic"
+            className="bg-paper-subtle hover:bg-paper border-l border-y border-paper-border text-ink font-sniglet text-xs font-bold py-4 px-2.5 rounded-l-xl shadow-[-4px_2px_12px_rgba(26,29,32,0.06)] hover:border-accent-blue/40 transition-all duration-200 active:scale-95 cursor-pointer outline-none [writing-mode:vertical-rl] flex items-center gap-2 tracking-wider text-accent-blue"
           >
             <Terminal size={12} strokeWidth={2} className="rotate-90" />
-            <span>Code and Schematic</span>
+            <span className="font-sniglet font-extrabold tracking-wide">Code and Schematic</span>
           </button>
         </aside>
       )}

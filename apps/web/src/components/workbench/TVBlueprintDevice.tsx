@@ -18,38 +18,40 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
   compact = false,
 }) => {
   const currentChannelName =
-    tvState.channelNames[tvState.channel] || "CHANNEL UNTUNED";
+    tvState.channelNames[tvState.channel] || "Канал не настроен";
 
   return (
     <div className="relative flex flex-col items-center w-full select-none transition-all duration-500 ease-out">
-      {/* Blueprint Header Annotation */}
-      <div className="w-full flex items-center justify-between text-[10px] font-mono text-ink-subtle pb-1.5 px-2">
-        <span className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent-blue animate-pulse" />
-          <span className="font-bold tracking-wider text-ink font-display">
-            SAMSUNG // WORKBENCH DISPLAY 65&quot; [MODEL: QN65-SLIM]
-          </span>
+      {/* Clean Device Header in Sniglet font-display */}
+      <div className="w-full flex items-center justify-between font-display text-xs text-ink-muted pb-1.5 px-2">
+        <span className="flex items-center gap-2 font-bold text-ink text-sm">
+          <span className="h-2 w-2 rounded-full bg-accent-blue animate-pulse" />
+          <span>Samsung Smart TV 65&quot;</span>
         </span>
-        <span className="hidden sm:inline-flex items-center gap-2.5 text-ink-muted">
-          <span>16:9 WIDESCREEN CINEMA</span>
-          <span>•</span>
-          <span>3840×2160 UHD // 60Hz</span>
-          <span>•</span>
-          <span className={tvState.power ? "text-accent-ok font-semibold" : "text-ink-subtle"}>
-            {tvState.power ? "PANEL ACTIVE" : "STANDBY"}
+        <div className="hidden sm:flex items-center gap-2 text-xs">
+          <span className="px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted">
+            4K UHD • 16:9
           </span>
-        </span>
+          <span className="text-ink-subtle">•</span>
+          <span
+            className={`font-bold ${
+              tvState.power ? "text-accent-ok" : "text-ink-subtle"
+            }`}
+          >
+            {tvState.power ? "В сети" : "Режим ожидания"}
+          </span>
+        </div>
       </div>
 
       {/* Modern Television Screen Frame (Ultra-thin bezel, wide 16:9 aspect ratio) */}
       <div className="w-full relative flex flex-col items-center">
-        {/* Outer TV Panel with Ultra-Thin Graphite / Titanium Bezel (Only 3px!) */}
+        {/* Outer TV Panel with Ultra-Thin Graphite Bezel (Only 3px!) */}
         <div
           className={`w-full bg-[#121417] rounded-xl sm:rounded-2xl border-[3px] border-[#2A2E35] shadow-[0_16px_48px_rgba(26,29,32,0.18),0_2px_8px_rgba(26,29,32,0.08)] relative overflow-hidden flex flex-col transition-all duration-500 ease-out ${
             compact ? "max-h-[360px] sm:max-h-[390px]" : "max-h-[460px] sm:max-h-[500px]"
           } aspect-[16/9]`}
         >
-          {/* Active Screen Surface (Takes up 99% of TV front surface) */}
+          {/* Active Screen Surface */}
           <div
             className={`relative flex-1 rounded-t-lg sm:rounded-t-xl overflow-hidden transition-all duration-500 flex flex-col justify-between p-4 sm:p-6 ${
               tvState.power
@@ -57,7 +59,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 : "bg-[#0B0D10]"
             }`}
           >
-            {/* Scanlines / Phosphor Texture when ON */}
+            {/* Scanlines / Texture when ON */}
             {tvState.power && (
               <div
                 className="absolute inset-0 pointer-events-none opacity-20"
@@ -69,39 +71,36 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               />
             )}
 
-            {/* Subtle Realistic Glass Reflection Sheen */}
+            {/* Subtle Realistic Glass Reflection */}
             <div className="absolute -top-32 -left-32 w-96 h-64 bg-gradient-to-br from-white/7 to-transparent rounded-full transform rotate-12 pointer-events-none" />
 
             {/* Screen Content when ON */}
             {tvState.power ? (
               <>
                 {/* Top Widescreen Status Bar */}
-                <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-mono text-emerald-400/90 tracking-wider">
+                <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-sans text-emerald-400/90 tracking-wide">
                   <div className="flex items-center gap-2 sm:gap-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-950/80 border border-emerald-700/60 font-bold text-xs sm:text-sm shadow-xs">
-                      <Activity size={13} className="animate-pulse text-emerald-400" />
-                      CH {tvState.channel.toString().padStart(2, "0")}
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/80 border border-emerald-700/60 font-display font-bold text-xs sm:text-sm text-emerald-300 shadow-xs">
+                      <Activity size={14} className="animate-pulse text-emerald-400" />
+                      Канал {tvState.channel}
                     </span>
-                    <span className="text-[11px] sm:text-xs text-emerald-400/70 font-mono hidden sm:inline">
-                      1080p // 60Hz NOMINAL
+                    <span className="text-[11px] sm:text-xs text-emerald-400/70 hidden sm:inline font-sans">
+                      4K HDR 60Hz
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] sm:text-[11px] font-mono bg-emerald-950/70 border border-emerald-800/60 px-2 py-0.5 rounded text-emerald-300 flex items-center gap-1.5">
-                      <Radio size={11} className="text-emerald-400" />
-                      <span>38.0 kHz RX</span>
-                    </span>
-                    <span className="text-[10px] bg-emerald-950/40 border border-emerald-800/40 px-1.5 py-0.5 rounded text-emerald-500/80 hidden md:inline">
-                      VCC: 5.02V
+                  <div className="flex items-center gap-2 font-sans">
+                    <span className="text-[11px] bg-emerald-950/70 border border-emerald-800/60 px-2.5 py-1 rounded-lg text-emerald-300 flex items-center gap-1.5">
+                      <Radio size={12} className="text-emerald-400" />
+                      <span>ИК 38 kHz</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Center Cinematic Display: Channel Title & Wide Stereo Visualizer */}
                 <div className="relative z-10 my-auto text-center space-y-3 sm:space-y-4 py-2 sm:py-4">
-                  <div className="inline-block px-4 sm:px-6 py-1.5 sm:py-2 rounded-xl bg-emerald-950/75 border border-emerald-600/70 shadow-lg backdrop-blur-xs">
-                    <h2 className="font-display text-lg sm:text-2xl md:text-3xl font-bold text-emerald-300 tracking-wider uppercase">
+                  <div className="inline-block px-5 sm:px-8 py-2 rounded-2xl bg-emerald-950/75 border border-emerald-600/70 shadow-lg backdrop-blur-xs">
+                    <h2 className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-emerald-300 tracking-wide">
                       {currentChannelName}
                     </h2>
                   </div>
@@ -124,15 +123,15 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 </div>
 
                 {/* Bottom OSD Bar: Volume & Status */}
-                <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-mono text-emerald-400/90 pt-2 border-t border-emerald-900/60">
+                <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-display text-emerald-400/90 pt-2 border-t border-emerald-900/60">
                   <div className="flex items-center gap-2">
                     {tvState.isMuted ? (
-                      <VolumeX size={15} className="text-red-400" />
+                      <VolumeX size={16} className="text-red-400" />
                     ) : (
-                      <Volume2 size={15} />
+                      <Volume2 size={16} />
                     )}
                     <span className="font-bold text-xs sm:text-sm">
-                      VOLUME {tvState.isMuted ? "[MUTED]" : `${tvState.volume} / 30`}
+                      Громкость: {tvState.isMuted ? "Выключена" : `${tvState.volume} / 30`}
                     </span>
                   </div>
 
@@ -152,29 +151,29 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 </div>
               </>
             ) : (
-              /* Screen Content when OFF (Deep obsidian standby glass) */
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-2.5">
-                <div className="w-2 h-2 rounded-full bg-white/10" />
-                <span className="text-xs sm:text-sm font-mono text-[#5A6065]/70 tracking-widest font-semibold">
-                  // STANDBY // CRT UNPOWERED
+              /* Screen Content when OFF */
+              <div className="h-full flex flex-col items-center justify-center text-center space-y-2 select-none">
+                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                <span className="text-sm sm:text-base font-display text-[#858D94] font-bold">
+                  Телевизор в режиме ожидания
                 </span>
-                <span className="text-[11px] sm:text-xs font-mono text-[#5A6065]/45">
-                  CLICK [PWR] ON REMOTE OR BOTTOM SENSOR TO BOOT DISPLAY
+                <span className="text-xs font-sans text-[#6B7280]">
+                  Нажмите кнопку питания (PWR) на пульте, чтобы включить
                 </span>
               </div>
             )}
           </div>
 
-          {/* Slim TV Bottom Chin (Modern Samsung TV Chin: only 22px high!) */}
-          <div className="h-6 sm:h-7 bg-[#16181B] border-t border-[#262A30] px-3 sm:px-4 flex items-center justify-between text-[10px] font-mono text-ink-subtle">
+          {/* Slim TV Bottom Chin */}
+          <div className="h-6 sm:h-7 bg-[#16181B] border-t border-[#262A30] px-3 sm:px-4 flex items-center justify-between text-xs font-display text-ink-subtle">
             {/* Left Model & Brand */}
             <div className="flex items-center gap-2">
-              <span className="font-display font-bold tracking-widest text-[#858D94] text-[9px]">
+              <span className="font-display font-bold tracking-wider text-[#858D94] text-[10px]">
                 SAMSUNG
               </span>
               <span className="text-[#454B54]">•</span>
-              <span className="text-[8px] sm:text-[9px] text-[#606772] hidden sm:inline">
-                QN65 // ULTRA SLIM
+              <span className="text-[10px] text-[#606772] hidden sm:inline font-sans">
+                Smart TV
               </span>
             </div>
 
@@ -182,21 +181,21 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             <div className="flex items-center gap-1">
               <button
                 onClick={onTogglePower}
-                title="Manual TV Power Toggle"
-                className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                title="Включение телевизора"
+                className={`px-2 py-0.5 rounded text-[10px] font-display font-bold flex items-center gap-1 transition-all cursor-pointer ${
                   tvState.power
                     ? "bg-accent-break/20 text-accent-break border border-accent-break/40"
                     : "bg-[#252930] text-[#A5ABB5] hover:bg-[#323842] border border-[#373E49]"
                 }`}
               >
                 <Power size={9} strokeWidth={2.2} />
-                <span>{tvState.power ? "OFF" : "PWR"}</span>
+                <span>{tvState.power ? "ВЫКЛ" : "ВКЛ"}</span>
               </button>
 
               <button
                 onClick={onPrevChannel}
                 disabled={!tvState.power}
-                title="Previous Channel"
+                title="Предыдущий канал"
                 className="h-5 w-5 rounded bg-[#20242A] hover:bg-[#2C3138] disabled:opacity-30 disabled:cursor-not-allowed text-[#A5ABB5] flex items-center justify-center border border-[#323740] cursor-pointer"
               >
                 <ChevronDown size={11} />
@@ -205,7 +204,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               <button
                 onClick={onNextChannel}
                 disabled={!tvState.power}
-                title="Next Channel"
+                title="Следующий канал"
                 className="h-5 w-5 rounded bg-[#20242A] hover:bg-[#2C3138] disabled:opacity-30 disabled:cursor-not-allowed text-[#A5ABB5] flex items-center justify-center border border-[#323740] cursor-pointer"
               >
                 <ChevronUp size={11} />
@@ -215,7 +214,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             {/* Right: Power LED & TSOP IR Photodiode Sensor */}
             <div className="flex items-center gap-2.5">
               <div className="flex items-center gap-1">
-                <span className="text-[8px] text-[#858D94]">IR</span>
+                <span className="text-[9px] text-[#858D94] font-sans">ИК</span>
                 <div
                   title="TSOP38238 38kHz Photodiode Receptor"
                   className={`h-2.5 w-4 sm:w-5 rounded-xs border flex items-center justify-center transition-all duration-100 ${
@@ -233,7 +232,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               </div>
 
               <div className="flex items-center gap-1">
-                <span className="text-[8px] text-[#858D94]">LED</span>
+                <span className="text-[9px] text-[#858D94] font-sans">Сеть</span>
                 <div
                   className={`h-2 w-2 rounded-full border transition-all duration-300 ${
                     tvState.power

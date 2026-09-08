@@ -6,7 +6,7 @@ interface StationOption {
   code: string;
   title: string;
   subtitle: string;
-  status: "ACTIVE BLUEPRINT" | "DRAFT / COMING SOON";
+  status: "Доступно" | "Скоро";
   icon: React.ReactNode;
   isAvailable: boolean;
 }
@@ -14,29 +14,29 @@ interface StationOption {
 const STATION_OPTIONS: StationOption[] = [
   {
     id: "tv",
-    code: "01",
-    title: "TV STATION",
-    subtitle: "Hardware Signal Flow • Dependency Injection",
-    status: "ACTIVE BLUEPRINT",
-    icon: <Tv size={16} strokeWidth={1.75} />,
+    code: "Уровень 1",
+    title: "Телевизор",
+    subtitle: "Аппаратный сигнал и интерфейсы C# / Go",
+    status: "Доступно",
+    icon: <Tv size={16} strokeWidth={2} />,
     isAvailable: true,
   },
   {
     id: "garage",
-    code: "02",
-    title: "GARAGE STATION",
-    subtitle: "IoT Ultrasonic Bus • Finite State Machine",
-    status: "DRAFT / COMING SOON",
-    icon: <Warehouse size={16} strokeWidth={1.75} />,
+    code: "Уровень 2",
+    title: "Гаражные ворота",
+    subtitle: "Ультразвуковой датчик и конечные автоматы",
+    status: "Скоро",
+    icon: <Warehouse size={16} strokeWidth={2} />,
     isAvailable: false,
   },
   {
     id: "pc",
-    code: "03",
-    title: "PC WORKSTATION",
-    subtitle: "Memory Allocation • CPU Registers & OS",
-    status: "DRAFT / COMING SOON",
-    icon: <Cpu size={16} strokeWidth={1.75} />,
+    code: "Уровень 3",
+    title: "Рабочая станция",
+    subtitle: "Регистры CPU, память и ОС",
+    status: "Скоро",
+    icon: <Cpu size={16} strokeWidth={2} />,
     isAvailable: false,
   },
 ];
@@ -83,40 +83,42 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
 
   return (
     <div ref={containerRef} className="relative z-40">
-      {/* Technical Index Trigger Stamp */}
+      {/* Station Trigger Button in Sniglet Font */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        className={`group flex items-center gap-2.5 px-3 py-1.5 rounded bg-paper-subtle border border-paper-border text-ink font-mono text-xs shadow-paper-sm transition-all duration-150 active:scale-[0.98] cursor-pointer outline-none hover:border-accent-blue/40 ${
+        className={`group flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-paper-subtle border border-paper-border text-ink font-display text-sm shadow-paper-sm transition-all duration-150 active:scale-[0.98] cursor-pointer outline-none hover:border-accent-blue/40 ${
           isOpen ? "ring-2 ring-accent-blue/20 border-accent-blue" : ""
         }`}
       >
-        <span className="text-accent-blue font-semibold">{activeOption.code}</span>
-        <span className="text-ink-subtle">//</span>
-        <span className="font-semibold tracking-wide">{activeOption.title}</span>
+        <span className="text-accent-blue flex items-center">{activeOption.icon}</span>
+        <span className="font-bold text-ink">{activeOption.title}</span>
+        <span className="text-[11px] px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted">
+          {activeOption.code}
+        </span>
         <ChevronDown
           size={14}
-          strokeWidth={1.75}
+          strokeWidth={2}
           className={`text-ink-muted transition-transform duration-200 ease-out ${
             isOpen ? "rotate-180 text-accent-blue" : ""
           }`}
         />
       </button>
 
-      {/* Spring physics dropdown curtain */}
+      {/* Dropdown Menu */}
       <div
         style={{
           transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
         }}
-        className={`absolute top-full left-0 mt-2 w-80 sm:w-96 rounded-lg bg-paper-subtle border border-paper-border shadow-paper-lg p-2 transition-all duration-200 origin-top-left ${
+        className={`absolute top-full left-0 mt-2 w-80 sm:w-96 rounded-2xl bg-paper-subtle border border-paper-border shadow-paper-lg p-2.5 transition-all duration-200 origin-top-left ${
           isOpen
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
             : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
         }`}
       >
-        <div className="px-3 py-2 border-b border-paper-border/70 flex items-center justify-between text-[10px] font-mono text-ink-subtle uppercase">
-          <span>Station Index</span>
-          <span>Archive Catalog</span>
+        <div className="px-3 py-1.5 border-b border-paper-border/70 flex items-center justify-between text-[11px] font-display text-ink-subtle">
+          <span>Выбор мира</span>
+          <span>Каталог станций</span>
         </div>
 
         <div className="py-1 space-y-1">
@@ -132,7 +134,7 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
                     setIsOpen(false);
                   }
                 }}
-                className={`w-full text-left p-2.5 rounded-md flex items-start gap-3 transition-all duration-150 select-none outline-none ${
+                className={`w-full text-left p-2.5 rounded-xl flex items-start gap-3 transition-all duration-150 select-none outline-none ${
                   isSelected
                     ? "bg-paper border border-accent-blue/30 shadow-paper-sm"
                     : station.isAvailable
@@ -141,7 +143,7 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
                 }`}
               >
                 <div
-                  className={`mt-0.5 h-7 w-7 rounded border flex items-center justify-center shrink-0 ${
+                  className={`mt-0.5 h-8 w-8 rounded-lg border flex items-center justify-center shrink-0 ${
                     isSelected
                       ? "bg-accent-blue-light border-accent-blue-border text-accent-blue"
                       : "bg-paper border-paper-border text-ink-muted"
@@ -152,35 +154,30 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-mono font-bold text-ink">
-                      {station.code} // {station.title}
+                    <span className="text-sm font-display font-bold text-ink">
+                      {station.title}
                     </span>
                     <span
-                      className={`text-[9px] font-mono px-1.5 py-0.2 rounded border ${
+                      className={`text-[10px] font-display px-2 py-0.5 rounded-md border ${
                         isSelected
-                          ? "bg-accent-ok-light text-accent-ok border-accent-ok-border"
+                          ? "bg-accent-ok-light text-accent-ok border-accent-ok-border font-bold"
                           : "bg-paper text-ink-subtle border-paper-border"
                       }`}
                     >
                       {station.status}
                     </span>
                   </div>
-                  <p className="text-[11px] text-ink-muted truncate mt-0.5">
+                  <p className="text-xs text-ink-muted truncate mt-0.5 font-sans">
                     {station.subtitle}
                   </p>
                 </div>
 
                 {!station.isAvailable && (
-                  <Lock size={12} strokeWidth={1.75} className="text-ink-subtle mt-1" />
+                  <Lock size={13} strokeWidth={2} className="text-ink-subtle mt-1.5" />
                 )}
               </button>
             );
           })}
-        </div>
-
-        <div className="px-3 py-1.5 border-t border-paper-border/60 text-[10px] font-mono text-ink-subtle flex justify-between">
-          <span>Press ESC to dismiss</span>
-          <span>Drafts in dev</span>
         </div>
       </div>
     </div>

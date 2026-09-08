@@ -68,19 +68,19 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       <div className="p-4 sm:p-5 border-b border-paper-border/80 bg-paper-subtle flex items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2">
-            <Badge variant="accent" size="sm" mono>
-              LEVEL {level.levelNumber.toString().padStart(2, "0")}
+            <Badge variant="accent" size="sm" className="font-display text-[10px]">
+              Уровень {level.levelNumber}
             </Badge>
-            <span className="text-[11px] font-mono text-ink-subtle truncate">
+            <span className="text-xs font-display text-ink-muted truncate">
               {level.stationTitle}
             </span>
             {isPinned && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-accent-blue-light text-accent-blue border border-accent-blue-border">
-                PINNED DOCK
+              <span className="text-[10px] font-display px-2 py-0.5 rounded-md bg-accent-blue-light text-accent-blue border border-accent-blue-border">
+                Закреплено
               </span>
             )}
           </div>
-          <h2 className="text-base sm:text-lg font-bold tracking-tight text-ink font-display truncate">
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-ink font-display truncate">
             {level.title}
           </h2>
           <p className="text-xs text-ink-muted leading-relaxed font-sans line-clamp-2">
@@ -130,10 +130,10 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       {/* Content Area with Vellum Grid */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-notebook-grid space-y-4">
         {/* Objective Callout */}
-        <div className="p-3 rounded-xl bg-paper border border-paper-border shadow-paper-sm text-xs space-y-1">
-          <span className="font-mono font-semibold text-accent-blue flex items-center gap-1.5 text-[11px]">
-            <Terminal size={12} strokeWidth={1.75} />
-            BLUEPRINT SPECIFICATION:
+        <div className="p-3.5 rounded-2xl bg-paper border border-paper-border shadow-paper-sm text-xs space-y-1.5">
+          <span className="font-display font-bold text-accent-blue flex items-center gap-1.5 text-xs">
+            <Terminal size={13} strokeWidth={2} />
+            Инженерное задание:
           </span>
           <p className="text-ink leading-relaxed font-sans">{level.objective}</p>
         </div>
@@ -143,31 +143,31 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           <div className="space-y-3.5">
             {/* Language Switcher */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 bg-paper p-1 rounded-lg border border-paper-border">
+              <div className="flex items-center gap-1.5 bg-paper p-1 rounded-xl border border-paper-border">
                 <button
                   onClick={() => setCodeLang("csharp")}
-                  className={`px-3 py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 text-xs font-display font-bold rounded-lg transition-all cursor-pointer ${
                     codeLang === "csharp"
                       ? "bg-paper-subtle text-accent-blue shadow-paper-sm border border-paper-border/60"
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
-                  C# (.NET Contract)
+                  C# (.NET)
                 </button>
                 <button
                   onClick={() => setCodeLang("go")}
-                  className={`px-3 py-1 text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 text-xs font-display font-bold rounded-lg transition-all cursor-pointer ${
                     codeLang === "go"
                       ? "bg-paper-subtle text-accent-blue shadow-paper-sm border border-paper-border/60"
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
-                  Go (Interfaces)
+                  Go (Интерфейсы)
                 </button>
               </div>
 
-              <Badge variant="neutral" size="sm" mono>
-                Syntax Verified
+              <Badge variant="neutral" size="sm" className="font-display text-[10px]">
+                Синтаксис проверен
               </Badge>
             </div>
 
@@ -182,10 +182,10 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             />
 
             {/* Architecture Explanation */}
-            <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-1.5">
-              <span className="text-xs font-mono font-bold text-ink flex items-center gap-1.5">
-                <Code2 size={13} strokeWidth={1.75} className="text-accent-blue" />
-                PHYSICAL-TO-SOFTWARE MAPPING
+            <div className="p-4 rounded-2xl bg-paper-subtle border border-paper-border space-y-1.5">
+              <span className="text-xs font-display font-bold text-ink flex items-center gap-1.5">
+                <Code2 size={14} strokeWidth={2} className="text-accent-blue" />
+                Связь физического сигнала с архитектурой программы
               </span>
               <p className="text-xs text-ink-muted leading-relaxed font-sans">
                 {level.codeSnippet.explanation}
@@ -197,8 +197,8 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         {/* TAB 2: HARDWARE SCHEMATIC NODES */}
         {activeTab === "hardware" && (
           <div className="space-y-2.5">
-            <span className="text-[10px] font-mono text-ink-subtle uppercase">
-              Circuit Bus Traces &amp; Test Points
+            <span className="text-xs font-display font-bold text-ink-muted">
+              Узлы электронной платы и контрольные точки
             </span>
 
             <div className="space-y-2">
@@ -213,17 +213,17 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-bold text-ink">
+                        <span className="font-sans text-xs font-bold text-ink">
                           {node.name}
                         </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-paper border border-paper-border text-ink-subtle">
+                        <span className="text-[10px] font-sans px-1.5 py-0.2 rounded bg-paper border border-paper-border text-ink-subtle">
                           {node.chipModel}
                         </span>
                       </div>
                       <p className="text-xs text-ink-muted mt-0.5 font-sans">
                         {node.role}
                       </p>
-                      <p className="text-[10px] font-mono text-ink-subtle mt-0.5">
+                      <p className="text-[11px] font-sans text-ink-subtle mt-0.5">
                         {node.testPoint}
                       </p>
                     </div>
@@ -233,7 +233,6 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
                     variant={node.status === "nominal" ? "ok" : "signal"}
                     size="sm"
                     dot
-                    mono
                   >
                     {node.nominalVoltage}
                   </Badge>
@@ -247,40 +246,40 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         {activeTab === "architecture" && (
           <div className="space-y-3.5">
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2.5">
-              <div className="flex items-center gap-2 text-ink font-mono text-xs font-bold">
-                <GitBranch size={14} strokeWidth={1.75} className="text-accent-blue" />
-                <span>INVERSION OF CONTROL (DI CONTRACT)</span>
+              <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">
+                <GitBranch size={15} strokeWidth={2} className="text-accent-blue" />
+                <span>Инверсия управления (IoC &amp; DI контракт)</span>
               </div>
 
               <p className="text-xs text-ink-muted leading-relaxed font-sans">
-                The TV receiver does not instantiate commands directly. It
-                accepts abstractions adhering to <code className="text-ink font-mono font-semibold">IRemoteCommand</code>.
-                This mirrors real hardware where the IR photodiode doesn&apos;t
-                know what action a button executes.
+                Телевизионный приемник не создает команды вручную. Он принимает
+                абстракции, реализующие контракт <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">IRemoteCommand</code>.
+                Это повторяет реальную физику: ИК-фотодиод не знает, какое действие
+                привязано к кнопке на пульте.
               </p>
 
-              <div className="p-3 bg-paper rounded-lg border border-paper-border font-mono text-xs text-ink-muted space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] text-ink">
-                  <span>Signal Demux</span>
-                  <span className="text-accent-ok font-semibold">→ 38kHz Carrier OK</span>
+              <div className="p-3 bg-paper rounded-xl border border-paper-border font-sans text-xs text-ink-muted space-y-2">
+                <div className="flex items-center justify-between text-xs text-ink">
+                  <span>Демодуляция сигнала</span>
+                  <span className="text-accent-ok font-bold">✓ 38 kHz ИК-приемник готов</span>
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-ink">
-                  <span>Command Registry</span>
-                  <span className="text-accent-blue font-semibold">→ Injected via DI</span>
+                <div className="flex items-center justify-between text-xs text-ink">
+                  <span>Реестр команд</span>
+                  <span className="text-accent-blue font-bold">✓ Внедрение через DI</span>
                 </div>
               </div>
             </div>
 
             {/* Technical Glossary */}
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2">
-              <span className="text-[10px] font-mono text-ink-subtle uppercase">
-                Technical Glossary (Rule 6 • Untranslated)
+              <span className="text-xs font-display font-bold text-ink-muted">
+                Ключевые термины (Без перевода)
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {level.untranslatedTerms.map((term) => (
                   <span
                     key={term}
-                    className="px-2 py-0.5 rounded bg-paper text-ink font-mono text-xs border border-paper-border"
+                    className="px-2 py-0.5 rounded bg-paper text-ink font-sans text-xs font-medium border border-paper-border"
                   >
                     {term}
                   </span>
@@ -292,13 +291,13 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       </div>
 
       {/* Drawer Footer */}
-      <div className="px-5 py-3 border-t border-paper-border bg-paper-subtle flex items-center justify-between text-xs font-mono text-ink-subtle">
+      <div className="px-5 py-3 border-t border-paper-border bg-paper-subtle flex items-center justify-between text-xs font-display text-ink-muted">
         <span className="flex items-center gap-1.5">
           <Minimize2 size={12} strokeWidth={1.75} />
-          <span>{isPinned ? "Pinned in dock mode" : "Esc or click close to dismiss"}</span>
+          <span>{isPinned ? "Закреплено на верстаке" : "Esc или кнопка закрыть"}</span>
         </span>
-        <span className="flex items-center gap-1 text-accent-blue font-semibold">
-          <span>Level 01 Active</span>
+        <span className="flex items-center gap-1 text-accent-blue font-bold">
+          <span>Телевизор • Схема активна</span>
           <ExternalLink size={12} strokeWidth={1.75} />
         </span>
       </div>

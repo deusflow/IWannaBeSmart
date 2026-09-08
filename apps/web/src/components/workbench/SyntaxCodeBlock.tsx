@@ -133,7 +133,7 @@ export const SyntaxCodeBlock: React.FC<SyntaxCodeBlockProps> = ({
             <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]/80" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]/80" />
           </div>
-          <span className="text-[11px] text-[#858D94] font-mono ml-2">
+          <span className="text-[11px] text-[#858D94] font-sans font-medium ml-2">
             {language === "csharp" ? "IRemoteCommand.cs" : "television_command.go"}
           </span>
         </div>
@@ -141,31 +141,31 @@ export const SyntaxCodeBlock: React.FC<SyntaxCodeBlockProps> = ({
         {/* Copy Button */}
         <button
           onClick={handleCopy}
-          title="Copy Code to Clipboard"
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#252A34] hover:bg-[#323846] text-[#C4CBD4] text-[11px] font-mono transition-all active:scale-95 cursor-pointer border border-[#3A4250]"
+          title="Копировать код"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#252A34] hover:bg-[#323846] text-[#C4CBD4] text-[11px] font-sans transition-all active:scale-95 cursor-pointer border border-[#3A4250]"
         >
           {copied ? (
             <>
               <Check size={12} className="text-[#4ADE80]" />
-              <span className="text-[#4ADE80] font-semibold">COPIED</span>
+              <span className="text-[#4ADE80] font-semibold">Скопировано</span>
             </>
           ) : (
             <>
               <Copy size={12} />
-              <span>COPY</span>
+              <span>Копировать</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Code Editor Body with Line Numbers and Color Highlighting */}
+      {/* Code Editor Body with Clean Line Numbers and Color Highlighting */}
       <div className="p-4 overflow-x-auto leading-relaxed">
         <table className="w-full border-collapse">
           <tbody>
             {lines.map((line, idx) => (
               <tr key={idx} className="hover:bg-white/[0.03] transition-colors">
-                <td className="pr-4 py-0.5 select-none text-right text-[11px] text-[#5A6372] font-mono w-8">
-                  {(idx + 1).toString().padStart(2, "0")}
+                <td className="pr-4 py-0.5 select-none text-right text-[11px] text-[#5A6372] font-mono w-7">
+                  {idx + 1}
                 </td>
                 <td className="py-0.5 font-mono whitespace-pre text-[12px]">
                   {highlightLine(line)}

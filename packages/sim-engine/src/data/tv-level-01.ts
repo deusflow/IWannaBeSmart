@@ -21,10 +21,10 @@ export const tvLevel01: StationLevel = {
     channel: 1,
     maxChannels: 4,
     channelNames: {
-      1: "SYS-01 // BOOT KERNEL",
-      2: "FINTECH // TRANSACTION FEED",
-      3: "DISTRIBUTED // EVENT BUS",
-      4: "MEM-TRACE // BUFFER STREAM",
+      1: "Boot Kernel",
+      2: "Transaction Feed",
+      3: "Event Bus",
+      4: "Memory Buffer",
     },
     volume: 14,
     isMuted: false,
@@ -38,7 +38,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "5.02 V",
       status: "nominal",
       chipModel: "LM7805",
-      testPoint: "TP-01 (VCC)",
+      testPoint: "Контрольная точка: VCC (+5V)",
     },
     {
       id: "node-mcu",
@@ -47,7 +47,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "5.00 V",
       status: "nominal",
       chipModel: "ATmega328P",
-      testPoint: "TP-02 (PIN 2 / INT0)",
+      testPoint: "Контрольная точка: PIN 2 (INT0)",
     },
     {
       id: "node-ir",
@@ -56,7 +56,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "3.31 V",
       status: "active",
       chipModel: "TSOP38238",
-      testPoint: "TP-03 (SIG_OUT)",
+      testPoint: "Контрольная точка: SIG_OUT",
     },
     {
       id: "node-crt",
@@ -65,7 +65,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "12.0 V",
       status: "nominal",
       chipModel: "TDA9351",
-      testPoint: "TP-04 (H_SYNC)",
+      testPoint: "Контрольная точка: H_SYNC",
     },
     {
       id: "node-audio",
@@ -74,12 +74,11 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "5.00 V",
       status: "standby",
       chipModel: "LM386",
-      testPoint: "TP-05 (SPK_OUT)",
+      testPoint: "Контрольная точка: SPK_OUT",
     },
   ],
   codeSnippet: {
-    csharp: `// C# Architecture: Command Pattern & Physical Dispatch
-public interface IRemoteCommand
+    csharp: `public interface IRemoteCommand
 {
     void Execute(TVReceiver receiver);
 }
@@ -105,8 +104,7 @@ public class ChannelChangeCommand : IRemoteCommand
         receiver.TuneChannel(_targetChannel);
     }
 }`,
-    go: `// Go Architecture: Interface & Implicit Contracts
-package television
+    go: `package television
 
 import "errors"
 

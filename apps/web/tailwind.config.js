@@ -11,7 +11,7 @@ export default {
         display: [
           '"Sniglet"',
           '"Comfortaa"',
-          '"Space Grotesk"',
+          '"Nunito"',
           "Inter",
           "-apple-system",
           "sans-serif",
@@ -19,6 +19,7 @@ export default {
         sniglet: [
           '"Sniglet"',
           '"Comfortaa"',
+          '"Nunito"',
           "cursive",
           "sans-serif",
         ],
