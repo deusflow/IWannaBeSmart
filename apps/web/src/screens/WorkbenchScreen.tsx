@@ -92,7 +92,7 @@ export const WorkbenchScreen: React.FC = () => {
     });
   };
 
-  // When drawer is open or pinned, adapt layout
+  // Active state for side-by-side layout
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
 
   return (
@@ -101,7 +101,7 @@ export const WorkbenchScreen: React.FC = () => {
       <div className="absolute inset-0 bg-notebook-grid opacity-75 pointer-events-none" />
 
       {/* Top Engineering Navigation Bar */}
-      <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/80 backdrop-blur-xs px-4 sm:px-6 flex items-center justify-between">
+      <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-4 sm:px-6 flex items-center justify-between">
         {/* Left: Technical Station Index */}
         <div className="flex items-center gap-3 sm:gap-4">
           <BlueprintStationSwitcher
@@ -141,110 +141,137 @@ export const WorkbenchScreen: React.FC = () => {
           {/* Drawer Trigger Button in Header */}
           <button
             onClick={() => {
-              setIsDrawerOpen(true);
+              setIsDrawerOpen(!isDrawerOpen);
             }}
-            aria-label="Toggle Code & Schematics"
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-mono text-xs font-semibold shadow-paper-sm transition-all duration-150 active:scale-[0.98] cursor-pointer outline-none ${
+            aria-label="Toggle Code and Schematic"
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-display text-sm font-semibold shadow-paper-sm transition-all duration-200 active:scale-[0.98] cursor-pointer outline-none ${
               isDrawerActive
                 ? "bg-accent-blue-light text-accent-blue border-accent-blue-border"
                 : "bg-paper-subtle hover:bg-paper border-paper-border hover:border-accent-blue/40 text-ink"
             }`}
           >
-            <BookOpen size={13} strokeWidth={1.75} className="text-accent-blue" />
-            <span className="hidden sm:inline">CODE &amp; SCHEMATICS</span>
+            <BookOpen size={14} strokeWidth={2} className="text-accent-blue" />
+            <span className="hidden sm:inline">Code and Schematic</span>
             <Badge variant="accent" size="sm" mono className="text-[9px]">
-              {isDrawerPinned ? "DOCKED" : "EXPAND"}
+              {isDrawerPinned ? "DOCKED" : isDrawerOpen ? "OPEN" : "EXPAND"}
             </Badge>
           </button>
         </div>
       </header>
 
-      {/* Main Drafting Canvas */}
-      <main
-        className={`relative z-10 flex-1 flex flex-col justify-center p-4 sm:p-6 lg:p-8 transition-all duration-300 ease-out ${
-          isDrawerActive
-            ? "lg:pr-[670px] xl:pr-[730px] items-start"
-            : "items-center"
-        }`}
-      >
+      {/* Main Drafting Canvas: Side-by-Side Dynamic Workbench */}
+      <main className="relative z-10 flex-1 flex flex-col justify-center p-3 sm:p-5 lg:p-6 w-full max-w-[1720px] mx-auto overflow-hidden">
         <div
-          className={`w-full transition-all duration-300 ease-out flex flex-col ${
+          className={`w-full flex transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             isDrawerActive
-              ? "max-w-3xl items-start gap-4"
-              : "max-w-5xl items-center gap-6"
+              ? "flex-col lg:flex-row items-center lg:items-start justify-center gap-5 lg:gap-6"
+              : "flex-col items-center justify-center gap-6"
           }`}
         >
-          {/* Layout when Drawer is Closed: TV in center, Remote on right */}
-          {!isDrawerActive ? (
-            <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-8 py-2">
-              {/* Wide TV Display */}
-              <div className="flex-1 w-full max-w-4xl">
-                <TVBlueprintDevice
-                  tvState={tvState}
-                  onTogglePower={handlePowerPress}
-                  onNextChannel={handleChannelUp}
-                  onPrevChannel={handleChannelDown}
-                  compact={false}
-                />
-              </div>
+          {/* Left Column (or Center when Drawer Closed): Television & Remote Stage */}
+          <div
+            className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col items-center ${
+              isDrawerActive
+                ? "w-full lg:w-[54%] xl:w-[56%] gap-3.5"
+                : "w-full max-w-5xl gap-6"
+            }`}
+          >
+            {/* 1. When Drawer is CLOSED: TV centered + Remote vertically on right */}
+            {!isDrawerActive ? (
+              <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-8 py-2">
+                {/* Widescreen Modern Television */}
+                <div className="flex-1 w-full max-w-3xl xl:max-w-4xl">
+                  <TVBlueprintDevice
+                    tvState={tvState}
+                    onTogglePower={handlePowerPress}
+                    onNextChannel={handleChannelUp}
+                    onPrevChannel={handleChannelDown}
+                    compact={false}
+                  />
+                </div>
 
-              {/* Vertical Remote beside TV */}
-              <div className="shrink-0 pt-4 lg:pt-0">
-                <RemoteBlueprintDevice
-                  isIrEmitting={isIrEmitting}
-                  orientation="vertical"
-                  onPowerPress={handlePowerPress}
-                  onChannelUp={handleChannelUp}
-                  onChannelDown={handleChannelDown}
-                  onVolumeUp={handleVolumeUp}
-                  onVolumeDown={handleVolumeDown}
-                  onMuteToggle={handleMuteToggle}
-                  onSelectChannel={handleSelectChannel}
-                />
-              </div>
-            </div>
-          ) : (
-            /* Layout when Drawer is Open: TV shifted to the left, Remote horizontally underneath! */
-            <div className="w-full flex flex-col items-center gap-4 py-1 animate-in fade-in duration-200">
-              {/* TV shifted to left side */}
-              <div className="w-full">
-                <TVBlueprintDevice
-                  tvState={tvState}
-                  onTogglePower={handlePowerPress}
-                  onNextChannel={handleChannelUp}
-                  onPrevChannel={handleChannelDown}
-                  compact={true}
-                />
-              </div>
+                {/* Line-of-sight indicator connecting remote to TV */}
+                <div className="hidden lg:flex flex-col items-center justify-center text-[9px] font-mono text-ink-subtle px-1">
+                  <div className="border-t border-dashed border-ink-subtle/50 w-8" />
+                  <span className="text-[8px] tracking-tight py-0.5">38kHz IR</span>
+                  <div className="border-t border-dashed border-ink-subtle/50 w-8" />
+                </div>
 
-              {/* Elongated Horizontal Remote Bar Lying Underneath the TV */}
-              <div className="w-full">
-                <RemoteBlueprintDevice
-                  isIrEmitting={isIrEmitting}
-                  orientation="horizontal"
-                  onPowerPress={handlePowerPress}
-                  onChannelUp={handleChannelUp}
-                  onChannelDown={handleChannelDown}
-                  onVolumeUp={handleVolumeUp}
-                  onVolumeDown={handleVolumeDown}
-                  onMuteToggle={handleMuteToggle}
-                  onSelectChannel={handleSelectChannel}
-                />
+                {/* Vertical Samsung Remote */}
+                <div className="shrink-0 pt-2 lg:pt-0">
+                  <RemoteBlueprintDevice
+                    isIrEmitting={isIrEmitting}
+                    orientation="vertical"
+                    onPowerPress={handlePowerPress}
+                    onChannelUp={handleChannelUp}
+                    onChannelDown={handleChannelDown}
+                    onVolumeUp={handleVolumeUp}
+                    onVolumeDown={handleVolumeDown}
+                    onMuteToggle={handleMuteToggle}
+                    onSelectChannel={handleSelectChannel}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            ) : (
+              /* 2. When Drawer is OPEN: TV moved to the left, Remote lying horizontally underneath! */
+              <div className="w-full flex flex-col items-center gap-3 py-1">
+                {/* Modern TV in Left Column */}
+                <div className="w-full">
+                  <TVBlueprintDevice
+                    tvState={tvState}
+                    onTogglePower={handlePowerPress}
+                    onNextChannel={handleChannelUp}
+                    onPrevChannel={handleChannelDown}
+                    compact={true}
+                  />
+                </div>
 
-          {/* Bottom Telemetry & Interaction Hint */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-mono text-ink-muted pt-2 w-full">
-            <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-paper-subtle border border-paper-border text-[11px] shadow-paper-sm">
-              <span className="text-accent-blue font-bold">BENCH STATUS:</span>
-              <span>
-                {tvState.power
-                  ? `Signal Synced • CH 0${tvState.channel}: ${tvState.channelNames[tvState.channel]}`
-                  : "Mains Connected. Press [PWR] on Samsung Remote."}
-              </span>
+                {/* Samsung Remote Lying Flat Horizontally Directly Underneath TV */}
+                <div className="w-full">
+                  <RemoteBlueprintDevice
+                    isIrEmitting={isIrEmitting}
+                    orientation="horizontal"
+                    onPowerPress={handlePowerPress}
+                    onChannelUp={handleChannelUp}
+                    onChannelDown={handleChannelDown}
+                    onVolumeUp={handleVolumeUp}
+                    onVolumeDown={handleVolumeDown}
+                    onMuteToggle={handleMuteToggle}
+                    onSelectChannel={handleSelectChannel}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Telemetry & Status Pill */}
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-mono text-ink-muted pt-1 w-full">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-paper-subtle border border-paper-border text-[11px] shadow-paper-sm">
+                <span className="text-accent-blue font-bold">BENCH STATUS:</span>
+                <span>
+                  {tvState.power
+                    ? `Signal Synced • CH 0${tvState.channel}: ${tvState.channelNames[tvState.channel]}`
+                    : "Mains Connected. Press [PWR] on Samsung Remote."}
+                </span>
+              </div>
             </div>
           </div>
+
+          {/* Right Column: Code & Schematics Drawer that descends smoothly beside the TV & Remote */}
+          {isDrawerActive && (
+            <div className="w-full lg:w-[46%] xl:w-[44%] lg:max-w-[740px] h-[calc(100vh-5.5rem)] min-h-[560px] animate-in slide-in-from-top-6 duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]">
+              <EngineeringDrawer
+                isOpen={true}
+                isPinned={isDrawerPinned}
+                onTogglePin={() => setIsDrawerPinned(!isDrawerPinned)}
+                onClose={() => {
+                  setIsDrawerOpen(false);
+                  setIsDrawerPinned(false);
+                }}
+                level={tvLevel01}
+                inline={true}
+              />
+            </div>
+          )}
         </div>
       </main>
 
@@ -254,25 +281,13 @@ export const WorkbenchScreen: React.FC = () => {
           <button
             onClick={() => setIsDrawerOpen(true)}
             title="Open Code &amp; Hardware Schematics"
-            className="bg-paper-subtle hover:bg-paper border-l border-y border-paper-border text-ink font-mono text-[11px] font-bold py-4 px-2 rounded-l-xl shadow-[-4px_2px_12px_rgba(26,29,32,0.06)] hover:border-accent-blue/40 transition-all duration-200 active:scale-95 cursor-pointer outline-none [writing-mode:vertical-rl] flex items-center gap-2 tracking-widest text-accent-blue"
+            className="bg-paper-subtle hover:bg-paper border-l border-y border-paper-border text-ink font-display text-xs font-bold py-4 px-2.5 rounded-l-xl shadow-[-4px_2px_12px_rgba(26,29,32,0.06)] hover:border-accent-blue/40 transition-all duration-200 active:scale-95 cursor-pointer outline-none [writing-mode:vertical-rl] flex items-center gap-2 tracking-wider text-accent-blue"
           >
             <Terminal size={12} strokeWidth={2} className="rotate-90" />
-            <span>CODE &amp; SCHEMATICS</span>
+            <span>Code and Schematic</span>
           </button>
         </aside>
       )}
-
-      {/* Sliding / Floating Engineering Sheet Drawer with Pin Capability */}
-      <EngineeringDrawer
-        isOpen={isDrawerActive}
-        isPinned={isDrawerPinned}
-        onTogglePin={() => setIsDrawerPinned(!isDrawerPinned)}
-        onClose={() => {
-          setIsDrawerOpen(false);
-          setIsDrawerPinned(false);
-        }}
-        level={tvLevel01}
-      />
     </div>
   );
 };

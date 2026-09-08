@@ -9,9 +9,17 @@ export default {
     extend: {
       fontFamily: {
         display: [
+          '"Sniglet"',
+          '"Comfortaa"',
           '"Space Grotesk"',
           "Inter",
           "-apple-system",
+          "sans-serif",
+        ],
+        sniglet: [
+          '"Sniglet"',
+          '"Comfortaa"',
+          "cursive",
           "sans-serif",
         ],
         sans: [
