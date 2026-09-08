@@ -9,17 +9,21 @@ export default {
     extend: {
       fontFamily: {
         display: [
+          '"Balsamiq Sans"',
           '"Sniglet"',
           '"Comfortaa"',
-          '"Nunito"',
           "Inter",
-          "-apple-system",
+          "sans-serif",
+        ],
+        balsamiq: [
+          '"Balsamiq Sans"',
+          '"Sniglet"',
+          "cursive",
           "sans-serif",
         ],
         sniglet: [
           '"Sniglet"',
-          '"Comfortaa"',
-          '"Nunito"',
+          '"Balsamiq Sans"',
           "cursive",
           "sans-serif",
         ],

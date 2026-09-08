@@ -101,7 +101,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 size={11}
                 className={isIrEmitting ? "text-accent-break animate-ping" : "text-[#4A5059]"}
               />
-              <span className="text-[9px]">38 kHz ИК</span>
+              <span className="text-[9px]">38 kHz ІЧ</span>
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
           <div className="w-full grid grid-cols-2 gap-1.5 mb-2.5">
             <button
               onClick={onPowerPress}
-              title="Питание (Power)"
+              title="Живлення (Power)"
               className="py-1.5 rounded-xl bg-accent-break hover:bg-accent-break-hover active:scale-95 text-white flex items-center justify-center gap-1 transition-all duration-100 shadow-sm border border-red-600/70 cursor-pointer outline-none"
             >
               <Power size={12} strokeWidth={2.4} />
@@ -118,7 +118,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
 
             <button
               onClick={() => onSelectChannel(1)}
-              title="Источник сигнала"
+              title="Джерело сигналу"
               className="py-1.5 rounded-xl bg-[#24282E] hover:bg-[#2F343D] active:scale-95 text-[#D5CFC3] flex items-center justify-center gap-1 transition-all duration-100 border border-[#343A43] cursor-pointer outline-none"
             >
               <Tv size={11} strokeWidth={1.75} />
@@ -173,7 +173,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <div className="flex flex-col items-center bg-[#24282E] rounded-xl border border-[#343A43] overflow-hidden p-0.5">
               <button
                 onClick={onVolumeUp}
-                title="Громкость +"
+                title="Гучність +"
                 className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
               >
                 <Volume2 size={12} strokeWidth={2} />
@@ -181,7 +181,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               <span className="text-[8px] font-sans font-bold text-[#858D94] py-0.5">VOL</span>
               <button
                 onClick={onVolumeDown}
-                title="Громкость -"
+                title="Гучність -"
                 className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
               >
                 <Volume1 size={12} strokeWidth={2} />
@@ -192,7 +192,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <div className="flex flex-col items-center gap-1">
               <button
                 onClick={onMuteToggle}
-                title="Отключить звук"
+                title="Вимкнути звук"
                 className="w-full py-1.5 rounded-lg bg-[#24282E] hover:bg-[#2F343D] active:scale-90 text-[#D5CFC3] flex items-center justify-center border border-[#343A43] cursor-pointer"
               >
                 <VolumeX size={12} strokeWidth={1.75} />
@@ -227,7 +227,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               <button
                 onClick={onChannelUp}
                 className="absolute top-1 left-1/2 -translate-x-1/2 h-6 w-8 flex items-center justify-center text-[#858D94] hover:text-white active:scale-90 cursor-pointer"
-                title="Вверх"
+                title="Вгору"
               >
                 <ArrowUp size={12} />
               </button>
@@ -243,7 +243,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               <button
                 onClick={onVolumeDown}
                 className="absolute left-1 top-1/2 -translate-y-1/2 h-8 w-6 flex items-center justify-center text-[#858D94] hover:text-white active:scale-90 cursor-pointer"
-                title="Влево"
+                title="Вліво"
               >
                 <ArrowLeft size={12} />
               </button>
@@ -279,7 +279,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <button
               onClick={() => onSelectChannel(1)}
               className="py-1 rounded-lg bg-[#20242A] hover:bg-[#2C3139] active:scale-90 text-white text-[8px] font-sans font-bold flex items-center justify-center gap-0.5 border border-[#2E333B] cursor-pointer"
-              title="Домой"
+              title="Головна"
             >
               <Home size={10} />
               <span>HOME</span>
@@ -287,7 +287,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <button
               onClick={onPowerPress}
               className="py-1 rounded-lg bg-[#20242A] hover:bg-[#2C3139] active:scale-90 text-[#858D94] hover:text-white text-[8px] font-sans font-bold flex items-center justify-center border border-[#2E333B] cursor-pointer"
-              title="Выход"
+              title="Вихід"
             >
               <span>EXIT</span>
             </button>

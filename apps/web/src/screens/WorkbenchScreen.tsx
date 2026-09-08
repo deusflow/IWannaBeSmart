@@ -5,13 +5,50 @@ import { TVBlueprintDevice } from "../components/workbench/TVBlueprintDevice";
 import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDevice";
 import { EngineeringDrawer } from "../components/workbench/EngineeringDrawer";
 import { Badge } from "@iw/ui";
-import { Sparkles, Terminal, BookOpen } from "lucide-react";
+import { Terminal, BookOpen } from "lucide-react";
+
+/**
+ * Custom tactile XP Token / Coin SVG icon
+ * Replaces generic AI sparkles with an engraved physical engineering blueprint token.
+ */
+const XpTokenIcon: React.FC<{ className?: string; size?: number }> = ({
+  className = "w-4 h-4",
+  size = 15,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+  >
+    {/* Outer engraved coin rim */}
+    <circle cx="10" cy="10" r="8.5" stroke="currentColor" strokeWidth="1.5" />
+    {/* Inner dashed blueprint drafting circle */}
+    <circle
+      cx="10"
+      cy="10"
+      r="6"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeDasharray="1.5 1.5"
+      className="opacity-70"
+    />
+    {/* Center tactile engraved 4-point star token stamp */}
+    <path
+      d="M10 5.2L11.3 8.7L14.8 10L11.3 11.3L10 14.8L8.7 11.3L5.2 10L8.7 8.7L10 5.2Z"
+      fill="currentColor"
+    />
+  </svg>
+);
 
 export const WorkbenchScreen: React.FC = () => {
   const [stationId, setStationId] = useState("tv");
   const [tvState, setTvState] = useState<TVState>({ ...tvLevel01.tvInitialState });
   const [isIrEmitting, setIsIrEmitting] = useState(false);
-  const [lastOpcode, setLastOpcode] = useState<string>("Готов к приему");
+  const [lastOpcode, setLastOpcode] = useState<string>("Готовий до прийому");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
 
@@ -29,15 +66,15 @@ export const WorkbenchScreen: React.FC = () => {
     callback();
   };
 
-  // Remote Actions
+  // Remote Actions (Ukrainian localization & clean state handling)
   const handlePowerPress = () => {
-    triggerIrPulse("Питание (Power)", () => {
+    triggerIrPulse("Живлення (Power)", () => {
       setTvState((prev) => ({ ...prev, power: !prev.power }));
     });
   };
 
   const handleChannelUp = () => {
-    triggerIrPulse("Следующий канал", () => {
+    triggerIrPulse("Наступний канал", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         const next = prev.channel >= prev.maxChannels ? 1 : prev.channel + 1;
@@ -47,7 +84,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleChannelDown = () => {
-    triggerIrPulse("Предыдущий канал", () => {
+    triggerIrPulse("Попередній канал", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         const prevChan = prev.channel <= 1 ? prev.maxChannels : prev.channel - 1;
@@ -57,7 +94,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleVolumeUp = () => {
-    triggerIrPulse("Громкость +", () => {
+    triggerIrPulse("Гучність +", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         return { ...prev, volume: Math.min(30, prev.volume + 2), isMuted: false };
@@ -66,7 +103,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleVolumeDown = () => {
-    triggerIrPulse("Громкость -", () => {
+    triggerIrPulse("Гучність -", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         return { ...prev, volume: Math.max(0, prev.volume - 2) };
@@ -75,7 +112,7 @@ export const WorkbenchScreen: React.FC = () => {
   };
 
   const handleMuteToggle = () => {
-    triggerIrPulse("Без звука (Mute)", () => {
+    triggerIrPulse("Вимкнути звук (Mute)", () => {
       setTvState((prev) => {
         if (!prev.power) return prev;
         return { ...prev, isMuted: !prev.isMuted };
@@ -100,7 +137,7 @@ export const WorkbenchScreen: React.FC = () => {
       {/* Background Millimeter Drafting Grid */}
       <div className="absolute inset-0 bg-notebook-grid opacity-75 pointer-events-none" />
 
-      {/* Top Engineering Navigation Bar with Sniglet Typography */}
+      {/* Top Engineering Navigation Bar with Balsamiq Sans / Sniglet Typography */}
       <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-4 sm:px-6 flex items-center justify-between">
         {/* Left: Station Index */}
         <div className="flex items-center gap-3 sm:gap-4">
@@ -109,37 +146,44 @@ export const WorkbenchScreen: React.FC = () => {
             onSelectStation={setStationId}
           />
 
-          <div className="hidden md:flex items-center gap-2 text-xs font-display text-ink-muted">
+          <div className="hidden md:flex items-center gap-2 text-xs font-balsamiq text-ink-muted">
             <span>•</span>
             <span className="text-ink-muted font-bold">{tvLevel01.title}</span>
           </div>
         </div>
 
         {/* Center: Live Signal Status */}
-        <div className="hidden lg:flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-paper-subtle border border-paper-border font-sans text-xs text-ink-muted shadow-paper-sm">
+        <div className="hidden lg:flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-paper-subtle border border-paper-border font-balsamiq text-xs text-ink-muted shadow-paper-sm">
           <span className="flex items-center gap-1.5 text-ink">
             <span
               className={`h-2 w-2 rounded-full transition-colors ${
                 isIrEmitting ? "bg-accent-break animate-ping" : "bg-accent-ok"
               }`}
             />
-            <span className="font-semibold text-ink">ИК-приемник:</span>
+            <span className="font-bold text-ink">ІЧ-приймач:</span>
             <span className="text-ink-muted">38 kHz</span>
           </span>
           <span className="text-ink-subtle">•</span>
           <span className="text-accent-blue font-bold">{lastOpcode}</span>
         </div>
 
-        {/* Right: XP Stamp & Drawer Trigger */}
+        {/* Right: Bespoke XP Coin & Drawer Trigger */}
         <div className="flex items-center gap-3">
-          {/* Friendly Game XP Pill */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper-subtle border border-paper-border text-xs font-bold text-ink shadow-paper-sm">
-            <Sparkles size={14} className="text-accent-signal" />
-            <span className="text-accent-signal font-sniglet text-sm font-extrabold">0</span>
-            <span className="text-ink-muted text-xs font-sans font-semibold">XP</span>
+          {/* Tactile XP Coin Pill in Balsamiq Sans */}
+          <div
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper-subtle border border-paper-border text-xs font-bold text-ink shadow-paper-sm"
+            title="Очки досвіду (XP)"
+          >
+            <XpTokenIcon className="text-accent-signal shrink-0" size={15} />
+            <span className="text-accent-signal font-balsamiq text-sm font-extrabold leading-none">
+              0
+            </span>
+            <span className="text-ink-muted text-xs font-balsamiq font-bold uppercase tracking-wider">
+              XP
+            </span>
           </div>
 
-          {/* Drawer Trigger Button in Sniglet Font */}
+          {/* Drawer Trigger Button in Sniglet & Balsamiq Font */}
           <button
             onClick={() => {
               setIsDrawerOpen(!isDrawerOpen);
@@ -152,9 +196,11 @@ export const WorkbenchScreen: React.FC = () => {
             }`}
           >
             <BookOpen size={14} strokeWidth={2} className="text-accent-blue" />
-            <span className="hidden sm:inline font-sniglet text-[15px] font-extrabold tracking-wide">Code and Schematic</span>
-            <Badge variant="accent" size="sm" className="text-[10px] font-sans">
-              {isDrawerPinned ? "Закреплено" : isDrawerOpen ? "Открыто" : "Открыть"}
+            <span className="hidden sm:inline font-sniglet text-[15px] font-extrabold tracking-wide">
+              Code and Schematic
+            </span>
+            <Badge variant="accent" size="sm" className="text-[10px] font-balsamiq font-bold">
+              {isDrawerPinned ? "Закріплено" : isDrawerOpen ? "Відкрито" : "Відкрити"}
             </Badge>
           </button>
         </div>
@@ -192,9 +238,9 @@ export const WorkbenchScreen: React.FC = () => {
                 </div>
 
                 {/* Line-of-sight indicator connecting remote to TV */}
-                <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-display text-ink-subtle px-1">
+                <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-balsamiq text-ink-subtle px-1">
                   <div className="border-t border-dashed border-ink-subtle/50 w-8" />
-                  <span className="tracking-tight py-0.5">38 kHz ИК</span>
+                  <span className="tracking-tight py-0.5 font-bold">38 kHz ІЧ</span>
                   <div className="border-t border-dashed border-ink-subtle/50 w-8" />
                 </div>
 
@@ -244,14 +290,14 @@ export const WorkbenchScreen: React.FC = () => {
               </div>
             )}
 
-            {/* Bottom Status Hint in Sniglet font-display */}
+            {/* Bottom Status Hint in Balsamiq font */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-1 w-full">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-subtle border border-paper-border font-display text-xs shadow-paper-sm text-ink-muted">
-                <span className="text-accent-blue font-bold">Подсказка:</span>
-                <span className="text-ink">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-subtle border border-paper-border font-balsamiq text-xs shadow-paper-sm text-ink-muted">
+                <span className="text-accent-blue font-bold">Підказка:</span>
+                <span className="text-ink font-medium">
                   {tvState.power
-                    ? `Канал ${tvState.channel}: ${tvState.channelNames[tvState.channel]} • Громкость: ${tvState.volume}/30`
-                    : "Телевизор в сети. Нажмите кнопку питания [PWR] на пульте Samsung"}
+                    ? `Канал ${tvState.channel}: ${tvState.channelNames[tvState.channel]} • Гучність: ${tvState.volume}/30`
+                    : "Телевізор у мережі. Натисніть кнопку живлення [PWR] на пульті Samsung"}
                 </span>
               </div>
             </div>
@@ -281,7 +327,7 @@ export const WorkbenchScreen: React.FC = () => {
         <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-30 hidden sm:block">
           <button
             onClick={() => setIsDrawerOpen(true)}
-            title="Открыть Code and Schematic"
+            title="Відкрити Code and Schematic"
             className="bg-paper-subtle hover:bg-paper border-l border-y border-paper-border text-ink font-sniglet text-xs font-bold py-4 px-2.5 rounded-l-xl shadow-[-4px_2px_12px_rgba(26,29,32,0.06)] hover:border-accent-blue/40 transition-all duration-200 active:scale-95 cursor-pointer outline-none [writing-mode:vertical-rl] flex items-center gap-2 tracking-wider text-accent-blue"
           >
             <Terminal size={12} strokeWidth={2} className="rotate-90" />

@@ -18,11 +18,11 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
   compact = false,
 }) => {
   const currentChannelName =
-    tvState.channelNames[tvState.channel] || "Канал не настроен";
+    tvState.channelNames[tvState.channel] || "Канал не налаштований";
 
   return (
     <div className="relative flex flex-col items-center w-full select-none transition-all duration-500 ease-out">
-      {/* Clean Device Header in Sniglet font-display */}
+      {/* Clean Device Header in Balsamiq font-display */}
       <div className="w-full flex items-center justify-between font-display text-xs text-ink-muted pb-1.5 px-2">
         <span className="flex items-center gap-2 font-bold text-ink text-sm">
           <span className="h-2 w-2 rounded-full bg-accent-blue animate-pulse" />
@@ -38,7 +38,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               tvState.power ? "text-accent-ok" : "text-ink-subtle"
             }`}
           >
-            {tvState.power ? "В сети" : "Режим ожидания"}
+            {tvState.power ? "У мережі" : "Режим очікування"}
           </span>
         </div>
       </div>
@@ -92,7 +92,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                   <div className="flex items-center gap-2 font-sans">
                     <span className="text-[11px] bg-emerald-950/70 border border-emerald-800/60 px-2.5 py-1 rounded-lg text-emerald-300 flex items-center gap-1.5">
                       <Radio size={12} className="text-emerald-400" />
-                      <span>ИК 38 kHz</span>
+                      <span>ІЧ 38 kHz</span>
                     </span>
                   </div>
                 </div>
@@ -131,7 +131,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                       <Volume2 size={16} />
                     )}
                     <span className="font-bold text-xs sm:text-sm">
-                      Громкость: {tvState.isMuted ? "Выключена" : `${tvState.volume} / 30`}
+                      Гучність: {tvState.isMuted ? "Вимкнено" : `${tvState.volume} / 30`}
                     </span>
                   </div>
 
@@ -155,10 +155,10 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               <div className="h-full flex flex-col items-center justify-center text-center space-y-2 select-none">
                 <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
                 <span className="text-sm sm:text-base font-display text-[#858D94] font-bold">
-                  Телевизор в режиме ожидания
+                  Телевізор у режимі очікування
                 </span>
                 <span className="text-xs font-sans text-[#6B7280]">
-                  Нажмите кнопку питания (PWR) на пульте, чтобы включить
+                  Натисніть кнопку живлення (PWR) на пульті, щоб увімкнути
                 </span>
               </div>
             )}
@@ -181,7 +181,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             <div className="flex items-center gap-1">
               <button
                 onClick={onTogglePower}
-                title="Включение телевизора"
+                title="Увімкнення телевізора"
                 className={`px-2 py-0.5 rounded text-[10px] font-display font-bold flex items-center gap-1 transition-all cursor-pointer ${
                   tvState.power
                     ? "bg-accent-break/20 text-accent-break border border-accent-break/40"
@@ -189,13 +189,13 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 }`}
               >
                 <Power size={9} strokeWidth={2.2} />
-                <span>{tvState.power ? "ВЫКЛ" : "ВКЛ"}</span>
+                <span>{tvState.power ? "ВИМК" : "УВІМК"}</span>
               </button>
 
               <button
                 onClick={onPrevChannel}
                 disabled={!tvState.power}
-                title="Предыдущий канал"
+                title="Попередній канал"
                 className="h-5 w-5 rounded bg-[#20242A] hover:bg-[#2C3138] disabled:opacity-30 disabled:cursor-not-allowed text-[#A5ABB5] flex items-center justify-center border border-[#323740] cursor-pointer"
               >
                 <ChevronDown size={11} />
@@ -204,7 +204,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               <button
                 onClick={onNextChannel}
                 disabled={!tvState.power}
-                title="Следующий канал"
+                title="Наступний канал"
                 className="h-5 w-5 rounded bg-[#20242A] hover:bg-[#2C3138] disabled:opacity-30 disabled:cursor-not-allowed text-[#A5ABB5] flex items-center justify-center border border-[#323740] cursor-pointer"
               >
                 <ChevronUp size={11} />
@@ -214,7 +214,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             {/* Right: Power LED & TSOP IR Photodiode Sensor */}
             <div className="flex items-center gap-2.5">
               <div className="flex items-center gap-1">
-                <span className="text-[9px] text-[#858D94] font-sans">ИК</span>
+                <span className="text-[9px] text-[#858D94] font-sans">ІЧ</span>
                 <div
                   title="TSOP38238 38kHz Photodiode Receptor"
                   className={`h-2.5 w-4 sm:w-5 rounded-xs border flex items-center justify-center transition-all duration-100 ${
@@ -232,7 +232,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               </div>
 
               <div className="flex items-center gap-1">
-                <span className="text-[9px] text-[#858D94] font-sans">Сеть</span>
+                <span className="text-[9px] text-[#858D94] font-sans">Мережа</span>
                 <div
                   className={`h-2 w-2 rounded-full border transition-all duration-300 ${
                     tvState.power

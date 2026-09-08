@@ -69,14 +69,14 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2">
             <Badge variant="accent" size="sm" className="font-display text-[10px]">
-              Уровень {level.levelNumber}
+              Рівень {level.levelNumber}
             </Badge>
             <span className="text-xs font-display text-ink-muted truncate">
               {level.stationTitle}
             </span>
             {isPinned && (
               <span className="text-[10px] font-display px-2 py-0.5 rounded-md bg-accent-blue-light text-accent-blue border border-accent-blue-border">
-                Закреплено
+                Закріплено
               </span>
             )}
           </div>
@@ -133,7 +133,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         <div className="p-3.5 rounded-2xl bg-paper border border-paper-border shadow-paper-sm text-xs space-y-1.5">
           <span className="font-display font-bold text-accent-blue flex items-center gap-1.5 text-xs">
             <Terminal size={13} strokeWidth={2} />
-            Инженерное задание:
+            Інженерне завдання:
           </span>
           <p className="text-ink leading-relaxed font-sans">{level.objective}</p>
         </div>
@@ -162,12 +162,12 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
-                  Go (Интерфейсы)
+                  Go (Інтерфейси)
                 </button>
               </div>
 
               <Badge variant="neutral" size="sm" className="font-display text-[10px]">
-                Синтаксис проверен
+                Синтаксис перевірено
               </Badge>
             </div>
 
@@ -185,7 +185,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             <div className="p-4 rounded-2xl bg-paper-subtle border border-paper-border space-y-1.5">
               <span className="text-xs font-display font-bold text-ink flex items-center gap-1.5">
                 <Code2 size={14} strokeWidth={2} className="text-accent-blue" />
-                Связь физического сигнала с архитектурой программы
+                Зв&apos;язок фізичного сигналу з архітектурою програми
               </span>
               <p className="text-xs text-ink-muted leading-relaxed font-sans">
                 {level.codeSnippet.explanation}
@@ -198,7 +198,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         {activeTab === "hardware" && (
           <div className="space-y-2.5">
             <span className="text-xs font-display font-bold text-ink-muted">
-              Узлы электронной платы и контрольные точки
+              Вузли електронної плати та контрольні точки
             </span>
 
             <div className="space-y-2">
@@ -248,24 +248,24 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2.5">
               <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">
                 <GitBranch size={15} strokeWidth={2} className="text-accent-blue" />
-                <span>Инверсия управления (IoC &amp; DI контракт)</span>
+                <span>Інверсія керування (IoC &amp; DI контракт)</span>
               </div>
 
               <p className="text-xs text-ink-muted leading-relaxed font-sans">
-                Телевизионный приемник не создает команды вручную. Он принимает
-                абстракции, реализующие контракт <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">IRemoteCommand</code>.
-                Это повторяет реальную физику: ИК-фотодиод не знает, какое действие
-                привязано к кнопке на пульте.
+                Телевізійний приймач не створює команди вручну. Він приймає
+                абстракції, що реалізують контракт <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">IRemoteCommand</code>.
+                Це відтворює реальну фізику: ІЧ-фотодіод не знає, яку саме дію
+                призначено для кнопки на пульті.
               </p>
 
               <div className="p-3 bg-paper rounded-xl border border-paper-border font-sans text-xs text-ink-muted space-y-2">
                 <div className="flex items-center justify-between text-xs text-ink">
-                  <span>Демодуляция сигнала</span>
-                  <span className="text-accent-ok font-bold">✓ 38 kHz ИК-приемник готов</span>
+                  <span>Демодуляція сигналу</span>
+                  <span className="text-accent-ok font-bold">✓ 38 kHz ІЧ-приймач готовий</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-ink">
-                  <span>Реестр команд</span>
-                  <span className="text-accent-blue font-bold">✓ Внедрение через DI</span>
+                  <span>Реєстр команд</span>
+                  <span className="text-accent-blue font-bold">✓ Впровадження через DI</span>
                 </div>
               </div>
             </div>
@@ -273,7 +273,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             {/* Technical Glossary */}
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2">
               <span className="text-xs font-display font-bold text-ink-muted">
-                Ключевые термины (Без перевода)
+                Ключові терміни (Без перекладу)
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {level.untranslatedTerms.map((term) => (
@@ -294,10 +294,10 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       <div className="px-5 py-3 border-t border-paper-border bg-paper-subtle flex items-center justify-between text-xs font-display text-ink-muted">
         <span className="flex items-center gap-1.5">
           <Minimize2 size={12} strokeWidth={1.75} />
-          <span>{isPinned ? "Закреплено на верстаке" : "Esc или кнопка закрыть"}</span>
+          <span>{isPinned ? "Закріплено на верстаку" : "Esc або закрити"}</span>
         </span>
         <span className="flex items-center gap-1 text-accent-blue font-bold">
-          <span>Телевизор • Схема активна</span>
+          <span>Телевізор • Схема активна</span>
           <ExternalLink size={12} strokeWidth={1.75} />
         </span>
       </div>

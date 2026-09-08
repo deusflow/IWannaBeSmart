@@ -141,18 +141,18 @@ export const SyntaxCodeBlock: React.FC<SyntaxCodeBlockProps> = ({
         {/* Copy Button */}
         <button
           onClick={handleCopy}
-          title="Копировать код"
+          title="Копіювати код"
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#252A34] hover:bg-[#323846] text-[#C4CBD4] text-[11px] font-sans transition-all active:scale-95 cursor-pointer border border-[#3A4250]"
         >
           {copied ? (
             <>
               <Check size={12} className="text-[#4ADE80]" />
-              <span className="text-[#4ADE80] font-semibold">Скопировано</span>
+              <span className="text-[#4ADE80] font-semibold">Скопійовано</span>
             </>
           ) : (
             <>
               <Copy size={12} />
-              <span>Копировать</span>
+              <span>Копіювати</span>
             </>
           )}
         </button>

@@ -38,7 +38,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "5.02 V",
       status: "nominal",
       chipModel: "LM7805",
-      testPoint: "Контрольная точка: VCC (+5V)",
+      testPoint: "Контрольна точка: VCC (+5V)",
     },
     {
       id: "node-mcu",
@@ -47,7 +47,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "5.00 V",
       status: "nominal",
       chipModel: "ATmega328P",
-      testPoint: "Контрольная точка: PIN 2 (INT0)",
+      testPoint: "Контрольна точка: PIN 2 (INT0)",
     },
     {
       id: "node-ir",
@@ -56,7 +56,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "3.31 V",
       status: "active",
       chipModel: "TSOP38238",
-      testPoint: "Контрольная точка: SIG_OUT",
+      testPoint: "Контрольна точка: SIG_OUT",
     },
     {
       id: "node-crt",
@@ -65,7 +65,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "12.0 V",
       status: "nominal",
       chipModel: "TDA9351",
-      testPoint: "Контрольная точка: H_SYNC",
+      testPoint: "Контрольна точка: H_SYNC",
     },
     {
       id: "node-audio",
@@ -74,7 +74,7 @@ export const tvLevel01: StationLevel = {
       nominalVoltage: "5.00 V",
       status: "standby",
       chipModel: "LM386",
-      testPoint: "Контрольная точка: SPK_OUT",
+      testPoint: "Контрольна точка: SPK_OUT",
     },
   ],
   codeSnippet: {

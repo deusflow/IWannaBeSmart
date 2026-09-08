@@ -6,7 +6,7 @@ interface StationOption {
   code: string;
   title: string;
   subtitle: string;
-  status: "Доступно" | "Скоро";
+  status: "Доступно" | "Незабаром";
   icon: React.ReactNode;
   isAvailable: boolean;
 }
@@ -14,28 +14,28 @@ interface StationOption {
 const STATION_OPTIONS: StationOption[] = [
   {
     id: "tv",
-    code: "Уровень 1",
-    title: "Телевизор",
-    subtitle: "Аппаратный сигнал и интерфейсы C# / Go",
+    code: "Рівень 1",
+    title: "Телевізор",
+    subtitle: "Апаратний сигнал та інтерфейси C# / Go",
     status: "Доступно",
     icon: <Tv size={16} strokeWidth={2} />,
     isAvailable: true,
   },
   {
     id: "garage",
-    code: "Уровень 2",
-    title: "Гаражные ворота",
-    subtitle: "Ультразвуковой датчик и конечные автоматы",
-    status: "Скоро",
+    code: "Рівень 2",
+    title: "Гаражні ворота",
+    subtitle: "Ультразвуковий датчик та кінцеві автомати",
+    status: "Незабаром",
     icon: <Warehouse size={16} strokeWidth={2} />,
     isAvailable: false,
   },
   {
     id: "pc",
-    code: "Уровень 3",
-    title: "Рабочая станция",
-    subtitle: "Регистры CPU, память и ОС",
-    status: "Скоро",
+    code: "Рівень 3",
+    title: "Робоча станція",
+    subtitle: "Регістри CPU, пам'ять та ОС",
+    status: "Незабаром",
     icon: <Cpu size={16} strokeWidth={2} />,
     isAvailable: false,
   },
@@ -117,8 +117,8 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         }`}
       >
         <div className="px-3 py-1.5 border-b border-paper-border/70 flex items-center justify-between text-[11px] font-display text-ink-subtle">
-          <span>Выбор мира</span>
-          <span>Каталог станций</span>
+          <span>Вибір світу</span>
+          <span>Каталог станцій</span>
         </div>
 
         <div className="py-1 space-y-1">
