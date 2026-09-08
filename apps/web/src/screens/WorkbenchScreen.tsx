@@ -92,7 +92,7 @@ export const WorkbenchScreen: React.FC = () => {
     });
   };
 
-  // When drawer is open or pinned, adapt remote orientation under TV
+  // When drawer is open or pinned, adapt layout
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
 
   return (
@@ -153,56 +153,43 @@ export const WorkbenchScreen: React.FC = () => {
             <BookOpen size={13} strokeWidth={1.75} className="text-accent-blue" />
             <span className="hidden sm:inline">CODE &amp; SCHEMATICS</span>
             <Badge variant="accent" size="sm" mono className="text-[9px]">
-              {isDrawerPinned ? "DOCK" : "EXPAND"}
+              {isDrawerPinned ? "DOCKED" : "EXPAND"}
             </Badge>
           </button>
         </div>
       </header>
 
-      {/* Main Drafting Canvas (Stage adapts seamlessly when drawer is pinned) */}
+      {/* Main Drafting Canvas */}
       <main
-        className={`relative z-10 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
-          isDrawerPinned ? "xl:mr-[780px] lg:mr-[720px]" : ""
+        className={`relative z-10 flex-1 flex flex-col justify-center p-4 sm:p-6 lg:p-8 transition-all duration-300 ease-out ${
+          isDrawerActive
+            ? "lg:pr-[670px] xl:pr-[730px] items-start"
+            : "items-center"
         }`}
       >
-        {/* Drafting Calibration Marks */}
-        <div className="w-full max-w-5xl flex justify-between text-[9px] font-mono text-ink-subtle/50 pb-2 pointer-events-none hidden sm:flex">
-          <span>SCALE: 1:1 // BRAUN GERMANIUM ARCHITECTURE</span>
-          <span>CALIBRATED VIEWPORT // LEVEL 01</span>
-        </div>
-
-        {/* Device Presentation Stage */}
-        <div className="w-full max-w-5xl flex flex-col items-center justify-center gap-6">
-          {/* Layout Variant A: SIDE-BY-SIDE (When drawer is closed) */}
+        <div
+          className={`w-full transition-all duration-300 ease-out flex flex-col ${
+            isDrawerActive
+              ? "max-w-3xl items-start gap-4"
+              : "max-w-5xl items-center gap-6"
+          }`}
+        >
+          {/* Layout when Drawer is Closed: TV in center, Remote on right */}
           {!isDrawerActive ? (
-            <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10 py-2">
-              {/* CRT Television (Expanded size) */}
-              <div className="flex-1 w-full max-w-2xl">
+            <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-8 py-2">
+              {/* Wide TV Display */}
+              <div className="flex-1 w-full max-w-4xl">
                 <TVBlueprintDevice
                   tvState={tvState}
                   onTogglePower={handlePowerPress}
                   onNextChannel={handleChannelUp}
                   onPrevChannel={handleChannelDown}
+                  compact={false}
                 />
               </div>
 
-              {/* Optical Line of Sight Ray */}
-              <div className="hidden lg:flex flex-col items-center justify-center gap-1.5 text-ink-subtle font-mono text-[9px] select-none shrink-0">
-                <span className="text-[8px] uppercase tracking-wider text-[#858D94]">
-                  {isIrEmitting ? "PULSE 38kHz" : "LINE OF SIGHT"}
-                </span>
-                <div
-                  className={`w-12 h-0.5 border-t-2 border-dashed transition-all duration-150 ${
-                    isIrEmitting
-                      ? "border-accent-break scale-x-110"
-                      : "border-paper-border/80"
-                  }`}
-                />
-                <span>~1.2 M</span>
-              </div>
-
-              {/* Slender Compact Remote */}
-              <div className="shrink-0">
+              {/* Vertical Remote beside TV */}
+              <div className="shrink-0 pt-4 lg:pt-0">
                 <RemoteBlueprintDevice
                   isIrEmitting={isIrEmitting}
                   orientation="vertical"
@@ -217,20 +204,21 @@ export const WorkbenchScreen: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Layout Variant B: HORIZONTAL BENCH CONSOLE (When drawer is open/pinned) */
+            /* Layout when Drawer is Open: TV shifted to the left, Remote horizontally underneath! */
             <div className="w-full flex flex-col items-center gap-4 py-1 animate-in fade-in duration-200">
-              {/* CRT Television */}
-              <div className="w-full max-w-2xl">
+              {/* TV shifted to left side */}
+              <div className="w-full">
                 <TVBlueprintDevice
                   tvState={tvState}
                   onTogglePower={handlePowerPress}
                   onNextChannel={handleChannelUp}
                   onPrevChannel={handleChannelDown}
+                  compact={true}
                 />
               </div>
 
-              {/* Elongated Horizontal Remote Bar Lying Under TV */}
-              <div className="w-full max-w-2xl">
+              {/* Elongated Horizontal Remote Bar Lying Underneath the TV */}
+              <div className="w-full">
                 <RemoteBlueprintDevice
                   isIrEmitting={isIrEmitting}
                   orientation="horizontal"
@@ -247,21 +235,21 @@ export const WorkbenchScreen: React.FC = () => {
           )}
 
           {/* Bottom Telemetry & Interaction Hint */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-mono text-ink-muted pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-mono text-ink-muted pt-2 w-full">
             <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-paper-subtle border border-paper-border text-[11px] shadow-paper-sm">
-              <span className="text-accent-blue font-bold">BENCH TELEMETRY:</span>
+              <span className="text-accent-blue font-bold">BENCH STATUS:</span>
               <span>
                 {tvState.power
-                  ? `Active Channel: ${tvState.channelNames[tvState.channel]} • Vol: ${tvState.volume}`
-                  : "Mains Connected (Standby). Click [PWR] on remote to boot CRT."}
+                  ? `Signal Synced • CH 0${tvState.channel}: ${tvState.channelNames[tvState.channel]}`
+                  : "Mains Connected. Press [PWR] on Samsung Remote."}
               </span>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Floating Right-Edge Marker Label (Quick Access to Engineering Drawer) */}
-      {!isDrawerPinned && (
+      {/* Floating Right-Edge Marker Label (When drawer is closed) */}
+      {!isDrawerActive && (
         <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-30 hidden sm:block">
           <button
             onClick={() => setIsDrawerOpen(true)}
