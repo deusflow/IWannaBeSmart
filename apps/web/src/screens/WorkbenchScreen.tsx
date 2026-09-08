@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { tvLevel01, type TVState } from "@iw/sim-engine";
+import { tvLevel01 } from "@iw/sim-engine";
+import { useWorkbenchStore } from "../store/workbenchStore";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
 import { TVBlueprintDevice } from "../components/workbench/TVBlueprintDevice";
 import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDevice";
@@ -46,88 +47,19 @@ const XpTokenIcon: React.FC<{ className?: string; size?: number }> = ({
 
 export const WorkbenchScreen: React.FC = () => {
   const [stationId, setStationId] = useState("tv");
-  const [tvState, setTvState] = useState<TVState>({ ...tvLevel01.tvInitialState });
-  const [isIrEmitting, setIsIrEmitting] = useState(false);
-  const [lastOpcode, setLastOpcode] = useState<string>("Готовий до прийому");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
 
-  // Optical IR transmission pulse
-  const triggerIrPulse = (opcodeText: string, callback: () => void) => {
-    setIsIrEmitting(true);
-    setLastOpcode(opcodeText);
-    setTvState((prev) => ({ ...prev, irSignalPulse: true }));
-
-    setTimeout(() => {
-      setIsIrEmitting(false);
-      setTvState((prev) => ({ ...prev, irSignalPulse: false }));
-    }, 220);
-
-    callback();
-  };
-
-  // Remote Actions (Ukrainian localization & clean state handling)
-  const handlePowerPress = () => {
-    triggerIrPulse("Живлення (Power)", () => {
-      setTvState((prev) => ({ ...prev, power: !prev.power }));
-    });
-  };
-
-  const handleChannelUp = () => {
-    triggerIrPulse("Наступний канал", () => {
-      setTvState((prev) => {
-        if (!prev.power) return prev;
-        const next = prev.channel >= prev.maxChannels ? 1 : prev.channel + 1;
-        return { ...prev, channel: next };
-      });
-    });
-  };
-
-  const handleChannelDown = () => {
-    triggerIrPulse("Попередній канал", () => {
-      setTvState((prev) => {
-        if (!prev.power) return prev;
-        const prevChan = prev.channel <= 1 ? prev.maxChannels : prev.channel - 1;
-        return { ...prev, channel: prevChan };
-      });
-    });
-  };
-
-  const handleVolumeUp = () => {
-    triggerIrPulse("Гучність +", () => {
-      setTvState((prev) => {
-        if (!prev.power) return prev;
-        return { ...prev, volume: Math.min(30, prev.volume + 2), isMuted: false };
-      });
-    });
-  };
-
-  const handleVolumeDown = () => {
-    triggerIrPulse("Гучність -", () => {
-      setTvState((prev) => {
-        if (!prev.power) return prev;
-        return { ...prev, volume: Math.max(0, prev.volume - 2) };
-      });
-    });
-  };
-
-  const handleMuteToggle = () => {
-    triggerIrPulse("Вимкнути звук (Mute)", () => {
-      setTvState((prev) => {
-        if (!prev.power) return prev;
-        return { ...prev, isMuted: !prev.isMuted };
-      });
-    });
-  };
-
-  const handleSelectChannel = (ch: number) => {
-    triggerIrPulse(`Канал ${ch}`, () => {
-      setTvState((prev) => {
-        if (!prev.power) return prev;
-        return { ...prev, channel: ch };
-      });
-    });
-  };
+  // Centralized Zustand Workbench Store (Block F, Items 51–56)
+  const {
+    power,
+    channel,
+    volume,
+    channelNames,
+    isIrEmitting,
+    isBeamFlying,
+    lastOpcode,
+  } = useWorkbenchStore();
 
   // Active state for side-by-side layout
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
@@ -152,12 +84,14 @@ export const WorkbenchScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Center: Live Signal Status */}
+        {/* Center: Live Signal Status from Zustand */}
         <div className="hidden lg:flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-paper-subtle border border-paper-border font-balsamiq text-xs text-ink-muted shadow-paper-sm">
           <span className="flex items-center gap-1.5 text-ink">
             <span
               className={`h-2 w-2 rounded-full transition-colors ${
-                isIrEmitting ? "bg-accent-break animate-ping" : "bg-accent-ok"
+                isIrEmitting || isBeamFlying
+                  ? "bg-accent-break animate-ping"
+                  : "bg-accent-ok"
               }`}
             />
             <span className="font-bold text-ink">ІЧ-приймач:</span>
@@ -225,67 +159,63 @@ export const WorkbenchScreen: React.FC = () => {
           >
             {/* 1. When Drawer is CLOSED: TV centered + Remote vertically on right */}
             {!isDrawerActive ? (
-              <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-8 py-2">
+              <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 xl:gap-8 py-2">
                 {/* Widescreen Modern Television */}
                 <div className="flex-1 w-full max-w-3xl xl:max-w-4xl">
-                  <TVBlueprintDevice
-                    tvState={tvState}
-                    onTogglePower={handlePowerPress}
-                    onNextChannel={handleChannelUp}
-                    onPrevChannel={handleChannelDown}
-                    compact={false}
-                  />
+                  <TVBlueprintDevice compact={false} />
                 </div>
 
-                {/* Line-of-sight indicator connecting remote to TV */}
-                <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-balsamiq text-ink-subtle px-1">
-                  <div className="border-t border-dashed border-ink-subtle/50 w-8" />
-                  <span className="tracking-tight py-0.5 font-bold">38 kHz ІЧ</span>
-                  <div className="border-t border-dashed border-ink-subtle/50 w-8" />
+                {/* Horizontal Line-of-sight indicator connecting Remote to TV with 200ms IR beam flight */}
+                <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-balsamiq text-ink-subtle px-1 relative w-24 shrink-0">
+                  <div className="relative w-full flex items-center justify-center h-2 overflow-visible">
+                    {/* Dashed baseline */}
+                    <div className="w-full border-t border-dashed border-ink-subtle/50" />
+                    {/* Animated IR photon packet flying Right (Remote) -> Left (TV) for 200ms */}
+                    {isBeamFlying && (
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center animate-ir-beam-horizontal pointer-events-none z-20">
+                        <div className="h-3 w-7 rounded-full bg-gradient-to-l from-red-500 via-amber-400 to-white shadow-[0_0_14px_rgba(239,68,68,1)] animate-pulse" />
+                      </div>
+                    )}
+                  </div>
+                  <span className="tracking-tight py-0.5 font-bold whitespace-nowrap">38 kHz ІЧ</span>
+                  <div className="relative w-full flex items-center justify-center h-2 overflow-visible">
+                    <div className="w-full border-t border-dashed border-ink-subtle/50" />
+                  </div>
                 </div>
 
                 {/* Vertical Samsung Remote */}
                 <div className="shrink-0 pt-2 lg:pt-0">
-                  <RemoteBlueprintDevice
-                    isIrEmitting={isIrEmitting}
-                    orientation="vertical"
-                    onPowerPress={handlePowerPress}
-                    onChannelUp={handleChannelUp}
-                    onChannelDown={handleChannelDown}
-                    onVolumeUp={handleVolumeUp}
-                    onVolumeDown={handleVolumeDown}
-                    onMuteToggle={handleMuteToggle}
-                    onSelectChannel={handleSelectChannel}
-                  />
+                  <RemoteBlueprintDevice orientation="vertical" />
                 </div>
               </div>
             ) : (
               /* 2. When Drawer is OPEN: TV moved to the left, Remote lying horizontally underneath! */
-              <div className="w-full flex flex-col items-center gap-3 py-1">
+              <div className="w-full flex flex-col items-center gap-1 py-1">
                 {/* Modern TV in Left Column */}
                 <div className="w-full">
-                  <TVBlueprintDevice
-                    tvState={tvState}
-                    onTogglePower={handlePowerPress}
-                    onNextChannel={handleChannelUp}
-                    onPrevChannel={handleChannelDown}
-                    compact={true}
-                  />
+                  <TVBlueprintDevice compact={true} />
+                </div>
+
+                {/* Vertical Line-of-sight indicator connecting horizontal remote below to TV above */}
+                <div className="flex items-center justify-center gap-3 text-[10px] font-balsamiq text-ink-subtle relative py-0.5">
+                  <div className="relative h-6 flex flex-col items-center justify-center w-2 overflow-visible">
+                    <div className="h-full border-l border-dashed border-ink-subtle/50" />
+                    {/* Animated IR photon packet flying Bottom (Remote) -> Top (TV) for 200ms */}
+                    {isBeamFlying && (
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center animate-ir-beam-vertical pointer-events-none z-20">
+                        <div className="w-3 h-7 rounded-full bg-gradient-to-t from-red-500 via-amber-400 to-white shadow-[0_0_14px_rgba(239,68,68,1)] animate-pulse" />
+                      </div>
+                    )}
+                  </div>
+                  <span className="tracking-tight font-bold">38 kHz ІЧ</span>
+                  <div className="relative h-6 flex flex-col items-center justify-center w-2 overflow-visible">
+                    <div className="h-full border-l border-dashed border-ink-subtle/50" />
+                  </div>
                 </div>
 
                 {/* Samsung Remote Lying Flat Horizontally Directly Underneath TV */}
                 <div className="w-full flex items-center justify-center">
-                  <RemoteBlueprintDevice
-                    isIrEmitting={isIrEmitting}
-                    orientation="horizontal"
-                    onPowerPress={handlePowerPress}
-                    onChannelUp={handleChannelUp}
-                    onChannelDown={handleChannelDown}
-                    onVolumeUp={handleVolumeUp}
-                    onVolumeDown={handleVolumeDown}
-                    onMuteToggle={handleMuteToggle}
-                    onSelectChannel={handleSelectChannel}
-                  />
+                  <RemoteBlueprintDevice orientation="horizontal" />
                 </div>
               </div>
             )}
@@ -295,8 +225,8 @@ export const WorkbenchScreen: React.FC = () => {
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-subtle border border-paper-border font-balsamiq text-xs shadow-paper-sm text-ink-muted">
                 <span className="text-accent-blue font-bold">Підказка:</span>
                 <span className="text-ink font-medium">
-                  {tvState.power
-                    ? `Канал ${tvState.channel}: ${tvState.channelNames[tvState.channel]} • Гучність: ${tvState.volume}/30`
+                  {power
+                    ? `Канал ${channel}: ${channelNames[channel]} • Гучність: ${volume}/100`
                     : "Телевізор у мережі. Натисніть кнопку живлення [PWR] на пульті Samsung"}
                 </span>
               </div>

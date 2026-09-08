@@ -1,4 +1,5 @@
 import React from "react";
+import { useWorkbenchStore } from "../../store/workbenchStore";
 import {
   Power,
   Volume2,
@@ -18,28 +19,23 @@ import {
 } from "lucide-react";
 
 interface RemoteBlueprintDeviceProps {
-  isIrEmitting: boolean;
   orientation?: "vertical" | "horizontal";
-  onPowerPress: () => void;
-  onChannelUp: () => void;
-  onChannelDown: () => void;
-  onVolumeUp: () => void;
-  onVolumeDown: () => void;
-  onMuteToggle: () => void;
-  onSelectChannel: (channel: number) => void;
 }
 
 export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
-  isIrEmitting,
   orientation = "vertical",
-  onPowerPress,
-  onChannelUp,
-  onChannelDown,
-  onVolumeUp,
-  onVolumeDown,
-  onMuteToggle,
-  onSelectChannel,
 }) => {
+  const {
+    isIrEmitting,
+    pressPower,
+    pressChannelUp,
+    pressChannelDown,
+    pressVolumeUp,
+    pressVolumeDown,
+    pressMuteToggle,
+    pressSelectChannel,
+  } = useWorkbenchStore();
+
   const isHorizontal = orientation === "horizontal";
 
   return (
@@ -108,7 +104,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
           {/* 1. TOP ROW: Power (Red) & Source Button */}
           <div className="w-full grid grid-cols-2 gap-1.5 mb-2.5">
             <button
-              onClick={onPowerPress}
+              onClick={pressPower}
               title="Живлення (Power)"
               className="py-1.5 rounded-xl bg-accent-break hover:bg-accent-break-hover active:scale-95 text-white flex items-center justify-center gap-1 transition-all duration-100 shadow-sm border border-red-600/70 cursor-pointer outline-none"
             >
@@ -117,7 +113,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             </button>
 
             <button
-              onClick={() => onSelectChannel(1)}
+              onClick={() => pressSelectChannel(1)}
               title="Джерело сигналу"
               className="py-1.5 rounded-xl bg-[#24282E] hover:bg-[#2F343D] active:scale-95 text-[#D5CFC3] flex items-center justify-center gap-1 transition-all duration-100 border border-[#343A43] cursor-pointer outline-none"
             >
@@ -134,7 +130,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 <button
                   key={num}
                   disabled={!isAvailable}
-                  onClick={() => onSelectChannel(num)}
+                  onClick={() => pressSelectChannel(num)}
                   title={`Канал ${num}`}
                   className={`h-6 rounded-md font-sans text-xs font-bold flex items-center justify-center transition-all duration-100 outline-none border ${
                     isAvailable
@@ -148,19 +144,19 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             })}
             {/* Bottom row: TTX, 0, PRE */}
             <button
-              onClick={() => onSelectChannel(1)}
+              onClick={() => pressSelectChannel(1)}
               className="h-6 rounded-md bg-[#1D2024] hover:bg-[#2A2E35] text-[#858D94] font-sans text-[9px] font-semibold flex items-center justify-center border border-[#2C3138] cursor-pointer"
             >
               TTX
             </button>
             <button
-              onClick={() => onSelectChannel(1)}
+              onClick={() => pressSelectChannel(1)}
               className="h-6 rounded-md bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] font-sans text-xs font-bold flex items-center justify-center border border-[#363C46] cursor-pointer"
             >
               0
             </button>
             <button
-              onClick={onChannelDown}
+              onClick={pressChannelDown}
               className="h-6 rounded-md bg-[#1D2024] hover:bg-[#2A2E35] text-[#858D94] font-sans text-[9px] font-semibold flex items-center justify-center border border-[#2C3138] cursor-pointer"
             >
               PRE
@@ -172,7 +168,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             {/* Left Rocker: Volume Bar */}
             <div className="flex flex-col items-center bg-[#24282E] rounded-xl border border-[#343A43] overflow-hidden p-0.5">
               <button
-                onClick={onVolumeUp}
+                onClick={pressVolumeUp}
                 title="Гучність +"
                 className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
               >
@@ -180,7 +176,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               </button>
               <span className="text-[8px] font-sans font-bold text-[#858D94] py-0.5">VOL</span>
               <button
-                onClick={onVolumeDown}
+                onClick={pressVolumeDown}
                 title="Гучність -"
                 className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
               >
@@ -191,7 +187,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             {/* Center Column: MUTE */}
             <div className="flex flex-col items-center gap-1">
               <button
-                onClick={onMuteToggle}
+                onClick={pressMuteToggle}
                 title="Вимкнути звук"
                 className="w-full py-1.5 rounded-lg bg-[#24282E] hover:bg-[#2F343D] active:scale-90 text-[#D5CFC3] flex items-center justify-center border border-[#343A43] cursor-pointer"
               >
@@ -203,7 +199,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             {/* Right Rocker: Channel Bar */}
             <div className="flex flex-col items-center bg-[#24282E] rounded-xl border border-[#343A43] overflow-hidden p-0.5">
               <button
-                onClick={onChannelUp}
+                onClick={pressChannelUp}
                 title="Канал вперед"
                 className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
               >
@@ -211,7 +207,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               </button>
               <span className="text-[8px] font-sans font-bold text-[#858D94] py-0.5">CH</span>
               <button
-                onClick={onChannelDown}
+                onClick={pressChannelDown}
                 title="Канал назад"
                 className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
               >
@@ -225,7 +221,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <div className="relative h-24 w-24 rounded-full bg-[#121416] border border-[#2A2E35] flex items-center justify-center shadow-inner">
               {/* Up */}
               <button
-                onClick={onChannelUp}
+                onClick={pressChannelUp}
                 className="absolute top-1 left-1/2 -translate-x-1/2 h-6 w-8 flex items-center justify-center text-[#858D94] hover:text-white active:scale-90 cursor-pointer"
                 title="Вгору"
               >
@@ -233,7 +229,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               </button>
               {/* Down */}
               <button
-                onClick={onChannelDown}
+                onClick={pressChannelDown}
                 className="absolute bottom-1 left-1/2 -translate-x-1/2 h-6 w-8 flex items-center justify-center text-[#858D94] hover:text-white active:scale-90 cursor-pointer"
                 title="Вниз"
               >
@@ -241,7 +237,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               </button>
               {/* Left */}
               <button
-                onClick={onVolumeDown}
+                onClick={pressVolumeDown}
                 className="absolute left-1 top-1/2 -translate-y-1/2 h-8 w-6 flex items-center justify-center text-[#858D94] hover:text-white active:scale-90 cursor-pointer"
                 title="Вліво"
               >
@@ -249,7 +245,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               </button>
               {/* Right */}
               <button
-                onClick={onVolumeUp}
+                onClick={pressVolumeUp}
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-6 flex items-center justify-center text-[#858D94] hover:text-white active:scale-90 cursor-pointer"
                 title="Вправо"
               >
@@ -257,7 +253,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               </button>
               {/* Center OK button */}
               <button
-                onClick={() => onSelectChannel(1)}
+                onClick={() => pressSelectChannel(1)}
                 className="h-8 w-8 rounded-full bg-[#2A2F37] hover:bg-[#353B45] active:scale-90 text-white font-sans text-xs font-bold flex items-center justify-center border border-[#404753] cursor-pointer shadow-sm"
                 title="OK"
               >
@@ -269,7 +265,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
           {/* 5. RETURN, HOME, EXIT BUTTONS */}
           <div className="w-full grid grid-cols-3 gap-1 my-1.5">
             <button
-              onClick={onChannelDown}
+              onClick={pressChannelDown}
               className="py-1 rounded-lg bg-[#20242A] hover:bg-[#2C3139] active:scale-90 text-[#858D94] hover:text-white text-[8px] font-sans font-bold flex items-center justify-center gap-0.5 border border-[#2E333B] cursor-pointer"
               title="Назад"
             >
@@ -277,7 +273,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               <span>RETURN</span>
             </button>
             <button
-              onClick={() => onSelectChannel(1)}
+              onClick={() => pressSelectChannel(1)}
               className="py-1 rounded-lg bg-[#20242A] hover:bg-[#2C3139] active:scale-90 text-white text-[8px] font-sans font-bold flex items-center justify-center gap-0.5 border border-[#2E333B] cursor-pointer"
               title="Головна"
             >
@@ -285,7 +281,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               <span>HOME</span>
             </button>
             <button
-              onClick={onPowerPress}
+              onClick={pressPower}
               className="py-1 rounded-lg bg-[#20242A] hover:bg-[#2C3139] active:scale-90 text-[#858D94] hover:text-white text-[8px] font-sans font-bold flex items-center justify-center border border-[#2E333B] cursor-pointer"
               title="Вихід"
             >
@@ -296,22 +292,22 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
           {/* 6. SAMSUNG 4 COLOR BUTTONS (A, B, C, D) */}
           <div className="w-full grid grid-cols-4 gap-1 py-1 border-t border-[#292D33]">
             <button
-              onClick={() => onSelectChannel(1)}
+              onClick={() => pressSelectChannel(1)}
               className="h-2 rounded bg-[#A82D24] hover:opacity-80 active:scale-90 cursor-pointer"
               title="Red (A)"
             />
             <button
-              onClick={() => onSelectChannel(2)}
+              onClick={() => pressSelectChannel(2)}
               className="h-2 rounded bg-[#1D5C42] hover:opacity-80 active:scale-90 cursor-pointer"
               title="Green (B)"
             />
             <button
-              onClick={() => onSelectChannel(3)}
+              onClick={() => pressSelectChannel(3)}
               className="h-2 rounded bg-[#C06A1B] hover:opacity-80 active:scale-90 cursor-pointer"
               title="Yellow (C)"
             />
             <button
-              onClick={() => onSelectChannel(4)}
+              onClick={() => pressSelectChannel(4)}
               className="h-2 rounded bg-[#1E3A8A] hover:opacity-80 active:scale-90 cursor-pointer"
               title="Blue (D)"
             />

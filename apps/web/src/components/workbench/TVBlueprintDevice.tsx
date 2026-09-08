@@ -1,24 +1,29 @@
 import React from "react";
-import type { TVState } from "@iw/sim-engine";
+import { useWorkbenchStore } from "../../store/workbenchStore";
 import { Power, Volume2, VolumeX, Activity, Radio, ChevronUp, ChevronDown } from "lucide-react";
 
 interface TVBlueprintDeviceProps {
-  tvState: TVState;
-  onTogglePower: () => void;
-  onNextChannel: () => void;
-  onPrevChannel: () => void;
   compact?: boolean;
 }
 
 export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
-  tvState,
-  onTogglePower,
-  onNextChannel,
-  onPrevChannel,
   compact = false,
 }) => {
-  const currentChannelName =
-    tvState.channelNames[tvState.channel] || "Канал не налаштований";
+  const {
+    power,
+    channel,
+    channelNames,
+    volume,
+    isMuted,
+    osdMessage,
+    irSignalPulse,
+    screenReactionPulse,
+    chassisTogglePower,
+    chassisNextChannel,
+    chassisPrevChannel,
+  } = useWorkbenchStore();
+
+  const currentChannelName = channelNames[channel] || "Канал не налаштований";
 
   return (
     <div className="relative flex flex-col items-center w-full select-none transition-all duration-500 ease-out">
@@ -35,10 +40,10 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
           <span className="text-ink-subtle">•</span>
           <span
             className={`font-bold ${
-              tvState.power ? "text-accent-ok" : "text-ink-subtle"
+              power ? "text-accent-ok" : "text-ink-subtle"
             }`}
           >
-            {tvState.power ? "У мережі" : "Режим очікування"}
+            {power ? "У мережі" : "Режим очікування"}
           </span>
         </div>
       </div>
@@ -51,16 +56,18 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             compact ? "max-h-[360px] sm:max-h-[390px]" : "max-h-[460px] sm:max-h-[500px]"
           } aspect-[16/9]`}
         >
-          {/* Active Screen Surface */}
+          {/* Active Screen Surface with Phosphor Reaction to IR Beam Arrival */}
           <div
-            className={`relative flex-1 rounded-t-lg sm:rounded-t-xl overflow-hidden transition-all duration-500 flex flex-col justify-between p-4 sm:p-6 ${
-              tvState.power
-                ? "bg-[#060D0B] shadow-[inset_0_0_80px_rgba(29,92,66,0.35)]"
+            className={`relative flex-1 rounded-t-lg sm:rounded-t-xl overflow-hidden transition-all duration-150 flex flex-col justify-between p-4 sm:p-6 ${
+              power
+                ? screenReactionPulse
+                  ? "bg-[#0A1A14] shadow-[inset_0_0_120px_rgba(74,222,128,0.55)] brightness-125"
+                  : "bg-[#060D0B] shadow-[inset_0_0_80px_rgba(29,92,66,0.35)]"
                 : "bg-[#0B0D10]"
             }`}
           >
             {/* Scanlines / Texture when ON */}
-            {tvState.power && (
+            {power && (
               <div
                 className="absolute inset-0 pointer-events-none opacity-20"
                 style={{
@@ -75,14 +82,14 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             <div className="absolute -top-32 -left-32 w-96 h-64 bg-gradient-to-br from-white/7 to-transparent rounded-full transform rotate-12 pointer-events-none" />
 
             {/* Screen Content when ON */}
-            {tvState.power ? (
+            {power ? (
               <>
                 {/* Top Widescreen Status Bar */}
                 <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-sans text-emerald-400/90 tracking-wide">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/80 border border-emerald-700/60 font-display font-bold text-xs sm:text-sm text-emerald-300 shadow-xs">
                       <Activity size={14} className="animate-pulse text-emerald-400" />
-                      Канал {tvState.channel}
+                      Канал {channel}
                     </span>
                     <span className="text-[11px] sm:text-xs text-emerald-400/70 hidden sm:inline font-sans">
                       4K HDR 60Hz
@@ -105,7 +112,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                     </h2>
                   </div>
 
-                  {/* Wide Stereo Visualizer Waveform Reacting to Volume */}
+                  {/* Wide Stereo Visualizer Waveform Reacting to Volume (0..100) */}
                   <div className="h-10 sm:h-14 flex items-center justify-center gap-1 sm:gap-1.5 opacity-85 pt-1">
                     {[
                       25, 45, 75, 50, 95, 70, 35, 85, 45, 100, 80, 60, 35, 90, 70, 45,
@@ -115,7 +122,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                         key={i}
                         className="w-1 sm:w-1.5 bg-emerald-400 rounded-full transition-all duration-150"
                         style={{
-                          height: `${Math.max(4, (h * (tvState.isMuted ? 2 : tvState.volume)) / 24)}px`,
+                          height: `${Math.max(4, (h * (isMuted ? 2 : volume)) / 80)}px`,
                         }}
                       />
                     ))}
@@ -125,23 +132,23 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 {/* Bottom OSD Bar: Volume & Status */}
                 <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-display text-emerald-400/90 pt-2 border-t border-emerald-900/60">
                   <div className="flex items-center gap-2">
-                    {tvState.isMuted ? (
+                    {isMuted ? (
                       <VolumeX size={16} className="text-red-400" />
                     ) : (
                       <Volume2 size={16} />
                     )}
                     <span className="font-bold text-xs sm:text-sm">
-                      Гучність: {tvState.isMuted ? "Вимкнено" : `${tvState.volume} / 30`}
+                      Гучність: {isMuted ? "Вимкнено" : `${volume} / 100`}
                     </span>
                   </div>
 
-                  {/* Segmented Volume Meter (24 segments) */}
+                  {/* Segmented Volume Meter (24 segments for 0..100) */}
                   <div className="flex items-center gap-0.5 sm:gap-1">
                     {Array.from({ length: 24 }).map((_, i) => (
                       <div
                         key={i}
                         className={`h-2.5 sm:h-3 w-1 sm:w-1.5 rounded-xs transition-colors duration-100 ${
-                          !tvState.isMuted && i < Math.round((tvState.volume / 30) * 24)
+                          !isMuted && i < Math.round((volume / 100) * 24)
                             ? "bg-emerald-400"
                             : "bg-emerald-950/60 border border-emerald-900/40"
                         }`}
@@ -155,7 +162,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               <div className="h-full flex flex-col items-center justify-center text-center space-y-2 select-none">
                 <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
                 <span className="text-sm sm:text-base font-display text-[#858D94] font-bold">
-                  Телевізор у режимі очікування
+                  {osdMessage}
                 </span>
                 <span className="text-xs font-sans text-[#6B7280]">
                   Натисніть кнопку живлення (PWR) на пульті, щоб увімкнути
@@ -180,21 +187,21 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             {/* Center Quick Chassis Controls: PWR, CH ▼, CH ▲ */}
             <div className="flex items-center gap-1">
               <button
-                onClick={onTogglePower}
+                onClick={chassisTogglePower}
                 title="Увімкнення телевізора"
                 className={`px-2 py-0.5 rounded text-[10px] font-display font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                  tvState.power
+                  power
                     ? "bg-accent-break/20 text-accent-break border border-accent-break/40"
                     : "bg-[#252930] text-[#A5ABB5] hover:bg-[#323842] border border-[#373E49]"
                 }`}
               >
                 <Power size={9} strokeWidth={2.2} />
-                <span>{tvState.power ? "ВИМК" : "УВІМК"}</span>
+                <span>{power ? "ВИМК" : "УВІМК"}</span>
               </button>
 
               <button
-                onClick={onPrevChannel}
-                disabled={!tvState.power}
+                onClick={chassisPrevChannel}
+                disabled={!power}
                 title="Попередній канал"
                 className="h-5 w-5 rounded bg-[#20242A] hover:bg-[#2C3138] disabled:opacity-30 disabled:cursor-not-allowed text-[#A5ABB5] flex items-center justify-center border border-[#323740] cursor-pointer"
               >
@@ -202,8 +209,8 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               </button>
 
               <button
-                onClick={onNextChannel}
-                disabled={!tvState.power}
+                onClick={chassisNextChannel}
+                disabled={!power}
                 title="Наступний канал"
                 className="h-5 w-5 rounded bg-[#20242A] hover:bg-[#2C3138] disabled:opacity-30 disabled:cursor-not-allowed text-[#A5ABB5] flex items-center justify-center border border-[#323740] cursor-pointer"
               >
@@ -218,14 +225,14 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 <div
                   title="TSOP38238 38kHz Photodiode Receptor"
                   className={`h-2.5 w-4 sm:w-5 rounded-xs border flex items-center justify-center transition-all duration-100 ${
-                    tvState.irSignalPulse
-                      ? "bg-accent-break border-red-300 shadow-[0_0_10px_rgba(168,45,36,1)] scale-110"
+                    irSignalPulse
+                      ? "bg-accent-break border-red-300 shadow-[0_0_12px_rgba(168,45,36,1)] scale-110"
                       : "bg-[#331110] border-[#220B0A]"
                   }`}
                 >
                   <div
                     className={`h-1 w-1.5 rounded-xs ${
-                      tvState.irSignalPulse ? "bg-white" : "bg-red-900/60"
+                      irSignalPulse ? "bg-white" : "bg-red-900/60"
                     }`}
                   />
                 </div>
@@ -235,7 +242,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 <span className="text-[9px] text-[#858D94] font-sans">Мережа</span>
                 <div
                   className={`h-2 w-2 rounded-full border transition-all duration-300 ${
-                    tvState.power
+                    power
                       ? "bg-accent-ok border-emerald-400 shadow-[0_0_8px_rgba(29,92,66,1)]"
                       : "bg-red-900/70 border-red-800/40"
                   }`}
@@ -254,3 +261,4 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
     </div>
   );
 };
+

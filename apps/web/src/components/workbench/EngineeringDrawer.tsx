@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { StationLevel } from "@iw/sim-engine";
+import { useWorkbenchStore } from "../../store/workbenchStore";
 import { Badge, Tabs, type TabItem } from "@iw/ui";
 import { SyntaxCodeBlock } from "./SyntaxCodeBlock";
 import {
