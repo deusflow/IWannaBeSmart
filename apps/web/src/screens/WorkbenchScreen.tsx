@@ -162,7 +162,7 @@ export const WorkbenchScreen: React.FC = () => {
       {/* Main Drafting Canvas (Stage adapts seamlessly when drawer is pinned) */}
       <main
         className={`relative z-10 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
-          isDrawerPinned ? "lg:mr-[560px]" : ""
+          isDrawerPinned ? "xl:mr-[780px] lg:mr-[720px]" : ""
         }`}
       >
         {/* Drafting Calibration Marks */}

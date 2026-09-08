@@ -52,20 +52,20 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
 
   return (
     <>
-      {/* Dimmed backdrop ONLY when unpinned / overlay mode */}
+      {/* Non-blurry subtle dimming backdrop ONLY when unpinned / overlay mode */}
       {!isPinned && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-ink/15 backdrop-blur-[2px] transition-opacity duration-200"
+          className="fixed inset-0 z-40 bg-ink/5 transition-opacity duration-150"
         />
       )}
 
-      {/* Floating Blueprint Document Sheet with Rounded-3xl Corners */}
+      {/* Floating Blueprint Document Sheet with Rounded-3xl Corners (Wider layout) */}
       <aside
         style={{
           transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
         }}
-        className={`fixed z-40 top-16 bottom-4 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[500px] lg:w-[560px] bg-paper-subtle rounded-3xl border-2 border-paper-border shadow-paper-lg flex flex-col overflow-hidden transition-all duration-300 animate-in slide-in-from-right-8 ${
+        className={`fixed z-40 top-16 bottom-4 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[600px] lg:w-[700px] xl:w-[760px] bg-paper-subtle rounded-3xl border-2 border-paper-border shadow-paper-lg flex flex-col overflow-hidden transition-all duration-300 animate-in slide-in-from-right-8 ${
           isPinned ? "ring-2 ring-accent-blue/25" : ""
         }`}
       >
