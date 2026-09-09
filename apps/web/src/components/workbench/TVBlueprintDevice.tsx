@@ -1,6 +1,6 @@
 import React from "react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
-import { Power, Volume2, VolumeX, Activity, Radio, ChevronUp, ChevronDown } from "lucide-react";
+import { Power, Volume2, VolumeX, Activity, Radio, ChevronUp, ChevronDown, AlertTriangle } from "lucide-react";
 
 interface TVBlueprintDeviceProps {
   compact?: boolean;
@@ -21,7 +21,11 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
     chassisTogglePower,
     chassisNextChannel,
     chassisPrevChannel,
+    isEdgeBroken,
   } = useWorkbenchStore();
+
+  const isPsuMcuBroken = isEdgeBroken("edge-psu-mcu");
+  const isDisplayBroken = isEdgeBroken("edge-mcu-display");
 
   const currentChannelName = channelNames[channel] || "Канал не налаштований";
 
@@ -30,7 +34,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
       {/* Clean Device Header in Balsamiq font-display */}
       <div className="w-full flex items-center justify-between font-display text-xs text-ink-muted pb-1.5 px-2">
         <span className="flex items-center gap-2 font-bold text-ink text-sm">
-          <span className="h-2 w-2 rounded-full bg-accent-blue animate-pulse" />
+          <span className={`h-2 w-2 rounded-full ${isPsuMcuBroken ? "bg-accent-break" : "bg-accent-blue animate-pulse"}`} />
           <span>Samsung Smart TV 65&quot;</span>
         </span>
         <div className="hidden sm:flex items-center gap-2 text-xs">
@@ -40,10 +44,22 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
           <span className="text-ink-subtle">•</span>
           <span
             className={`font-bold ${
-              power ? "text-accent-ok" : "text-ink-subtle"
+              isPsuMcuBroken
+                ? "text-accent-break"
+                : isDisplayBroken && power
+                ? "text-amber-500"
+                : power
+                ? "text-accent-ok"
+                : "text-ink-subtle"
             }`}
           >
-            {power ? "У мережі" : "Режим очікування"}
+            {isPsuMcuBroken
+              ? "Знеструмлено (PSU Обрив)"
+              : isDisplayBroken && power
+              ? "Помилка LVDS (Дисплей)"
+              : power
+              ? "У мережі"
+              : "Режим очікування"}
           </span>
         </div>
       </div>
@@ -83,89 +99,119 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
 
             {/* Screen Content when ON */}
             {power ? (
-              <>
-                {/* Top Widescreen Status Bar */}
-                <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-sans text-emerald-400/90 tracking-wide">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/80 border border-emerald-700/60 font-display font-bold text-xs sm:text-sm text-emerald-300 shadow-xs">
-                      <Activity size={14} className="animate-pulse text-emerald-400" />
-                      Канал {channel}
-                    </span>
-                    <span className="text-[11px] sm:text-xs text-emerald-400/70 hidden sm:inline font-sans">
-                      4K HDR 60Hz
-                    </span>
+              isDisplayBroken ? (
+                /* Hardware Fault: Display Driver / LVDS line broken */
+                <div className="relative z-10 my-auto text-center space-y-3 p-4 select-none">
+                  <div className="inline-flex p-3 rounded-2xl bg-accent-break/10 border border-accent-break/40 text-accent-break">
+                    <AlertTriangle size={24} className="animate-pulse" />
                   </div>
-
-                  <div className="flex items-center gap-2 font-sans">
-                    <span className="text-[11px] bg-emerald-950/70 border border-emerald-800/60 px-2.5 py-1 rounded-lg text-emerald-300 flex items-center gap-1.5">
-                      <Radio size={12} className="text-emerald-400" />
-                      <span>ІЧ 38 kHz</span>
-                    </span>
+                  <div className="space-y-1">
+                    <h3 className="font-display text-base sm:text-xl font-bold text-accent-break tracking-wide">
+                      Немає сигналу дисплея (LVDS обрив)
+                    </h3>
+                    <p className="text-xs font-sans text-[#858D94]">
+                      Процесор активний, але шина матриці розірвана у вкладці Hardware
+                    </p>
+                  </div>
+                  <div className="inline-block px-3 py-1 rounded-lg bg-[#181B1E] border border-[#2D3139] text-[11px] font-mono text-[#A5ABB5]">
+                    Канал {channel} • Гучність: {isMuted ? "Вимкнено" : `${volume} / 100`}
                   </div>
                 </div>
+              ) : (
+                <>
+                  {/* Top Widescreen Status Bar */}
+                  <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-sans text-emerald-400/90 tracking-wide">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/80 border border-emerald-700/60 font-display font-bold text-xs sm:text-sm text-emerald-300 shadow-xs">
+                        <Activity size={14} className="animate-pulse text-emerald-400" />
+                        Канал {channel}
+                      </span>
+                      <span className="text-[11px] sm:text-xs text-emerald-400/70 hidden sm:inline font-sans">
+                        4K HDR 60Hz
+                      </span>
+                    </div>
 
-                {/* Center Cinematic Display: Channel Title & Wide Stereo Visualizer */}
-                <div className="relative z-10 my-auto text-center space-y-3 sm:space-y-4 py-2 sm:py-4">
-                  <div className="inline-block px-5 sm:px-8 py-2 rounded-2xl bg-emerald-950/75 border border-emerald-600/70 shadow-lg backdrop-blur-xs">
-                    <h2 className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-emerald-300 tracking-wide">
-                      {currentChannelName}
-                    </h2>
+                    <div className="flex items-center gap-2 font-sans">
+                      <span className="text-[11px] bg-emerald-950/70 border border-emerald-800/60 px-2.5 py-1 rounded-lg text-emerald-300 flex items-center gap-1.5">
+                        <Radio size={12} className="text-emerald-400" />
+                        <span>ІЧ 38 kHz</span>
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Wide Stereo Visualizer Waveform Reacting to Volume (0..100) */}
-                  <div className="h-10 sm:h-14 flex items-center justify-center gap-1 sm:gap-1.5 opacity-85 pt-1">
-                    {[
-                      25, 45, 75, 50, 95, 70, 35, 85, 45, 100, 80, 60, 35, 90, 70, 45,
-                      85, 55, 30, 75, 60, 90, 40, 80, 50, 95, 65, 30, 85, 45, 70, 55,
-                    ].map((h, i) => (
-                      <div
-                        key={i}
-                        className="w-1 sm:w-1.5 bg-emerald-400 rounded-full transition-all duration-150"
-                        style={{
-                          height: `${Math.max(4, (h * (isMuted ? 2 : volume)) / 80)}px`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
+                  {/* Center Cinematic Display: Channel Title & Wide Stereo Visualizer */}
+                  <div className="relative z-10 my-auto text-center space-y-3 sm:space-y-4 py-2 sm:py-4">
+                    <div className="inline-block px-5 sm:px-8 py-2 rounded-2xl bg-emerald-950/75 border border-emerald-600/70 shadow-lg backdrop-blur-xs">
+                      <h2 className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-emerald-300 tracking-wide">
+                        {currentChannelName}
+                      </h2>
+                    </div>
 
-                {/* Bottom OSD Bar: Volume & Status */}
-                <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-display text-emerald-400/90 pt-2 border-t border-emerald-900/60">
-                  <div className="flex items-center gap-2">
-                    {isMuted ? (
-                      <VolumeX size={16} className="text-red-400" />
-                    ) : (
-                      <Volume2 size={16} />
-                    )}
-                    <span className="font-bold text-xs sm:text-sm">
-                      Гучність: {isMuted ? "Вимкнено" : `${volume} / 100`}
-                    </span>
+                    {/* Wide Stereo Visualizer Waveform Reacting to Volume (0..100) */}
+                    <div className="h-10 sm:h-14 flex items-center justify-center gap-1 sm:gap-1.5 opacity-85 pt-1">
+                      {[
+                        25, 45, 75, 50, 95, 70, 35, 85, 45, 100, 80, 60, 35, 90, 70, 45,
+                        85, 55, 30, 75, 60, 90, 40, 80, 50, 95, 65, 30, 85, 45, 70, 55,
+                      ].map((h, i) => (
+                        <div
+                          key={i}
+                          className="w-1 sm:w-1.5 bg-emerald-400 rounded-full transition-all duration-150"
+                          style={{
+                            height: `${Math.max(4, (h * (isMuted ? 2 : volume)) / 80)}px`,
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Segmented Volume Meter (24 segments for 0..100) */}
-                  <div className="flex items-center gap-0.5 sm:gap-1">
-                    {Array.from({ length: 24 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-2.5 sm:h-3 w-1 sm:w-1.5 rounded-xs transition-colors duration-100 ${
-                          !isMuted && i < Math.round((volume / 100) * 24)
-                            ? "bg-emerald-400"
-                            : "bg-emerald-950/60 border border-emerald-900/40"
-                        }`}
-                      />
-                    ))}
+                  {/* Bottom OSD Bar: Volume & Status */}
+                  <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-display text-emerald-400/90 pt-2 border-t border-emerald-900/60">
+                    <div className="flex items-center gap-2">
+                      {isMuted ? (
+                        <VolumeX size={16} className="text-red-400" />
+                      ) : (
+                        <Volume2 size={16} />
+                      )}
+                      <span className="font-bold text-xs sm:text-sm">
+                        Гучність: {isMuted ? "Вимкнено" : `${volume} / 100`}
+                      </span>
+                    </div>
+
+                    {/* Segmented Volume Meter (24 segments for 0..100) */}
+                    <div className="flex items-center gap-0.5 sm:gap-1">
+                      {Array.from({ length: 24 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`h-2.5 sm:h-3 w-1 sm:w-1.5 rounded-xs transition-colors duration-100 ${
+                            !isMuted && i < Math.round((volume / 100) * 24)
+                              ? "bg-emerald-400"
+                              : "bg-emerald-950/60 border border-emerald-900/40"
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </>
+                </>
+              )
             ) : (
               /* Screen Content when OFF */
               <div className="h-full flex flex-col items-center justify-center text-center space-y-2 select-none">
-                <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                <span className="text-sm sm:text-base font-display text-[#858D94] font-bold">
+                <div
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    isPsuMcuBroken ? "bg-red-500/50 animate-pulse" : "bg-white/15"
+                  }`}
+                />
+                <span
+                  className={`text-sm sm:text-base font-display font-bold ${
+                    isPsuMcuBroken ? "text-accent-break" : "text-[#858D94]"
+                  }`}
+                >
                   {osdMessage}
                 </span>
                 <span className="text-xs font-sans text-[#6B7280]">
-                  Натисніть кнопку живлення (PWR) на пульті, щоб увімкнути
+                  {isPsuMcuBroken
+                    ? "Відновіть зв'язок PSU -> MCU у вкладці Hardware"
+                    : "Натисніть кнопку живлення (PWR) на пульті, щоб увімкнути"}
                 </span>
               </div>
             )}
@@ -242,7 +288,9 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 <span className="text-[9px] text-[#858D94] font-sans">Мережа</span>
                 <div
                   className={`h-2 w-2 rounded-full border transition-all duration-300 ${
-                    power
+                    isPsuMcuBroken
+                      ? "bg-[#1C1F24] border-[#2D3139]"
+                      : power
                       ? "bg-accent-ok border-emerald-400 shadow-[0_0_8px_rgba(29,92,66,1)]"
                       : "bg-red-900/70 border-red-800/40"
                   }`}

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import type { StationLevel } from "@iw/sim-engine";
-import { useWorkbenchStore } from "../../store/workbenchStore";
 import { Badge, Tabs, type TabItem } from "@iw/ui";
 import { SyntaxCodeBlock } from "./SyntaxCodeBlock";
+import { CircuitCanvas } from "./circuit/CircuitCanvas";
 import {
   X,
   Code2,
-  Cpu,
   GitBranch,
   Terminal,
   Pin,
@@ -195,51 +194,10 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           </div>
         )}
 
-        {/* TAB 2: HARDWARE SCHEMATIC NODES */}
+        {/* TAB 2: HARDWARE CIRCUIT SCHEMATIC (Block G, Items 59-64) */}
         {activeTab === "hardware" && (
-          <div className="space-y-2.5">
-            <span className="text-xs font-display font-bold text-ink-muted">
-              Вузли електронної плати та контрольні точки
-            </span>
-
-            <div className="space-y-2">
-              {level.hardwareNodes.map((node) => (
-                <div
-                  key={node.id}
-                  className="p-3 rounded-xl bg-paper-subtle border border-paper-border shadow-paper-sm flex items-center justify-between gap-3"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="h-7 w-7 rounded border border-paper-border bg-paper flex items-center justify-center text-ink-muted shrink-0 mt-0.5">
-                      <Cpu size={14} strokeWidth={1.75} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-sans text-xs font-bold text-ink">
-                          {node.name}
-                        </span>
-                        <span className="text-[10px] font-sans px-1.5 py-0.2 rounded bg-paper border border-paper-border text-ink-subtle">
-                          {node.chipModel}
-                        </span>
-                      </div>
-                      <p className="text-xs text-ink-muted mt-0.5 font-sans">
-                        {node.role}
-                      </p>
-                      <p className="text-[11px] font-sans text-ink-subtle mt-0.5">
-                        {node.testPoint}
-                      </p>
-                    </div>
-                  </div>
-
-                  <Badge
-                    variant={node.status === "nominal" ? "ok" : "signal"}
-                    size="sm"
-                    dot
-                  >
-                    {node.nominalVoltage}
-                  </Badge>
-                </div>
-              ))}
-            </div>
+          <div className="w-full">
+            <CircuitCanvas />
           </div>
         )}
 

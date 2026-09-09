@@ -31,6 +31,31 @@ export interface HardwarePoint {
   testPoint: string;
 }
 
+export type CircuitEdgeId =
+  | "edge-psu-mcu"
+  | "edge-psu-ir"
+  | "edge-ir-mcu"
+  | "edge-mcu-display"
+  | "edge-mcu-audio"
+  | "edge-mcu-led"
+  | "edge-mcu-eeprom";
+
+export interface CircuitEdgeState {
+  id: CircuitEdgeId;
+  source: string;
+  target: string;
+  label: string;
+  signalType: string;
+  isBroken: boolean;
+}
+
+export interface CircuitSlice {
+  circuitEdges: Record<CircuitEdgeId, CircuitEdgeState>;
+  toggleCircuitEdge: (edgeId: CircuitEdgeId) => void;
+  resetCircuit: () => void;
+  isEdgeBroken: (edgeId: CircuitEdgeId) => boolean;
+}
+
 export interface TVStateSlice {
   power: boolean;
   channel: number;
@@ -41,6 +66,15 @@ export interface TVStateSlice {
   osdMessage: string;
   irSignalPulse: boolean;
   screenReactionPulse: boolean;
+
+  // Direct Programmatic Actions with FSM Guards (Blocked when !power)
+  setVolume: (vol: number) => void;
+  changeVolume: (delta: number) => void;
+  setChannel: (channel: number) => void;
+  nextChannel: () => void;
+  prevChannel: () => void;
+  toggleMute: () => void;
+  togglePower: () => void;
 }
 
 export interface ConnectionsSlice {
@@ -64,7 +98,7 @@ export interface WorkbenchActions {
   pressVolumeDown: () => void;
   pressMuteToggle: () => void;
 
-  // TV Chassis Buttons (Immediate physical contact without IR delay)
+  // TV Chassis Buttons (Direct physical contact without IR delay)
   chassisTogglePower: () => void;
   chassisNextChannel: () => void;
   chassisPrevChannel: () => void;
@@ -72,14 +106,18 @@ export interface WorkbenchActions {
   // Core physical pipeline dispatcher
   dispatchRemoteCommand: (
     commandName: string,
-    execute: (state: TVStateSlice & ConnectionsSlice) => {
+    execute: (state: TVStateSlice & ConnectionsSlice & CircuitSlice) => {
       tvUpdates?: Partial<TVStateSlice>;
       connectionUpdates?: Partial<Record<HardwarePointKey, Partial<HardwarePoint>>>;
     }
   ) => void;
 }
 
-export type WorkbenchStore = TVStateSlice & ConnectionsSlice & IRSigSlice & WorkbenchActions;
+export type WorkbenchStore = TVStateSlice &
+  ConnectionsSlice &
+  CircuitSlice &
+  IRSigSlice &
+  WorkbenchActions;
 
 // Helper to calculate initial connection points
 const createInitialConnections = (): Record<HardwarePointKey, HardwarePoint> => ({
@@ -121,6 +159,66 @@ const createInitialConnections = (): Record<HardwarePointKey, HardwarePoint> => 
   },
 });
 
+// Helper to calculate initial circuit traces (Block G, Items 59-64)
+export const createInitialCircuitEdges = (): Record<CircuitEdgeId, CircuitEdgeState> => ({
+  "edge-psu-mcu": {
+    id: "edge-psu-mcu",
+    source: "node-psu",
+    target: "node-mcu",
+    label: "VCC (+5V)",
+    signalType: "Головне живлення процесора",
+    isBroken: false,
+  },
+  "edge-psu-ir": {
+    id: "edge-psu-ir",
+    source: "node-psu",
+    target: "node-ir",
+    label: "VCC (+5V)",
+    signalType: "Живлення фотоприймача",
+    isBroken: false,
+  },
+  "edge-ir-mcu": {
+    id: "edge-ir-mcu",
+    source: "node-ir",
+    target: "node-mcu",
+    label: "IR_DATA (INT0)",
+    signalType: "Шина переривань декодера",
+    isBroken: false,
+  },
+  "edge-mcu-display": {
+    id: "edge-mcu-display",
+    source: "node-mcu",
+    target: "node-display",
+    label: "LVDS / Video Bus",
+    signalType: "Кадрова розгортка та пікселі",
+    isBroken: false,
+  },
+  "edge-mcu-audio": {
+    id: "edge-mcu-audio",
+    source: "node-mcu",
+    target: "node-audio",
+    label: "Audio PWM",
+    signalType: "Шина звукового тракту",
+    isBroken: false,
+  },
+  "edge-mcu-led": {
+    id: "edge-mcu-led",
+    source: "node-mcu",
+    target: "node-led",
+    label: "GPIO Status",
+    signalType: "Індикатор чергового режиму",
+    isBroken: false,
+  },
+  "edge-mcu-eeprom": {
+    id: "edge-mcu-eeprom",
+    source: "node-mcu",
+    target: "node-eeprom",
+    label: "I2C (SDA/SCL)",
+    signalType: "Енергонезалежна пам'ять",
+    isBroken: false,
+  },
+});
+
 export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
   // Store timers for sequence cleanup
   let flightTimer: ReturnType<typeof setTimeout> | null = null;
@@ -144,6 +242,95 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     irSignalPulse: false,
     screenReactionPulse: false,
 
+    // Direct Programmatic Actions with FSM Guards (!power -> blocked)
+    setVolume: (vol: number) => {
+      if (!get().power) return;
+      const nextVol = Math.max(0, Math.min(100, vol));
+      set({
+        volume: nextVol,
+        isMuted: false,
+        osdMessage: `Гучність: ${nextVol} / 100`,
+      });
+    },
+
+    changeVolume: (delta: number) => {
+      if (!get().power) return;
+      const nextVol = Math.max(0, Math.min(100, get().volume + delta));
+      set({
+        volume: nextVol,
+        isMuted: false,
+        osdMessage: `Гучність: ${nextVol} / 100`,
+      });
+    },
+
+    setChannel: (targetChannel: number) => {
+      if (!get().power) return;
+      const state = get();
+      const ch = Math.max(1, Math.min(state.maxChannels, targetChannel));
+      set({
+        channel: ch,
+        osdMessage: `Канал ${ch}: ${state.channelNames[ch]}`,
+      });
+    },
+
+    nextChannel: () => {
+      if (!get().power) return;
+      const state = get();
+      const next = state.channel >= state.maxChannels ? 1 : state.channel + 1;
+      set({
+        channel: next,
+        osdMessage: `Канал ${next}: ${state.channelNames[next]}`,
+      });
+    },
+
+    prevChannel: () => {
+      if (!get().power) return;
+      const state = get();
+      const prev = state.channel <= 1 ? state.maxChannels : state.channel - 1;
+      set({
+        channel: prev,
+        osdMessage: `Канал ${prev}: ${state.channelNames[prev]}`,
+      });
+    },
+
+    toggleMute: () => {
+      if (!get().power) return;
+      const state = get();
+      const nextMute = !state.isMuted;
+      set({
+        isMuted: nextMute,
+        osdMessage: nextMute ? "Звук вимкнено" : `Гучність: ${state.volume} / 100`,
+      });
+    },
+
+    togglePower: () => {
+      // Hardware fault guard: If PSU -> MCU is broken, MCU has no VCC power rail!
+      if (get().isEdgeBroken("edge-psu-mcu")) {
+        set({
+          power: false,
+          osdMessage: "Помилка живлення: обрив лінії PSU -> MCU",
+        });
+        return;
+      }
+      const state = get();
+      const nextPower = !state.power;
+      const isDisplayBroken = state.isEdgeBroken("edge-mcu-display");
+      set({
+        power: nextPower,
+        osdMessage: nextPower
+          ? `Канал ${state.channel}: ${state.channelNames[state.channel]}`
+          : "Телевізор у режимі очікування",
+        connections: {
+          ...state.connections,
+          DISPLAY_BUS: {
+            ...state.connections.DISPLAY_BUS,
+            voltage: nextPower && !isDisplayBroken ? "5V" : "0V",
+            hasSignal: nextPower && !isDisplayBroken,
+          },
+        },
+      });
+    },
+
     // 2. Connections Slice (Item 53)
     connections: createInitialConnections(),
     setConnectionSignal: (key, voltage, hasSignal) =>
@@ -157,6 +344,111 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
           },
         },
       })),
+
+    // 2b. Circuit Board Traces Slice (Block G, Items 59-64)
+    circuitEdges: createInitialCircuitEdges(),
+
+    isEdgeBroken: (edgeId: CircuitEdgeId) => {
+      return !!get().circuitEdges[edgeId]?.isBroken;
+    },
+
+    toggleCircuitEdge: (edgeId: CircuitEdgeId) => {
+      const state = get();
+      const currentEdge = state.circuitEdges[edgeId];
+      if (!currentEdge) return;
+
+      const nextBroken = !currentEdge.isBroken;
+      const updatedEdges = {
+        ...state.circuitEdges,
+        [edgeId]: {
+          ...currentEdge,
+          isBroken: nextBroken,
+        },
+      };
+
+      // Fault Injection Rule 1: PSU -> MCU line broken
+      if (edgeId === "edge-psu-mcu") {
+        if (nextBroken) {
+          // MCU loses VCC completely: TV turns off immediately, DISPLAY_BUS drops to 0V
+          set({
+            circuitEdges: updatedEdges,
+            power: false,
+            osdMessage: "Помилка живлення: обрив лінії PSU -> MCU",
+            connections: {
+              ...state.connections,
+              VCC: {
+                ...state.connections.VCC,
+                voltage: "0V",
+                hasSignal: false,
+              },
+              DISPLAY_BUS: {
+                ...state.connections.DISPLAY_BUS,
+                voltage: "0V",
+                hasSignal: false,
+              },
+            },
+          });
+          return;
+        } else {
+          // PSU -> MCU restored
+          set({
+            circuitEdges: updatedEdges,
+            osdMessage: "Телевізор у режимі очікування",
+            connections: {
+              ...state.connections,
+              VCC: {
+                ...state.connections.VCC,
+                voltage: "5V",
+                hasSignal: true,
+              },
+            },
+          });
+          return;
+        }
+      }
+
+      // Fault Injection Rule 2: MCU -> Display Driver broken
+      if (edgeId === "edge-mcu-display") {
+        set({
+          circuitEdges: updatedEdges,
+          connections: {
+            ...state.connections,
+            DISPLAY_BUS: {
+              ...state.connections.DISPLAY_BUS,
+              voltage: !nextBroken && state.power ? "5V" : "0V",
+              hasSignal: !nextBroken && state.power,
+            },
+          },
+        });
+        return;
+      }
+
+      set({ circuitEdges: updatedEdges });
+    },
+
+    resetCircuit: () => {
+      const state = get();
+      const resetEdges = createInitialCircuitEdges();
+      set({
+        circuitEdges: resetEdges,
+        osdMessage: state.power
+          ? `Канал ${state.channel}: ${state.channelNames[state.channel]}`
+          : "Телевізор у режимі очікування",
+        connections: {
+          ...state.connections,
+          VCC: {
+            ...state.connections.VCC,
+            voltage: "5V",
+            hasSignal: true,
+          },
+          DISPLAY_BUS: {
+            ...state.connections.DISPLAY_BUS,
+            voltage: state.power ? "5V" : "0V",
+            hasSignal: state.power,
+          },
+        },
+      });
+    },
 
     // 3. Physical IR Transmission Slice (Item 55)
     isIrEmitting: false,
@@ -192,13 +484,33 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       // STAGE 3 (T = BUTTON_PRESS_MS + IR_BEAM_FLIGHT_MS, 320ms): Beam hits the TV photodiode
       arrivalTimer = setTimeout(() => {
         const state = get();
-        const { tvUpdates, connectionUpdates } = execute(state);
+        const isIrMcuBroken = state.isEdgeBroken("edge-ir-mcu");
+        const isPsuMcuBroken = state.isEdgeBroken("edge-psu-mcu");
+
+        // Fault Injection Guard:
+        // - If IR RX -> MCU is broken: TSOP detects light, but MCU interrupt never triggers!
+        // - If PSU -> MCU is broken: MCU has no power, command is completely dropped!
+        const { tvUpdates, connectionUpdates } =
+          isIrMcuBroken || isPsuMcuBroken
+            ? { tvUpdates: {}, connectionUpdates: undefined }
+            : execute(state);
+
+        // FSM Guard: Screen phosphor excitation (flare) ONLY occurs if TV is currently powered
+        // or transitioning into powered state (PowerToggle ON)
+        const willBePowered = tvUpdates?.power !== undefined ? tvUpdates.power : state.power;
+        const shouldScreenReact =
+          willBePowered && tvUpdates !== undefined && Object.keys(tvUpdates).length > 0;
 
         set({
           isIrEmitting: false,
           isBeamFlying: false,
-          irSignalPulse: true,
-          screenReactionPulse: true,
+          irSignalPulse: !state.isEdgeBroken("edge-psu-ir"), // TSOP receives if photodiode has power
+          screenReactionPulse: shouldScreenReact,
+          ...(isIrMcuBroken
+            ? { lastOpcode: "Обрив IR RX -> MCU: команда не дійшла" }
+            : isPsuMcuBroken
+            ? { lastOpcode: "Обрив PSU -> MCU: процесор знеструмлений" }
+            : {}),
           ...tvUpdates,
           ...(connectionUpdates
             ? {
@@ -231,10 +543,19 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       }, TIMINGS.BUTTON_PRESS_MS + TIMINGS.IR_BEAM_FLIGHT_MS);
     },
 
-    // Remote Actions
+    // Remote Actions with strict FSM State Guards
     pressPower: () => {
       get().dispatchRemoteCommand("Живлення (Power)", (state) => {
+        if (state.isEdgeBroken("edge-psu-mcu")) {
+          return {
+            tvUpdates: {
+              power: false,
+              osdMessage: "Помилка живлення: обрив лінії PSU -> MCU",
+            },
+          };
+        }
         const nextPower = !state.power;
+        const isDisplayBroken = state.isEdgeBroken("edge-mcu-display");
         return {
           tvUpdates: {
             power: nextPower,
@@ -244,8 +565,8 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
           },
           connectionUpdates: {
             DISPLAY_BUS: {
-              voltage: nextPower ? "5V" : "0V",
-              hasSignal: nextPower,
+              voltage: nextPower && !isDisplayBroken ? "5V" : "0V",
+              hasSignal: nextPower && !isDisplayBroken,
             },
           },
         };
@@ -254,7 +575,10 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     pressChannelUp: () => {
       get().dispatchRemoteCommand("Наступний канал", (state) => {
-        if (!state.power) return {};
+        // FSM Guard: If TV is unpowered, MCU ignores channel changes
+        if (!state.power) {
+          return {};
+        }
         const nextChannel = state.channel >= state.maxChannels ? 1 : state.channel + 1;
         return {
           tvUpdates: {
@@ -267,7 +591,10 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     pressChannelDown: () => {
       get().dispatchRemoteCommand("Попередній канал", (state) => {
-        if (!state.power) return {};
+        // FSM Guard: If TV is unpowered, MCU ignores channel changes
+        if (!state.power) {
+          return {};
+        }
         const prevChannel = state.channel <= 1 ? state.maxChannels : state.channel - 1;
         return {
           tvUpdates: {
@@ -280,7 +607,10 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     pressSelectChannel: (targetChannel: number) => {
       get().dispatchRemoteCommand(`Канал ${targetChannel}`, (state) => {
-        if (!state.power) return {};
+        // FSM Guard: If TV is unpowered, MCU ignores channel keypad
+        if (!state.power) {
+          return {};
+        }
         const ch = Math.max(1, Math.min(state.maxChannels, targetChannel));
         return {
           tvUpdates: {
@@ -293,7 +623,10 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     pressVolumeUp: () => {
       get().dispatchRemoteCommand("Гучність +", (state) => {
-        if (!state.power) return {};
+        // FSM Guard: If TV is unpowered, volume amplifier remains off
+        if (!state.power) {
+          return {};
+        }
         const nextVol = Math.min(100, state.volume + 5);
         return {
           tvUpdates: {
@@ -307,7 +640,10 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     pressVolumeDown: () => {
       get().dispatchRemoteCommand("Гучність -", (state) => {
-        if (!state.power) return {};
+        // FSM Guard: If TV is unpowered, volume amplifier remains off
+        if (!state.power) {
+          return {};
+        }
         const nextVol = Math.max(0, state.volume - 5);
         return {
           tvUpdates: {
@@ -320,7 +656,10 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     pressMuteToggle: () => {
       get().dispatchRemoteCommand("Вимкнути звук (Mute)", (state) => {
-        if (!state.power) return {};
+        // FSM Guard: If TV is unpowered, mute relay remains unchanged
+        if (!state.power) {
+          return {};
+        }
         const nextMute = !state.isMuted;
         return {
           tvUpdates: {
@@ -333,45 +672,16 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     // TV Chassis Buttons (Direct physical contact, no IR delay)
     chassisTogglePower: () => {
-      set((state) => {
-        const nextPower = !state.power;
-        return {
-          power: nextPower,
-          osdMessage: nextPower
-            ? `Канал ${state.channel}: ${state.channelNames[state.channel]}`
-            : "Телевізор у режимі очікування",
-          connections: {
-            ...state.connections,
-            DISPLAY_BUS: {
-              ...state.connections.DISPLAY_BUS,
-              voltage: nextPower ? "5V" : "0V",
-              hasSignal: nextPower,
-            },
-          },
-        };
-      });
+      get().togglePower();
     },
 
     chassisNextChannel: () => {
-      set((state) => {
-        if (!state.power) return state;
-        const nextChannel = state.channel >= state.maxChannels ? 1 : state.channel + 1;
-        return {
-          channel: nextChannel,
-          osdMessage: `Канал ${nextChannel}: ${state.channelNames[nextChannel]}`,
-        };
-      });
+      get().nextChannel();
     },
 
     chassisPrevChannel: () => {
-      set((state) => {
-        if (!state.power) return state;
-        const prevChannel = state.channel <= 1 ? state.maxChannels : state.channel - 1;
-        return {
-          channel: prevChannel,
-          osdMessage: `Канал ${prevChannel}: ${state.channelNames[prevChannel]}`,
-        };
-      });
+      get().prevChannel();
     },
   };
 });
+
