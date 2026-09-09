@@ -104,6 +104,8 @@ export interface MentorSlice {
   getTaskMastery: (taskId: string) => number;
   currentStationId: string;
   setCurrentStationId: (id: string) => void;
+  currentView: "HUB" | "STATION";
+  setCurrentView: (view: "HUB" | "STATION") => void;
   posState: VirtualPosState;
   applyPosExecution: (updates: Partial<VirtualPosState>) => void;
   resetPosState: (customState?: Partial<VirtualPosState>) => void;
@@ -604,6 +606,8 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
 
     currentStationId: "tv",
     setCurrentStationId: (id: string) => set({ currentStationId: id }),
+    currentView: "HUB",
+    setCurrentView: (view: "HUB" | "STATION") => set({ currentView: view }),
 
     isPosVictoryModalOpen: false,
     setPosVictoryModalOpen: (open: boolean) => set({ isPosVictoryModalOpen: open }),

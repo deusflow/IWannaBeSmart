@@ -12,8 +12,9 @@ import { POSBlueprintDevice } from "../components/workbench/POSBlueprintDevice";
 import { CodeGymRunner } from "../components/workbench/playground/CodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
+import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { audioFx } from "../utils/audioFx";
-import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy } from "lucide-react";
+import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy, LayoutGrid } from "lucide-react";
 
 /**
  * Engineering Microchip XP icon — silicon die with contact pins.
@@ -66,6 +67,8 @@ export const WorkbenchScreen: React.FC = () => {
     setPosVictoryModalOpen,
     currentStationId,
     setCurrentStationId,
+    currentView,
+    setCurrentView,
   } = useWorkbenchStore();
 
   const handleToggleSound = () => {
@@ -94,32 +97,59 @@ export const WorkbenchScreen: React.FC = () => {
       <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-3 sm:px-6 flex items-center justify-between gap-4">
         {/* Left */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {activeView === "architecture" ? (
-            <button
-              onClick={() => setActiveView("device")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink font-balsamiq font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
-              title={t("workbench.backToTv")}
-            >
-              <ArrowLeft size={15} className="text-accent-blue shrink-0" />
-              <span>{t("workbench.backToTv")}</span>
-            </button>
+          {currentView === "HUB" ? (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-[#1A1D20] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                📐
+              </div>
+              <span className="font-display font-extrabold text-sm sm:text-base text-[#1A1D20]">
+                {t("hub.title", "Інженерний Хаб верстака")}
+              </span>
+            </div>
           ) : (
-            <BlueprintStationSwitcher
-              currentStationId={currentStationId}
-              onSelectStation={setCurrentStationId}
-            />
-          )}
+            <>
+              {/* Back to Hub Button */}
+              <button
+                id="btn-back-to-hub"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setCurrentView("HUB");
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-[#1A1D20]/60 text-ink font-balsamiq font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
+                title={t("hub.backToHub", "До верстака / Hub")}
+              >
+                <LayoutGrid size={15} className="text-[#1A1D20] shrink-0" />
+                <span>{t("hub.backToHub", "До верстака / Hub")}</span>
+              </button>
 
-          <div className="flex items-center gap-2 text-xs font-balsamiq text-ink-muted whitespace-nowrap">
-            <span>•</span>
-            <span className="text-ink font-bold truncate max-w-[220px] sm:max-w-[360px]">
-              {activeView === "architecture"
-                ? t("architecture.title")
-                : currentStationId === "pos"
-                ? t("posStation.title")
-                : t("level.level1Title", { defaultValue: tvLevel01.title })}
-            </span>
-          </div>
+              {activeView === "architecture" ? (
+                <button
+                  onClick={() => setActiveView("device")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink font-balsamiq font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
+                  title={t("workbench.backToTv")}
+                >
+                  <ArrowLeft size={15} className="text-accent-blue shrink-0" />
+                  <span>{t("workbench.backToTv")}</span>
+                </button>
+              ) : (
+                <BlueprintStationSwitcher
+                  currentStationId={currentStationId}
+                  onSelectStation={setCurrentStationId}
+                />
+              )}
+
+              <div className="hidden sm:flex items-center gap-2 text-xs font-balsamiq text-ink-muted whitespace-nowrap">
+                <span>•</span>
+                <span className="text-ink font-bold truncate max-w-[180px] lg:max-w-[320px]">
+                  {activeView === "architecture"
+                    ? t("architecture.title")
+                    : currentStationId === "pos"
+                    ? t("posStation.title")
+                    : t("level.level1Title", { defaultValue: tvLevel01.title })}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right */}
@@ -167,7 +197,11 @@ export const WorkbenchScreen: React.FC = () => {
       </header>
 
       {/* ── Main content ── */}
-      {activeView === "architecture" ? (
+      {currentView === "HUB" ? (
+        <main className="relative z-10 flex-1 w-full overflow-y-auto flex flex-col">
+          <WorkshopHubScreen />
+        </main>
+      ) : activeView === "architecture" ? (
         <main className="relative z-10 flex-1 w-full h-[calc(100vh-3.5rem)] min-h-0 overflow-hidden flex flex-col">
           <ArchitectureCanvas onBackToTv={() => setActiveView("device")} />
         </main>
@@ -298,7 +332,7 @@ export const WorkbenchScreen: React.FC = () => {
            Notebook Edge Tabs — visible on TV device view
            Two sticker-tabs protruding from the right edge
           ══════════════════════════════════════════════ */}
-      {activeView === "device" && currentStationId === "tv" && (
+      {currentView === "STATION" && activeView === "device" && currentStationId === "tv" && (
         <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-end gap-0">
           {/* Tab 1: Code & Schematic */}
           <button
