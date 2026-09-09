@@ -15,6 +15,8 @@ export const CODING_TASKS: CodingTask[] = [
     descKey: "playground.task1Desc",
     hintKey: "playground.task1Hint",
     successKey: "playground.task1Success",
+    simpleExplanationKey: "playground.task1Simple",
+    careerImpactKey: "playground.task1Career",
     initialCode: {
       csharp: "// Увімкніть живлення телевізора\ntv.IsOn = true;\n",
       go: "// Увімкніть живлення телевізора\ntv.IsOn = true\n",
@@ -37,6 +39,8 @@ export const CODING_TASKS: CodingTask[] = [
     descKey: "playground.task2Desc",
     hintKey: "playground.task2Hint",
     successKey: "playground.task2Success",
+    simpleExplanationKey: "playground.task2Simple",
+    careerImpactKey: "playground.task2Career",
     initialCode: {
       csharp: `// Перемикач живлення через if / else
 if (tv.IsOn) {
@@ -71,6 +75,8 @@ if tv.IsOn {
     descKey: "playground.task3Desc",
     hintKey: "playground.task3Hint",
     successKey: "playground.task3Success",
+    simpleExplanationKey: "playground.task3Simple",
+    careerImpactKey: "playground.task3Career",
     initialCode: {
       csharp: `// Збільшіть номер поточного каналу на 1 (tv.Channel++ або tv.Channel += 1)
 tv.Channel++;
@@ -105,6 +111,8 @@ tv.Channel++
     descKey: "playground.task4Desc",
     hintKey: "playground.task4Hint",
     successKey: "playground.task4Success",
+    simpleExplanationKey: "playground.task4Simple",
+    careerImpactKey: "playground.task4Career",
     initialCode: {
       csharp: `// Якщо номер каналу більший за 4 — скиньте його на 1
 if (tv.Channel > 4) {
@@ -149,6 +157,8 @@ if tv.Channel > 4 {
     descKey: "playground.task5Desc",
     hintKey: "playground.task5Hint",
     successKey: "playground.task5Success",
+    simpleExplanationKey: "playground.task5Simple",
+    careerImpactKey: "playground.task5Career",
     initialCode: {
       csharp: `// Цикл автопошуку по каналах від 1 до 4
 for (int i = 1; i <= 4; i++) {
@@ -173,6 +183,110 @@ for i := 1; i <= 4; i++ {
         return { passed: true, messageKey: "playground.task5Success" };
       }
       return { passed: false, messageKey: "playground.task5LoopFailed" };
+    },
+  },
+  {
+    id: "task-function-encapsulation",
+    order: 6,
+    titleKey: "playground.task6Title",
+    conceptKey: "playground.task6Concept",
+    descKey: "playground.task6Desc",
+    hintKey: "playground.task6Hint",
+    successKey: "playground.task6Success",
+    simpleExplanationKey: "playground.task6Simple",
+    careerImpactKey: "playground.task6Career",
+    initialCode: {
+      csharp: `// Оголосіть функцію Mute() і викличте її
+void Mute() {
+    tv.Volume = 0;
+}
+
+Mute();
+`,
+      go: `// Оголосіть функцію Mute() і викличте її
+func Mute() {
+    tv.Volume = 0
+}
+
+Mute()
+`,
+    },
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (after.volume === 0 && code && /Mute\s*\(\s*\)/i.test(code)) {
+        return { passed: true, messageKey: "playground.task6Success" };
+      }
+      if (code) {
+        const testRes = executeTvScript(code, { isOn: true, channel: 1, volume: 50 });
+        if (testRes.success && testRes.newState.volume === 0) {
+          return { passed: true, messageKey: "playground.task6Success" };
+        }
+      }
+      return { passed: false, messageKey: "playground.task6Failed" };
+    },
+  },
+  {
+    id: "task-antipattern-god-object",
+    order: 7,
+    titleKey: "playground.task7Title",
+    conceptKey: "playground.task7Concept",
+    descKey: "playground.task7Desc",
+    hintKey: "playground.task7Hint",
+    successKey: "playground.task7Success",
+    simpleExplanationKey: "playground.task7Simple",
+    careerImpactKey: "playground.task7Career",
+    initialCode: {
+      csharp: `// Додайте обробку кнопки "CALC" у цей громіздкий switch
+string button = "CALC";
+
+switch (button) {
+    case "POWER":
+        tv.TogglePower();
+        break;
+    case "CH_UP":
+        tv.Channel++;
+        break;
+    case "CH_DOWN":
+        tv.Channel--;
+        break;
+    case "VOL_UP":
+        tv.Volume += 5;
+        break;
+    case "MUTE":
+        tv.Volume = 0;
+        break;
+    default:
+        break;
+}
+`,
+      go: `// Додайте обробку кнопки "CALC" у цей громіздкий switch
+button := "CALC"
+
+switch button {
+case "POWER":
+    tv.TogglePower()
+case "CH_UP":
+    tv.Channel++
+case "CH_DOWN":
+    tv.Channel--
+case "VOL_UP":
+    tv.Volume += 5
+case "MUTE":
+    tv.Volume = 0
+default:
+}
+`,
+    },
+    validate: (_before, _after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (code && /case\s*["']CALC["']/i.test(code)) {
+        return { passed: true, messageKey: "playground.task7Success" };
+      }
+      return { passed: false, messageKey: "playground.task7Failed" };
     },
   },
 ];

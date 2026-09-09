@@ -25,6 +25,7 @@ export const InteractiveCodePlayground: React.FC = () => {
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
   const [showHint, setShowHint] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [showXpAward, setShowXpAward] = useState(false);
 
   const currentTask = useMemo(
     () => CODING_TASKS.find((t) => t.id === currentTaskId) || CODING_TASKS[0],
@@ -87,8 +88,12 @@ export const InteractiveCodePlayground: React.FC = () => {
       if (taskId === "task-boundary-guard" && channel <= 4) {
         applyCodeExecution({ channel: 5 });
       }
+      // If selecting Mute function and volume is already 0, preset to 50
+      if (taskId === "task-function-encapsulation" && volume === 0) {
+        applyCodeExecution({ volume: 50 });
+      }
     },
-    [channel, applyCodeExecution]
+    [channel, volume, applyCodeExecution]
   );
 
   // ── Run Code Action (Non-blocking async with live intermediate updates) ───
@@ -139,7 +144,9 @@ export const InteractiveCodePlayground: React.FC = () => {
         setTaskPassed(validation.passed);
         if (validation.passed) {
           setFeedbackMessage(t(validation.messageKey || currentTask.successKey));
-          addXp(15);
+          addXp(25);
+          setShowXpAward(true);
+          setTimeout(() => setShowXpAward(false), 2400);
         } else {
           setFeedbackMessage(
             validation.messageKey ? t(validation.messageKey) : undefined
@@ -218,7 +225,14 @@ export const InteractiveCodePlayground: React.FC = () => {
         </div>
 
         {/* Action Buttons: Run & Reset & Next */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 relative">
+          {/* Floating XP Award Animation Badge */}
+          {showXpAward && (
+            <div className="absolute -top-7 right-14 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-balsamiq font-extrabold text-xs shadow-lg shadow-amber-500/30 flex items-center gap-1 animate-bounce z-30 pointer-events-none">
+              <span>{t("playground.xpAwardedBadge", "+25 XP")}</span>
+            </div>
+          )}
+
           <button
             onClick={handleReset}
             disabled={isRunning}
@@ -274,6 +288,7 @@ export const InteractiveCodePlayground: React.FC = () => {
         taskPassed={taskPassed}
         feedbackMessage={feedbackMessage}
         currentTvState={currentTvState}
+        currentTask={currentTask}
       />
     </div>
   );

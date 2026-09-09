@@ -63,7 +63,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       className={`bg-paper-subtle rounded-3xl border-2 border-paper-border shadow-paper-lg flex flex-col overflow-hidden transition-all duration-300 ${
         inline
           ? "w-full h-full relative"
-          : "fixed z-40 top-16 bottom-4 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[640px] lg:w-[54vw] lg:min-w-[640px] lg:max-w-[820px] animate-in slide-in-from-right-4"
+          : "fixed z-40 top-16 bottom-4 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[640px] lg:w-[55vw] lg:min-w-[640px] lg:max-w-[860px] animate-in slide-in-from-right-4"
       } ${isPinned ? "ring-2 ring-accent-blue/30" : ""}`}
     >
       {/* Drawer Header with Pin & Close Controls */}

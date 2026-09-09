@@ -1,18 +1,19 @@
 /**
  * @file apps/web/src/components/workbench/playground/PlaygroundConsole.tsx
- * @description Execution log console, mentor feedback badge, and live TV state summary
+ * @description Execution log console, mentor feedback badge, live TV state summary, and Career Impact card
  */
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import type { RuntimeResult, VirtualTvState } from "@iw/sim-engine";
-import { Terminal, CheckCircle2, XCircle, Info, Zap } from "lucide-react";
+import type { RuntimeResult, VirtualTvState, CodingTask } from "@iw/sim-engine";
+import { Terminal, CheckCircle2, XCircle, Info, Zap, Briefcase } from "lucide-react";
 
 interface PlaygroundConsoleProps {
   result: RuntimeResult | null;
   taskPassed: boolean | null;
   feedbackMessage?: string;
   currentTvState: VirtualTvState;
+  currentTask?: CodingTask;
 }
 
 export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
@@ -20,6 +21,7 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
   taskPassed,
   feedbackMessage,
   currentTvState,
+  currentTask,
 }) => {
   const { t } = useTranslation();
 
@@ -56,7 +58,7 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
       </div>
 
       {/* Console Output Body */}
-      <div className="p-3.5 font-mono text-xs space-y-2.5 min-h-[95px] max-h-[190px] overflow-y-auto">
+      <div className="p-3.5 font-mono text-xs space-y-2.5 min-h-[95px] max-h-[220px] overflow-y-auto">
         {!result ? (
           <div className="text-gray-500 text-xs italic flex items-center gap-2 py-3">
             <Info size={14} className="text-gray-500 shrink-0" />
@@ -104,6 +106,19 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
                   <XCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
                 )}
                 <div className="leading-relaxed font-sans font-medium">{feedbackMessage}</div>
+              </div>
+            )}
+
+            {/* Career Impact Card: Why is this important for your career? */}
+            {taskPassed && currentTask?.careerImpactKey && (
+              <div className="p-3 rounded-xl bg-gradient-to-r from-blue-950/50 via-indigo-950/40 to-transparent border border-blue-500/30 text-xs font-sans text-blue-200 space-y-1 animate-in fade-in slide-in-from-bottom-1">
+                <div className="flex items-center gap-1.5 font-display font-bold text-blue-400 text-xs">
+                  <Briefcase size={13} className="text-blue-400 shrink-0" />
+                  <span>{t("playground.careerImpactTitle")}</span>
+                </div>
+                <p className="leading-relaxed text-gray-300 text-[11px]">
+                  {t(currentTask.careerImpactKey)}
+                </p>
               </div>
             )}
           </div>

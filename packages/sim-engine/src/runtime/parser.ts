@@ -1,6 +1,6 @@
 /**
  * @file packages/sim-engine/src/runtime/parser.ts
- * @description Safe lexical scanner and statement interpreter for C# and Go TV scripts with async loop support
+ * @description Safe lexical scanner and statement interpreter for C# and Go TV scripts with async loop, function, and switch support
  */
 
 import type { VirtualTV } from "./tvContext";
@@ -14,6 +14,12 @@ export interface ParseResult {
 export interface InterpreterOptions {
   onStepMutation?: (snapshot: VirtualTvState) => void;
   stepDelayMs?: number;
+}
+
+export interface ExecutionContext {
+  numScope: Record<string, number>;
+  strScope: Record<string, string>;
+  functions: Record<string, string>;
 }
 
 /**
@@ -114,10 +120,15 @@ function evaluateCondition(
 function executeStatement(
   statement: string,
   tv: VirtualTV,
-  scope: Record<string, number> = {}
+  ctx: ExecutionContext
 ): void {
   const s = statement.trim().replace(/;+$/, "").trim();
   if (!s) return;
+
+  // 0. Ignore break statements (used inside switch/case)
+  if (/^break$/i.test(s)) {
+    return;
+  }
 
   // 1. Property Assignment: tv.IsOn = true | false | !tv.IsOn
   const propBoolMatch = s.match(
@@ -155,7 +166,7 @@ function executeStatement(
   const compChMatch = s.match(/^tv\.(Channel|channel)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
   if (compChMatch) {
     const op = compChMatch[2];
-    const val = resolveNumValue(compChMatch[3], scope);
+    const val = resolveNumValue(compChMatch[3], ctx.numScope);
     tv.Channel = op === "+=" ? tv.Channel + val : tv.Channel - val;
     return;
   }
@@ -163,7 +174,7 @@ function executeStatement(
   const compVolMatch = s.match(/^tv\.(Volume|volume)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
   if (compVolMatch) {
     const op = compVolMatch[2];
-    const val = resolveNumValue(compVolMatch[3], scope);
+    const val = resolveNumValue(compVolMatch[3], ctx.numScope);
     tv.Volume = op === "+=" ? tv.Volume + val : tv.Volume - val;
     return;
   }
@@ -174,7 +185,7 @@ function executeStatement(
   );
   if (arithChMatch) {
     const op = arithChMatch[2];
-    const val = resolveNumValue(arithChMatch[3], scope);
+    const val = resolveNumValue(arithChMatch[3], ctx.numScope);
     tv.Channel = op === "+" ? tv.Channel + val : tv.Channel - val;
     return;
   }
@@ -184,7 +195,7 @@ function executeStatement(
   );
   if (arithVolMatch) {
     const op = arithVolMatch[2];
-    const val = resolveNumValue(arithVolMatch[3], scope);
+    const val = resolveNumValue(arithVolMatch[3], ctx.numScope);
     tv.Volume = op === "+" ? tv.Volume + val : tv.Volume - val;
     return;
   }
@@ -192,14 +203,14 @@ function executeStatement(
   // 5. Property Assignment: tv.Channel = <number | scopeVar>
   const propChMatch = s.match(/^tv\.(Channel|channel)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
   if (propChMatch) {
-    tv.Channel = resolveNumValue(propChMatch[2], scope);
+    tv.Channel = resolveNumValue(propChMatch[2], ctx.numScope);
     return;
   }
 
   // 6. Property Assignment: tv.Volume = <number | scopeVar>
   const propVolMatch = s.match(/^tv\.(Volume|volume)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
   if (propVolMatch) {
-    tv.Volume = resolveNumValue(propVolMatch[2], scope);
+    tv.Volume = resolveNumValue(propVolMatch[2], ctx.numScope);
     return;
   }
 
@@ -220,18 +231,35 @@ function executeStatement(
   // 8. Parameterized methods: tv.SetChannel(ch), tv.SetVolume(vol)
   const setChMatch = s.match(/^tv\.(SetChannel|setChannel)\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
   if (setChMatch) {
-    tv.SetChannel(resolveNumValue(setChMatch[2], scope));
+    tv.SetChannel(resolveNumValue(setChMatch[2], ctx.numScope));
     return;
   }
 
   const setVolMatch = s.match(/^tv\.(SetVolume|setVolume)\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
   if (setVolMatch) {
-    tv.SetVolume(resolveNumValue(setVolMatch[2], scope));
+    tv.SetVolume(resolveNumValue(setVolMatch[2], ctx.numScope));
     return;
   }
 
+  // 9. String variable assignment: string button = "CALC" / button := "CALC"
+  const strVarMatch = s.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']$/i);
+  if (strVarMatch) {
+    ctx.strScope[strVarMatch[1]] = strVarMatch[2];
+    return;
+  }
+
+  // 10. User-defined function call: Mute() or Mute();
+  const funcCallMatch = s.match(/^([a-zA-Z_]\w*)\s*\(\s*\)$/);
+  if (funcCallMatch) {
+    const funcName = funcCallMatch[1];
+    if (funcName in ctx.functions) {
+      executeBlock(ctx.functions[funcName], tv, ctx);
+      return;
+    }
+  }
+
   throw new Error(
-    `Синтаксична помилка: невідома команда «${s}». Перевірте назви методів або властивостей (tv.Channel, tv.Volume, tv.IsOn)`
+    `Синтаксична помилка: невідома команда «${s}». Перевірте назви методів або властивостей (tv.Channel, tv.Volume, tv.IsOn, Mute())`
   );
 }
 
@@ -241,13 +269,13 @@ function executeStatement(
 function executeBlock(
   blockStr: string,
   tv: VirtualTV,
-  scope: Record<string, number> = {}
+  ctx: ExecutionContext
 ): void {
   const rawParts = blockStr.split(/[\n;]+/);
   for (const part of rawParts) {
     const stmt = part.trim();
     if (stmt) {
-      executeStatement(stmt, tv, scope);
+      executeStatement(stmt, tv, ctx);
     }
   }
 }
@@ -383,7 +411,7 @@ function nextLoopVal(
 const MAX_LOOP_ITERATIONS = 50;
 
 /**
- * Asynchronous parser: handles for-loops with non-blocking step delays and live callbacks
+ * Asynchronous parser: handles loops, functions, and switch statements with non-blocking step delays
  */
 export async function interpretScriptAsync(
   rawCode: string,
@@ -395,15 +423,74 @@ export async function interpretScriptAsync(
     return { success: true };
   }
 
+  const ctx: ExecutionContext = {
+    numScope: {},
+    strScope: {},
+    functions: {},
+  };
+
   try {
     let remaining = cleaned;
 
     while (remaining.trim().length > 0) {
       remaining = remaining.trim();
 
-      // 1. Check for for-loop (C# with () or Go without ())
-      // C#: for (int i = 1; i <= 4; i++) { ... }
-      // Go: for i := 1; i <= 4; i++ { ... }
+      // 1. Function declaration: void FuncName() { ... } or func FuncName() { ... }
+      const funcMatch = remaining.match(/^(?:void|func)\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*\{([^}]*)\}/i);
+      if (funcMatch) {
+        const fullMatch = funcMatch[0];
+        const funcName = funcMatch[1];
+        const funcBody = funcMatch[2];
+        ctx.functions[funcName] = funcBody;
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 2. Switch statement: switch (button) { ... } or switch button { ... }
+      const switchMatch = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{([^}]*)\}/i);
+      if (switchMatch) {
+        const fullMatch = switchMatch[0];
+        const switchExpr = (switchMatch[1] || switchMatch[2]).trim();
+        const switchBody = switchMatch[3];
+
+        let switchVal = switchExpr.replace(/^["']|["']$/g, "");
+        if (switchExpr in ctx.strScope) {
+          switchVal = ctx.strScope[switchExpr];
+        }
+
+        // Parse case and default sections
+        const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
+        let matchedBlock: string | null = null;
+        let defaultBlock: string | null = null;
+
+        let cMatch: RegExpExecArray | null;
+        while ((cMatch = caseRegex.exec(switchBody)) !== null) {
+          const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
+          const caseCode = cMatch[2];
+
+          if (caseLabel !== null) {
+            const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
+            if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
+              matchedBlock = caseCode;
+              break;
+            }
+          } else {
+            defaultBlock = caseCode;
+          }
+        }
+
+        const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
+        if (blockToRun) {
+          executeBlock(blockToRun, tv, ctx);
+        }
+
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 3. For-loop: for (int i = 1; i <= 4; i++) { ... } or for i := 1; i <= 4; i++ { ... }
       const forParenMatch = remaining.match(/^for\s*\(([^)]+)\)\s*\{([^}]*)\}/i);
       const forNoParenMatch = remaining.match(
         /^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{([^}]*)\}/i
@@ -424,8 +511,11 @@ export async function interpretScriptAsync(
           iterCount < MAX_LOOP_ITERATIONS
         ) {
           iterCount++;
-          const scope = { [cfg.varName]: curVal };
-          executeBlock(bodyStr, tv, scope);
+          const iterCtx: ExecutionContext = {
+            ...ctx,
+            numScope: { ...ctx.numScope, [cfg.varName]: curVal },
+          };
+          executeBlock(bodyStr, tv, iterCtx);
 
           // Trigger live snapshot callback for TV rendering
           if (options?.onStepMutation) {
@@ -455,7 +545,7 @@ export async function interpretScriptAsync(
         continue;
       }
 
-      // 2. Check for if statement (C# with () or Go without ())
+      // 4. If statement (C# with () or Go without ())
       const ifRegex =
         /^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\\s{])?))\s*\{([^}]*)\}(?:\s*else\s*\{([^}]*)\})?/i;
       const ifMatch = remaining.match(ifRegex);
@@ -466,11 +556,11 @@ export async function interpretScriptAsync(
         const thenBlock = ifMatch[3];
         const elseBlock = ifMatch[4] || "";
 
-        const condResult = evaluateCondition(conditionStr, tv);
+        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
         if (condResult) {
-          executeBlock(thenBlock, tv);
+          executeBlock(thenBlock, tv, ctx);
         } else if (elseBlock) {
-          executeBlock(elseBlock, tv);
+          executeBlock(elseBlock, tv, ctx);
         }
 
         remaining = remaining.slice(fullMatch.length).trim();
@@ -480,11 +570,21 @@ export async function interpretScriptAsync(
         continue;
       }
 
-      // 3. Check for regular statement
+      // 5. String variable declaration / assignment
+      const strVarMatch = remaining.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']/i);
+      if (strVarMatch) {
+        const fullMatch = strVarMatch[0];
+        ctx.strScope[strVarMatch[1]] = strVarMatch[2];
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 6. Regular statement
       const stmtMatch = remaining.match(/^[^;{}\n]+/);
       if (stmtMatch) {
         const stmt = stmtMatch[0].trim();
-        executeStatement(stmt, tv);
+        executeStatement(stmt, tv, ctx);
         remaining = remaining.slice(stmtMatch[0].length).trim();
         if (remaining.startsWith(";")) {
           remaining = remaining.slice(1).trim();
@@ -511,12 +611,71 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
     return { success: true };
   }
 
+  const ctx: ExecutionContext = {
+    numScope: {},
+    strScope: {},
+    functions: {},
+  };
+
   try {
     let remaining = cleaned;
 
     while (remaining.trim().length > 0) {
       remaining = remaining.trim();
 
+      // 1. Function declaration
+      const funcMatch = remaining.match(/^(?:void|func)\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*\{([^}]*)\}/i);
+      if (funcMatch) {
+        const fullMatch = funcMatch[0];
+        ctx.functions[funcMatch[1]] = funcMatch[2];
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 2. Switch statement
+      const switchMatch = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{([^}]*)\}/i);
+      if (switchMatch) {
+        const fullMatch = switchMatch[0];
+        const switchExpr = (switchMatch[1] || switchMatch[2]).trim();
+        const switchBody = switchMatch[3];
+
+        let switchVal = switchExpr.replace(/^["']|["']$/g, "");
+        if (switchExpr in ctx.strScope) {
+          switchVal = ctx.strScope[switchExpr];
+        }
+
+        const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
+        let matchedBlock: string | null = null;
+        let defaultBlock: string | null = null;
+
+        let cMatch: RegExpExecArray | null;
+        while ((cMatch = caseRegex.exec(switchBody)) !== null) {
+          const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
+          const caseCode = cMatch[2];
+
+          if (caseLabel !== null) {
+            const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
+            if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
+              matchedBlock = caseCode;
+              break;
+            }
+          } else {
+            defaultBlock = caseCode;
+          }
+        }
+
+        const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
+        if (blockToRun) {
+          executeBlock(blockToRun, tv, ctx);
+        }
+
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 3. For-loop
       const forParenMatch = remaining.match(/^for\s*\(([^)]+)\)\s*\{([^}]*)\}/i);
       const forNoParenMatch = remaining.match(
         /^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{([^}]*)\}/i
@@ -537,8 +696,11 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
           iterCount < MAX_LOOP_ITERATIONS
         ) {
           iterCount++;
-          const scope = { [cfg.varName]: curVal };
-          executeBlock(bodyStr, tv, scope);
+          const iterCtx: ExecutionContext = {
+            ...ctx,
+            numScope: { ...ctx.numScope, [cfg.varName]: curVal },
+          };
+          executeBlock(bodyStr, tv, iterCtx);
           curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
         }
 
@@ -549,6 +711,7 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
         continue;
       }
 
+      // 4. If statement
       const ifRegex =
         /^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\\s{])?))\s*\{([^}]*)\}(?:\s*else\s*\{([^}]*)\})?/i;
       const ifMatch = remaining.match(ifRegex);
@@ -559,11 +722,11 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
         const thenBlock = ifMatch[3];
         const elseBlock = ifMatch[4] || "";
 
-        const condResult = evaluateCondition(conditionStr, tv);
+        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
         if (condResult) {
-          executeBlock(thenBlock, tv);
+          executeBlock(thenBlock, tv, ctx);
         } else if (elseBlock) {
-          executeBlock(elseBlock, tv);
+          executeBlock(elseBlock, tv, ctx);
         }
 
         remaining = remaining.slice(fullMatch.length).trim();
@@ -573,10 +736,21 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
         continue;
       }
 
+      // 5. String variable declaration
+      const strVarMatch = remaining.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']/i);
+      if (strVarMatch) {
+        const fullMatch = strVarMatch[0];
+        ctx.strScope[strVarMatch[1]] = strVarMatch[2];
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 6. Regular statement
       const stmtMatch = remaining.match(/^[^;{}\n]+/);
       if (stmtMatch) {
         const stmt = stmtMatch[0].trim();
-        executeStatement(stmt, tv);
+        executeStatement(stmt, tv, ctx);
         remaining = remaining.slice(stmtMatch[0].length).trim();
         if (remaining.startsWith(";")) {
           remaining = remaining.slice(1).trim();

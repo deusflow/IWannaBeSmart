@@ -34,6 +34,8 @@ export interface CodingTask {
   descKey: string;
   hintKey: string;
   successKey: string;
+  simpleExplanationKey?: string;
+  careerImpactKey?: string;
   initialCode: {
     csharp: string;
     go: string;

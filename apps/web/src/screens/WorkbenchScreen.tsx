@@ -141,7 +141,7 @@ export const WorkbenchScreen: React.FC = () => {
               <div
                 className={`w-full transition-all duration-300 ease-in-out flex flex-col items-center justify-center ${
                   isDrawerActive
-                    ? "transform scale-[0.72] xl:scale-[0.75] origin-center -my-8 lg:-my-6"
+                    ? "transform scale-[0.75] origin-center -my-6"
                     : "transform scale-100 origin-center my-0"
                 }`}
               >
@@ -213,9 +213,9 @@ export const WorkbenchScreen: React.FC = () => {
               </div>
             </div>
 
-            {/* Right column: Wide Ergonomic IDE Drawer (~53vw, 640-840px) */}
+            {/* Right column: Wide Ergonomic IDE Drawer (55vw, min 640px) */}
             {isDrawerActive && (
-              <div className="w-full lg:w-[53vw] lg:min-w-[640px] lg:max-w-[820px] xl:max-w-[850px] h-[calc(100vh-4.8rem)] min-h-[580px] shrink-0 transition-all duration-300 ease-in-out animate-in slide-in-from-right-4">
+              <div className="w-full lg:w-[55vw] lg:min-w-[640px] lg:max-w-[860px] xl:max-w-[900px] h-[calc(100vh-4.8rem)] min-h-[580px] shrink-0 transition-all duration-300 ease-in-out animate-in slide-in-from-right-4">
                 <EngineeringDrawer
                   isOpen={true}
                   isPinned={isDrawerPinned}
