@@ -8,3 +8,5 @@ export * from "./tvContext";
 export * from "./parser";
 export * from "./evaluator";
 export * from "./tasks";
+export * from "./terminalContext";
+export * from "./tasks-fintech";

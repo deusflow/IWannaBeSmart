@@ -228,6 +228,76 @@ class AudioFxEngine {
     osc.start(t);
     osc.stop(t + 0.18);
   }
+
+  /**
+   * Procedural thermal printer line-feed sound (stepper motor + thermal pin pulses)
+   */
+  public playPrinterSound(): void {
+    if (this._isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const pulses = 10;
+    const stepInterval = 0.07; // 70ms per line feed
+
+    for (let i = 0; i < pulses; i++) {
+      const startTime = t + i * stepInterval;
+
+      // 1. Stepper motor step transient
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(620 + (i % 3) * 40, startTime);
+      osc.frequency.exponentialRampToValueAtTime(180, startTime + 0.035);
+
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(800, startTime);
+      filter.Q.setValueAtTime(3.0, startTime);
+
+      gain.gain.setValueAtTime(0.18, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.04);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.045);
+    }
+  }
+
+  /**
+   * Procedural emergency lockout alarm (two-tone warning siren)
+   */
+  public playAlarmSound(): void {
+    if (this._isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const tones = [880, 587, 880, 587, 880, 587];
+
+    tones.forEach((freq, idx) => {
+      const startTime = t + idx * 0.14;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "square";
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.16, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.13);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.135);
+    });
+  }
 }
 
 export const audioFx = new AudioFxEngine();

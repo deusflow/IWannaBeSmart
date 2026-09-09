@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronDown, Tv, Warehouse, Cpu, Lock } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock } from "lucide-react";
 
 interface StationOption {
   id: string;
@@ -14,16 +14,25 @@ interface StationOption {
 const STATION_OPTIONS: StationOption[] = [
   {
     id: "tv",
-    code: "Рівень 1",
+    code: "Модуль 1",
     title: "Телевізор",
-    subtitle: "Апаратний сигнал та інтерфейси C# / Go",
+    subtitle: "Апаратний сигнал та архітектурні патерни C# / Go",
     status: "Доступно",
     icon: <Tv size={16} strokeWidth={2} />,
     isAvailable: true,
   },
   {
+    id: "pos",
+    code: "Модуль 2",
+    title: "Фінтех POS-термінал",
+    subtitle: "Code Gym: Захист балансу, Guard Clauses та 3-Star Mastery",
+    status: "Доступно",
+    icon: <CreditCard size={16} strokeWidth={2} />,
+    isAvailable: true,
+  },
+  {
     id: "garage",
-    code: "Рівень 2",
+    code: "Модуль 3",
     title: "Гаражні ворота",
     subtitle: "Ультразвуковий датчик та кінцеві автомати",
     status: "Незабаром",
@@ -32,7 +41,7 @@ const STATION_OPTIONS: StationOption[] = [
   },
   {
     id: "pc",
-    code: "Рівень 3",
+    code: "Модуль 4",
     title: "Робоча станція",
     subtitle: "Регістри CPU, пам'ять та ОС",
     status: "Незабаром",

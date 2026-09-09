@@ -8,6 +8,8 @@ import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDe
 import { EngineeringDrawer } from "../components/workbench/EngineeringDrawer";
 import { ArchitectureCanvas } from "../components/workbench/architecture/ArchitectureCanvas";
 import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
+import { POSBlueprintDevice } from "../components/workbench/POSBlueprintDevice";
+import { CodeGymRunner } from "../components/workbench/playground/CodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy } from "lucide-react";
@@ -43,7 +45,6 @@ const EngineeringChipXpIcon: React.FC<{ className?: string; size?: number }> = (
 
 export const WorkbenchScreen: React.FC = () => {
   const { t } = useTranslation();
-  const [stationId, setStationId] = useState("tv");
   const [activeView, setActiveView] = useState<"device" | "architecture">("device");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
@@ -60,6 +61,8 @@ export const WorkbenchScreen: React.FC = () => {
     completedCodingTasks,
     isStationVictoryModalOpen,
     setStationVictoryModalOpen,
+    currentStationId,
+    setCurrentStationId,
   } = useWorkbenchStore();
 
   const handleToggleSound = () => {
@@ -99,8 +102,8 @@ export const WorkbenchScreen: React.FC = () => {
             </button>
           ) : (
             <BlueprintStationSwitcher
-              currentStationId={stationId}
-              onSelectStation={setStationId}
+              currentStationId={currentStationId}
+              onSelectStation={setCurrentStationId}
             />
           )}
 
@@ -109,6 +112,8 @@ export const WorkbenchScreen: React.FC = () => {
             <span className="text-ink font-bold truncate max-w-[220px] sm:max-w-[360px]">
               {activeView === "architecture"
                 ? t("architecture.title")
+                : currentStationId === "pos"
+                ? t("posStation.title")
                 : t("level.level1Title", { defaultValue: tvLevel01.title })}
             </span>
           </div>
@@ -162,6 +167,20 @@ export const WorkbenchScreen: React.FC = () => {
       {activeView === "architecture" ? (
         <main className="relative z-10 flex-1 w-full h-[calc(100vh-3.5rem)] min-h-0 overflow-hidden flex flex-col">
           <ArchitectureCanvas onBackToTv={() => setActiveView("device")} />
+        </main>
+      ) : currentStationId === "pos" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full flex flex-col lg:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: POS Device */}
+            <div className="w-full lg:w-[460px] xl:w-[500px] shrink-0 sticky top-2">
+              <POSBlueprintDevice />
+            </div>
+
+            {/* Right: Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <CodeGymRunner />
+            </div>
+          </div>
         </main>
       ) : (
         <main className="relative z-10 flex-1 flex flex-col justify-center p-3 sm:p-4 lg:p-5 w-full max-w-[1840px] mx-auto overflow-hidden">
@@ -273,10 +292,10 @@ export const WorkbenchScreen: React.FC = () => {
       )}
 
       {/* ══════════════════════════════════════════════
-           Notebook Edge Tabs — always visible on device view
+           Notebook Edge Tabs — visible on TV device view
            Two sticker-tabs protruding from the right edge
           ══════════════════════════════════════════════ */}
-      {activeView === "device" && (
+      {activeView === "device" && currentStationId === "tv" && (
         <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-end gap-0">
           {/* Tab 1: Code & Schematic */}
           <button

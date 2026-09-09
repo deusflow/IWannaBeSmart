@@ -11,6 +11,7 @@
 
 import { create } from "zustand";
 import type { Node, Edge } from "@xyflow/react";
+import type { VirtualPosState } from "@iw/sim-engine";
 import { audioFx } from "../utils/audioFx";
 
 /**
@@ -97,6 +98,15 @@ export interface MentorSlice {
   addXp: (amount: number) => void;
   resetLevelForPractice: () => void;
   completeLevel: () => void;
+  // Code Gym Mastery Stars & Fintech Station
+  taskMasteryStars: Record<string, number>;
+  setTaskMastery: (taskId: string, stars: number) => void;
+  getTaskMastery: (taskId: string) => number;
+  currentStationId: string;
+  setCurrentStationId: (id: string) => void;
+  posState: VirtualPosState;
+  applyPosExecution: (updates: Partial<VirtualPosState>) => void;
+  resetPosState: (customState?: Partial<VirtualPosState>) => void;
 }
 
 export interface TVStateSlice {
@@ -564,6 +574,80 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       }, 4000);
     },
     addXp: (amount) => set((s) => ({ xp: s.xp + amount })),
+
+    // Code Gym Mastery Stars & Fintech Station
+    taskMasteryStars: (() => {
+      try {
+        return typeof window !== "undefined"
+          ? JSON.parse(localStorage.getItem("iw_mastery_stars") || "{}")
+          : {};
+      } catch {
+        return {};
+      }
+    })(),
+    setTaskMastery: (taskId: string, stars: number) => {
+      const current = get().taskMasteryStars[taskId] || 0;
+      const nextStars = Math.max(current, stars);
+      const nextMap = { ...get().taskMasteryStars, [taskId]: nextStars };
+      set({ taskMasteryStars: nextMap });
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("iw_mastery_stars", JSON.stringify(nextMap));
+        }
+      } catch {
+        // Safe catch
+      }
+    },
+    getTaskMastery: (taskId: string) => get().taskMasteryStars[taskId] || 0,
+
+    currentStationId: "tv",
+    setCurrentStationId: (id: string) => set({ currentStationId: id }),
+
+    posState: {
+      balance: 500.0,
+      transactionAmount: 750.0,
+      status: "IDLE",
+      terminalId: "POS-MAIN-01",
+      accountHolder: "Олена Коваль",
+      totalAmount: 0.0,
+      fee: 0.0,
+      failedAttempts: 0,
+      isLocked: false,
+      pin: 1234,
+      enteredPin: 1234,
+      transactions: [120, 45, 300, 85],
+      dailyTotal: 0.0,
+      receiptLines: [],
+    },
+    applyPosExecution: (updates: Partial<VirtualPosState>) => {
+      set((s) => ({
+        posState: {
+          ...s.posState,
+          ...updates,
+        },
+      }));
+    },
+    resetPosState: (customState?: Partial<VirtualPosState>) => {
+      set({
+        posState: {
+          balance: 500.0,
+          transactionAmount: 750.0,
+          status: "IDLE",
+          terminalId: "POS-MAIN-01",
+          accountHolder: "Олена Коваль",
+          totalAmount: 0.0,
+          fee: 0.0,
+          failedAttempts: 0,
+          isLocked: false,
+          pin: 1234,
+          enteredPin: 1234,
+          transactions: [120, 45, 300, 85],
+          dailyTotal: 0.0,
+          receiptLines: [],
+          ...customState,
+        },
+      });
+    },
     resetLevelForPractice: () => {
       // Clear wire PowerCommand -> TVController
       const currentEdges = get().archEdges;
