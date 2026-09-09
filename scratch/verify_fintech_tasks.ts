@@ -23,7 +23,7 @@ function assert(condition: boolean, msg: string) {
 console.log("=== VERIFYING FINTECH TASKS & RUNTIME ===");
 
 // 1. Task Count
-assert(FINTECH_TASKS.length === 4, `Expected 4 fintech tasks, got ${FINTECH_TASKS.length}`);
+assert(FINTECH_TASKS.length === 6, `Expected 6 fintech tasks, got ${FINTECH_TASKS.length}`);
 
 // 2. Task 1: Guard Clause
 const task1 = FINTECH_TASKS[0];
@@ -129,7 +129,75 @@ assert(
   "Task 4 Go validator passes"
 );
 
-// 6. Security constraint: Locked terminal rejection
+// 6. Task 5: Payment Contract (Interface Polymorphism)
+const task5 = FINTECH_TASKS[4];
+assert(task5.id === "task-pos-interface-polymorphism", "Task 5 ID matches");
+
+// Task 5: C#
+const t5CsRes = executePosScript(task5.targetCode.csharp, task5.initialState);
+assert(t5CsRes.success === true, "Task 5 C# execution succeeds");
+assert(t5CsRes.newState.status === "APPROVED", "Task 5 C# status is APPROVED");
+assert(
+  task5.validate(task5.initialState, t5CsRes.newState, t5CsRes, task5.targetCode.csharp).passed,
+  "Task 5 C# validator passes"
+);
+
+// Task 5: Go
+const t5GoRes = executePosScript(task5.targetCode.go, task5.initialState);
+assert(t5GoRes.success === true, "Task 5 Go execution succeeds");
+assert(t5GoRes.newState.status === "APPROVED", "Task 5 Go status is APPROVED");
+assert(
+  task5.validate(task5.initialState, t5GoRes.newState, t5GoRes, task5.targetCode.go).passed,
+  "Task 5 Go validator passes"
+);
+
+// Task 5: Gateway declined test
+const declinedGatewayState: VirtualPosState = {
+  ...task5.initialState,
+  gatewayApproved: false,
+};
+const t5DeclinedRes = executePosScript(task5.targetCode.csharp, declinedGatewayState);
+assert(t5DeclinedRes.success === true, "Task 5 execution succeeds when gateway declines");
+assert(t5DeclinedRes.newState.status === "DECLINED", "Task 5 status is DECLINED when gateway returns false");
+
+// Task 5: PaymentGatewayNotFoundException test (no registered gateway)
+const unregState: VirtualPosState = {
+  ...task5.initialState,
+  activeGateway: null,
+  isGatewayRegistered: false,
+};
+const t5UnregRes = executePosScript(task5.targetCode.csharp, unregState);
+assert(t5UnregRes.success === false, "Execution fails when no gateway registered");
+assert(
+  Boolean(t5UnregRes.error && t5UnregRes.error.includes("PaymentGatewayNotFoundException")),
+  "Throws PaymentGatewayNotFoundException when gateway is unregistered"
+);
+
+// 7. Task 6: IoC Container & Dependency Injection
+const task6 = FINTECH_TASKS[5];
+assert(task6.id === "task-pos-dependency-injection", "Task 6 ID matches");
+
+// Task 6: C#
+const t6CsRes = executePosScript(task6.targetCode.csharp, task6.initialState);
+assert(t6CsRes.success === true, "Task 6 C# execution succeeds");
+assert(t6CsRes.newState.activeGateway === "DankortGateway", "Task 6 C# activeGateway is DankortGateway");
+assert(t6CsRes.newState.isGatewayRegistered === true, "Task 6 C# isGatewayRegistered is true");
+assert(
+  task6.validate(task6.initialState, t6CsRes.newState, t6CsRes, task6.targetCode.csharp).passed,
+  "Task 6 C# validator passes"
+);
+
+// Task 6: Go
+const t6GoRes = executePosScript(task6.targetCode.go, task6.initialState);
+assert(t6GoRes.success === true, "Task 6 Go execution succeeds");
+assert(t6GoRes.newState.activeGateway === "DankortGateway", "Task 6 Go activeGateway is DankortGateway");
+assert(t6GoRes.newState.isGatewayRegistered === true, "Task 6 Go isGatewayRegistered is true");
+assert(
+  task6.validate(task6.initialState, t6GoRes.newState, t6GoRes, task6.targetCode.go).passed,
+  "Task 6 Go validator passes"
+);
+
+// 8. Security constraint: Locked terminal rejection
 const lockedState: VirtualPosState = {
   ...task1.initialState,
   isLocked: true,
@@ -138,7 +206,7 @@ const lockedRes = executePosScript(task1.targetCode.csharp, lockedState);
 assert(lockedRes.success === false, "Locked terminal rejects execution");
 assert(lockedRes.error === "TERMINAL IS LOCKED", "Locked terminal returns TERMINAL IS LOCKED error");
 
-// 7. Regression check: Module 1 (TV)
+// 9. Regression check: Module 1 (TV)
 assert(CODING_TASKS.length === 10, "Module 1 TV tasks are intact (10 tasks)");
 
-console.log("\n🎉 ALL FINTECH POS ENGINE TESTS PASSED 100%!");
+console.log("\n🎉 ALL 6 FINTECH POS ENGINE TESTS & SECURITY CONSTRAINTS PASSED 100%!");

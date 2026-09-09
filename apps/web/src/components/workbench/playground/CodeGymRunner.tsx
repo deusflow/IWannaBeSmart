@@ -38,6 +38,7 @@ export const CodeGymRunner: React.FC = () => {
     taskMasteryStars,
     setTaskMastery,
     addXp,
+    setPosVictoryModalOpen,
   } = useWorkbenchStore();
 
   const [selectedTaskId, setSelectedTaskId] = useState<string>(FINTECH_TASKS[0].id);
@@ -232,12 +233,16 @@ export const CodeGymRunner: React.FC = () => {
       setTaskMastery(currentTask.id, 3);
       addXp(50);
       setFeedback(t("codegym.masteryComplete"));
+
+      if (currentTask.id === "task-pos-dependency-injection") {
+        setPosVictoryModalOpen(true);
+      }
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
       setFeedback(t(validation.messageKey || currentTask.hintKey));
     }
-  }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, setTaskMastery, addXp, t]);
+  }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, setTaskMastery, addXp, setPosVictoryModalOpen, t]);
 
   // Trace character progress
   const traceCharsMatched = useMemo(() => {
@@ -258,17 +263,25 @@ export const CodeGymRunner: React.FC = () => {
         return codeLang === "go" ? "pin_lock.go" : "PinSecurityGuard.cs";
       case "task-pos-batch-settlement":
         return codeLang === "go" ? "batch.go" : "BatchSettlement.cs";
+      case "task-pos-interface-polymorphism":
+        return codeLang === "go" ? "payment_gateway.go" : "PaymentContract.cs";
+      case "task-pos-dependency-injection":
+        return codeLang === "go" ? "container.go" : "Program.cs";
       default:
         return codeLang === "go" ? "guard.go" : "TransactionGuard.cs";
     }
   }, [currentTask.id, codeLang]);
 
+  const allFintechCompleted = useMemo(() => {
+    return FINTECH_TASKS.every((task) => (taskMasteryStars[task.id] || 0) >= 1);
+  }, [taskMasteryStars]);
+
   return (
     <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
       {/* ── Top Header: Task Selector, Task Title, Round Tabs & Mastery Stars ── */}
       <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-paper-border shadow-paper-sm space-y-3">
-        {/* Task Navigation Bar (Tasks 1..4) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-b border-paper-border/70 pb-3">
+        {/* Task Navigation Bar (Tasks 1..6) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 border-b border-paper-border/70 pb-3">
           {FINTECH_TASKS.map((task, idx) => {
             const isCurrent = task.id === currentTask.id;
             const taskStars = taskMasteryStars[task.id] || 0;
@@ -341,22 +354,38 @@ export const CodeGymRunner: React.FC = () => {
             </div>
           </div>
 
-          {/* Stars Mastery Counter */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper border border-paper-border shadow-xs">
-            <span className="text-xs font-display font-bold text-ink-muted mr-1">
-              {t("codegym.starsLabel")}:
-            </span>
-            {[1, 2, 3].map((starIdx) => (
-              <Star
-                key={starIdx}
-                size={18}
-                className={`transition-all duration-300 ${
-                  starsEarned >= starIdx
-                    ? "text-amber-500 fill-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110"
-                    : "text-gray-300"
-                }`}
-              />
-            ))}
+          {/* Stars Mastery Counter & Trophy / Certificate trigger */}
+          <div className="flex items-center gap-2">
+            {allFintechCompleted && (
+              <button
+                onClick={() => {
+                  audioFx.playSuccessFanfare();
+                  setPosVictoryModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-display font-extrabold text-xs shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95"
+                title="Отримати сертифікат модуля"
+              >
+                <Trophy size={14} className="text-stone-900" />
+                <span>Сертифікат</span>
+              </button>
+            )}
+
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper border border-paper-border shadow-xs">
+              <span className="text-xs font-display font-bold text-ink-muted mr-1">
+                {t("codegym.starsLabel")}:
+              </span>
+              {[1, 2, 3].map((starIdx) => (
+                <Star
+                  key={starIdx}
+                  size={18}
+                  className={`transition-all duration-300 ${
+                    starsEarned >= starIdx
+                      ? "text-amber-500 fill-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110"
+                      : "text-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
 

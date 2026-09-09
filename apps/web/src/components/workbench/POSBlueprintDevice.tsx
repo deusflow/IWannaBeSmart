@@ -172,7 +172,7 @@ export const POSBlueprintDevice: React.FC = () => {
           }`}
         >
           {/* Top Status Banner */}
-          <div className="flex items-center justify-between text-[11px] font-mono border-b border-[#1E2126] pb-2">
+          <div className="flex items-center justify-between text-[11px] font-mono border-b border-[#1E2126] pb-2 flex-wrap gap-1">
             <span className="flex items-center gap-1.5">
               {isBlocked ? (
                 <>
@@ -182,11 +182,35 @@ export const POSBlueprintDevice: React.FC = () => {
               ) : (
                 <>
                   <Lock size={12} className="text-amber-400" />
-                  <span className="text-gray-400">TLS 1.3 ENCRYPTED</span>
+                  <span className="text-gray-400">TLS 1.3</span>
                 </>
               )}
             </span>
-            <span className={isBlocked ? "text-red-400 font-bold" : "text-gray-400"}>
+
+            {/* Active Payment Gateway Badge (Task 6) */}
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#16181D] border border-[#2B2F38] text-[9px] font-mono">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  posState.isGatewayRegistered && posState.activeGateway
+                    ? "bg-emerald-400 animate-pulse"
+                    : "bg-amber-500"
+                }`}
+              />
+              <span
+                className={
+                  posState.isGatewayRegistered && posState.activeGateway
+                    ? "text-emerald-300 font-bold"
+                    : "text-amber-400 font-medium"
+                }
+              >
+                NET:{" "}
+                {posState.isGatewayRegistered && posState.activeGateway
+                  ? posState.activeGateway.replace(/Gateway$/i, "").toUpperCase()
+                  : "DISCONNECTED"}
+              </span>
+            </div>
+
+            <span className={isBlocked ? "text-red-400 font-bold text-[10px]" : "text-gray-400 text-[10px]"}>
               {posState.accountHolder || "Cardholder"}
             </span>
           </div>

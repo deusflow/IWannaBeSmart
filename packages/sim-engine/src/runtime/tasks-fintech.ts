@@ -290,4 +290,127 @@ status = "___"`,
       return { passed: false, messageKey: "fintechTask4.failed" };
     },
   },
+  {
+    id: "task-pos-interface-polymorphism",
+    order: 5,
+    titleKey: "fintechTask5.title",
+    conceptKey: "fintechTask5.concept",
+    descKey: "fintechTask5.desc",
+    hintKey: "fintechTask5.hint",
+    successKey: "fintechTask5.success",
+    initialState: {
+      balance: 500.0,
+      transactionAmount: 150.0,
+      totalAmount: 150.0,
+      fee: 0.0,
+      status: "IDLE",
+      terminalId: "POS-MAIN-01",
+      accountHolder: "Олена Коваль",
+      activeGateway: "DankortGateway",
+      isGatewayRegistered: true,
+      gatewayApproved: true,
+    },
+    targetCode: {
+      csharp: `bool approved = gateway.Charge(totalAmount);
+if (!approved) {
+    status = "DECLINED";
+    return;
+}
+status = "APPROVED";`,
+      go: `approved := gateway.Charge(totalAmount)
+if !approved {
+    status = "DECLINED"
+    return
+}
+status = "APPROVED"`,
+    },
+    clozeTemplate: {
+      csharp: `bool approved = gateway.Charge(___);
+if (!___) {
+    status = "DECLINED";
+    return;
+}
+status = "___";`,
+      go: `approved := gateway.Charge(___)
+if !___ {
+    status = "DECLINED"
+    return
+}
+status = "___"`,
+    },
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "fintechTask5.syntaxError" };
+      }
+
+      const hasCharge = Boolean(
+        code && /gateway\s*\.\s*Charge\s*\(\s*totalAmount\s*\)/i.test(code)
+      );
+      const hasGuard = Boolean(code && /if\s*\(?\s*!approved\s*\)?/i.test(code));
+      const hasDeclined = Boolean(code && /status\s*=\s*["']DECLINED["']/i.test(code));
+      const hasApproved = Boolean(code && /status\s*=\s*["']APPROVED["']/i.test(code));
+
+      if (hasCharge && hasGuard && hasDeclined && hasApproved && after.status === "APPROVED") {
+        return { passed: true, messageKey: "fintechTask5.success" };
+      }
+
+      return { passed: false, messageKey: "fintechTask5.failed" };
+    },
+  },
+  {
+    id: "task-pos-dependency-injection",
+    order: 6,
+    titleKey: "fintechTask6.title",
+    conceptKey: "fintechTask6.concept",
+    descKey: "fintechTask6.desc",
+    hintKey: "fintechTask6.hint",
+    successKey: "fintechTask6.success",
+    initialState: {
+      balance: 500.0,
+      transactionAmount: 200.0,
+      totalAmount: 200.0,
+      fee: 0.0,
+      status: "IDLE",
+      terminalId: "POS-MAIN-01",
+      accountHolder: "Олена Коваль",
+      activeGateway: null,
+      isGatewayRegistered: false,
+    },
+    targetCode: {
+      csharp: `services.AddScoped<IPaymentGateway, DankortGateway>();`,
+      go: `container.Register("payment_gateway", NewDankortGateway())`,
+    },
+    clozeTemplate: {
+      csharp: `services.AddScoped<___, DankortGateway>();`,
+      go: `container.Register("___", NewDankortGateway())`,
+    },
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "fintechTask6.syntaxError" };
+      }
+
+      const hasCsharpDi = Boolean(
+        code &&
+          /services\s*\.\s*AddScoped\s*<\s*IPaymentGateway\s*,\s*DankortGateway\s*>\s*\(\s*\)/i.test(
+            code
+          )
+      );
+      const hasGoDi = Boolean(
+        code &&
+          /container\s*\.\s*Register\s*\(\s*["']payment_gateway["']\s*,\s*NewDankortGateway\s*\(\s*\)\s*\)/i.test(
+            code
+          )
+      );
+
+      if (
+        (hasCsharpDi || hasGoDi) &&
+        after.isGatewayRegistered === true &&
+        after.activeGateway === "DankortGateway"
+      ) {
+        return { passed: true, messageKey: "fintechTask6.success" };
+      }
+
+      return { passed: false, messageKey: "fintechTask6.failed" };
+    },
+  },
 ];

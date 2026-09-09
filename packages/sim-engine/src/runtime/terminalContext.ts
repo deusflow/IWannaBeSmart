@@ -20,6 +20,9 @@ export interface VirtualPosState {
   transactions?: number[];
   dailyTotal?: number;
   receiptLines?: string[];
+  activeGateway?: string | null;
+  isGatewayRegistered?: boolean;
+  gatewayApproved?: boolean;
 }
 
 export interface PosLogEntry {
@@ -50,6 +53,9 @@ export class VirtualPOS {
   private _transactions: number[];
   private _dailyTotal: number;
   private _receiptLines: string[];
+  private _activeGateway: string | null;
+  private _isGatewayRegistered: boolean;
+  private _gatewayApproved: boolean;
   private _logs: PosLogEntry[] = [];
   private _mutationsCount = 0;
 
@@ -68,6 +74,9 @@ export class VirtualPOS {
     this._transactions = initial.transactions ? [...initial.transactions] : [120, 45, 300, 85];
     this._dailyTotal = initial.dailyTotal ?? 0;
     this._receiptLines = initial.receiptLines ? [...initial.receiptLines] : [];
+    this._activeGateway = initial.activeGateway ?? null;
+    this._isGatewayRegistered = initial.isGatewayRegistered ?? false;
+    this._gatewayApproved = initial.gatewayApproved ?? true;
   }
 
   // ── Property: Balance ───────────────────────────────────────
@@ -263,6 +272,58 @@ export class VirtualPOS {
     this.ReceiptLines = val;
   }
 
+  // ── Property: Active Gateway ────────────────────────────────
+  get ActiveGateway(): string | null {
+    return this._activeGateway;
+  }
+  set ActiveGateway(val: string | null) {
+    this._activeGateway = val;
+    this._mutationsCount++;
+    this._logs.push({
+      type: "mutation",
+      message: `activeGateway = ${this._activeGateway ? `"${this._activeGateway}"` : "null"}`,
+    });
+  }
+  get activeGateway(): string | null {
+    return this.ActiveGateway;
+  }
+  set activeGateway(val: string | null) {
+    this.ActiveGateway = val;
+  }
+
+  // ── Property: Is Gateway Registered ─────────────────────────
+  get IsGatewayRegistered(): boolean {
+    return this._isGatewayRegistered;
+  }
+  set IsGatewayRegistered(val: boolean) {
+    this._isGatewayRegistered = Boolean(val);
+    this._mutationsCount++;
+    this._logs.push({
+      type: "mutation",
+      message: `isGatewayRegistered = ${this._isGatewayRegistered}`,
+    });
+  }
+  get isGatewayRegistered(): boolean {
+    return this.IsGatewayRegistered;
+  }
+  set isGatewayRegistered(val: boolean) {
+    this.IsGatewayRegistered = val;
+  }
+
+  // ── Property: Gateway Approved Response ─────────────────────
+  get GatewayApproved(): boolean {
+    return this._gatewayApproved;
+  }
+  set GatewayApproved(val: boolean) {
+    this._gatewayApproved = Boolean(val);
+  }
+  get gatewayApproved(): boolean {
+    return this.GatewayApproved;
+  }
+  set gatewayApproved(val: boolean) {
+    this.GatewayApproved = val;
+  }
+
   // ── Property: Status ────────────────────────────────────────
   get Status(): PosStatus {
     return this._status;
@@ -319,6 +380,9 @@ export class VirtualPOS {
       transactions: [...this._transactions],
       dailyTotal: this._dailyTotal,
       receiptLines: [...this._receiptLines],
+      activeGateway: this._activeGateway,
+      isGatewayRegistered: this._isGatewayRegistered,
+      gatewayApproved: this._gatewayApproved,
     };
   }
 
@@ -337,6 +401,8 @@ export class VirtualPOS {
  * 2. State Mutation & Fee Calculation (Task 2)
  * 3. PIN Lockout & Guard Counter (Task 3)
  * 4. For-Loop Batch Settlement (Task 4)
+ * 5. Interface Polymorphism & Gateway Invocation (Task 5)
+ * 6. IoC Container & Dependency Injection (Task 6)
  */
 export function executePosScript(
   code: string,
@@ -368,6 +434,88 @@ export function executePosScript(
       .filter((l) => l.length > 0 && !l.startsWith("//") && !l.startsWith("/*"));
 
     const normalized = rawLines.join(" ");
+
+    // ── Task 6: IoC Container & Dependency Injection ──────────
+    // C#: services.AddScoped<IPaymentGateway, DankortGateway>();
+    // Go: container.Register("payment_gateway", NewDankortGateway())
+    const csharpDiMatch = normalized.match(
+      /services\s*\.\s*AddScoped\s*<\s*IPaymentGateway\s*,\s*([a-zA-Z_]\w*)\s*>\s*\(\s*\)/i
+    );
+    const goDiMatch = normalized.match(
+      /container\s*\.\s*Register\s*\(\s*["']payment_gateway["']\s*,\s*New([a-zA-Z_]\w*)\s*\(\s*\)\s*\)/i
+    );
+    if (csharpDiMatch || goDiMatch) {
+      const gatewayName = csharpDiMatch ? csharpDiMatch[1] : goDiMatch![1];
+      pos.activeGateway = gatewayName;
+      pos.isGatewayRegistered = true;
+      pos.status = "APPROVED";
+      logs.push({
+        type: "mutation",
+        message: `DI Container: Зареєстровано залежність IPaymentGateway -> ${gatewayName}`,
+      });
+      return {
+        success: true,
+        newState: pos.getSnapshot(),
+        logs: [...pos.getLogs(), ...logs],
+      };
+    }
+
+    // ── Task 5: Interface Polymorphism & Gateway Invocation ───
+    // C#: bool approved = gateway.Charge(totalAmount); if (!approved) { status = "DECLINED"; return; } status = "APPROVED";
+    // Go: approved := gateway.Charge(totalAmount) \n if !approved { status = "DECLINED" \n return } \n status = "APPROVED"
+    const gatewayCallPattern = /gateway\s*\.\s*Charge\s*\(\s*([a-zA-Z_]\w*)\s*\)/i;
+    const gatewayCallMatch = normalized.match(gatewayCallPattern);
+    if (gatewayCallMatch) {
+      if (!pos.isGatewayRegistered || !pos.activeGateway) {
+        return {
+          success: false,
+          newState: pos.getSnapshot(),
+          logs: [
+            ...pos.getLogs(),
+            {
+              type: "error",
+              message:
+                "PaymentGatewayNotFoundException: No payment gateway registered in IoC container",
+            },
+          ],
+          error:
+            "PaymentGatewayNotFoundException: No payment gateway registered in IoC container",
+        };
+      }
+
+      const isChargeApproved = pos.gatewayApproved !== false;
+      logs.push({
+        type: "info",
+        message: `Поліморфний виклик шлюзу: ${pos.activeGateway}.Charge($${pos.totalAmount.toFixed(2)}) -> ${
+          isChargeApproved ? "true" : "false"
+        }`,
+      });
+
+      const hasDeclinedGuard = /if\s*\(?\s*!approved\s*\)?/i.test(normalized);
+      if (hasDeclinedGuard && !isChargeApproved) {
+        pos.status = "DECLINED";
+        logs.push({
+          type: "security",
+          message: "Шлюз повернув false: статус встановлено у DECLINED",
+        });
+        return {
+          success: true,
+          newState: pos.getSnapshot(),
+          logs: [...pos.getLogs(), ...logs],
+          earlyReturn: true,
+        };
+      }
+
+      if (/status\s*=\s*["']APPROVED["']/i.test(normalized)) {
+        pos.status = "APPROVED";
+      }
+
+      return {
+        success: true,
+        newState: pos.getSnapshot(),
+        logs: [...pos.getLogs(), ...logs],
+      };
+    }
 
     // ── Task 4: For Loop / Batch Settlement ───────────────────
     // C#: for (int i = 0; i < transactions.Length; i++) { dailyTotal += transactions[i]; }

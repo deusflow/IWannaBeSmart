@@ -107,6 +107,8 @@ export interface MentorSlice {
   posState: VirtualPosState;
   applyPosExecution: (updates: Partial<VirtualPosState>) => void;
   resetPosState: (customState?: Partial<VirtualPosState>) => void;
+  isPosVictoryModalOpen: boolean;
+  setPosVictoryModalOpen: (open: boolean) => void;
 }
 
 export interface TVStateSlice {
@@ -603,6 +605,9 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     currentStationId: "tv",
     setCurrentStationId: (id: string) => set({ currentStationId: id }),
 
+    isPosVictoryModalOpen: false,
+    setPosVictoryModalOpen: (open: boolean) => set({ isPosVictoryModalOpen: open }),
+
     posState: {
       balance: 500.0,
       transactionAmount: 750.0,
@@ -618,6 +623,9 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       transactions: [120, 45, 300, 85],
       dailyTotal: 0.0,
       receiptLines: [],
+      activeGateway: "DankortGateway",
+      isGatewayRegistered: true,
+      gatewayApproved: true,
     },
     applyPosExecution: (updates: Partial<VirtualPosState>) => {
       set((s) => ({
@@ -644,6 +652,9 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
           transactions: [120, 45, 300, 85],
           dailyTotal: 0.0,
           receiptLines: [],
+          activeGateway: "DankortGateway",
+          isGatewayRegistered: true,
+          gatewayApproved: true,
           ...customState,
         },
       });

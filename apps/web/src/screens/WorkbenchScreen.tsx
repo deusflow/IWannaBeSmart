@@ -11,6 +11,7 @@ import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
 import { POSBlueprintDevice } from "../components/workbench/POSBlueprintDevice";
 import { CodeGymRunner } from "../components/workbench/playground/CodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
+import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy } from "lucide-react";
 
@@ -61,6 +62,8 @@ export const WorkbenchScreen: React.FC = () => {
     completedCodingTasks,
     isStationVictoryModalOpen,
     setStationVictoryModalOpen,
+    isPosVictoryModalOpen,
+    setPosVictoryModalOpen,
     currentStationId,
     setCurrentStationId,
   } = useWorkbenchStore();
@@ -368,6 +371,13 @@ export const WorkbenchScreen: React.FC = () => {
       <StationCompletionModal
         isOpen={isStationVictoryModalOpen}
         onClose={() => setStationVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 2: Fintech POS Terminal Station Victory Modal */}
+      <FintechStationVictoryModal
+        isOpen={isPosVictoryModalOpen}
+        onClose={() => setPosVictoryModalOpen(false)}
         xp={xp}
       />
     </div>
