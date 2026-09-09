@@ -56,12 +56,25 @@ const ICON_MAP: Record<EntityType, LucideIcon> = {
   service: Zap,
 };
 
+import { useWorkbenchStore } from "../../../store/workbenchStore";
+
 export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { t } = useTranslation();
   const { deleteElements, getNode } = useReactFlow();
   const nodeData = data as unknown as ArchitectureNodeData;
   const Icon = ICON_MAP[nodeData.entityType] || Box;
   const badge = ENTITY_BADGE[nodeData.entityType] || ENTITY_BADGE.class;
+
+  const { mentorPhase, guidedStep, isHintActive } = useWorkbenchStore();
+
+  const isTvController = nodeData.fileId.includes("tv-controller") || id.includes("tv-controller");
+  const isPowerCommand = nodeData.fileId.includes("power-command") || id.includes("power-command");
+
+  const isTargetForStep =
+    (mentorPhase === "GUIDED" && (
+      (guidedStep === 1 && isTvController) ||
+      (guidedStep === 3 && (isTvController || isPowerCommand))
+    )) || (mentorPhase === "PRACTICE" && isHintActive && (isTvController || isPowerCommand));
 
   const hasInputs = nodeData.inputs && nodeData.inputs.length > 0;
   const hasOutputs = nodeData.outputs && nodeData.outputs.length > 0;
@@ -80,11 +93,13 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
     <div
       className={`
         w-[268px] rounded-xl select-none
-        bg-[#2B2D33] border transition-all duration-150
+        bg-[#2B2D33] border transition-all duration-200
         shadow-[0_8px_24px_rgba(0,0,0,0.6)]
         ${
           selected
-            ? "border-white/20 shadow-[0_0_0_1.5px_rgba(255,255,255,0.12),0_8px_24px_rgba(0,0,0,0.6)]"
+            ? "border-white/30 shadow-[0_0_0_1.5px_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.6)]"
+            : isTargetForStep
+            ? "border-purple-500/60 shadow-[0_0_20px_rgba(168,85,247,0.35)] ring-1 ring-purple-500/40"
             : nodeData.isFlashing
             ? "border-white/25"
             : "border-white/[0.07] hover:border-white/[0.14]"
@@ -142,31 +157,47 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
             {t("architecture.inputsDI")}
           </div>
           {hasInputs ? (
-            nodeData.inputs.map((inp) => (
-              <div key={inp.id} className="relative flex items-start py-0.5 group">
-                <Handle
-                  type="target"
-                  position={Position.Left}
-                  id={inp.id}
-                  className="!w-3 !h-3 !rounded-full !-left-[17px] !border-[1.5px] !border-[#2B2D33] transition-transform group-hover:scale-125 cursor-crosshair"
-                  style={{ backgroundColor: inp.color || "#3B82F6" }}
-                />
-                <div className="min-w-0 pl-1">
-                  <span className="font-mono font-semibold text-[9.5px] text-gray-200 block leading-tight truncate">
-                    {inp.name}
-                  </span>
-                  {inp.typeAnnotation && (
+            nodeData.inputs.map((inp) => {
+              const isPortTarget =
+                isTvController &&
+                inp.id === "in-command-handler" &&
+                ((mentorPhase === "GUIDED" && (guidedStep === 1 || guidedStep === 3)) ||
+                  (mentorPhase === "PRACTICE" && isHintActive));
+
+              return (
+                <div key={inp.id} className="relative flex items-start py-0.5 group">
+                  <Handle
+                    type="target"
+                    position={Position.Left}
+                    id={inp.id}
+                    className={`!w-3 !h-3 !rounded-full !-left-[17px] !border-[1.5px] !border-[#2B2D33] transition-transform group-hover:scale-125 cursor-crosshair ${
+                      isPortTarget
+                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_12px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
+                        : ""
+                    }`}
+                    style={{ backgroundColor: inp.color || "#3B82F6" }}
+                  />
+                  <div className="min-w-0 pl-1">
                     <span
-                      className={`font-mono text-[7.5px] font-medium px-1 py-px rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
-                        inp.typeAnnotation
-                      )}`}
+                      className={`font-mono font-semibold text-[9.5px] block leading-tight truncate ${
+                        isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
+                      }`}
                     >
-                      {inp.typeAnnotation}
+                      {inp.name}
                     </span>
-                  )}
+                    {inp.typeAnnotation && (
+                      <span
+                        className={`font-mono text-[7.5px] font-medium px-1 py-px rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
+                          inp.typeAnnotation
+                        )}`}
+                      >
+                        {inp.typeAnnotation}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <span className="text-[8.5px] font-mono text-gray-600 italic block">
               {t("architecture.noInputs")}
@@ -180,34 +211,50 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
             {t("architecture.methodsOutputs")}
           </div>
           {hasOutputs ? (
-            nodeData.outputs.map((out) => (
-              <div
-                key={out.id}
-                className="relative flex items-start justify-end py-0.5 group"
-              >
-                <div className="min-w-0 pr-1 text-right">
-                  <span className="font-mono font-semibold text-[9.5px] text-gray-200 block leading-tight truncate">
-                    {out.name}
-                  </span>
-                  {out.typeAnnotation && (
+            nodeData.outputs.map((out) => {
+              const isPortTarget =
+                isPowerCommand &&
+                out.id === "out-execute" &&
+                ((mentorPhase === "GUIDED" && guidedStep === 3) ||
+                  (mentorPhase === "PRACTICE" && isHintActive));
+
+              return (
+                <div
+                  key={out.id}
+                  className="relative flex items-start justify-end py-0.5 group"
+                >
+                  <div className="min-w-0 pr-1 text-right">
                     <span
-                      className={`font-mono text-[7.5px] font-medium px-1 py-px rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
-                        out.typeAnnotation
-                      )}`}
+                      className={`font-mono font-semibold text-[9.5px] block leading-tight truncate ${
+                        isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
+                      }`}
                     >
-                      {out.typeAnnotation}
+                      {out.name}
                     </span>
-                  )}
+                    {out.typeAnnotation && (
+                      <span
+                        className={`font-mono text-[7.5px] font-medium px-1 py-px rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
+                          out.typeAnnotation
+                        )}`}
+                      >
+                        {out.typeAnnotation}
+                      </span>
+                    )}
+                  </div>
+                  <Handle
+                    type="source"
+                    position={Position.Right}
+                    id={out.id}
+                    className={`!w-3 !h-3 !rounded-full !-right-[17px] !border-[1.5px] !border-[#2B2D33] transition-transform group-hover:scale-125 cursor-crosshair ${
+                      isPortTarget
+                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_12px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
+                        : ""
+                    }`}
+                    style={{ backgroundColor: out.color || "#10B981" }}
+                  />
                 </div>
-                <Handle
-                  type="source"
-                  position={Position.Right}
-                  id={out.id}
-                  className="!w-3 !h-3 !rounded-full !-right-[17px] !border-[1.5px] !border-[#2B2D33] transition-transform group-hover:scale-125 cursor-crosshair"
-                  style={{ backgroundColor: out.color || "#10B981" }}
-                />
-              </div>
-            ))
+              );
+            })
           ) : (
             <span className="text-[8.5px] font-mono text-gray-600 italic block">
               {t("architecture.noOutputs")}

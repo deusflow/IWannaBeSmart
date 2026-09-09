@@ -6,9 +6,11 @@
  * - tvSlice: power, channel (1-based), volume (0..100), isMuted, osdMessage, irSignalPulse
  * - connectionsSlice: hardware test points (VCC, GND, IR_DATA, DISPLAY_BUS) with 0V/5V & hasSignal
  * - Physical IR packet pipeline: Button Press (120ms) -> Beam Flight (200ms) -> TV Sensor & Screen Reaction (150ms)
+ * - ArchitectureSlice: persistent graph state (nodes + edges) for Architecture Studio
  */
 
 import { create } from "zustand";
+import type { Node, Edge } from "@xyflow/react";
 
 /**
  * Physical animation & transmission timings (Item 56)
@@ -57,8 +59,38 @@ export interface CircuitSlice {
 }
 
 export interface ArchitectureSlice {
+  /** Is PowerCommand.Execute -> TVController.CommandHandler wired? */
   isArchitecturePowerWired: boolean;
   setArchitecturePowerWired: (wired: boolean) => void;
+
+  /**
+   * Persistent graph state — the single source of truth.
+   * ArchitectureCanvas reads these on mount and writes on every change.
+   * Navigating away and back never resets the board.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  archNodes: Node<Record<string, any>>[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  archEdges: Edge<Record<string, any>>[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setArchNodes: (nodes: Node<Record<string, any>>[]) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setArchEdges: (edges: Edge<Record<string, any>>[]) => void;
+}
+
+export type MentorPhase = "GUIDED" | "VERIFY" | "PRACTICE" | "COMPLETED";
+
+export interface MentorSlice {
+  mentorPhase: MentorPhase;
+  guidedStep: 1 | 2 | 3;
+  isHintActive: boolean;
+  xp: number;
+  setMentorPhase: (phase: MentorPhase) => void;
+  setGuidedStep: (step: 1 | 2 | 3) => void;
+  triggerHint: () => void;
+  addXp: (amount: number) => void;
+  resetLevelForPractice: () => void;
+  completeLevel: () => void;
 }
 
 export interface TVStateSlice {
@@ -108,6 +140,14 @@ export interface WorkbenchActions {
   chassisNextChannel: () => void;
   chassisPrevChannel: () => void;
 
+  // Code Playground Runtime Dispatcher
+  applyCodeExecution: (updates: {
+    power?: boolean;
+    channel?: number;
+    volume?: number;
+    osdMessage?: string;
+  }) => void;
+
   // Core physical pipeline dispatcher
   dispatchRemoteCommand: (
     commandName: string,
@@ -122,6 +162,7 @@ export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
   ArchitectureSlice &
+  MentorSlice &
   IRSigSlice &
   WorkbenchActions;
 
@@ -460,10 +501,97 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     isArchitecturePowerWired: false,
     setArchitecturePowerWired: (wired: boolean) => set({ isArchitecturePowerWired: wired }),
 
+    // Persistent graph state — never reset on navigation
+    archNodes: [],
+    archEdges: [],
+    setArchNodes: (nodes) => set({ archNodes: nodes }),
+    setArchEdges: (edges) => set({ archEdges: edges }),
+
+    // 2d. Interactive Mentor Walkthrough Slice
+    mentorPhase: "GUIDED",
+    guidedStep: 1,
+    isHintActive: false,
+    xp: 0,
+    setMentorPhase: (phase) => set({ mentorPhase: phase }),
+    setGuidedStep: (step) => set({ guidedStep: step }),
+    triggerHint: () => {
+      set({ isHintActive: true });
+      setTimeout(() => {
+        set({ isHintActive: false });
+      }, 4000);
+    },
+    addXp: (amount) => set((s) => ({ xp: s.xp + amount })),
+    resetLevelForPractice: () => {
+      // Clear wire PowerCommand -> TVController
+      const currentEdges = get().archEdges;
+      const nonPowerEdges = currentEdges.filter(
+        (e) => !(e.source === "node-power-cmd" || e.target === "node-tv-controller")
+      );
+      set({
+        archEdges: nonPowerEdges,
+        isArchitecturePowerWired: false,
+        mentorPhase: "PRACTICE",
+        isHintActive: false,
+      });
+    },
+    completeLevel: () => {
+      if (get().mentorPhase !== "COMPLETED") {
+        set((s) => ({
+          mentorPhase: "COMPLETED",
+          xp: s.xp + 50,
+          isArchitecturePowerWired: true,
+        }));
+      }
+    },
+
     // 3. Physical IR Transmission Slice (Item 55)
     isIrEmitting: false,
     isBeamFlying: false,
     lastOpcode: "Готовий до прийому",
+
+    // Code Playground Live Execution Action
+    applyCodeExecution: (updates) => {
+      set((state) => {
+        const nextPower = updates.power !== undefined ? updates.power : state.power;
+        const nextChannel = updates.channel !== undefined ? updates.channel : state.channel;
+        const nextVolume = updates.volume !== undefined ? updates.volume : state.volume;
+        const isDisplayBroken = state.isEdgeBroken("edge-mcu-display");
+
+        let osd = updates.osdMessage;
+        if (!osd) {
+          if (nextPower !== state.power) {
+            osd = nextPower ? "POWER ON" : "STANDBY";
+          } else if (nextChannel !== state.channel) {
+            osd = `CH ${nextChannel}`;
+          } else if (nextVolume !== state.volume) {
+            osd = `VOL ${nextVolume}`;
+          } else {
+            osd = state.osdMessage;
+          }
+        }
+
+        return {
+          power: nextPower,
+          channel: nextChannel,
+          volume: nextVolume,
+          osdMessage: osd,
+          screenReactionPulse: nextPower,
+          connections: {
+            ...state.connections,
+            DISPLAY_BUS: {
+              ...state.connections.DISPLAY_BUS,
+              voltage: nextPower && !isDisplayBroken ? "5V" : "0V",
+              hasSignal: nextPower && !isDisplayBroken,
+            },
+          },
+        };
+      });
+
+      // Reset phosphor reaction pulse after 400ms
+      setTimeout(() => {
+        set({ screenReactionPulse: false });
+      }, 400);
+    },
 
     // Core Physical IR Dispatcher with precise timings (Items 55, 56)
     dispatchRemoteCommand: (commandName, execute) => {

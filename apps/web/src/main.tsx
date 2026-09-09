@@ -4,8 +4,8 @@ import { initI18n } from "@iw/i18n";
 import { App } from "./App";
 import "./index.css";
 
-// Initialize multilingual support (UK | EN | DA)
-initI18n("uk");
+// Initialize multilingual support (UA | EN | DA)
+initI18n("ua");
 
 const rootElement = document.getElementById("root");
 if (rootElement) {

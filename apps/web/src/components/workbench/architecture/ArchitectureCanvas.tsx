@@ -25,6 +25,8 @@ import { ArchitectureNode } from "./ArchitectureNode";
 import { ArchitectureEdge, type ArchitectureEdgeData } from "./ArchitectureEdge";
 import { ProjectExplorer } from "./ProjectExplorer";
 import { ArchitectureTerminal } from "./ArchitectureTerminal";
+import { MentorBar } from "./MentorBar";
+import { CompletionModal } from "./CompletionModal";
 import { PROJECT_FILES } from "./projectData";
 import type { ArchitectureNodeData, TerminalLogEntry, PortType } from "./types";
 import { Badge } from "@iw/ui";
@@ -174,15 +176,47 @@ const edgeTypes = { architectureEdge: ArchitectureEdge };
 // ════════════════════════════════════════════════
 //  Inner Canvas
 // ════════════════════════════════════════════════
-const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
+const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv }) => {
   const { t } = useTranslation();
-  const { setArchitecturePowerWired } = useWorkbenchStore();
+  const {
+    setArchitecturePowerWired,
+    archNodes: storedNodes,
+    archEdges: storedEdges,
+    setArchNodes,
+    setArchEdges,
+    mentorPhase,
+    setMentorPhase,
+    completeLevel,
+  } = useWorkbenchStore();
   const { screenToFlowPosition, fitView, setCenter, getNode } = useReactFlow();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(createInitialNodes());
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<ArchitectureEdgeData>>([]);
+  // Restore from store if we have saved state, otherwise use initial
+  const initialNodes = storedNodes.length > 0
+    ? (storedNodes as Node<ArchitectureNodeData>[])
+    : createInitialNodes();
+  const initialEdges = storedEdges as Edge<ArchitectureEdgeData>[];
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<ArchitectureEdgeData>>(initialEdges);
   const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>([]);
+  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const flashTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  // Debounce ref for store sync
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync completion modal with store
+  useEffect(() => {
+    if (mentorPhase === "COMPLETED") {
+      setIsCompletionModalOpen(true);
+    }
+  }, [mentorPhase]);
+
+  // If edges were cleared in store for practice, sync local edges
+  useEffect(() => {
+    if (mentorPhase === "PRACTICE" && storedEdges.length === 0 && edges.length > 0) {
+      setEdges([]);
+    }
+  }, [mentorPhase, storedEdges.length, edges.length, setEdges]);
 
   // ── log helper ──────────────────────────────
   const addLog = useCallback((entry: Omit<TerminalLogEntry, "id" | "timestamp">) => {
@@ -196,9 +230,9 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
     () =>
       edges.some(
         (e) =>
-          e.source === "node-class-power-command" &&
+          e.source.includes("power-command") &&
           e.sourceHandle === "out-execute" &&
-          e.target === "node-class-tv-controller" &&
+          e.target.includes("tv-controller") &&
           e.targetHandle === "in-command-handler"
       ),
     [edges]
@@ -207,6 +241,20 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
   useEffect(() => {
     setArchitecturePowerWired(isPowerWired);
   }, [isPowerWired, setArchitecturePowerWired]);
+
+  // ── Persist graph to store (debounced 50ms) ──
+  useEffect(() => {
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+    persistTimer.current = setTimeout(() => {
+      setArchNodes(nodes);
+      setArchEdges(edges);
+    }, 50);
+  }, [nodes, edges, setArchNodes, setArchEdges]);
+
+  // cleanup persist timer on unmount
+  useEffect(() => {
+    return () => { if (persistTimer.current) clearTimeout(persistTimer.current); };
+  }, []);
 
   // ── code preview ────────────────────────────
   const codePreview = useMemo(() => generateCodePreview(edges, nodes), [edges, nodes]);
@@ -389,24 +437,27 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
 
         addLog({
           type: "error",
-          title: `✗ Type Mismatch`,
-          message: `Неможливо підключити «${srcPortName}» [${srcType}] з ${srcNodeName} до «${tgtPortName}» [${tgtType}] на ${tgtNodeName}. Порт-приймач очікує тип ${tgtType}, але отримав ${srcType}. Це порушення контракту Interface — типи мають збігатися точно.`,
-          codeContext: `// ✗ Несумісні типи:\n// ${srcNodeName}.${srcPortName} [${srcType}]\n//   → ${tgtNodeName}.${tgtPortName} [${tgtType}]\n// Знайдіть порт із типом «${tgtType}»`,
+          title: `✗ ${t("architecture.typeMismatch")}`,
+          message: t("architecture.typeMismatchDetail", {
+            sourceType: srcType,
+            targetType: tgtType,
+          }),
+          codeContext: `// ✗ Type Mismatch:\n// ${srcNodeName}.${srcPortName} [${srcType}]\n//   → ${tgtNodeName}.${tgtPortName} [${tgtType}]\n// Expected port type: «${tgtType}»`,
         });
       }
 
       return valid;
     },
-    [nodes, addLog]
+    [nodes, addLog, t]
   );
 
   // ── onConnect ───────────────────────────────
   const onConnect: OnConnect = useCallback(
     (params: Connection) => {
       const isPowerWire =
-        params.source === "node-class-power-command" &&
+        Boolean(params.source?.includes("power-command")) &&
         params.sourceHandle === "out-execute" &&
-        params.target === "node-class-tv-controller" &&
+        Boolean(params.target?.includes("tv-controller")) &&
         params.targetHandle === "in-command-handler";
 
       const srcNode = getNodeName(params.source ?? "", nodes);
@@ -424,21 +475,52 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
       setEdges((eds) => addEdge(newEdge, eds));
 
       if (isPowerWire) {
-        addLog({
-          type: "success",
-          title: "✓ Dependency Injection виконано!",
-          message: `Чудово! Ви застосували Dependency Injection. «${srcNode}» реалізує інтерфейс IRemoteCommand та передає метод Execute() у вхідний порт CommandHandler контролера «${tgtNode}». TVController викликає Execute(), не залежачи від внутрішньої логіки PowerCommand — це і є Loose Coupling.`,
-          codeContext: `// Constructor Injection:\npublic class TVController {\n    private readonly IRemoteCommand _cmd;\n    public TVController(IRemoteCommand cmd) {\n        _cmd = cmd; // ← Ваш провід!\n    }\n    public void Dispatch() => _cmd.Execute();\n}`,
-        });
+        if (mentorPhase === "GUIDED") {
+          setMentorPhase("VERIFY");
+          addLog({
+            type: "success",
+            title: `✓ ${t("architecture.diSuccessTitle")}`,
+            message: `${t("architecture.diSuccessDetail", {
+              sourceClass: srcNode,
+              sourcePort: srcPort,
+              targetClass: tgtNode,
+              targetPort: tgtPort,
+              interfaceType: "IRemoteCommand",
+            })} ${t("mentor.verifyMsg")}`,
+            codeContext: `// Constructor Injection:\npublic class TVController {\n    private readonly IRemoteCommand _cmd;\n    public TVController(IRemoteCommand cmd) {\n        _cmd = cmd; // ← Handled by mentor!\n    }\n    public void Dispatch() => _cmd.Execute();\n}`,
+          });
+        } else if (mentorPhase === "PRACTICE") {
+          completeLevel();
+          setIsCompletionModalOpen(true);
+          addLog({
+            type: "success",
+            title: `✓ ${t("mentor.completedTitle")}`,
+            message: `${t("mentor.reward")} ${t("mentor.summaryExplanation")}`,
+            codeContext: `services.AddTransient<IRemoteCommand, PowerCommand>();\nservices.AddSingleton<TVController>();`,
+          });
+        } else {
+          addLog({
+            type: "success",
+            title: `✓ ${t("architecture.diSuccessTitle")}`,
+            message: t("architecture.diSuccessDetail", {
+              sourceClass: srcNode,
+              sourcePort: srcPort,
+              targetClass: tgtNode,
+              targetPort: tgtPort,
+              interfaceType: "IRemoteCommand",
+            }),
+            codeContext: `// Constructor Injection:\npublic class TVController {\n    private readonly IRemoteCommand _cmd;\n    public TVController(IRemoteCommand cmd) {\n        _cmd = cmd;\n    }\n    public void Dispatch() => _cmd.Execute();\n}`,
+          });
+        }
       } else {
         addLog({
           type: "success",
-          title: `✓ З'єднано: ${srcNode} → ${tgtNode}`,
-          message: `Порт «${srcPort}» підключено до «${tgtPort}». Залежність успішно впроваджена через Interface-контракт.`,
+          title: `✓ ${srcNode} → ${tgtNode}`,
+          message: `${srcPort} → ${tgtPort}`,
         });
       }
     },
-    [nodes, handleDeleteEdge, setEdges, addLog]
+    [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, completeLevel, t]
   );
 
   // ── Auto-Wire ────────────────────────────────
@@ -478,8 +560,11 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
   const handleReset = useCallback(() => {
     flashTimers.current.forEach((t) => clearTimeout(t));
     flashTimers.current.clear();
-    setNodes(createInitialNodes());
+    const fresh = createInitialNodes();
+    setNodes(fresh);
     setEdges([]);
+    setArchNodes(fresh);
+    setArchEdges([]);
     clearLogs();
     setTimeout(() => fitView({ padding: 0.2, duration: 400 }), 50);
     setTimeout(() =>
@@ -490,7 +575,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
           "Реалізуйте патерн Command для кнопки живлення телевізора. З'єднайте вихідний порт Execute класу PowerCommand із вхідним портом CommandHandler контролера TVController.",
       })
     , 60);
-  }, [fitView, setEdges, setNodes, clearLogs, addLog]);
+  }, [fitView, setEdges, setNodes, setArchNodes, setArchEdges, clearLogs, addLog]);
 
   // ── Fit view on mount ────────────────────────
   useEffect(() => {
@@ -590,50 +675,65 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = () => {
 
         {/* ReactFlow canvas */}
         <div
-          className="flex-1 relative min-w-0"
+          className="flex-1 relative min-w-0 flex flex-col h-full"
           style={{ background: "#1E1E22" }}
           onDragOver={onDragOver}
           onDrop={onDrop}
         >
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={handleNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            isValidConnection={isValidConnection}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            deleteKeyCode={null}        // handled manually
-            fitView
-            fitViewOptions={{ padding: 0.2 }}
-            minZoom={0.2}
-            maxZoom={2}
-            connectionLineStyle={{ stroke: "#FBBF24", strokeWidth: 2 }}
-            proOptions={{ hideAttribution: true }}
-            style={{ background: "#1E1E22" }}
-          >
-            <Background
-              variant={BackgroundVariant.Dots}
-              color="#3E3F47"
-              gap={22}
-              size={1.2}
-            />
-            <Controls
-              showInteractive={false}
-              className="!bg-[#26272C] !border-[#3A3B42] !rounded-xl !shadow-lg [&>button]:!bg-[#26272C] [&>button]:!border-[#3A3B42] [&>button]:!text-gray-500 hover:[&>button]:!text-gray-100 [&>button]:!fill-gray-500 hover:[&>button]:!fill-gray-100"
-            />
-          </ReactFlow>
+          <div className="flex-1 relative min-h-0 w-full h-full">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={handleNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              isValidConnection={isValidConnection}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              deleteKeyCode={null}        // handled manually
+              fitView
+              fitViewOptions={{ padding: 0.2 }}
+              minZoom={0.2}
+              maxZoom={2}
+              connectionLineStyle={{ stroke: "#FBBF24", strokeWidth: 2 }}
+              proOptions={{ hideAttribution: true }}
+              style={{ background: "#1E1E22" }}
+            >
+              <Background
+                variant={BackgroundVariant.Dots}
+                color="#3E3F47"
+                gap={22}
+                size={1.2}
+              />
+              <Controls
+                showInteractive={false}
+                className="!bg-[#26272C] !border-[#3A3B42] !rounded-xl !shadow-lg [&>button]:!bg-[#26272C] [&>button]:!border-[#3A3B42] [&>button]:!text-gray-500 hover:[&>button]:!text-gray-100 [&>button]:!fill-gray-500 hover:[&>button]:!fill-gray-100"
+              />
+            </ReactFlow>
 
-          {/* Terminal overlay */}
-          <ArchitectureTerminal
-            logs={terminalLogs}
-            onClearLogs={clearLogs}
-            currentMission={t("architecture.missionInstructions")}
-            codePreview={codePreview}
-          />
+            {/* Terminal overlay */}
+            <ArchitectureTerminal
+              logs={terminalLogs}
+              onClearLogs={clearLogs}
+              currentMission={t("architecture.missionInstructions")}
+              codePreview={codePreview}
+            />
+          </div>
+
+          {/* Interactive Mentor Bar */}
+          <MentorBar onGoToTv={onBackToTv} />
         </div>
       </div>
+
+      {/* Completion Celebration Modal */}
+      <CompletionModal
+        isOpen={isCompletionModalOpen}
+        onClose={() => setIsCompletionModalOpen(false)}
+        onNextTask={() => {
+          setIsCompletionModalOpen(false);
+          if (onBackToTv) onBackToTv();
+        }}
+      />
     </div>
   );
 };

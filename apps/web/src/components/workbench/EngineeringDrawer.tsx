@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import type { StationLevel } from "@iw/sim-engine";
 import { Badge, Tabs, type TabItem } from "@iw/ui";
-import { SyntaxCodeBlock } from "./SyntaxCodeBlock";
+import { InteractiveCodePlayground } from "./playground/InteractiveCodePlayground";
 import { CircuitCanvas } from "./circuit/CircuitCanvas";
 import {
   X,
-  Code2,
   GitBranch,
   Terminal,
   Pin,
@@ -37,7 +36,6 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("code");
-  const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
 
   const drawerTabs: TabItem[] = React.useMemo(
     () => [
@@ -152,60 +150,9 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           </p>
         </div>
 
-        {/* TAB 1: CODE (C# & Go) */}
+        {/* TAB 1: INTERACTIVE LIVE CODING PLAYGROUND */}
         {activeTab === "code" && (
-          <div className="space-y-3.5">
-            {/* Language Switcher */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 bg-paper p-1 rounded-xl border border-paper-border">
-                <button
-                  onClick={() => setCodeLang("csharp")}
-                  className={`px-3 py-1.5 text-xs font-display font-bold rounded-lg transition-all cursor-pointer ${
-                    codeLang === "csharp"
-                      ? "bg-paper-subtle text-accent-blue shadow-paper-sm border border-paper-border/60"
-                      : "text-ink-muted hover:text-ink"
-                  }`}
-                >
-                  C# (.NET)
-                </button>
-                <button
-                  onClick={() => setCodeLang("go")}
-                  className={`px-3 py-1.5 text-xs font-display font-bold rounded-lg transition-all cursor-pointer ${
-                    codeLang === "go"
-                      ? "bg-paper-subtle text-accent-blue shadow-paper-sm border border-paper-border/60"
-                      : "text-ink-muted hover:text-ink"
-                  }`}
-                >
-                  Go (Інтерфейси)
-                </button>
-              </div>
-
-              <Badge variant="neutral" size="sm" className="font-display text-[10px]">
-                {t("drawer.syntaxVerified", "Синтаксис перевірено")}
-              </Badge>
-            </div>
-
-            {/* Syntax Highlighted Code Box */}
-            <SyntaxCodeBlock
-              code={
-                codeLang === "csharp"
-                  ? level.codeSnippet.csharp
-                  : level.codeSnippet.go
-              }
-              language={codeLang}
-            />
-
-            {/* Architecture Explanation */}
-            <div className="p-4 rounded-2xl bg-paper-subtle border border-paper-border space-y-1.5">
-              <span className="text-xs font-display font-bold text-ink flex items-center gap-1.5">
-                <Code2 size={14} strokeWidth={2} className="text-accent-blue" />
-                {t("drawer.signalArchitectureLink", "Зв'язок фізичного сигналу з архітектурою програми")}
-              </span>
-              <p className="text-xs text-ink-muted leading-relaxed font-sans">
-                {t("level.level1Explanation", { defaultValue: level.codeSnippet.explanation })}
-              </p>
-            </div>
-          </div>
+          <InteractiveCodePlayground />
         )}
 
         {/* TAB 2: HARDWARE CIRCUIT SCHEMATIC (Block G, Items 59-64) */}

@@ -5,7 +5,7 @@ import { Languages } from "lucide-react";
 
 export const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
-  const currentLang = (i18n.language?.slice(0, 2) || "uk") as SupportedLocale;
+  const currentLang = (i18n.language?.slice(0, 2) || "ua") as SupportedLocale;
 
   return (
     <div
@@ -24,7 +24,7 @@ export const LanguageSwitcher: React.FC = () => {
                 ? "bg-accent-blue text-white shadow-xs"
                 : "text-ink-muted hover:text-ink hover:bg-paper-muted"
             }`}
-            title={locale === "uk" ? "Українська" : locale === "da" ? "Dansk" : "English"}
+            title={locale === "ua" ? "Українська" : locale === "da" ? "Dansk" : "English"}
           >
             {locale}
           </button>

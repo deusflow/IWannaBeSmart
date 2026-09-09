@@ -24,6 +24,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
     chassisNextChannel,
     chassisPrevChannel,
     isEdgeBroken,
+    mentorPhase,
   } = useWorkbenchStore();
 
   const isPsuMcuBroken = isEdgeBroken("edge-psu-mcu");
@@ -213,7 +214,9 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                 <span className="text-xs font-sans text-[#6B7280]">
                   {isPsuMcuBroken
                     ? "Відновіть зв'язок PSU -> MCU у вкладці Hardware"
-                    : "Натисніть кнопку живлення (PWR) на пульті, щоб увімкнути"}
+                    : mentorPhase === "VERIFY"
+                    ? t("workbench.tvVerifyHint")
+                    : t("workbench.tvStandbyHint")}
                 </span>
               </div>
             )}

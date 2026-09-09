@@ -8,6 +8,7 @@ export const SIM_ENGINE_VERSION = "0.1.0";
 
 export * from "./types/level";
 export * from "./data/tv-level-01";
+export * from "./runtime";
 
 // Legacy engine stub compatibility
 export interface SimEngineState {

@@ -20,6 +20,8 @@ import {
   LucideIcon,
 } from "lucide-react";
 
+import { useWorkbenchStore } from "../../../store/workbenchStore";
+
 interface ProjectExplorerProps {
   onAddNode: (fileId: string) => void;
   activeFileIds: Set<string>;
@@ -44,6 +46,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   activeFileIds,
 }) => {
   const { t } = useTranslation();
+  const { mentorPhase, guidedStep, setGuidedStep } = useWorkbenchStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({
@@ -60,6 +63,9 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   const handleDragStart = (e: React.DragEvent, file: ProjectFile) => {
     e.dataTransfer.setData("application/reactflow", file.id);
     e.dataTransfer.effectAllowed = "move";
+    if (mentorPhase === "GUIDED" && guidedStep === 2 && file.id.includes("power-command")) {
+      setGuidedStep(3);
+    }
   };
 
   const folders = Object.keys(FOLDER_LABELS) as (keyof typeof FOLDER_LABELS)[];
@@ -207,17 +213,24 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
                     const colorClass = COLOR_MAP[file.entityType];
                     const isOnBoard = activeFileIds.has(file.id);
 
+                    const isTargetFile = mentorPhase === "GUIDED" && guidedStep === 2 && file.id === "file-power-cmd";
+
                     return (
                       <div
                         key={file.id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, file)}
-                        onClick={() => onAddNode(file.id)}
+                        onClick={() => {
+                          onAddNode(file.id);
+                          if (isTargetFile) setGuidedStep(3);
+                        }}
                         title={`${file.name}\n${file.role}\n(${t(
                           "architecture.dragHint"
                         )})`}
                         className={`group px-2 py-1.5 rounded-lg flex items-center justify-between gap-1.5 transition-all duration-150 cursor-grab active:cursor-grabbing border ${
-                          isOnBoard
+                          isTargetFile
+                            ? "bg-purple-950/40 border-purple-500/80 ring-2 ring-purple-400/80 shadow-[0_0_14px_rgba(168,85,247,0.7)] animate-pulse text-purple-200"
+                            : isOnBoard
                             ? "bg-[#242529] border-blue-500/30 text-gray-200 shadow-xs"
                             : "bg-transparent hover:bg-[#242529] border-transparent hover:border-[#3E3F45] text-gray-400 hover:text-gray-200"
                         }`}

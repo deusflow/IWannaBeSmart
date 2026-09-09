@@ -168,13 +168,13 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                 {tab === "theory" && (
                   <span className="flex items-center gap-1">
                     <BookOpen size={9} />
-                    Теорія
+                    {t("architecture.theoryTab")}
                   </span>
                 )}
                 {tab === "code" && (
                   <span className="flex items-center gap-1">
                     <Code2 size={9} />
-                    Code
+                    {t("architecture.codeTab")}
                   </span>
                 )}
               </button>
@@ -293,7 +293,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
         {activeTab === "theory" && (
           <div className="space-y-2 py-1">
             <p className="font-balsamiq text-[9.5px] text-gray-500 mb-2">
-              Три кроки для реалізації патерну Command та Dependency Injection:
+              Command Pattern &amp; Dependency Injection (3 Steps):
             </p>
             {STEPS.map((step) => (
               <div
