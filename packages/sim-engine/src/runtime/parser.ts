@@ -1,19 +1,25 @@
 /**
  * @file packages/sim-engine/src/runtime/parser.ts
- * @description Safe lexical scanner and statement interpreter for C# and Go TV scripts
+ * @description Safe lexical scanner and statement interpreter for C# and Go TV scripts with async loop support
  */
 
 import type { VirtualTV } from "./tvContext";
+import type { VirtualTvState } from "./types";
 
 export interface ParseResult {
   success: boolean;
   error?: string;
 }
 
+export interface InterpreterOptions {
+  onStepMutation?: (snapshot: VirtualTvState) => void;
+  stepDelayMs?: number;
+}
+
 /**
  * Remove line and block comments from code
  */
-function stripComments(rawCode: string): string {
+export function stripComments(rawCode: string): string {
   return rawCode
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/.*$/gm, "")
@@ -21,9 +27,27 @@ function stripComments(rawCode: string): string {
 }
 
 /**
- * Evaluate a boolean condition on VirtualTV
+ * Resolve numeric literal or local variable from scope
  */
-function evaluateCondition(condStr: string, tv: VirtualTV): boolean {
+function resolveNumValue(expr: string, scope: Record<string, number>): number {
+  const trimmed = expr.trim();
+  if (/^-?\d+$/.test(trimmed)) {
+    return parseInt(trimmed, 10);
+  }
+  if (trimmed in scope) {
+    return scope[trimmed];
+  }
+  throw new Error(`Невідома змінна чи число: «${trimmed}»`);
+}
+
+/**
+ * Evaluate a boolean condition on VirtualTV or local scope
+ */
+function evaluateCondition(
+  condStr: string,
+  tv: VirtualTV,
+  scope: Record<string, number> = {}
+): boolean {
   const c = condStr.trim();
 
   // Negation: !tv.IsOn or !tv.isOn
@@ -50,19 +74,28 @@ function evaluateCondition(condStr: string, tv: VirtualTV): boolean {
     return tv.IsOn !== notExpected;
   }
 
-  // Number comparison for Channel or Volume (e.g., tv.Volume > 0, tv.Channel == 1)
-  const numMatch = c.match(/^tv\.(Channel|Volume|channel|volume)\s*(==|!=|>|<|>=|<=)\s*(\d+)$/i);
+  // Number comparison for Channel or Volume (e.g. tv.Channel > 4, tv.Volume <= 100)
+  const numMatch = c.match(
+    /^tv\.(Channel|Volume|channel|volume)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
+  );
   if (numMatch) {
-    const prop = numMatch[1].toLowerCase() === "channel" ? tv.Channel : tv.Volume;
+    const prop =
+      numMatch[1].toLowerCase() === "channel" ? tv.Channel : tv.Volume;
     const op = numMatch[2];
-    const val = parseInt(numMatch[3], 10);
+    const val = resolveNumValue(numMatch[3], scope);
     switch (op) {
-      case "==": return prop === val;
-      case "!=": return prop !== val;
-      case ">": return prop > val;
-      case "<": return prop < val;
-      case ">=": return prop >= val;
-      case "<=": return prop <= val;
+      case "==":
+        return prop === val;
+      case "!=":
+        return prop !== val;
+      case ">":
+        return prop > val;
+      case "<":
+        return prop < val;
+      case ">=":
+        return prop >= val;
+      case "<=":
+        return prop <= val;
     }
   }
 
@@ -70,18 +103,26 @@ function evaluateCondition(condStr: string, tv: VirtualTV): boolean {
   if (c.toLowerCase() === "true") return true;
   if (c.toLowerCase() === "false") return false;
 
-  throw new Error(`Невідомий умовний вираз: «${c}». Використовуйте tv.IsOn, !tv.IsOn або tv.IsOn == true`);
+  throw new Error(
+    `Невідомий умовний вираз: «${c}». Використовуйте tv.IsOn, tv.Channel > 4 тощо.`
+  );
 }
 
 /**
  * Execute a single statement
  */
-function executeStatement(statement: string, tv: VirtualTV): void {
+function executeStatement(
+  statement: string,
+  tv: VirtualTV,
+  scope: Record<string, number> = {}
+): void {
   const s = statement.trim().replace(/;+$/, "").trim();
   if (!s) return;
 
   // 1. Property Assignment: tv.IsOn = true | false | !tv.IsOn
-  const propBoolMatch = s.match(/^tv\.(IsOn|isOn)\s*=\s*(true|false|!\s*tv\.(?:IsOn|isOn))$/i);
+  const propBoolMatch = s.match(
+    /^tv\.(IsOn|isOn)\s*=\s*(true|false|!\s*tv\.(?:IsOn|isOn))$/i
+  );
   if (propBoolMatch) {
     const rhs = propBoolMatch[2].trim();
     if (/^!\s*tv\.(?:IsOn|isOn)$/i.test(rhs)) {
@@ -92,39 +133,77 @@ function executeStatement(statement: string, tv: VirtualTV): void {
     return;
   }
 
-  // 2. Property Assignment: tv.Channel = <number>
-  const propChMatch = s.match(/^tv\.(Channel|channel)\s*=\s*(\d+)$/i);
-  if (propChMatch) {
-    tv.Channel = parseInt(propChMatch[2], 10);
-    return;
-  }
-
-  // 3. Property Assignment: tv.Volume = <number>
-  const propVolMatch = s.match(/^tv\.(Volume|volume)\s*=\s*(\d+)$/i);
-  if (propVolMatch) {
-    tv.Volume = parseInt(propVolMatch[2], 10);
-    return;
-  }
-
-  // 4. Increment/Decrement: tv.Volume++ / tv.Volume-- / tv.Channel++ / tv.Channel--
-  if (/^tv\.(Volume|volume)\+\+$/i.test(s)) {
-    tv.Volume = tv.Volume + 1;
-    return;
-  }
-  if (/^tv\.(Volume|volume)--$/i.test(s)) {
-    tv.Volume = tv.Volume - 1;
-    return;
-  }
-  if (/^tv\.(Channel|channel)\+\+$/i.test(s)) {
+  // 2. Increment/Decrement: tv.Channel++ / tv.Channel-- / tv.Volume++ / tv.Volume--
+  if (/^tv\.(Channel|channel)\+\+$/i.test(s) || /^\+\+tv\.(Channel|channel)$/i.test(s)) {
     tv.Channel = tv.Channel + 1;
     return;
   }
-  if (/^tv\.(Channel|channel)--$/i.test(s)) {
+  if (/^tv\.(Channel|channel)--$/i.test(s) || /^--tv\.(Channel|channel)$/i.test(s)) {
     tv.Channel = tv.Channel - 1;
     return;
   }
+  if (/^tv\.(Volume|volume)\+\+$/i.test(s) || /^\+\+tv\.(Volume|volume)$/i.test(s)) {
+    tv.Volume = tv.Volume + 1;
+    return;
+  }
+  if (/^tv\.(Volume|volume)--$/i.test(s) || /^--tv\.(Volume|volume)$/i.test(s)) {
+    tv.Volume = tv.Volume - 1;
+    return;
+  }
 
-  // 5. Method calls: tv.PowerOn(), tv.PowerOff(), tv.TogglePower()
+  // 3. Compound Assignment: tv.Channel += <val>, tv.Channel -= <val>
+  const compChMatch = s.match(/^tv\.(Channel|channel)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
+  if (compChMatch) {
+    const op = compChMatch[2];
+    const val = resolveNumValue(compChMatch[3], scope);
+    tv.Channel = op === "+=" ? tv.Channel + val : tv.Channel - val;
+    return;
+  }
+
+  const compVolMatch = s.match(/^tv\.(Volume|volume)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
+  if (compVolMatch) {
+    const op = compVolMatch[2];
+    const val = resolveNumValue(compVolMatch[3], scope);
+    tv.Volume = op === "+=" ? tv.Volume + val : tv.Volume - val;
+    return;
+  }
+
+  // 4. Arithmetic Assignment: tv.Channel = tv.Channel + 1, tv.Volume = tv.Volume + 5
+  const arithChMatch = s.match(
+    /^tv\.(Channel|channel)\s*=\s*tv\.(?:Channel|channel)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
+  );
+  if (arithChMatch) {
+    const op = arithChMatch[2];
+    const val = resolveNumValue(arithChMatch[3], scope);
+    tv.Channel = op === "+" ? tv.Channel + val : tv.Channel - val;
+    return;
+  }
+
+  const arithVolMatch = s.match(
+    /^tv\.(Volume|volume)\s*=\s*tv\.(?:Volume|volume)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
+  );
+  if (arithVolMatch) {
+    const op = arithVolMatch[2];
+    const val = resolveNumValue(arithVolMatch[3], scope);
+    tv.Volume = op === "+" ? tv.Volume + val : tv.Volume - val;
+    return;
+  }
+
+  // 5. Property Assignment: tv.Channel = <number | scopeVar>
+  const propChMatch = s.match(/^tv\.(Channel|channel)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
+  if (propChMatch) {
+    tv.Channel = resolveNumValue(propChMatch[2], scope);
+    return;
+  }
+
+  // 6. Property Assignment: tv.Volume = <number | scopeVar>
+  const propVolMatch = s.match(/^tv\.(Volume|volume)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
+  if (propVolMatch) {
+    tv.Volume = resolveNumValue(propVolMatch[2], scope);
+    return;
+  }
+
+  // 7. Method calls: tv.PowerOn(), tv.PowerOff(), tv.TogglePower()
   if (/^tv\.(PowerOn|powerOn)\(\s*\)$/i.test(s)) {
     tv.PowerOn();
     return;
@@ -138,40 +217,179 @@ function executeStatement(statement: string, tv: VirtualTV): void {
     return;
   }
 
-  // 6. Parameterized methods: tv.SetChannel(ch), tv.SetVolume(vol)
-  const setChMatch = s.match(/^tv\.(SetChannel|setChannel)\(\s*(\d+)\s*\)$/i);
+  // 8. Parameterized methods: tv.SetChannel(ch), tv.SetVolume(vol)
+  const setChMatch = s.match(/^tv\.(SetChannel|setChannel)\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
   if (setChMatch) {
-    tv.SetChannel(parseInt(setChMatch[2], 10));
+    tv.SetChannel(resolveNumValue(setChMatch[2], scope));
     return;
   }
 
-  const setVolMatch = s.match(/^tv\.(SetVolume|setVolume)\(\s*(\d+)\s*\)$/i);
+  const setVolMatch = s.match(/^tv\.(SetVolume|setVolume)\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
   if (setVolMatch) {
-    tv.SetVolume(parseInt(setVolMatch[2], 10));
+    tv.SetVolume(resolveNumValue(setVolMatch[2], scope));
     return;
   }
 
-  throw new Error(`Синтаксична помилка: невідома команда «${s}». Перевірте назви методів або властивостей (tv.IsOn, tv.PowerOn(), tv.SetChannel())`);
+  throw new Error(
+    `Синтаксична помилка: невідома команда «${s}». Перевірте назви методів або властивостей (tv.Channel, tv.Volume, tv.IsOn)`
+  );
 }
 
 /**
  * Execute a block of statements (separated by ; or newlines)
  */
-function executeBlock(blockStr: string, tv: VirtualTV): void {
-  // Split statements by semicolon or newline
+function executeBlock(
+  blockStr: string,
+  tv: VirtualTV,
+  scope: Record<string, number> = {}
+): void {
   const rawParts = blockStr.split(/[\n;]+/);
   for (const part of rawParts) {
     const stmt = part.trim();
     if (stmt) {
-      executeStatement(stmt, tv);
+      executeStatement(stmt, tv, scope);
     }
   }
 }
 
 /**
- * Main parser: processes if/else statements and simple statements
+ * For-loop configuration details
  */
-export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
+interface ForLoopConfig {
+  varName: string;
+  initVal: number;
+  condOp: "<=" | "<" | ">=" | ">" | "==" | "!=";
+  limitVal: number;
+  stepOp: "++" | "--" | "+=" | "-=";
+  stepVal: number;
+}
+
+/**
+ * Parse header of a for-loop: (int i = 1; i <= 4; i++) or i := 1; i <= 4; i++
+ */
+function parseForHeader(headerStr: string): ForLoopConfig {
+  const parts = headerStr.split(";").map((p) => p.trim());
+  if (parts.length !== 3) {
+    throw new Error(
+      `Некоректний заголовок циклу for: «${headerStr}». Очікується 3 секції через «;» (наприклад: int i = 1; i <= 4; i++)`
+    );
+  }
+
+  const [initPart, condPart, stepPart] = parts;
+
+  // 1. Init part: int i = 1 | var i = 1 | i := 1 | i = 1
+  const initMatch = initPart.match(
+    /^(?:(?:int|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(\d+)$/
+  );
+  if (!initMatch) {
+    throw new Error(
+      `Некоректна ініціалізація циклу: «${initPart}». Приклад: int i = 1 або i := 1`
+    );
+  }
+  const varName = initMatch[1];
+  const initVal = parseInt(initMatch[2], 10);
+
+  // 2. Condition part: i <= 4 | i < 5 | i >= 1
+  const condMatch = condPart.match(
+    new RegExp(`^${varName}\\s*(<=|<|>=|>|==|!=)\\s*(\\d+)$`)
+  );
+  if (!condMatch) {
+    throw new Error(
+      `Некоректна умова циклу: «${condPart}». Приклад: ${varName} <= 4`
+    );
+  }
+  const condOp = condMatch[1] as ForLoopConfig["condOp"];
+  const limitVal = parseInt(condMatch[2], 10);
+
+  // 3. Step part: i++ | ++i | i-- | --i | i += 1 | i -= 1 | i = i + 1
+  let stepOp: ForLoopConfig["stepOp"] = "++";
+  let stepVal = 1;
+
+  if (
+    new RegExp(`^${varName}\\+\\+$`).test(stepPart) ||
+    new RegExp(`^\\+\\+${varName}$`).test(stepPart)
+  ) {
+    stepOp = "++";
+    stepVal = 1;
+  } else if (
+    new RegExp(`^${varName}--$`).test(stepPart) ||
+    new RegExp(`^--${varName}$`).test(stepPart)
+  ) {
+    stepOp = "--";
+    stepVal = 1;
+  } else {
+    const compMatch = stepPart.match(
+      new RegExp(`^${varName}\\s*(\\+=|-=)\\s*(\\d+)$`)
+    );
+    if (compMatch) {
+      stepOp = compMatch[1] as "+=" | "-=";
+      stepVal = parseInt(compMatch[2], 10);
+    } else {
+      const explicitMatch = stepPart.match(
+        new RegExp(`^${varName}\\s*=\\s*${varName}\\s*([+-])\s*(\\d+)$`)
+      );
+      if (explicitMatch) {
+        stepOp = explicitMatch[1] === "+" ? "+=" : "-=";
+        stepVal = parseInt(explicitMatch[2], 10);
+      } else {
+        throw new Error(
+          `Некоректний крок циклу: «${stepPart}». Приклад: ${varName}++ або ${varName} += 1`
+        );
+      }
+    }
+  }
+
+  return { varName, initVal, condOp, limitVal, stepOp, stepVal };
+}
+
+function checkLoopCondition(
+  val: number,
+  op: ForLoopConfig["condOp"],
+  limit: number
+): boolean {
+  switch (op) {
+    case "<=":
+      return val <= limit;
+    case "<":
+      return val < limit;
+    case ">=":
+      return val >= limit;
+    case ">":
+      return val > limit;
+    case "==":
+      return val === limit;
+    case "!=":
+      return val !== limit;
+  }
+}
+
+function nextLoopVal(
+  val: number,
+  op: ForLoopConfig["stepOp"],
+  stepVal: number
+): number {
+  switch (op) {
+    case "++":
+      return val + 1;
+    case "--":
+      return val - 1;
+    case "+=":
+      return val + stepVal;
+    case "-=":
+      return val - stepVal;
+  }
+}
+
+const MAX_LOOP_ITERATIONS = 50;
+
+/**
+ * Asynchronous parser: handles for-loops with non-blocking step delays and live callbacks
+ */
+export async function interpretScriptAsync(
+  rawCode: string,
+  tv: VirtualTV,
+  options?: InterpreterOptions
+): Promise<ParseResult> {
   const cleaned = stripComments(rawCode);
   if (!cleaned) {
     return { success: true };
@@ -183,9 +401,63 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
     while (remaining.trim().length > 0) {
       remaining = remaining.trim();
 
-      // Check for if statement (supports both C# with () and Go without ())
-      // e.g.: if (tv.IsOn) { ... } else { ... } OR if tv.IsOn { ... } else { ... }
-      const ifRegex = /^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\\s{])?))\s*\{([^}]*)\}(?:\s*else\s*\{([^}]*)\})?/i;
+      // 1. Check for for-loop (C# with () or Go without ())
+      // C#: for (int i = 1; i <= 4; i++) { ... }
+      // Go: for i := 1; i <= 4; i++ { ... }
+      const forParenMatch = remaining.match(/^for\s*\(([^)]+)\)\s*\{([^}]*)\}/i);
+      const forNoParenMatch = remaining.match(
+        /^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{([^}]*)\}/i
+      );
+
+      const forMatch = forParenMatch || forNoParenMatch;
+      if (forMatch) {
+        const fullMatch = forMatch[0];
+        const headerStr = forMatch[1];
+        const bodyStr = forMatch[2];
+
+        const cfg = parseForHeader(headerStr);
+        let curVal = cfg.initVal;
+        let iterCount = 0;
+
+        while (
+          checkLoopCondition(curVal, cfg.condOp, cfg.limitVal) &&
+          iterCount < MAX_LOOP_ITERATIONS
+        ) {
+          iterCount++;
+          const scope = { [cfg.varName]: curVal };
+          executeBlock(bodyStr, tv, scope);
+
+          // Trigger live snapshot callback for TV rendering
+          if (options?.onStepMutation) {
+            options.onStepMutation(tv.getSnapshot());
+          }
+
+          // Non-blocking step pause (e.g. 300ms)
+          if (options?.stepDelayMs && options.stepDelayMs > 0) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, options.stepDelayMs)
+            );
+          }
+
+          curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
+        }
+
+        if (iterCount >= MAX_LOOP_ITERATIONS) {
+          throw new Error(
+            `Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Перевірте умову виходу з циклу.`
+          );
+        }
+
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) {
+          remaining = remaining.slice(1).trim();
+        }
+        continue;
+      }
+
+      // 2. Check for if statement (C# with () or Go without ())
+      const ifRegex =
+        /^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\\s{])?))\s*\{([^}]*)\}(?:\s*else\s*\{([^}]*)\})?/i;
       const ifMatch = remaining.match(ifRegex);
 
       if (ifMatch) {
@@ -202,14 +474,13 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
         }
 
         remaining = remaining.slice(fullMatch.length).trim();
-        // Consume optional trailing semicolon
         if (remaining.startsWith(";")) {
           remaining = remaining.slice(1).trim();
         }
         continue;
       }
 
-      // Check for regular statement up to next ; or newline or end
+      // 3. Check for regular statement
       const stmtMatch = remaining.match(/^[^;{}\n]+/);
       if (stmtMatch) {
         const stmt = stmtMatch[0].trim();
@@ -221,7 +492,98 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
         continue;
       }
 
-      // If we got here and couldn't match, syntax error
+      throw new Error(`Неочікуваний символ поблизу: «${remaining.slice(0, 20)}»`);
+    }
+
+    return { success: true };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return { success: false, error: errorMsg };
+  }
+}
+
+/**
+ * Synchronous parser wrapper for fast evaluations and unit tests
+ */
+export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
+  const cleaned = stripComments(rawCode);
+  if (!cleaned) {
+    return { success: true };
+  }
+
+  try {
+    let remaining = cleaned;
+
+    while (remaining.trim().length > 0) {
+      remaining = remaining.trim();
+
+      const forParenMatch = remaining.match(/^for\s*\(([^)]+)\)\s*\{([^}]*)\}/i);
+      const forNoParenMatch = remaining.match(
+        /^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{([^}]*)\}/i
+      );
+
+      const forMatch = forParenMatch || forNoParenMatch;
+      if (forMatch) {
+        const fullMatch = forMatch[0];
+        const headerStr = forMatch[1];
+        const bodyStr = forMatch[2];
+
+        const cfg = parseForHeader(headerStr);
+        let curVal = cfg.initVal;
+        let iterCount = 0;
+
+        while (
+          checkLoopCondition(curVal, cfg.condOp, cfg.limitVal) &&
+          iterCount < MAX_LOOP_ITERATIONS
+        ) {
+          iterCount++;
+          const scope = { [cfg.varName]: curVal };
+          executeBlock(bodyStr, tv, scope);
+          curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
+        }
+
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) {
+          remaining = remaining.slice(1).trim();
+        }
+        continue;
+      }
+
+      const ifRegex =
+        /^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\\s{])?))\s*\{([^}]*)\}(?:\s*else\s*\{([^}]*)\})?/i;
+      const ifMatch = remaining.match(ifRegex);
+
+      if (ifMatch) {
+        const fullMatch = ifMatch[0];
+        const conditionStr = ifMatch[1] || ifMatch[2];
+        const thenBlock = ifMatch[3];
+        const elseBlock = ifMatch[4] || "";
+
+        const condResult = evaluateCondition(conditionStr, tv);
+        if (condResult) {
+          executeBlock(thenBlock, tv);
+        } else if (elseBlock) {
+          executeBlock(elseBlock, tv);
+        }
+
+        remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) {
+          remaining = remaining.slice(1).trim();
+        }
+        continue;
+      }
+
+      const stmtMatch = remaining.match(/^[^;{}\n]+/);
+      if (stmtMatch) {
+        const stmt = stmtMatch[0].trim();
+        executeStatement(stmt, tv);
+        remaining = remaining.slice(stmtMatch[0].length).trim();
+        if (remaining.startsWith(";")) {
+          remaining = remaining.slice(1).trim();
+        }
+        continue;
+      }
+
       throw new Error(`Неочікуваний символ поблизу: «${remaining.slice(0, 20)}»`);
     }
 

@@ -41,6 +41,7 @@ export interface CodingTask {
   validate: (
     before: VirtualTvState,
     after: VirtualTvState,
-    result: RuntimeResult
+    result: RuntimeResult,
+    code?: string
   ) => { passed: boolean; messageKey?: string };
 }

@@ -122,73 +122,81 @@ export const WorkbenchScreen: React.FC = () => {
           <ArchitectureCanvas onBackToTv={() => setActiveView("device")} />
         </main>
       ) : (
-        <main className="relative z-10 flex-1 flex flex-col justify-center p-3 sm:p-5 lg:p-6 w-full max-w-[1720px] mx-auto overflow-hidden">
+        <main className="relative z-10 flex-1 flex flex-col justify-center p-3 sm:p-4 lg:p-5 w-full max-w-[1840px] mx-auto overflow-hidden">
           <div
-            className={`w-full flex transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            className={`w-full flex transition-all duration-300 ease-in-out ${
               isDrawerActive
-                ? "flex-col lg:flex-row items-center lg:items-start justify-center gap-5 lg:gap-6"
+                ? "flex-col lg:flex-row items-center lg:items-start justify-center gap-4 lg:gap-6"
                 : "flex-col items-center justify-center gap-6"
             }`}
           >
-            {/* Left column: TV + Remote */}
+            {/* Left column: TV + Remote (scales down smoothly by ~30% when Drawer is active) */}
             <div
-              className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col items-center ${
+              className={`transition-all duration-300 ease-in-out flex flex-col items-center justify-center ${
                 isDrawerActive
-                  ? "w-full lg:w-[54%] xl:w-[56%] gap-3.5"
-                  : "w-full max-w-5xl gap-6"
+                  ? "w-full lg:flex-1 min-w-0"
+                  : "w-full max-w-5xl mx-auto gap-6"
               }`}
             >
-              {!isDrawerActive ? (
-                <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 xl:gap-8 py-2">
-                  <div className="flex-1 w-full max-w-3xl xl:max-w-4xl">
-                    <TVBlueprintDevice compact={false} />
-                  </div>
+              <div
+                className={`w-full transition-all duration-300 ease-in-out flex flex-col items-center justify-center ${
+                  isDrawerActive
+                    ? "transform scale-[0.72] xl:scale-[0.75] origin-center -my-8 lg:-my-6"
+                    : "transform scale-100 origin-center my-0"
+                }`}
+              >
+                {!isDrawerActive ? (
+                  <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 xl:gap-8 py-2">
+                    <div className="flex-1 w-full max-w-3xl xl:max-w-4xl">
+                      <TVBlueprintDevice compact={false} />
+                    </div>
 
-                  <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-balsamiq text-ink-subtle px-1 relative w-24 shrink-0">
-                    <div className="relative w-full flex items-center justify-center h-2 overflow-visible">
-                      <div className="w-full border-t border-dashed border-ink-subtle/50" />
-                      {isBeamFlying && (
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center animate-ir-beam-horizontal pointer-events-none z-20">
-                          <div className="h-3 w-7 rounded-full bg-gradient-to-l from-red-500 via-amber-400 to-white shadow-[0_0_14px_rgba(239,68,68,1)] animate-pulse" />
-                        </div>
-                      )}
+                    <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-balsamiq text-ink-subtle px-1 relative w-24 shrink-0">
+                      <div className="relative w-full flex items-center justify-center h-2 overflow-visible">
+                        <div className="w-full border-t border-dashed border-ink-subtle/50" />
+                        {isBeamFlying && (
+                          <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center animate-ir-beam-horizontal pointer-events-none z-20">
+                            <div className="h-3 w-7 rounded-full bg-gradient-to-l from-red-500 via-amber-400 to-white shadow-[0_0_14px_rgba(239,68,68,1)] animate-pulse" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="tracking-tight py-0.5 font-bold whitespace-nowrap">
+                        {t("workbench.carrierLabel")}
+                      </span>
+                      <div className="relative w-full flex items-center justify-center h-2 overflow-visible">
+                        <div className="w-full border-t border-dashed border-ink-subtle/50" />
+                      </div>
                     </div>
-                    <span className="tracking-tight py-0.5 font-bold whitespace-nowrap">
-                      {t("workbench.carrierLabel")}
-                    </span>
-                    <div className="relative w-full flex items-center justify-center h-2 overflow-visible">
-                      <div className="w-full border-t border-dashed border-ink-subtle/50" />
-                    </div>
-                  </div>
 
-                  <div className="shrink-0 pt-2 lg:pt-0">
-                    <RemoteBlueprintDevice orientation="vertical" />
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full flex flex-col items-center gap-1 py-1">
-                  <div className="w-full">
-                    <TVBlueprintDevice compact={true} />
-                  </div>
-                  <div className="flex items-center justify-center gap-3 text-[10px] font-balsamiq text-ink-subtle relative py-0.5">
-                    <div className="relative h-6 flex flex-col items-center justify-center w-2 overflow-visible">
-                      <div className="h-full border-l border-dashed border-ink-subtle/50" />
-                      {isBeamFlying && (
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center animate-ir-beam-vertical pointer-events-none z-20">
-                          <div className="w-3 h-7 rounded-full bg-gradient-to-t from-red-500 via-amber-400 to-white shadow-[0_0_14px_rgba(239,68,68,1)] animate-pulse" />
-                        </div>
-                      )}
-                    </div>
-                    <span className="tracking-tight font-bold">{t("workbench.carrierLabel")}</span>
-                    <div className="relative h-6 flex flex-col items-center justify-center w-2 overflow-visible">
-                      <div className="h-full border-l border-dashed border-ink-subtle/50" />
+                    <div className="shrink-0 pt-2 lg:pt-0">
+                      <RemoteBlueprintDevice orientation="vertical" />
                     </div>
                   </div>
-                  <div className="w-full flex items-center justify-center">
-                    <RemoteBlueprintDevice orientation="horizontal" />
+                ) : (
+                  <div className="w-full flex flex-col items-center gap-1 py-1">
+                    <div className="w-full">
+                      <TVBlueprintDevice compact={true} />
+                    </div>
+                    <div className="flex items-center justify-center gap-3 text-[10px] font-balsamiq text-ink-subtle relative py-0.5">
+                      <div className="relative h-6 flex flex-col items-center justify-center w-2 overflow-visible">
+                        <div className="h-full border-l border-dashed border-ink-subtle/50" />
+                        {isBeamFlying && (
+                          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center animate-ir-beam-vertical pointer-events-none z-20">
+                            <div className="w-3 h-7 rounded-full bg-gradient-to-t from-red-500 via-amber-400 to-white shadow-[0_0_14px_rgba(239,68,68,1)] animate-pulse" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="tracking-tight font-bold">{t("workbench.carrierLabel")}</span>
+                      <div className="relative h-6 flex flex-col items-center justify-center w-2 overflow-visible">
+                        <div className="h-full border-l border-dashed border-ink-subtle/50" />
+                      </div>
+                    </div>
+                    <div className="w-full flex items-center justify-center">
+                      <RemoteBlueprintDevice orientation="horizontal" />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Bottom hint */}
               <div className="flex flex-wrap items-center justify-center gap-3 pt-1 w-full">
@@ -205,19 +213,14 @@ export const WorkbenchScreen: React.FC = () => {
               </div>
             </div>
 
-            {/* Right column: Drawer */}
+            {/* Right column: Wide Ergonomic IDE Drawer (~53vw, 640-840px) */}
             {isDrawerActive && (
-              <div className="w-full lg:w-[46%] xl:w-[44%] lg:max-w-[740px] h-[calc(100vh-5.5rem)] min-h-[560px] animate-in slide-in-from-top-6 duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]">
+              <div className="w-full lg:w-[53vw] lg:min-w-[640px] lg:max-w-[820px] xl:max-w-[850px] h-[calc(100vh-4.8rem)] min-h-[580px] shrink-0 transition-all duration-300 ease-in-out animate-in slide-in-from-right-4">
                 <EngineeringDrawer
                   isOpen={true}
                   isPinned={isDrawerPinned}
                   onTogglePin={() => setIsDrawerPinned(!isDrawerPinned)}
                   onClose={() => { setIsDrawerOpen(false); setIsDrawerPinned(false); }}
-                  onOpenArchitectureStudio={() => {
-                    setIsDrawerOpen(false);
-                    setIsDrawerPinned(false);
-                    setActiveView("architecture");
-                  }}
                   level={tvLevel01}
                   inline={true}
                 />

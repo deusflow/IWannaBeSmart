@@ -29,15 +29,15 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
   return (
     <div className="p-3.5 bg-paper rounded-2xl border border-paper-border space-y-2.5">
       {/* Top: Task Selector & Concept Badge */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-1.5 p-0.5 bg-paper-subtle rounded-xl border border-paper-border">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 p-1 bg-paper-subtle rounded-xl border border-paper-border flex-nowrap overflow-x-auto scrollbar-none">
           {tasks.map((task) => {
             const isActive = task.id === currentTaskId;
             return (
               <button
                 key={task.id}
                 onClick={() => onSelectTask(task.id)}
-                className={`px-2.5 py-1 text-xs font-display font-bold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1 text-xs font-display font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   isActive
                     ? "bg-accent-blue text-white shadow-paper-sm"
                     : "text-ink-muted hover:text-ink hover:bg-paper"
@@ -49,8 +49,8 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
           })}
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-mono font-bold">
-          <BookOpen size={12} />
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-mono font-bold whitespace-nowrap shrink-0">
+          <BookOpen size={13} />
           <span>{t(currentTask.conceptKey)}</span>
         </div>
       </div>

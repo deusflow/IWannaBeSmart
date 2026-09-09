@@ -6,13 +6,11 @@ import { InteractiveCodePlayground } from "./playground/InteractiveCodePlaygroun
 import { CircuitCanvas } from "./circuit/CircuitCanvas";
 import {
   X,
-  GitBranch,
   Terminal,
   Pin,
   PinOff,
   Minimize2,
   ExternalLink,
-  Maximize2,
 } from "lucide-react";
 
 interface EngineeringDrawerProps {
@@ -32,7 +30,6 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
   onClose,
   level,
   inline = false,
-  onOpenArchitectureStudio,
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("code");
@@ -41,7 +38,6 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
     () => [
       { id: "code", label: t("workbench.drawerTabs.code", "Код (C# / Go)") },
       { id: "hardware", label: t("workbench.drawerTabs.hardware", "Апаратні вузли") },
-      { id: "architecture", label: t("workbench.drawerTabs.architecture", "Архітектура") },
     ],
     [t]
   );
@@ -67,7 +63,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       className={`bg-paper-subtle rounded-3xl border-2 border-paper-border shadow-paper-lg flex flex-col overflow-hidden transition-all duration-300 ${
         inline
           ? "w-full h-full relative"
-          : "fixed z-40 top-16 bottom-4 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[600px] lg:w-[700px] xl:w-[760px] animate-in slide-in-from-top-6"
+          : "fixed z-40 top-16 bottom-4 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[640px] lg:w-[54vw] lg:min-w-[640px] lg:max-w-[820px] animate-in slide-in-from-right-4"
       } ${isPinned ? "ring-2 ring-accent-blue/30" : ""}`}
     >
       {/* Drawer Header with Pin & Close Controls */}
@@ -159,80 +155,6 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         {activeTab === "hardware" && (
           <div className="w-full">
             <CircuitCanvas />
-          </div>
-        )}
-
-        {/* TAB 3: ARCHITECTURE */}
-        {activeTab === "architecture" && (
-          <div className="space-y-4">
-            {/* Fullscreen Studio Launcher Hero Card */}
-            <div className="p-4 rounded-2xl bg-paper border border-accent-blue/40 shadow-paper-sm space-y-3">
-              <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">
-                <div className="h-7 w-7 rounded-lg bg-accent-blue-light text-accent-blue flex items-center justify-center">
-                  <Maximize2 size={16} strokeWidth={2} />
-                </div>
-                <span>Architecture Studio</span>
-              </div>
-
-              <p className="text-xs text-ink-muted leading-relaxed font-sans">
-                {t("architecture.fullscreenCardDesc")}
-              </p>
-
-              <button
-                onClick={() => {
-                  onClose();
-                  onOpenArchitectureStudio?.();
-                }}
-                className="w-full py-2.5 px-4 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-balsamiq font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
-              >
-                <Maximize2 size={14} />
-                <span>{t("architecture.openFullscreen")}</span>
-              </button>
-            </div>
-
-            <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2.5">
-              <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">
-                <GitBranch size={15} strokeWidth={2} className="text-accent-blue" />
-                <span>{t("drawer.iocTitle", "Інверсія керування (IoC & DI контракт)")}</span>
-              </div>
-
-              <p className="text-xs text-ink-muted leading-relaxed font-sans">
-                {t(
-                  "drawer.iocDescription",
-                  "Телевізійний приймач не створює команди вручну. Він приймає абстракції, що реалізують контракт IRemoteCommand. Метод Execute передається у вхідний порт контролера телевізора через Dependency Injection."
-                )}
-              </p>
-
-              <div className="p-3 bg-paper rounded-xl border border-paper-border font-sans text-xs text-ink-muted space-y-2">
-                <div className="flex items-center justify-between text-xs text-ink">
-                  <span>{t("drawer.commandContractLabel", "Контракт команди")}</span>
-                  <span className="text-accent-ok font-bold">✓ IRemoteCommand</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-ink">
-                  <span>{t("drawer.commandRegistryLabel", "Реєстр команд")}</span>
-                  <span className="text-accent-blue font-bold">
-                    {t("drawer.diInjectionLabel", "✓ Впровадження через DI")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Technical Glossary */}
-            <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2">
-              <span className="text-xs font-display font-bold text-ink-muted">
-                {t("drawer.keyTermsTitle", "Ключові терміни (Без перекладу)")}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {level.untranslatedTerms.map((term) => (
-                  <span
-                    key={term}
-                    className="px-2 py-0.5 rounded bg-paper text-ink font-sans text-xs font-medium border border-paper-border"
-                  >
-                    {term}
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </div>

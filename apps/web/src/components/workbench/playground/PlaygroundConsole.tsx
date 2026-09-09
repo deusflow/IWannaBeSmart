@@ -56,19 +56,19 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
       </div>
 
       {/* Console Output Body */}
-      <div className="p-3 font-mono text-xs space-y-2 min-h-[75px] max-h-[140px] overflow-y-auto">
+      <div className="p-3.5 font-mono text-xs space-y-2.5 min-h-[95px] max-h-[190px] overflow-y-auto">
         {!result ? (
-          <div className="text-gray-600 text-xs italic flex items-center gap-1.5 py-2">
-            <Info size={13} />
+          <div className="text-gray-500 text-xs italic flex items-center gap-2 py-3">
+            <Info size={14} className="text-gray-500 shrink-0" />
             <span>Натисніть «Запустити код», щоб виконати програму</span>
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {/* Logs from parser / runtime */}
             {result.logs.map((log, i) => (
               <div
                 key={i}
-                className={`flex items-start gap-1.5 leading-relaxed ${
+                className={`flex items-start gap-2 leading-relaxed ${
                   log.type === "mutation"
                     ? "text-purple-300 font-bold"
                     : log.type === "error"
@@ -77,13 +77,13 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
                 }`}
               >
                 {log.type === "mutation" && (
-                  <Zap size={12} className="text-purple-400 shrink-0 mt-0.5" />
+                  <Zap size={13} className="text-purple-400 shrink-0 mt-0.5" />
                 )}
                 {log.type === "error" && (
-                  <XCircle size={12} className="text-red-400 shrink-0 mt-0.5" />
+                  <XCircle size={13} className="text-red-400 shrink-0 mt-0.5" />
                 )}
                 {log.type === "info" && (
-                  <Info size={12} className="text-gray-500 shrink-0 mt-0.5" />
+                  <Info size={13} className="text-gray-500 shrink-0 mt-0.5" />
                 )}
                 <span>{log.message}</span>
               </div>
@@ -92,18 +92,18 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
             {/* Validation Feedback */}
             {feedbackMessage && (
               <div
-                className={`p-2 rounded-xl flex items-start gap-2 text-xs border ${
+                className={`p-3 rounded-xl flex items-start gap-2.5 text-xs border ${
                   taskPassed
-                    ? "bg-emerald-950/40 border-emerald-600/40 text-emerald-300"
-                    : "bg-red-950/40 border-red-600/40 text-red-300"
+                    ? "bg-emerald-950/40 border-emerald-600/40 text-emerald-300 shadow-xs"
+                    : "bg-red-950/40 border-red-600/40 text-red-300 shadow-xs"
                 }`}
               >
                 {taskPassed ? (
-                  <CheckCircle2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                  <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />
                 ) : (
-                  <XCircle size={14} className="text-red-400 shrink-0 mt-0.5" />
+                  <XCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
                 )}
-                <div className="leading-snug">{feedbackMessage}</div>
+                <div className="leading-relaxed font-sans font-medium">{feedbackMessage}</div>
               </div>
             )}
           </div>

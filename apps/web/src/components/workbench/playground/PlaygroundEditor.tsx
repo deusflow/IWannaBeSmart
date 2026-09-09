@@ -45,7 +45,7 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
       <div className="font-mono text-xs selection:bg-purple-900/50">
         <CodeMirror
           value={code}
-          height="140px"
+          height="190px"
           theme={oneDark}
           extensions={extensions}
           onChange={onChange}
