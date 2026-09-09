@@ -163,6 +163,14 @@ export class VirtualTV {
     this.SetVolume(vol);
   }
 
+  public SetMode(mode: string): void {
+    this.Osd = mode;
+  }
+
+  public setMode(mode: string): void {
+    this.SetMode(mode);
+  }
+
   public isArchWired(): boolean {
     return this._isArchitectureWired;
   }

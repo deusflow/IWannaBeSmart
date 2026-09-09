@@ -250,6 +250,12 @@ function executeStatement(
     return;
   }
 
+  const setModeMatch = s.match(/^tv\.(SetMode|setMode)\(\s*["']([^"']*)["']\s*\)$/i);
+  if (setModeMatch) {
+    tv.SetMode(setModeMatch[2]);
+    return;
+  }
+
   // 9. String variable assignment: string button = "CALC" / button := "CALC"
   const strVarMatch = s.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']$/i);
   if (strVarMatch) {

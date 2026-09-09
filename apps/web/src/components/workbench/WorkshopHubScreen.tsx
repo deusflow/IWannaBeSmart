@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
-import { FINTECH_TASKS } from "@iw/sim-engine";
+import { FINTECH_TASKS, CODING_TASKS } from "@iw/sim-engine";
 
 export const WorkshopHubScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -30,19 +30,25 @@ export const WorkshopHubScreen: React.FC = () => {
     setPosVictoryModalOpen,
   } = useWorkbenchStore();
 
-  // TV module stats
-  const tvCompletedCount = Object.keys(completedCodingTasks).length;
-  const isTvCompleted = tvCompletedCount >= 10;
+  // TV module stats (10 tasks * 3 stars = 30 max stars)
+  const totalTvStars = useMemo(() => {
+    return CODING_TASKS.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
+  }, [taskMasteryStars]);
+  const isTvFullyMastered = totalTvStars >= 30;
+  const isTvEligibleForCert = CODING_TASKS.every(
+    (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+  );
+  const isTvCompleted = isTvFullyMastered || Object.keys(completedCodingTasks).length >= 10;
 
-  // POS module stats
+  // POS module stats (6 tasks * 3 stars = 18 max stars)
   const totalPosStars = useMemo(() => {
     return FINTECH_TASKS.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
   }, [taskMasteryStars]);
   const isPosFullyMastered = totalPosStars >= 18;
   const isPosEligibleForCert = FINTECH_TASKS.every((task) => (taskMasteryStars[task.id] || 0) >= 1);
 
-  // Total stars across platform
-  const totalStars = totalPosStars;
+  // Total stars across platform (TV 30 ★ + POS 18 ★ = 48 ★)
+  const totalStars = totalTvStars + totalPosStars;
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (isTvCompleted && isPosEligibleForCert);
@@ -203,14 +209,18 @@ export const WorkshopHubScreen: React.FC = () => {
               </span>
               <span
                 className={`text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
-                  isTvCompleted
+                  isTvFullyMastered
+                    ? "bg-amber-500/15 border-amber-600/30 text-amber-900"
+                    : isTvCompleted
                     ? "bg-emerald-500/15 border-emerald-600/30 text-emerald-900"
                     : "bg-blue-500/15 border-blue-600/30 text-blue-900"
                 }`}
               >
-                {isTvCompleted
-                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (10/10)`
-                  : `${t("hub.stationAvailable", "ДОСТУПНО")} (${tvCompletedCount}/10)`}
+                {isTvFullyMastered
+                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (30/30 ★)`
+                  : isTvCompleted
+                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${totalTvStars}/30 ★)`
+                  : `${t("hub.stationAvailable", "ДОСТУПНО")} (${totalTvStars}/30 ★)`}
               </span>
             </div>
 
@@ -262,7 +272,7 @@ export const WorkshopHubScreen: React.FC = () => {
             {/* Specs & Task Progress */}
             <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
               <span>{t("hub.stations.tv.specs", "10 завдань • CRT TV • C# / Go")}</span>
-              <span className="font-bold">{tvCompletedCount}/10</span>
+              <span className="font-bold">{totalTvStars}/30 ★</span>
             </div>
           </div>
 
@@ -276,7 +286,7 @@ export const WorkshopHubScreen: React.FC = () => {
               <ArrowRight size={14} />
             </button>
 
-            {isTvCompleted && (
+            {isTvEligibleForCert && (
               <button
                 onClick={() => {
                   audioFx.playSuccessFanfare();

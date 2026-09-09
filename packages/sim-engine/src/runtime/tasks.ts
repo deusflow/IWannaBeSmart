@@ -1,6 +1,6 @@
 /**
  * @file packages/sim-engine/src/runtime/tasks.ts
- * @description Interactive coding tasks for beginner programming in C# and Go
+ * @description Interactive coding tasks for beginner programming in C# and Go with 3-Star Code Gym configuration
  */
 
 import type { CodingTask } from "./types";
@@ -21,6 +21,15 @@ export const CODING_TASKS: CodingTask[] = [
       csharp: "// Увімкніть живлення телевізора\ntv.IsOn = true;\n",
       go: "// Увімкніть живлення телевізора\ntv.IsOn = true\n",
     },
+    targetCode: {
+      csharp: "tv.IsOn = true;",
+      go: "tv.IsOn = true",
+    },
+    clozeTemplate: {
+      csharp: "tv.___ = ___;",
+      go: "tv.___ = ___",
+    },
+    sprintTimeLimit: 15,
     validate: (_before, after, result) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -57,6 +66,31 @@ if tv.IsOn {
 }
 `,
     },
+    targetCode: {
+      csharp: `if (tv.IsOn) {
+    tv.IsOn = false;
+} else {
+    tv.IsOn = true;
+}`,
+      go: `if tv.IsOn {
+    tv.IsOn = false
+} else {
+    tv.IsOn = true
+}`,
+    },
+    clozeTemplate: {
+      csharp: `if (tv.___) {
+    tv.IsOn = ___;
+} else {
+    tv.IsOn = ___;
+}`,
+      go: `if tv.___ {
+    tv.IsOn = ___
+} else {
+    tv.IsOn = ___
+}`,
+    },
+    sprintTimeLimit: 15,
     validate: (before, after, result) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -85,6 +119,15 @@ tv.Channel++;
 tv.Channel++
 `,
     },
+    targetCode: {
+      csharp: "tv.Channel++;",
+      go: "tv.Channel++",
+    },
+    clozeTemplate: {
+      csharp: "tv.___++;",
+      go: "tv.___++",
+    },
+    sprintTimeLimit: 15,
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -125,6 +168,23 @@ if tv.Channel > 4 {
 }
 `,
     },
+    targetCode: {
+      csharp: `if (tv.Channel > 4) {
+    tv.Channel = 1;
+}`,
+      go: `if tv.Channel > 4 {
+    tv.Channel = 1
+}`,
+    },
+    clozeTemplate: {
+      csharp: `if (tv.Channel > ___) {
+    tv.Channel = ___;
+}`,
+      go: `if tv.Channel > ___ {
+    tv.Channel = ___
+}`,
+    },
+    sprintTimeLimit: 15,
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -171,6 +231,23 @@ for i := 1; i <= 4; i++ {
 }
 `,
     },
+    targetCode: {
+      csharp: `for (int i = 1; i <= 4; i++) {
+    tv.Channel = i;
+}`,
+      go: `for i := 1; i <= 4; i++ {
+    tv.Channel = i
+}`,
+    },
+    clozeTemplate: {
+      csharp: `for (int ___ = 1; ___ <= 4; ___++) {
+    tv.Channel = ___;
+}`,
+      go: `for ___ := 1; ___ <= 4; ___++ {
+    tv.Channel = ___
+}`,
+    },
+    sprintTimeLimit: 15,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -211,6 +288,31 @@ func Mute() {
 Mute()
 `,
     },
+    targetCode: {
+      csharp: `void Mute() {
+    tv.Volume = 0;
+}
+
+Mute();`,
+      go: `func Mute() {
+    tv.Volume = 0
+}
+
+Mute()`,
+    },
+    clozeTemplate: {
+      csharp: `void ___() {
+    tv.Volume = ___;
+}
+
+___();`,
+      go: `func ___() {
+    tv.Volume = ___
+}
+
+___()`,
+    },
+    sprintTimeLimit: 15,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -279,6 +381,47 @@ default:
 }
 `,
     },
+    targetCode: {
+      csharp: `string button = "CALC";
+
+switch (button) {
+    case "POWER":
+        tv.TogglePower();
+        break;
+    case "CALC":
+        tv.SetMode("CALC_MODE");
+        break;
+}`,
+      go: `button := "CALC"
+
+switch button {
+case "POWER":
+    tv.TogglePower()
+case "CALC":
+    tv.SetMode("CALC_MODE")
+}`,
+    },
+    clozeTemplate: {
+      csharp: `string button = "CALC";
+
+switch (___) {
+    case "POWER":
+        tv.TogglePower();
+        break;
+    case "___":
+        tv.SetMode("___");
+        break;
+}`,
+      go: `button := "CALC"
+
+switch ___ {
+case "POWER":
+    tv.TogglePower()
+case "___":
+    tv.SetMode("___")
+}`,
+    },
+    sprintTimeLimit: 20,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -315,6 +458,19 @@ command := CalcCommand{}
 command.Execute()
 `,
     },
+    targetCode: {
+      csharp: `IRemoteCommand command = new CalcCommand();
+command.Execute();`,
+      go: `command := CalcCommand{}
+command.Execute()`,
+    },
+    clozeTemplate: {
+      csharp: `IRemoteCommand command = new ___();
+command.___();`,
+      go: `command := ___
+command.___()`,
+    },
+    sprintTimeLimit: 15,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -347,6 +503,15 @@ services.AddTransient<IRemoteCommand, CalcCommand>();
 container.Register("calc", NewCalcCommand())
 `,
     },
+    targetCode: {
+      csharp: "services.AddTransient<IRemoteCommand, CalcCommand>();",
+      go: 'container.Register("calc", NewCalcCommand())',
+    },
+    clozeTemplate: {
+      csharp: "services.AddTransient<___, ___>();",
+      go: 'container.Register("___", ___())',
+    },
+    sprintTimeLimit: 15,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -395,6 +560,27 @@ registry["CALC"] = CalcCommand{}
 registry[button].Execute()
 `,
     },
+    targetCode: {
+      csharp: `string button = "CALC";
+var registry = new Dictionary<string, IRemoteCommand>();
+registry["CALC"] = new CalcCommand();
+registry[button].Execute();`,
+      go: `button := "CALC"
+registry := make(map[string]IRemoteCommand)
+registry["CALC"] = CalcCommand{}
+registry[button].Execute()`,
+    },
+    clozeTemplate: {
+      csharp: `string button = "CALC";
+var registry = new Dictionary<string, ___>();
+registry["CALC"] = new ___();
+registry[___].Execute();`,
+      go: `button := "CALC"
+registry := make(map[string]___)
+registry["CALC"] = ___
+registry[___].Execute()`,
+    },
+    sprintTimeLimit: 20,
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };

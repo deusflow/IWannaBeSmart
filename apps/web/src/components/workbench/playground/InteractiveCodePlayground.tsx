@@ -1,22 +1,34 @@
 /**
  * @file apps/web/src/components/workbench/playground/InteractiveCodePlayground.tsx
- * @description Main interactive live coding playground integrating CodeMirror, Virtual TV runtime, and Faded Scaffolding
+ * @description 3-Star Code Gym muscle memory engine for Virtual TV: Trace -> Cloze -> Sprint
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import CodeMirror from "@uiw/react-codemirror";
+import { oneDark } from "@codemirror/theme-one-dark";
+import { cpp } from "@codemirror/lang-cpp";
+import { go } from "@codemirror/lang-go";
+import {
+  Star,
+  Play,
+  RotateCcw,
+  ArrowRight,
+  Timer,
+  AlertTriangle,
+  CheckCircle2,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import {
   CODING_TASKS,
   executeTvScriptAsync,
   type VirtualTvState,
-  type RuntimeResult,
+  type CodingTask,
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { audioFx } from "../../../utils/audioFx";
-import { PlaygroundTaskHeader } from "./PlaygroundTaskHeader";
-import { PlaygroundEditor } from "./PlaygroundEditor";
-import { PlaygroundConsole } from "./PlaygroundConsole";
-import { Play, RotateCcw, ArrowRight, Loader2, Sparkles, Eye, Edit3 } from "lucide-react";
+import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 
 export const InteractiveCodePlayground: React.FC = () => {
   const { t } = useTranslation();
@@ -25,448 +37,736 @@ export const InteractiveCodePlayground: React.FC = () => {
     channel,
     volume,
     isArchitecturePowerWired,
+    setArchitecturePowerWired,
     applyCodeExecution,
     completeCodingTask,
-    isCodingTaskCompleted,
+    completedCodingTasks,
+    taskMasteryStars,
+    setTaskMastery,
+    addXp,
+    setStationVictoryModalOpen,
   } = useWorkbenchStore();
 
-  const [currentTaskId, setCurrentTaskId] = useState<string>("task-1-assignment");
-  const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
-  const [taskPhase, setTaskPhase] = useState<"demo" | "practice">("demo");
-  const [showHint, setShowHint] = useState(false);
-  const [showGhost, setShowGhost] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
-  const [showXpAward, setShowXpAward] = useState(false);
-
-  const currentTask = useMemo(
-    () => CODING_TASKS.find((t) => t.id === currentTaskId) || CODING_TASKS[0],
-    [currentTaskId]
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("task-1-assignment");
+  const currentTask: CodingTask = useMemo(
+    () => CODING_TASKS.find((t) => t.id === selectedTaskId) || CODING_TASKS[0],
+    [selectedTaskId]
   );
 
-  // Demo code state (populated from curriculum reference code)
-  const [demoCodes, setDemoCodes] = useState<Record<string, string>>(() => {
-    const initial: Record<string, string> = {};
-    for (const task of CODING_TASKS) {
-      initial[`${task.id}-csharp`] = task.initialCode.csharp;
-      initial[`${task.id}-go`] = task.initialCode.go;
+  const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
+  const [activeRound, setActiveRound] = useState<1 | 2 | 3>(1);
+
+  // Target code for current language & task
+  const targetCode = currentTask.targetCode[codeLang];
+  const clozeTemplate = currentTask.clozeTemplate[codeLang];
+  const sprintLimit = currentTask.sprintTimeLimit || 15;
+
+  // Editor content per round
+  const [typedCode, setTypedCode] = useState<string>("");
+  const [roundCompleted, setRoundCompleted] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [showTooltip, setShowTooltip] = useState<boolean>(false);
+  const [showTheory, setShowTheory] = useState<boolean>(false);
+
+  // Sprint Timer (Round 3)
+  const [timeLeft, setTimeLeft] = useState<number>(sprintLimit);
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+
+  // Mastery stars for this task
+  const starsEarned = taskMasteryStars[currentTask.id] || 0;
+
+  // CodeMirror language extensions
+  const extensions = useMemo(() => {
+    return codeLang === "go" ? [go()] : [cpp()];
+  }, [codeLang]);
+
+  // Handle task switching
+  const handleSelectTask = (taskId: string) => {
+    if (taskId === selectedTaskId) return;
+    audioFx.playRelayClick();
+    setSelectedTaskId(taskId);
+    setActiveRound(1);
+    setShowTheory(false);
+    setShowTooltip(false);
+
+    // Educational presets for edge conditions on TV
+    if (taskId === "task-boundary-guard" && channel <= 4) {
+      applyCodeExecution({ channel: 5 });
     }
-    return initial;
-  });
+    if (taskId === "task-function-encapsulation" && volume === 0) {
+      applyCodeExecution({ volume: 50 });
+    }
+  };
 
-  // Self Practice code state (independent scratchpad per task and language)
-  const [practiceCodes, setPracticeCodes] = useState<Record<string, string>>({});
+  // Reset or setup editor when round, language, or task changes
+  useEffect(() => {
+    setRoundCompleted(false);
+    setFeedback(null);
+    setHasError(false);
+    setIsTimerRunning(false);
+    setTimeLeft(sprintLimit);
 
-  const codeKey = `${currentTaskId}-${codeLang}`;
-  const defaultPracticeComment = `${t("playground.practicePlaceholderComment", "// Напишіть код самостійно...")}\n`;
+    if (activeRound === 1) {
+      setTypedCode("");
+    } else if (activeRound === 2) {
+      setTypedCode(clozeTemplate);
+    } else if (activeRound === 3) {
+      setTypedCode("");
+    }
+  }, [activeRound, codeLang, clozeTemplate, currentTask.id, sprintLimit]);
 
-  const currentCode =
-    taskPhase === "demo"
-      ? demoCodes[codeKey] ?? currentTask.initialCode[codeLang]
-      : practiceCodes[codeKey] ?? defaultPracticeComment;
+  // ── Round 1: Trace typing mechanics ──────────────────────────
+  const handleTraceChange = useCallback(
+    async (input: string) => {
+      setTypedCode(input);
 
-  const handleCodeChange = useCallback(
-    (newCode: string) => {
-      if (taskPhase === "demo") {
-        setDemoCodes((prev) => ({ ...prev, [codeKey]: newCode }));
+      // Verify character by character against target
+      let mismatch = false;
+      const minLen = Math.min(input.length, targetCode.length);
+
+      for (let i = 0; i < minLen; i++) {
+        if (input[i] !== targetCode[i]) {
+          mismatch = true;
+          break;
+        }
+      }
+
+      if (mismatch) {
+        setHasError(true);
+        audioFx.playErrorBuzz();
+        setFeedback("Символ не відповідає трафарету. Використовуйте Backspace.");
       } else {
-        setPracticeCodes((prev) => ({ ...prev, [codeKey]: newCode }));
+        setHasError(false);
+        setFeedback(null);
+
+        // Check if fully and accurately completed
+        if (input.trim() === targetCode.trim()) {
+          setRoundCompleted(true);
+          audioFx.playSuccessFanfare();
+          setTaskMastery(currentTask.id, 1);
+          completeCodingTask(currentTask.id);
+          addXp(15);
+
+          // Physical TV reflection
+          const beforeState: VirtualTvState = {
+            isOn: power,
+            channel,
+            volume,
+            isArchitectureWired: isArchitecturePowerWired,
+          };
+          const res = await executeTvScriptAsync(
+            input,
+            beforeState,
+            (snap) => {
+              applyCodeExecution({
+                power: snap.isOn,
+                channel: snap.channel,
+                volume: snap.volume,
+                osdMessage: snap.osdMessage,
+              });
+            },
+            150
+          );
+          if (res.success) {
+            applyCodeExecution({
+              power: res.newState.isOn,
+              channel: res.newState.channel,
+              volume: res.newState.volume,
+              osdMessage: res.newState.osdMessage,
+            });
+            if (res.newState.isArchitectureWired) {
+              setArchitecturePowerWired(true);
+            }
+          }
+        }
       }
     },
-    [codeKey, taskPhase]
-  );
-
-  const handleReset = useCallback(() => {
-    if (taskPhase === "demo") {
-      setDemoCodes((prev) => ({
-        ...prev,
-        [codeKey]: currentTask.initialCode[codeLang],
-      }));
-    } else {
-      setPracticeCodes((prev) => ({
-        ...prev,
-        [codeKey]: defaultPracticeComment,
-      }));
-    }
-    setLastResult(null);
-    setTaskPassed(null);
-    setFeedbackMessage(undefined);
-  }, [codeKey, currentTask, codeLang, taskPhase, defaultPracticeComment]);
-
-  // 3-second ghost text overlay trigger
-  const triggerGhost = useCallback(() => {
-    setShowGhost(true);
-    const timer = setTimeout(() => setShowGhost(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Execution & Diagnostics state
-  const [lastResult, setLastResult] = useState<RuntimeResult | null>(null);
-  const [taskPassed, setTaskPassed] = useState<boolean | null>(null);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | undefined>(undefined);
-
-  const currentTvState: VirtualTvState = useMemo(
-    () => ({
-      isOn: power,
+    [
+      targetCode,
+      currentTask.id,
+      power,
       channel,
       volume,
-      isArchitectureWired: isArchitecturePowerWired,
-    }),
-    [power, channel, volume, isArchitecturePowerWired]
+      isArchitecturePowerWired,
+      setArchitecturePowerWired,
+      applyCodeExecution,
+      setTaskMastery,
+      completeCodingTask,
+      addXp,
+    ]
   );
 
-  const handleSelectTask = useCallback(
-    (taskId: string) => {
-      setCurrentTaskId(taskId);
-      setTaskPhase("demo");
-      setLastResult(null);
-      setTaskPassed(null);
-      setFeedbackMessage(undefined);
-      setShowHint(false);
-      setShowGhost(false);
-
-      // Educational presets for edge conditions
-      if (taskId === "task-boundary-guard" && channel <= 4) {
-        applyCodeExecution({ channel: 5 });
-      }
-      if (taskId === "task-function-encapsulation" && volume === 0) {
-        applyCodeExecution({ volume: 50 });
-      }
-    },
-    [channel, volume, applyCodeExecution]
-  );
-
-  // ── Run Code Action (Non-blocking async with physical TV reaction) ───
-  const handleRunCode = useCallback(async () => {
-    if (isRunning) return;
-    setIsRunning(true);
+  // ── Round 2: Cloze verification ──────────────────────────────
+  const handleVerifyCloze = useCallback(async () => {
+    const isUnfilled = typedCode.includes("___");
+    if (isUnfilled) {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback("Заповніть усі прогалини (___) перед перевіркою!");
+      return;
+    }
 
     const beforeState: VirtualTvState = {
       isOn: power,
       channel,
       volume,
+      isArchitectureWired: isArchitecturePowerWired,
     };
 
-    try {
-      // Execute script with 300ms step-by-step pauses and TV mutations
-      const result = await executeTvScriptAsync(
-        currentCode,
-        beforeState,
-        (snapshot) => {
-          applyCodeExecution({
-            power: snapshot.isOn,
-            channel: snapshot.channel,
-            volume: snapshot.volume,
-            osdMessage: snapshot.osdMessage,
-          });
-        },
-        300
-      );
-
-      setLastResult(result);
-
-      if (result.success) {
-        // Synchronize physical TV state
+    const result = await executeTvScriptAsync(
+      typedCode,
+      beforeState,
+      (snapshot) => {
         applyCodeExecution({
-          power: result.newState.isOn,
-          channel: result.newState.channel,
-          volume: result.newState.volume,
-          osdMessage: result.newState.osdMessage,
+          power: snapshot.isOn,
+          channel: snapshot.channel,
+          volume: snapshot.volume,
+          osdMessage: snapshot.osdMessage,
         });
+      },
+      200
+    );
 
-        if (taskPhase === "demo") {
-          // Guided Demo Mode: TV reacts without pass/fail grading or XP award
-          setTaskPassed(null);
-          setFeedbackMessage(t("playground.demoRunSuccess"));
-        } else {
-          // Self Practice Mode: Strict validation against task objective
-          const validation = currentTask.validate(
-            beforeState,
-            result.newState,
-            result,
-            currentCode
-          );
-
-          if (validation.passed) {
-            audioFx.playSuccessFanfare();
-            setTaskPassed(true);
-            const isNewlyCompleted = completeCodingTask(currentTaskId);
-            if (isNewlyCompleted) {
-              setShowXpAward(true);
-              setTimeout(() => setShowXpAward(false), 2600);
-            }
-            setFeedbackMessage(
-              t(
-                validation.messageKey || currentTask.successKey,
-                t("playground.practiceSuccessMsg")
-              )
-            );
-          } else {
-            audioFx.playErrorBuzz();
-            setTaskPassed(false);
-            setFeedbackMessage(
-              validation.messageKey
-                ? t(validation.messageKey)
-                : result.error || t("playground.errorSyntax")
-            );
-          }
-        }
-      } else {
-        audioFx.playErrorBuzz();
-        setTaskPassed(false);
-        setFeedbackMessage(result.error || t("playground.errorSyntax"));
+    if (result.success) {
+      applyCodeExecution({
+        power: result.newState.isOn,
+        channel: result.newState.channel,
+        volume: result.newState.volume,
+        osdMessage: result.newState.osdMessage,
+      });
+      if (result.newState.isArchitectureWired) {
+        setArchitecturePowerWired(true);
       }
-    } catch (err: unknown) {
+    }
+
+    const validation = currentTask.validate(beforeState, result.newState, result, typedCode);
+
+    if (validation.passed) {
+      setHasError(false);
+      setRoundCompleted(true);
+      audioFx.playSuccessFanfare();
+      setTaskMastery(currentTask.id, 2);
+      completeCodingTask(currentTask.id);
+      addXp(20);
+      setFeedback(t(currentTask.successKey));
+    } else {
+      setHasError(true);
       audioFx.playErrorBuzz();
-      const msg = err instanceof Error ? err.message : String(err);
-      setTaskPassed(false);
-      setFeedbackMessage(msg);
-    } finally {
-      setIsRunning(false);
+      setFeedback(
+        result.error
+          ? result.error
+          : validation.messageKey
+          ? t(validation.messageKey)
+          : t(currentTask.hintKey)
+      );
     }
   }, [
-    isRunning,
+    typedCode,
     power,
     channel,
     volume,
-    currentCode,
-    applyCodeExecution,
-    taskPhase,
+    isArchitecturePowerWired,
     currentTask,
-    currentTaskId,
+    applyCodeExecution,
+    setTaskMastery,
     completeCodingTask,
+    addXp,
     t,
   ]);
 
-  const handleNextTask = useCallback(() => {
-    const currentIndex = CODING_TASKS.findIndex((t) => t.id === currentTaskId);
-    if (currentIndex >= 0 && currentIndex < CODING_TASKS.length - 1) {
-      const nextTask = CODING_TASKS[currentIndex + 1];
-      handleSelectTask(nextTask.id);
-    }
-  }, [currentTaskId, handleSelectTask]);
+  // ── Round 3: Sprint timer logic ──────────────────────────────
+  useEffect(() => {
+    if (activeRound !== 3 || !isTimerRunning) return;
 
-  const isLastTask = currentTaskId === CODING_TASKS[CODING_TASKS.length - 1].id;
+    if (timeLeft <= 0) {
+      setIsTimerRunning(false);
+      audioFx.playErrorBuzz();
+      setHasError(true);
+      setFeedback(t("codegym.timeExpired", "Час вичерпано! Спробуйте ще раз."));
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeRound, isTimerRunning, timeLeft, t]);
+
+  const handleStartSprint = () => {
+    setTimeLeft(sprintLimit);
+    setIsTimerRunning(true);
+    setHasError(false);
+    setFeedback(null);
+    setRoundCompleted(false);
+    setTypedCode("");
+  };
+
+  const handleRunSprint = useCallback(async () => {
+    if (timeLeft <= 0) {
+      setHasError(true);
+      setFeedback(t("codegym.timeExpired", "Час вичерпано! Спробуйте ще раз."));
+      return;
+    }
+
+    setIsTimerRunning(false);
+    const beforeState: VirtualTvState = {
+      isOn: power,
+      channel,
+      volume,
+      isArchitectureWired: isArchitecturePowerWired,
+    };
+
+    const result = await executeTvScriptAsync(
+      typedCode,
+      beforeState,
+      (snapshot) => {
+        applyCodeExecution({
+          power: snapshot.isOn,
+          channel: snapshot.channel,
+          volume: snapshot.volume,
+          osdMessage: snapshot.osdMessage,
+        });
+      },
+      150
+    );
+
+    if (result.success) {
+      applyCodeExecution({
+        power: result.newState.isOn,
+        channel: result.newState.channel,
+        volume: result.newState.volume,
+        osdMessage: result.newState.osdMessage,
+      });
+      if (result.newState.isArchitectureWired) {
+        setArchitecturePowerWired(true);
+      }
+    }
+
+    const validation = currentTask.validate(beforeState, result.newState, result, typedCode);
+
+    if (validation.passed) {
+      setHasError(false);
+      setRoundCompleted(true);
+      audioFx.playSuccessFanfare();
+      setTaskMastery(currentTask.id, 3);
+      completeCodingTask(currentTask.id);
+      addXp(50);
+      setFeedback(t("codegym.masteryComplete", "Майстерність підтверджено! 3 зірки зараховано."));
+
+      if (currentTask.id === "task-command-registry") {
+        setStationVictoryModalOpen(true);
+      }
+    } else {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback(
+        result.error
+          ? result.error
+          : validation.messageKey
+          ? t(validation.messageKey)
+          : t(currentTask.hintKey)
+      );
+    }
+  }, [
+    timeLeft,
+    power,
+    channel,
+    volume,
+    isArchitecturePowerWired,
+    typedCode,
+    currentTask,
+    applyCodeExecution,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    setStationVictoryModalOpen,
+    t,
+  ]);
+
+  // Trace character progress
+  const traceCharsMatched = useMemo(() => {
+    let count = 0;
+    const minLen = Math.min(typedCode.length, targetCode.length);
+    for (let i = 0; i < minLen; i++) {
+      if (typedCode[i] === targetCode[i]) count++;
+      else break;
+    }
+    return count;
+  }, [typedCode, targetCode]);
+
+  // File name
+  const fileName = useMemo(() => {
+    switch (currentTask.id) {
+      case "task-interface-polymorphism":
+        return codeLang === "go" ? "command.go" : "IRemoteCommand.cs";
+      case "task-di-container":
+        return codeLang === "go" ? "container.go" : "Program.cs";
+      case "task-command-registry":
+        return codeLang === "go" ? "registry.go" : "CommandRegistry.cs";
+      default:
+        return codeLang === "go" ? "tv_controller.go" : "TVController.cs";
+    }
+  }, [currentTask.id, codeLang]);
+
+  const allTvTasksCompleted = useMemo(() => {
+    return CODING_TASKS.every(
+      (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+    );
+  }, [taskMasteryStars, completedCodingTasks]);
 
   return (
-    <div className="space-y-3.5 select-none">
-      {/* 1. Task Header & Goals (with Checkmarks for completed practice tasks) */}
-      <PlaygroundTaskHeader
-        tasks={CODING_TASKS}
-        currentTaskId={currentTaskId}
-        onSelectTask={handleSelectTask}
-        showHint={showHint}
-        onToggleHint={() => {
-          if (taskPhase === "practice") {
-            triggerGhost();
-          } else {
-            setShowHint((p) => !p);
-          }
-        }}
-        isTaskCompleted={isCodingTaskCompleted}
-        codeLang={codeLang}
-      />
-
-      {/* 2. Educational Two-Phase Banner (Guided Demo <-> Self Practice) */}
-      <div
-        className={`flex items-center justify-between p-2.5 rounded-xl border transition-all duration-200 shadow-paper-xs ${
-          taskPhase === "demo"
-            ? "bg-[#EBE5D8] border-[#1A1D20]/20 text-[#1A1D20]"
-            : "bg-emerald-500/10 border-emerald-600/30 text-[#1A1D20]"
-        }`}
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          <span
-            className={`px-2 py-0.5 rounded font-mono font-bold text-[10px] uppercase shrink-0 flex items-center gap-1 ${
-              taskPhase === "demo"
-                ? "bg-[#1A1D20] text-white"
-                : "bg-emerald-700 text-white"
-            }`}
-          >
-            {taskPhase === "demo" ? (
-              <>
-                <Eye size={10} />
-                <span>{t("playground.phaseDemoTitle")}</span>
-              </>
-            ) : (
-              <>
-                <Edit3 size={10} />
-                <span>{t("playground.phasePracticeTitle")}</span>
-              </>
-            )}
-          </span>
-          <span className="font-balsamiq text-xs font-medium truncate">
-            {taskPhase === "demo"
-              ? t("playground.demoExplainer")
-              : t("playground.practiceExplainer")}
-          </span>
+    <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
+      {/* ── Top Header: Task Selector, Task Title, Round Tabs & Mastery Stars ── */}
+      <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-paper-border shadow-paper-sm space-y-3">
+        {/* Task Navigation Bar (Tasks 1..10) */}
+        <div className="grid grid-cols-5 sm:grid-cols-5 lg:grid-cols-10 gap-1.5 border-b border-paper-border/70 pb-3">
+          {CODING_TASKS.map((task, idx) => {
+            const isCurrent = task.id === currentTask.id;
+            const taskStars = taskMasteryStars[task.id] || 0;
+            return (
+              <button
+                key={task.id}
+                onClick={() => handleSelectTask(task.id)}
+                className={`p-1.5 rounded-xl text-center border transition-all cursor-pointer ${
+                  isCurrent
+                    ? "bg-[#1E2024] border-[#1E2024] text-white shadow-sm"
+                    : "bg-paper/70 hover:bg-paper border-paper-border text-ink hover:border-accent-blue/40"
+                }`}
+                title={`${t(task.titleKey)} (${taskStars}/3 ★)`}
+              >
+                <div className="text-[10px] font-mono font-bold uppercase">
+                  <span className={isCurrent ? "text-amber-400" : "text-ink-muted"}>
+                    #{idx + 1}
+                  </span>
+                </div>
+                <div className="flex items-center justify-center gap-0.5 text-[9px] mt-0.5">
+                  {[1, 2, 3].map((s) => (
+                    <span
+                      key={s}
+                      className={taskStars >= s ? "text-amber-400" : "text-gray-300 opacity-40"}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0 ml-2">
-          {taskPhase === "demo" ? (
-            <button
-              onClick={() => {
-                setTaskPhase("practice");
-                setLastResult(null);
-                setTaskPassed(null);
-                setFeedbackMessage(undefined);
-              }}
-              className="px-3 py-1 rounded-lg bg-[#1A1D20] hover:bg-black active:scale-95 text-white font-display font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
-            >
-              <span>{t("playground.switchToPracticeBtn")}</span>
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={triggerGhost}
-                disabled={showGhost}
-                className={`px-2.5 py-1 rounded-lg border text-xs font-mono font-bold flex items-center gap-1 transition-all cursor-pointer active:scale-95 ${
-                  showGhost
-                    ? "bg-amber-400/20 text-amber-800 border-amber-500/40"
-                    : "bg-paper hover:bg-paper-muted text-[#1A1D20] border-[#1A1D20]/25"
-                }`}
-                title="Короткочасно показати напівпрозорий привид коду"
-              >
-                <span>{t("playground.ghostCodeBtn")}</span>
-              </button>
+        {/* Task Title & Stars Counter */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Title & Concept Badge */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-accent-blue/20 border border-accent-blue/40 flex items-center justify-center text-accent-blue">
+              <Zap size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-accent-blue/20 text-accent-blue border border-accent-blue/30">
+                  Code Gym • 3-Star Mastery
+                </span>
+                <span className="text-xs font-mono font-bold text-ink-muted">
+                  {t(currentTask.conceptKey)}
+                </span>
+                {/* Tooltip button in blueprint style */}
+                <button
+                  onClick={() => setShowTooltip(!showTooltip)}
+                  className="w-5 h-5 rounded-full bg-[#EBE5D8] border border-[#1A1D20]/30 hover:border-[#1A1D20]/60 text-[#1A1D20] text-[11px] font-mono font-extrabold flex items-center justify-center transition-colors cursor-pointer"
+                  title="Простими словами"
+                  aria-label="Простими словами"
+                >
+                  ?
+                </button>
+              </div>
+              <h3 className="font-display font-bold text-base text-ink mt-0.5">
+                {t(currentTask.titleKey)}
+              </h3>
+            </div>
+          </div>
 
+          {/* Stars Mastery Counter & Trophy / Certificate trigger */}
+          <div className="flex items-center gap-2">
+            {allTvTasksCompleted && (
               <button
                 onClick={() => {
-                  setTaskPhase("demo");
-                  setLastResult(null);
-                  setTaskPassed(null);
-                  setFeedbackMessage(undefined);
+                  audioFx.playSuccessFanfare();
+                  setStationVictoryModalOpen(true);
                 }}
-                className="px-2.5 py-1 rounded-lg bg-transparent hover:bg-[#1A1D20]/10 text-[#1A1D20]/70 hover:text-[#1A1D20] text-xs font-balsamiq font-medium flex items-center gap-1 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-display font-extrabold text-xs shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95"
+                title="Отримати сертифікат телевізійної станції"
               >
-                <span>{t("playground.switchToDemoBtn")}</span>
+                <Trophy size={14} className="text-stone-900" />
+                <span>Сертифікат</span>
               </button>
-            </>
-          )}
+            )}
+
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper border border-paper-border shadow-xs">
+              <span className="text-xs font-display font-bold text-ink-muted mr-1">
+                {t("codegym.starsLabel", "Майстерність")}:
+              </span>
+              {[1, 2, 3].map((starIdx) => (
+                <Star
+                  key={starIdx}
+                  size={18}
+                  className={`transition-all duration-300 ${
+                    starsEarned >= starIdx
+                      ? "text-amber-500 fill-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110"
+                      : "text-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Parchment Tooltip popover */}
+        {showTooltip && (
+          <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-balsamiq leading-relaxed shadow-sm animate-in fade-in">
+            <div className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/70 mb-1">
+              Простими словами:
+            </div>
+            {t(currentTask.descKey)}
+          </div>
+        )}
+
+        {/* Blueprint Style Theory & Code Anatomy Card */}
+        <div className="pt-0.5">
+          <SyntaxAnatomyCard
+            taskId={currentTask.id}
+            codeLang={codeLang}
+            isOpen={showTheory}
+            onToggle={() => setShowTheory((p) => !p)}
+          />
+        </div>
+
+        {/* 3-Round Mode Selector Tabs */}
+        <div className="grid grid-cols-3 gap-2 pt-1">
+          {[
+            { round: 1, label: t("codegym.round1Badge", "Раунд 1"), desc: t("codegym.round1Title", "Сліпий трафарет") },
+            { round: 2, label: t("codegym.round2Badge", "Раунд 2"), desc: t("codegym.round2Title", "Прогалини (Cloze)") },
+            { round: 3, label: t("codegym.round3Badge", "Раунд 3"), desc: `${t("codegym.round3Badge", "Спринт")} (${sprintLimit}с)` },
+          ].map(({ round, label, desc }) => {
+            const isActive = activeRound === round;
+            const isUnlocked = round === 1 || starsEarned >= round - 1;
+
+            return (
+              <button
+                key={round}
+                disabled={!isUnlocked}
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setActiveRound(round as 1 | 2 | 3);
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
+                  isActive
+                    ? "bg-[#1E2024] border-[#1E2024] text-white shadow-md"
+                    : isUnlocked
+                    ? "bg-paper hover:bg-paper-muted border-paper-border text-ink hover:border-accent-blue/40"
+                    : "bg-paper/40 border-paper-border/50 text-ink-muted/50 cursor-not-allowed opacity-50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-extrabold text-[11px] uppercase">
+                    {label}
+                  </span>
+                  {starsEarned >= round && (
+                    <span className="text-amber-400 text-xs">⭐</span>
+                  )}
+                </div>
+                <div className={`text-[10px] truncate mt-0.5 ${isActive ? "text-gray-300" : "text-ink-muted"}`}>
+                  {desc}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* 3. Language Bar & Action Controls */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        {/* Language Tabs */}
-        <div className="flex items-center gap-1.5 bg-paper p-1 rounded-xl border border-paper-border">
-          <button
-            onClick={() => setCodeLang("csharp")}
-            disabled={isRunning}
-            className={`px-3 py-1 text-xs font-display font-bold rounded-lg transition-all cursor-pointer ${
-              codeLang === "csharp"
-                ? "bg-paper-subtle text-accent-blue shadow-paper-sm border border-paper-border/60"
-                : "text-ink-muted hover:text-ink"
-            } ${isRunning ? "opacity-60 cursor-not-allowed" : ""}`}
-          >
-            C# (.NET)
-          </button>
-          <button
-            onClick={() => setCodeLang("go")}
-            disabled={isRunning}
-            className={`px-3 py-1 text-xs font-display font-bold rounded-lg transition-all cursor-pointer ${
-              codeLang === "go"
-                ? "bg-paper-subtle text-accent-blue shadow-paper-sm border border-paper-border/60"
-                : "text-ink-muted hover:text-ink"
-            } ${isRunning ? "opacity-60 cursor-not-allowed" : ""}`}
-          >
-            Go (Функції)
-          </button>
+      {/* ── Editor Canvas: CodeMirror with Ghost Stencil or Code ── */}
+      <div className="rounded-2xl border-2 border-[#2B2D33] bg-[#1E2024] overflow-hidden shadow-paper-lg flex flex-col">
+        {/* Editor Title Bar */}
+        <div className="px-4 py-2.5 bg-[#18191C] border-b border-[#2B2D33] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Language Switcher */}
+            <div className="flex items-center bg-[#282A30] p-0.5 rounded-lg border border-[#3A3D45]">
+              <button
+                onClick={() => setCodeLang("csharp")}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors ${
+                  codeLang === "csharp"
+                    ? "bg-accent-blue text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                C#
+              </button>
+              <button
+                onClick={() => setCodeLang("go")}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors ${
+                  codeLang === "go"
+                    ? "bg-accent-blue text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Go
+              </button>
+            </div>
+
+            <span className="text-[11px] font-mono text-gray-400 font-bold ml-1">
+              {fileName}
+            </span>
+          </div>
+
+          {/* Round-specific status display */}
+          <div className="flex items-center gap-3">
+            {activeRound === 1 && (
+              <span className="text-[11px] font-mono text-amber-300 font-bold">
+                Тайпінг: {traceCharsMatched} / {targetCode.length} симв.
+              </span>
+            )}
+
+            {activeRound === 3 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold">
+                <Timer size={13} className={isTimerRunning ? "animate-spin" : ""} />
+                <span>{timeLeft}s</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Action Buttons: Run, Switch to Practice, Reset, Next */}
-        <div className="flex items-center gap-2 relative">
-          {/* Floating XP Award Animation Badge */}
-          {showXpAward && (
-            <div className="absolute -top-7 right-14 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-balsamiq font-extrabold text-xs shadow-lg shadow-emerald-600/30 flex items-center gap-1 animate-bounce z-30 pointer-events-none">
-              <Sparkles size={12} />
-              <span>{t("playground.xpAwardedBadge", "+25 XP")}</span>
+        {/* Interactive Editor Surface */}
+        <div className="relative font-mono text-xs">
+          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay */}
+          {activeRound === 1 && (
+            <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none p-3 pt-2 pl-[46px] leading-[1.4] whitespace-pre text-gray-600 opacity-60">
+              {targetCode}
             </div>
           )}
 
-          <button
-            onClick={handleReset}
-            disabled={isRunning}
-            className={`px-3 py-1.5 rounded-xl border border-paper-border bg-paper hover:bg-paper-muted text-ink-muted hover:text-ink text-xs font-display font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 ${
-              isRunning ? "opacity-60 cursor-not-allowed" : ""
-            }`}
-            title={t("playground.resetCodeBtn")}
-          >
-            <RotateCcw size={12} />
-            <span>{t("playground.resetCodeBtn")}</span>
-          </button>
+          <CodeMirror
+            value={typedCode}
+            height="180px"
+            theme={oneDark}
+            extensions={extensions}
+            onChange={(val) => {
+              if (activeRound === 1) {
+                handleTraceChange(val);
+              } else {
+                setTypedCode(val);
+              }
+            }}
+            basicSetup={{
+              lineNumbers: true,
+              highlightActiveLineGutter: true,
+              highlightSpecialChars: true,
+              foldGutter: false,
+              autocompletion: false, // Strict muscle memory: no autocomplete!
+            }}
+          />
+        </div>
 
-          {/* Primary Action Button (Run Demo vs Verify Practice) */}
-          <button
-            onClick={handleRunCode}
-            disabled={isRunning}
-            className={`px-4 py-1.5 rounded-xl active:scale-95 text-white text-xs font-display font-bold flex items-center gap-1.5 shadow-md transition-all cursor-pointer ${
-              taskPhase === "demo"
-                ? "bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 shadow-blue-900/20"
-                : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-900/20"
-            } ${isRunning ? "opacity-80 cursor-wait animate-pulse" : ""}`}
-          >
-            {isRunning ? (
-              <Loader2 size={12} className="animate-spin" />
-            ) : (
-              <Play size={12} className="fill-white" />
-            )}
-            <span>
-              {isRunning
-                ? t("playground.runningCode")
-                : taskPhase === "demo"
-                ? t("playground.runDemoBtn")
-                : t("playground.runPracticeBtn")}
+        {/* Footer & Controls */}
+        <div className="px-4 py-3 bg-[#18191C] border-t border-[#2B2D33] flex items-center justify-between flex-wrap gap-3">
+          {/* Feedback message */}
+          <div className="flex-1 min-w-0 flex items-center gap-2">
+            {hasError && <AlertTriangle size={15} className="text-red-400 shrink-0" />}
+            {roundCompleted && <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />}
+            <span
+              className={`text-xs font-mono truncate ${
+                hasError
+                  ? "text-red-400 font-bold"
+                  : roundCompleted
+                  ? "text-emerald-300 font-bold"
+                  : "text-gray-400"
+              }`}
+            >
+              {feedback ||
+                (activeRound === 1
+                  ? t("codegym.round1Desc", "Надрукуйте код символ у символ поверх трафарету.")
+                  : activeRound === 2
+                  ? t("codegym.round2Desc", "Заповніть ключові прогалини (___)!")
+                  : t("codegym.round3Desc", "Відтворіть конструкцію з пам'яті за обмежений час!"))}
             </span>
-          </button>
+          </div>
 
-          {/* If in demo mode and user ran demo, offer prominent switch to practice */}
-          {taskPhase === "demo" && (
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            {activeRound === 2 && !roundCompleted && (
+              <button
+                onClick={handleVerifyCloze}
+                className="px-4 py-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
+              >
+                <Play size={13} />
+                <span>Перевірити прогалини</span>
+              </button>
+            )}
+
+            {activeRound === 3 && (
+              <>
+                {!isTimerRunning && !roundCompleted && (
+                  <button
+                    onClick={handleStartSprint}
+                    className="px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
+                  >
+                    <Play size={13} />
+                    <span>Почати спринт ({sprintLimit}с)</span>
+                  </button>
+                )}
+
+                {isTimerRunning && (
+                  <button
+                    onClick={handleRunSprint}
+                    className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
+                  >
+                    <CheckCircle2 size={13} />
+                    <span>{t("codegym.runSprintBtn", "Запустити бліц")}</span>
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Next Round Button after Win */}
+            {roundCompleted && activeRound < 3 && (
+              <button
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setActiveRound((prev) => (prev + 1) as 1 | 2 | 3);
+                }}
+                className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
+              >
+                <span>{t("codegym.nextRoundBtn", "Наступний раунд")}</span>
+                <ArrowRight size={13} />
+              </button>
+            )}
+
+            {roundCompleted && activeRound === 3 && (
+              <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-xs flex items-center gap-1.5">
+                <Trophy size={14} className="text-amber-400" />
+                <span>3-Star Mastered!</span>
+              </div>
+            )}
+
+            {/* Reset */}
             <button
               onClick={() => {
-                setTaskPhase("practice");
-                setLastResult(null);
-                setTaskPassed(null);
-                setFeedbackMessage(undefined);
+                audioFx.playRelayClick();
+                setTypedCode(activeRound === 2 ? clozeTemplate : "");
+                setHasError(false);
+                setFeedback(null);
+                setRoundCompleted(false);
+                setIsTimerRunning(false);
+                setTimeLeft(sprintLimit);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-[#1A1D20] hover:bg-black active:scale-95 text-white text-xs font-display font-bold flex items-center gap-1.5 shadow-md shadow-black/20 transition-all cursor-pointer"
+              title="Reset Round"
+              className="p-1.5 rounded-xl bg-[#23252B] hover:bg-[#2F323A] text-gray-400 hover:text-white transition-colors cursor-pointer border border-[#343842]"
             >
-              <span>{t("playground.switchToPracticeBtn")}</span>
+              <RotateCcw size={14} />
             </button>
-          )}
-
-          {/* Next Task Button (Only enabled after passing in Practice mode) */}
-          {taskPassed && taskPhase === "practice" && !isLastTask && (
-            <button
-              onClick={handleNextTask}
-              disabled={isRunning}
-              className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-95 text-white text-xs font-display font-bold flex items-center gap-1 shadow-md shadow-purple-900/20 transition-all cursor-pointer animate-fadeIn"
-            >
-              <span>{t("playground.nextTaskBtn")}</span>
-              <ArrowRight size={12} />
-            </button>
-          )}
+          </div>
         </div>
       </div>
-
-      {/* 4. JetBrains CodeMirror Editor with Ghost Overlay & No Autocomplete in Practice */}
-      <PlaygroundEditor
-        code={currentCode}
-        onChange={handleCodeChange}
-        language={codeLang}
-        phase={taskPhase}
-        ghostCode={currentTask.initialCode[codeLang]}
-        showGhost={showGhost}
-      />
-
-      {/* 5. Live Output Console */}
-      <PlaygroundConsole
-        result={lastResult}
-        taskPassed={taskPassed}
-        feedbackMessage={feedbackMessage}
-        currentTvState={currentTvState}
-        currentTask={currentTask}
-        phase={taskPhase}
-      />
     </div>
   );
 };

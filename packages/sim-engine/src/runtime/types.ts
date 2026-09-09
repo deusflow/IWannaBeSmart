@@ -41,6 +41,15 @@ export interface CodingTask {
     csharp: string;
     go: string;
   };
+  targetCode: {
+    csharp: string;
+    go: string;
+  };
+  clozeTemplate: {
+    csharp: string;
+    go: string;
+  };
+  sprintTimeLimit?: number;
   validate: (
     before: VirtualTvState,
     after: VirtualTvState,
