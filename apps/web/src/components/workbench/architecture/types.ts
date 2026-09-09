@@ -1,8 +1,18 @@
 export type EntityType = "interface" | "class" | "controller" | "service";
 
+export type PortType =
+  | "IRemoteCommand"
+  | "ITVReceiver"
+  | "DisplayService"
+  | "AudioService"
+  | "void"
+  | "event"
+  | "hardware";
+
 export interface PortDefinition {
   id: string;
   name: string;
+  portType: PortType;
   typeAnnotation?: string;
   description?: string;
   color?: string;
@@ -30,3 +40,15 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   outputs: PortDefinition[];
   isHighlighted?: boolean;
 }
+
+export type LogType = "success" | "error" | "info" | "warning";
+
+export interface TerminalLogEntry {
+  id: string;
+  timestamp: string;
+  type: LogType;
+  title: string;
+  message: string;
+  codeContext?: string;
+}
+

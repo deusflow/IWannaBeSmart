@@ -6,10 +6,11 @@ import {
   type EdgeProps,
   EdgeLabelRenderer,
 } from "@xyflow/react";
-import { X, Check } from "lucide-react";
+import { X, Check, AlertCircle } from "lucide-react";
 
 export interface ArchitectureEdgeData extends Record<string, unknown> {
   isValidPowerWire?: boolean;
+  isError?: boolean;
   onDelete?: (edgeId: string) => void;
 }
 
@@ -27,6 +28,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
   const { t } = useTranslation();
   const edgeData = (data as unknown as ArchitectureEdgeData) || {};
   const isPowerWire = !!edgeData.isValidPowerWire;
+  const isError = !!edgeData.isError;
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -45,6 +47,8 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
     }
   };
 
+  const wireColor = isError ? "#EF4444" : isPowerWire ? "#22C55E" : "#3B82F6";
+
   return (
     <>
       {/* Invisible wider hit area for easy hover and interactions */}
@@ -56,18 +60,20 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
         className="cursor-pointer"
       />
 
-      {/* Visible Blueprint Cable */}
+      {/* Visible High-Contrast Blueprint Cable */}
       <BaseEdge
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          stroke: isPowerWire ? "#10B981" : "#2563EB",
-          strokeWidth: isPowerWire ? 3.5 : 2.5,
+          stroke: wireColor,
+          strokeWidth: 2.5,
           filter: isPowerWire
-            ? "drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))"
-            : undefined,
-          transition: "stroke 0.2s ease, stroke-width 0.2s ease",
+            ? "drop-shadow(0 0 8px rgba(34, 197, 94, 0.75))"
+            : isError
+            ? "drop-shadow(0 0 8px rgba(239, 68, 68, 0.75))"
+            : "drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))",
+          transition: "stroke 0.2s ease, filter 0.2s ease",
         }}
       />
 
@@ -82,13 +88,22 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
           className="nodrag nopan"
         >
           <div
-            className={`group px-2 py-0.5 rounded-full border text-[9.5px] font-balsamiq font-bold flex items-center gap-1.5 shadow-paper-sm transition-all duration-150 ${
-              isPowerWire
-                ? "bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-500/50 hover:border-emerald-600"
-                : "bg-paper text-ink-muted border-paper-border hover:border-ink-muted"
+            className={`group px-2.5 py-1 rounded-full border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.6)] backdrop-blur-xs transition-all duration-150 ${
+              isError
+                ? "bg-red-950/90 text-red-200 border-red-500/60 hover:border-red-400"
+                : isPowerWire
+                ? "bg-emerald-950/90 text-emerald-200 border-emerald-500/60 hover:border-emerald-400"
+                : "bg-gray-900/90 text-gray-200 border-gray-700 hover:border-gray-500"
             }`}
           >
-            {isPowerWire ? (
+            {isError ? (
+              <>
+                <div className="h-3.5 w-3.5 rounded-full bg-red-500 text-white flex items-center justify-center">
+                  <AlertCircle size={10} strokeWidth={3} />
+                </div>
+                <span>Помилка типів</span>
+              </>
+            ) : isPowerWire ? (
               <>
                 <div className="h-3.5 w-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
                   <Check size={10} strokeWidth={3} />
@@ -103,7 +118,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
             <button
               onClick={handleDelete}
               title={t("architecture.disconnect")}
-              className="p-0.5 rounded-full hover:bg-red-100 dark:hover:bg-red-950/80 text-ink-subtle hover:text-red-600 transition-colors cursor-pointer"
+              className="p-0.5 rounded-full hover:bg-white/20 text-gray-400 hover:text-white transition-colors cursor-pointer"
             >
               <X size={10} strokeWidth={2.5} />
             </button>
@@ -113,3 +128,4 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
     </>
   );
 };
+

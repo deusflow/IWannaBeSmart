@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { Power, Volume2, VolumeX, Activity, Radio, ChevronUp, ChevronDown, AlertTriangle } from "lucide-react";
 
@@ -9,6 +10,7 @@ interface TVBlueprintDeviceProps {
 export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
   compact = false,
 }) => {
+  const { t } = useTranslation();
   const {
     power,
     channel,
@@ -35,7 +37,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
       <div className="w-full flex items-center justify-between font-display text-xs text-ink-muted pb-1.5 px-2">
         <span className="flex items-center gap-2 font-bold text-ink text-sm">
           <span className={`h-2 w-2 rounded-full ${isPsuMcuBroken ? "bg-accent-break" : "bg-accent-blue animate-pulse"}`} />
-          <span>Samsung Smart TV 65&quot;</span>
+          <span>{t("workbench.tvDeviceTitle", "Smart TV 65\" (Консоль)")}</span>
         </span>
         <div className="hidden sm:flex items-center gap-2 text-xs">
           <span className="px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted">
@@ -222,11 +224,11 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
             {/* Left Model & Brand */}
             <div className="flex items-center gap-2">
               <span className="font-display font-bold tracking-wider text-[#858D94] text-[10px]">
-                SAMSUNG
+                SMART TV
               </span>
               <span className="text-[#454B54]">•</span>
               <span className="text-[10px] text-[#606772] hidden sm:inline font-sans">
-                Smart TV
+                65&quot; UHD
               </span>
             </div>
 
@@ -300,7 +302,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
           </div>
         </div>
 
-        {/* Sleek Modern Angled TV Feet (Samsung Dual Blade Stand) */}
+        {/* Sleek Modern Angled TV Feet (Dual Blade Stand) */}
         <div className="w-full flex justify-between px-12 sm:px-20 -mt-0.5 pointer-events-none">
           <div className="w-7 sm:w-9 h-3.5 bg-gradient-to-b from-[#2E3339] to-[#16181B] border-x border-b border-[#121417] rounded-b shadow-md transform -skew-x-6" />
           <div className="w-7 sm:w-9 h-3.5 bg-gradient-to-b from-[#2E3339] to-[#16181B] border-x border-b border-[#121417] rounded-b shadow-md transform skew-x-6" />

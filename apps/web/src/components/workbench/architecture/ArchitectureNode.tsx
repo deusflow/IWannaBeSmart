@@ -19,36 +19,52 @@ const COLOR_MAP: Record<
     badgeText: string;
     border: string;
     iconColor: string;
+    headerAccent: string;
   }
 > = {
   interface: {
-    headerBg: "bg-purple-500/10",
-    badgeBg: "bg-purple-500/15 border-purple-500/30",
-    badgeText: "text-purple-600 dark:text-purple-400",
-    border: "border-purple-300 dark:border-purple-800",
-    iconColor: "text-purple-600 dark:text-purple-400",
+    headerBg: "bg-purple-950/70 border-purple-500/40",
+    badgeBg: "bg-purple-500/20 border-purple-500/50",
+    badgeText: "text-purple-300",
+    border: "border-purple-500/50",
+    iconColor: "text-purple-400",
+    headerAccent: "bg-purple-500",
   },
   class: {
-    headerBg: "bg-blue-500/10",
-    badgeBg: "bg-blue-500/15 border-blue-500/30",
-    badgeText: "text-blue-600 dark:text-blue-400",
-    border: "border-blue-300 dark:border-blue-800",
-    iconColor: "text-blue-600 dark:text-blue-400",
+    headerBg: "bg-blue-950/70 border-blue-500/40",
+    badgeBg: "bg-blue-500/20 border-blue-500/50",
+    badgeText: "text-blue-300",
+    border: "border-blue-500/50",
+    iconColor: "text-blue-400",
+    headerAccent: "bg-blue-500",
   },
   controller: {
-    headerBg: "bg-amber-500/10",
-    badgeBg: "bg-amber-500/15 border-amber-500/30",
-    badgeText: "text-amber-600 dark:text-amber-400",
-    border: "border-amber-300 dark:border-amber-800",
-    iconColor: "text-amber-600 dark:text-amber-400",
+    headerBg: "bg-amber-950/70 border-amber-500/40",
+    badgeBg: "bg-amber-500/20 border-amber-500/50",
+    badgeText: "text-amber-300",
+    border: "border-amber-500/50",
+    iconColor: "text-amber-400",
+    headerAccent: "bg-amber-500",
   },
   service: {
-    headerBg: "bg-emerald-500/10",
-    badgeBg: "bg-emerald-500/15 border-emerald-500/30",
-    badgeText: "text-emerald-600 dark:text-emerald-400",
-    border: "border-emerald-300 dark:border-emerald-800",
-    iconColor: "text-emerald-600 dark:text-emerald-400",
+    headerBg: "bg-emerald-950/70 border-emerald-500/40",
+    badgeBg: "bg-emerald-500/20 border-emerald-500/50",
+    badgeText: "text-emerald-300",
+    border: "border-emerald-500/50",
+    iconColor: "text-emerald-400",
+    headerAccent: "bg-emerald-500",
   },
+};
+
+const getTypeBadgeStyle = (typeAnnotation?: string) => {
+  if (!typeAnnotation) return "text-gray-400 bg-gray-800/60 border-gray-700";
+  if (typeAnnotation.includes("IRemoteCommand"))
+    return "text-purple-300 bg-purple-950/60 border-purple-500/40";
+  if (typeAnnotation.includes("ITVReceiver"))
+    return "text-blue-300 bg-blue-950/60 border-blue-500/40";
+  if (typeAnnotation.includes("DisplayService") || typeAnnotation.includes("AudioService"))
+    return "text-emerald-300 bg-emerald-950/60 border-emerald-500/40";
+  return "text-amber-300 bg-amber-950/60 border-amber-500/40";
 };
 
 export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
@@ -62,48 +78,51 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
 
   return (
     <div
-      className={`min-w-[240px] max-w-[280px] rounded-2xl bg-paper border transition-all duration-200 select-none shadow-paper-md ${
+      className={`w-[270px] rounded-2xl bg-[#26272B] border-2 transition-all duration-200 select-none shadow-[0_12px_32px_rgba(0,0,0,0.65)] ${
         selected
-          ? "border-accent-blue ring-2 ring-accent-blue/30"
+          ? "border-accent-blue ring-2 ring-accent-blue/50 scale-[1.01]"
           : nodeData.isHighlighted
-          ? "border-amber-500 ring-2 ring-amber-400/40"
-          : "border-paper-border hover:border-ink-muted/50"
+          ? "border-amber-400 ring-2 ring-amber-400/50"
+          : "border-[#3F4148] hover:border-[#5B5E68]"
       }`}
     >
-      {/* Node Header (Blender/Unreal style with colored accent banner) */}
-      <div
-        className={`px-3 py-2 rounded-t-2xl border-b border-paper-border flex items-center justify-between gap-2 ${theme.headerBg}`}
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          <div
-            className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 border ${theme.badgeBg} ${theme.iconColor}`}
-          >
-            <Icon size={14} strokeWidth={2} />
-          </div>
-          <div className="min-w-0">
-            <h4 className="font-mono font-bold text-xs text-ink truncate leading-tight">
-              {nodeData.name}
-            </h4>
-            <span className="font-mono text-[9px] text-ink-subtle truncate block">
-              {nodeData.path}
-            </span>
-          </div>
-        </div>
-
-        <span
-          className={`font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase shrink-0 ${theme.badgeBg} ${theme.badgeText}`}
+      {/* Node Header (Blender / Unreal Blueprints with distinct banner and top accent strip) */}
+      <div className="relative overflow-hidden rounded-t-2xl">
+        <div className={`h-1 w-full ${theme.headerAccent}`} />
+        <div
+          className={`px-3 py-2 border-b flex items-center justify-between gap-2 ${theme.headerBg}`}
         >
-          {nodeData.entityType}
-        </span>
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              className={`h-6 w-6 rounded-lg flex items-center justify-center shrink-0 border ${theme.badgeBg} ${theme.iconColor}`}
+            >
+              <Icon size={14} strokeWidth={2.2} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-mono font-bold text-xs text-white truncate leading-tight">
+                {nodeData.name}
+              </h4>
+              <span className="font-mono text-[9px] text-gray-400 truncate block">
+                {nodeData.path}
+              </span>
+            </div>
+          </div>
+
+          <span
+            className={`font-mono text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase shrink-0 ${theme.badgeBg} ${theme.badgeText}`}
+          >
+            {nodeData.entityType}
+          </span>
+        </div>
       </div>
 
       {/* Node Body (Split Inputs / Outputs) */}
-      <div className="p-3 space-y-3">
+      <div className="p-3 space-y-3 bg-[#26272B] rounded-b-2xl">
         {/* Ports Section */}
         <div className="grid grid-cols-2 gap-3">
           {/* Left Column: Inputs (DI Dependencies) */}
           <div className="space-y-2">
-            <div className="text-[9px] font-balsamiq font-bold uppercase tracking-wider text-ink-subtle">
+            <div className="text-[9px] font-mono font-bold uppercase tracking-wider text-gray-400">
               {t("architecture.inputsDI")}
             </div>
             {hasInputs ? (
@@ -113,15 +132,19 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
                     type="target"
                     position={Position.Left}
                     id={inp.id}
-                    className="!w-3 !h-3 !rounded-full !-left-[18px] !border-2 !border-paper transition-transform group-hover:scale-125 cursor-crosshair shadow-xs"
+                    className="!w-3.5 !h-3.5 !rounded-full !-left-[19px] !border-2 !border-[#26272B] transition-transform group-hover:scale-130 cursor-crosshair shadow-md"
                     style={{ backgroundColor: inp.color || "#3B82F6" }}
                   />
                   <div className="min-w-0 pl-1">
-                    <span className="font-mono font-bold text-[10px] text-ink block leading-tight truncate">
+                    <span className="font-mono font-bold text-[10px] text-gray-100 block leading-tight truncate">
                       {inp.name}
                     </span>
                     {inp.typeAnnotation && (
-                      <span className="font-mono text-[8.5px] text-ink-subtle block truncate">
+                      <span
+                        className={`font-mono text-[8px] font-semibold px-1 py-0.2 rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
+                          inp.typeAnnotation
+                        )}`}
+                      >
                         {inp.typeAnnotation}
                       </span>
                     )}
@@ -129,7 +152,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
                 </div>
               ))
             ) : (
-              <span className="text-[9px] font-balsamiq text-ink-subtle/70 italic">
+              <span className="text-[9px] font-mono text-gray-500 italic block py-1">
                 {t("architecture.noInputs")}
               </span>
             )}
@@ -137,7 +160,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
 
           {/* Right Column: Outputs (Methods / Events) */}
           <div className="space-y-2 text-right">
-            <div className="text-[9px] font-balsamiq font-bold uppercase tracking-wider text-ink-subtle">
+            <div className="text-[9px] font-mono font-bold uppercase tracking-wider text-gray-400">
               {t("architecture.methodsOutputs")}
             </div>
             {hasOutputs ? (
@@ -147,11 +170,15 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
                   className="relative flex items-center justify-end py-1 group"
                 >
                   <div className="min-w-0 pr-1 text-right">
-                    <span className="font-mono font-bold text-[10px] text-ink block leading-tight truncate">
+                    <span className="font-mono font-bold text-[10px] text-gray-100 block leading-tight truncate">
                       {out.name}
                     </span>
                     {out.typeAnnotation && (
-                      <span className="font-mono text-[8.5px] text-ink-subtle block truncate">
+                      <span
+                        className={`font-mono text-[8px] font-semibold px-1 py-0.2 rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
+                          out.typeAnnotation
+                        )}`}
+                      >
                         {out.typeAnnotation}
                       </span>
                     )}
@@ -160,22 +187,22 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
                     type="source"
                     position={Position.Right}
                     id={out.id}
-                    className="!w-3 !h-3 !rounded-full !-right-[18px] !border-2 !border-paper transition-transform group-hover:scale-125 cursor-crosshair shadow-xs"
+                    className="!w-3.5 !h-3.5 !rounded-full !-right-[19px] !border-2 !border-[#26272B] transition-transform group-hover:scale-130 cursor-crosshair shadow-md"
                     style={{ backgroundColor: out.color || "#10B981" }}
                   />
                 </div>
               ))
             ) : (
-              <span className="text-[9px] font-balsamiq text-ink-subtle/70 italic">
-                Немає методів
+              <span className="text-[9px] font-mono text-gray-500 italic block py-1">
+                {t("architecture.noOutputs")}
               </span>
             )}
           </div>
         </div>
 
-        {/* Ukrainian Role & Briefing */}
-        <div className="pt-2 border-t border-paper-border/60">
-          <p className="font-balsamiq text-[10px] text-ink-muted leading-tight">
+        {/* Ukrainian Role & Briefing in High Contrast */}
+        <div className="pt-2.5 border-t border-[#383A42]">
+          <p className="font-balsamiq text-[10.5px] text-gray-300 leading-snug">
             {nodeData.role}
           </p>
         </div>
@@ -183,3 +210,4 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
     </div>
   );
 };
+

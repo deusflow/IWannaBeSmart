@@ -8,47 +8,60 @@ import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDe
 import { EngineeringDrawer } from "../components/workbench/EngineeringDrawer";
 import { ArchitectureCanvas } from "../components/workbench/architecture/ArchitectureCanvas";
 import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
-import { Badge } from "@iw/ui";
 import {
   Terminal,
-  BookOpen,
   ArrowLeft,
-  Tv,
-  Cpu,
 } from "lucide-react";
 
 /**
- * Custom tactile XP Token / Coin SVG icon
- * Replaces generic AI sparkles with an engraved physical engineering blueprint token.
+ * Stylized Engineering Microchip XP icon
+ * Authentic silicon microchip with contact pins and logic core die.
+ * Replaces generic AI sparkles / star stamps with bespoke engineering hardware visual.
  */
-const XpTokenIcon: React.FC<{ className?: string; size?: number }> = ({
-  className = "w-4 h-4",
-  size = 15,
+const EngineeringChipXpIcon: React.FC<{ className?: string; size?: number }> = ({
+  className = "w-3.5 h-3.5",
+  size = 14,
 }) => (
   <svg
     width={size}
     height={size}
-    viewBox="0 0 20 20"
+    viewBox="0 0 16 16"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     aria-hidden="true"
   >
-    {/* Outer engraved coin rim */}
-    <circle cx="10" cy="10" r="8.5" stroke="currentColor" strokeWidth="1.5" />
-    {/* Inner dashed blueprint drafting circle */}
-    <circle
-      cx="10"
-      cy="10"
-      r="6"
+    {/* Microchip Package Body */}
+    <rect
+      x="3.5"
+      y="3.5"
+      width="9"
+      height="9"
+      rx="1.5"
       stroke="currentColor"
-      strokeWidth="1"
-      strokeDasharray="1.5 1.5"
-      className="opacity-70"
+      strokeWidth="1.25"
+      fill="currentColor"
+      fillOpacity="0.15"
     />
-    {/* Center tactile engraved 4-point star token stamp */}
-    <path
-      d="M10 5.2L11.3 8.7L14.8 10L11.3 11.3L10 14.8L8.7 11.3L5.2 10L8.7 8.7L10 5.2Z"
+    {/* Top Pin Leads */}
+    <line x1="5.5" y1="1" x2="5.5" y2="3.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    <line x1="10.5" y1="1" x2="10.5" y2="3.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    {/* Bottom Pin Leads */}
+    <line x1="5.5" y1="12.5" x2="5.5" y2="15" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    <line x1="10.5" y1="12.5" x2="10.5" y2="15" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    {/* Left Pin Leads */}
+    <line x1="1" y1="5.5" x2="3.5" y2="5.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    <line x1="1" y1="10.5" x2="3.5" y2="10.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    {/* Right Pin Leads */}
+    <line x1="12.5" y1="5.5" x2="15" y2="5.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    <line x1="12.5" y1="10.5" x2="15" y2="10.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    {/* Silicon Core / Central Processing Die */}
+    <rect
+      x="6"
+      y="6"
+      width="4"
+      height="4"
+      rx="0.5"
       fill="currentColor"
     />
   </svg>
@@ -67,23 +80,27 @@ export const WorkbenchScreen: React.FC = () => {
     channel,
     volume,
     channelNames,
-    isIrEmitting,
     isBeamFlying,
-    lastOpcode,
   } = useWorkbenchStore();
 
   // Active state for side-by-side layout in device mode
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
 
   return (
-    <div className="min-h-screen w-full bg-paper text-ink flex flex-col font-sans relative overflow-x-hidden select-none">
+    <div
+      className={`w-full bg-paper text-ink flex flex-col font-sans relative select-none ${
+        activeView === "architecture"
+          ? "h-screen overflow-hidden"
+          : "min-h-screen overflow-x-hidden"
+      }`}
+    >
       {/* Background Millimeter Drafting Grid */}
       <div className="absolute inset-0 bg-notebook-grid opacity-75 pointer-events-none" />
 
       {/* Top Engineering Navigation Bar with Balsamiq Sans / Sniglet Typography */}
-      <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-3 sm:px-6 flex items-center justify-between gap-2">
-        {/* Left: Station Index or Back Navigation */}
-        <div className="flex items-center gap-2 sm:gap-4">
+      <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-3 sm:px-6 flex items-center justify-between gap-4">
+        {/* Left: Station Index and Level Title or Back Navigation */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {activeView === "architecture" ? (
             <button
               onClick={() => setActiveView("device")}
@@ -100,74 +117,27 @@ export const WorkbenchScreen: React.FC = () => {
             />
           )}
 
-          <div className="hidden md:flex items-center gap-2 text-xs font-balsamiq text-ink-muted">
+          <div className="flex items-center gap-2 text-xs font-balsamiq text-ink-muted whitespace-nowrap">
             <span>•</span>
-            <span className="text-ink font-bold">
+            <span className="text-ink font-bold truncate max-w-[220px] sm:max-w-[360px]">
               {activeView === "architecture"
                 ? t("architecture.title")
-                : tvLevel01.title}
+                : t("level.level1Title", { defaultValue: tvLevel01.title })}
             </span>
           </div>
         </div>
 
-        {/* Center: Mode Switcher [ 📺 Television | 📐 Architecture Studio ] */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-0.5 bg-paper p-0.5 sm:p-1 rounded-xl border border-paper-border shadow-paper-sm select-none">
-            <button
-              onClick={() => setActiveView("device")}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-xs font-balsamiq font-bold transition-all cursor-pointer ${
-                activeView === "device"
-                  ? "bg-accent-blue text-white shadow-xs"
-                  : "text-ink-muted hover:text-ink hover:bg-paper-muted"
-              }`}
-            >
-              <Tv size={13} />
-              <span className="hidden sm:inline">{t("workbench.deviceView")}</span>
-            </button>
-            <button
-              onClick={() => setActiveView("architecture")}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-xs font-balsamiq font-bold transition-all cursor-pointer ${
-                activeView === "architecture"
-                  ? "bg-accent-blue text-white shadow-xs"
-                  : "text-ink-muted hover:text-ink hover:bg-paper-muted"
-              }`}
-            >
-              <Cpu size={13} />
-              <span>{t("workbench.switchToArchitecture")}</span>
-            </button>
-          </div>
-
-          {/* Live Signal Status Indicator (Device Mode) */}
-          {activeView === "device" && (
-            <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-xl bg-paper-subtle border border-paper-border font-balsamiq text-xs text-ink-muted shadow-paper-sm">
-              <span className="flex items-center gap-1.5 text-ink">
-                <span
-                  className={`h-2 w-2 rounded-full transition-colors ${
-                    isIrEmitting || isBeamFlying
-                      ? "bg-accent-break animate-ping"
-                      : "bg-accent-ok"
-                  }`}
-                />
-                <span className="font-bold text-ink">{t("workbench.irReceiver")}:</span>
-                <span className="text-ink-muted">38 kHz</span>
-              </span>
-              <span className="text-ink-subtle">•</span>
-              <span className="text-accent-blue font-bold">{lastOpcode}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Language Switcher, Bespoke XP Coin & Drawer Trigger */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right: Language Switcher (UK | EN | DA) & Custom Microchip XP Token */}
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
           {/* Multilingual Selector (UK | EN | DA) */}
           <LanguageSwitcher />
 
-          {/* Tactile XP Coin Pill in Balsamiq Sans */}
+          {/* Tactile Microchip XP Pill in Balsamiq Sans */}
           <div
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-paper border border-paper-border text-xs font-bold text-ink shadow-paper-sm"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper border border-paper-border text-xs font-bold text-ink shadow-paper-sm shrink-0"
             title={t("workbench.xpTooltip")}
           >
-            <XpTokenIcon className="text-accent-signal shrink-0" size={14} />
+            <EngineeringChipXpIcon className="text-accent-signal shrink-0" size={15} />
             <span className="text-accent-signal font-balsamiq text-sm font-extrabold leading-none">
               0
             </span>
@@ -175,40 +145,13 @@ export const WorkbenchScreen: React.FC = () => {
               {t("common.xp")}
             </span>
           </div>
-
-          {/* Drawer Trigger Button (Only in Device Mode) */}
-          {activeView === "device" && (
-            <button
-              onClick={() => {
-                setIsDrawerOpen(!isDrawerOpen);
-              }}
-              aria-label="Toggle Code and Schematic"
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border font-sniglet text-sm font-bold shadow-paper-sm transition-all duration-200 active:scale-[0.98] cursor-pointer outline-none ${
-                isDrawerActive
-                  ? "bg-accent-blue-light text-accent-blue border-accent-blue-border"
-                  : "bg-paper-subtle hover:bg-paper border-paper-border hover:border-accent-blue/40 text-ink"
-              }`}
-            >
-              <BookOpen size={14} strokeWidth={2} className="text-accent-blue" />
-              <span className="hidden lg:inline font-sniglet text-[14px] font-extrabold tracking-wide">
-                {t("workbench.codeAndSchematic")}
-              </span>
-              <Badge variant="accent" size="sm" className="text-[10px] font-balsamiq font-bold">
-                {isDrawerPinned
-                  ? t("workbench.drawerPinned")
-                  : isDrawerOpen
-                  ? t("workbench.drawerOpened")
-                  : t("workbench.drawerClosed")}
-              </Badge>
-            </button>
-          )}
         </div>
       </header>
 
       {/* Main Content Area */}
       {activeView === "architecture" ? (
         /* Fullscreen Architecture Studio (100% viewport width & height under header) */
-        <main className="relative z-10 flex-1 w-full h-[calc(100vh-3.5rem)] overflow-hidden flex flex-col">
+        <main className="relative z-10 flex-1 w-full h-[calc(100vh-3.5rem)] min-h-0 overflow-hidden flex flex-col">
           <ArchitectureCanvas onBackToTv={() => setActiveView("device")} />
         </main>
       ) : (
@@ -257,7 +200,7 @@ export const WorkbenchScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Vertical Samsung Remote */}
+                  {/* Vertical Remote Control */}
                   <div className="shrink-0 pt-2 lg:pt-0">
                     <RemoteBlueprintDevice orientation="vertical" />
                   </div>
@@ -289,7 +232,7 @@ export const WorkbenchScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Samsung Remote Lying Flat Horizontally Directly Underneath TV */}
+                  {/* Remote Control Lying Flat Horizontally Directly Underneath TV */}
                   <div className="w-full flex items-center justify-center">
                     <RemoteBlueprintDevice orientation="horizontal" />
                   </div>
@@ -338,16 +281,16 @@ export const WorkbenchScreen: React.FC = () => {
         </main>
       )}
 
-      {/* Floating Right-Edge Marker Label (When drawer is closed & in device mode) */}
+      {/* Floating Right-Edge Marker Label (Exclusive drawer trigger: slide-out from right edge) */}
       {!isDrawerActive && activeView === "device" && (
-        <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-30 hidden sm:block">
+        <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-30">
           <button
             onClick={() => setIsDrawerOpen(true)}
             title={t("workbench.codeAndSchematic")}
-            className="bg-paper-subtle hover:bg-paper border-l border-y border-paper-border text-ink font-sniglet text-xs font-bold py-4 px-2.5 rounded-l-xl shadow-[-4px_2px_12px_rgba(26,29,32,0.06)] hover:border-accent-blue/40 transition-all duration-200 active:scale-95 cursor-pointer outline-none [writing-mode:vertical-rl] flex items-center gap-2 tracking-wider text-accent-blue"
+            className="bg-paper-subtle hover:bg-paper border-l-2 border-y-2 border-accent-blue/50 hover:border-accent-blue text-ink font-balsamiq text-xs font-bold py-4 px-2.5 rounded-l-2xl shadow-[-6px_4px_16px_rgba(26,29,32,0.12)] hover:shadow-[-8px_6px_20px_rgba(26,29,32,0.16)] transition-all duration-200 active:scale-95 cursor-pointer outline-none [writing-mode:vertical-rl] flex items-center gap-2.5 tracking-wider text-accent-blue group"
           >
-            <Terminal size={12} strokeWidth={2} className="rotate-90" />
-            <span className="font-sniglet font-extrabold tracking-wide">
+            <Terminal size={13} strokeWidth={2.2} className="rotate-90 group-hover:scale-110 transition-transform" />
+            <span className="font-balsamiq font-extrabold tracking-wide">
               {t("workbench.codeAndSchematic")}
             </span>
           </button>

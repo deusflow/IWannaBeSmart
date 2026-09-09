@@ -8,14 +8,14 @@ import type { StationLevel } from "../types/level";
 export const tvLevel01: StationLevel = {
   id: "tv-01",
   stationId: "tv",
-  stationTitle: "Television Station",
+  stationTitle: "Телевізійна станція",
   levelNumber: 1,
-  title: "Power Rail & Signal Initiation",
-  subtitle: "Hardware Signal Flow to Software Contract",
+  title: "Лінія живлення та ініціація сигналу",
+  subtitle: "Потік апаратного сигналу до програмного контракту",
   objective:
-    "Verify the 5V power bus, observe incoming 38 kHz infrared packets, and trace signal dispatch to the controller interface.",
+    "Перевірте шину живлення 5V, зафіксуйте вхідні інфрачервоні пакети 38 kHz та простежте диспетчеризацію сигналу до інтерфейсу контролера.",
   briefing:
-    "An interactive TV set operates on physical voltage lines that translate into discrete software commands. Before implementing loose coupling or Dependency Injection, inspect the baseline signal pipeline: Remote → IR Photodiode → MCU GPIO Interrupt → Command Dispatch.",
+    "Інтерактивний телевізор працює на фізичних лініях напруги, які перетворюються на дискретні програмні команди. Перед впровадженням слабкої зв'язності або Dependency Injection перевірте базовий ланцюг сигналу: Пульт ДК → ІЧ-фотодіод → Переривання MCU GPIO → Диспетчеризація команди.",
   tvInitialState: {
     power: false,
     channel: 1,
@@ -131,7 +131,7 @@ func (c ChannelChangeCommand) Execute(r *TVReceiver) error {
     return nil
 }`,
     explanation:
-      "When a remote button triggers an IR pulse, hardware interrupts in the MCU deserialize the NEC protocol into a discrete opcode. In software, this is modeled as an IRemoteCommand, isolating the physical signal from high-level state mutations.",
+      "Коли кнопка пульта ініціює ІЧ-імпульс, апаратні переривання в MCU десеріалізують протокол NEC у дискретний код команди. У програмній архітектурі це моделюється як IRemoteCommand, ізолюючи фізичний сигнал від мутацій стану.",
   },
   untranslatedTerms: [
     "Dependency Injection",

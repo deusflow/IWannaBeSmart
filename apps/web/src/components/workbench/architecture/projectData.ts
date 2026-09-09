@@ -14,7 +14,8 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-execute",
         name: "Execute",
-        typeAnnotation: "(ITVReceiver receiver) -> void",
+        portType: "IRemoteCommand",
+        typeAnnotation: "IRemoteCommand.Execute()",
         description: "Виконання дії команди над отримувачем",
         color: "#A855F7",
       },
@@ -32,6 +33,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-toggle-power",
         name: "TogglePowerState()",
+        portType: "ITVReceiver",
         typeAnnotation: "void",
         description: "Зміна стану живлення",
         color: "#A855F7",
@@ -39,6 +41,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-tune-channel",
         name: "TuneChannel(int ch)",
+        portType: "ITVReceiver",
         typeAnnotation: "void",
         description: "Перемикання тюнера",
         color: "#A855F7",
@@ -46,6 +49,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-set-volume",
         name: "SetVolume(int vol)",
+        portType: "ITVReceiver",
         typeAnnotation: "void",
         description: "Регулювання гучності",
         color: "#A855F7",
@@ -66,6 +70,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "in-receiver",
         name: "receiver",
+        portType: "ITVReceiver",
         typeAnnotation: "ITVReceiver (DI)",
         description: "Впровадження залежності отримувача",
         color: "#3B82F6",
@@ -75,7 +80,8 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-execute",
         name: "Execute",
-        typeAnnotation: "void",
+        portType: "IRemoteCommand",
+        typeAnnotation: "IRemoteCommand",
         description: "Тригер виконання команди живлення",
         color: "#10B981",
       },
@@ -93,6 +99,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "in-receiver",
         name: "receiver",
+        portType: "ITVReceiver",
         typeAnnotation: "ITVReceiver (DI)",
         description: "Впровадження залежності отримувача",
         color: "#3B82F6",
@@ -102,7 +109,8 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-execute",
         name: "Execute",
-        typeAnnotation: "void",
+        portType: "IRemoteCommand",
+        typeAnnotation: "IRemoteCommand",
         description: "Тригер виконання команди гучності",
         color: "#10B981",
       },
@@ -120,6 +128,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "in-receiver",
         name: "receiver",
+        portType: "ITVReceiver",
         typeAnnotation: "ITVReceiver (DI)",
         description: "Впровадження залежності отримувача",
         color: "#3B82F6",
@@ -129,7 +138,8 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-execute",
         name: "Execute",
-        typeAnnotation: "void",
+        portType: "IRemoteCommand",
+        typeAnnotation: "IRemoteCommand",
         description: "Тригер виконання зміни каналу",
         color: "#10B981",
       },
@@ -148,13 +158,15 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "in-command-handler",
         name: "CommandHandler",
-        typeAnnotation: "IRemoteCommand",
+        portType: "IRemoteCommand",
+        typeAnnotation: "IRemoteCommand (DI)",
         description: "Вхідний порт для підключення обробника команди",
         color: "#F59E0B",
       },
       {
         id: "in-display-service",
         name: "displayService",
+        portType: "DisplayService",
         typeAnnotation: "DisplayService (DI)",
         description: "Впровадження сервісу відео",
         color: "#3B82F6",
@@ -162,6 +174,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "in-audio-service",
         name: "audioService",
+        portType: "AudioService",
         typeAnnotation: "AudioService (DI)",
         description: "Впровадження сервісу звуку",
         color: "#3B82F6",
@@ -171,6 +184,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-dispatch",
         name: "Dispatch()",
+        portType: "void",
         typeAnnotation: "void",
         description: "Диспетчеризація отриманої команди",
         color: "#F59E0B",
@@ -178,6 +192,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-on-state-changed",
         name: "OnStateChanged",
+        portType: "event",
         typeAnnotation: "event",
         description: "Подія оновлення стану телевізора",
         color: "#F59E0B",
@@ -197,6 +212,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "in-audio-hw",
         name: "amplifierDriver",
+        portType: "hardware",
         typeAnnotation: "LM386 Driver",
         description: "Апаратний драйвер підсилювача",
         color: "#10B981",
@@ -206,6 +222,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-set-vol",
         name: "SetVolume(int level)",
+        portType: "AudioService",
         typeAnnotation: "void",
         description: "Встановлення рівня гучності",
         color: "#10B981",
@@ -213,6 +230,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-mute",
         name: "MuteToggle()",
+        portType: "AudioService",
         typeAnnotation: "bool",
         description: "Перемикання беззвучного режиму",
         color: "#10B981",
@@ -230,6 +248,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "in-display-hw",
         name: "crtDriver",
+        portType: "hardware",
         typeAnnotation: "TDA9351 Driver",
         description: "Апаратний драйвер матриці",
         color: "#10B981",
@@ -239,6 +258,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-render-osd",
         name: "RenderOSD(string text)",
+        portType: "DisplayService",
         typeAnnotation: "void",
         description: "Вивід повідомлень на екран",
         color: "#10B981",
@@ -246,6 +266,7 @@ export const PROJECT_FILES: ProjectFile[] = [
       {
         id: "out-blank",
         name: "BlankScreen()",
+        portType: "DisplayService",
         typeAnnotation: "void",
         description: "Очищення/вимкнення растра",
         color: "#10B981",

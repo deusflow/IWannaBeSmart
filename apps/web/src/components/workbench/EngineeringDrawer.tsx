@@ -26,12 +26,6 @@ interface EngineeringDrawerProps {
   onOpenArchitectureStudio?: () => void;
 }
 
-const DRAWER_TABS: TabItem[] = [
-  { id: "code", label: "Code (C# / Go)" },
-  { id: "hardware", label: "Hardware Nodes" },
-  { id: "architecture", label: "Architecture" },
-];
-
 export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
   isOpen,
   isPinned,
@@ -44,6 +38,15 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("code");
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
+
+  const drawerTabs: TabItem[] = React.useMemo(
+    () => [
+      { id: "code", label: t("workbench.drawerTabs.code", "Код (C# / Go)") },
+      { id: "hardware", label: t("workbench.drawerTabs.hardware", "Апаратні вузли") },
+      { id: "architecture", label: t("workbench.drawerTabs.architecture", "Архітектура") },
+    ],
+    [t]
+  );
 
   // Handle ESC key
   useEffect(() => {
@@ -74,22 +77,22 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2">
             <Badge variant="accent" size="sm" className="font-display text-[10px]">
-              Рівень {level.levelNumber}
+              {t("drawer.levelBadge", { number: level.levelNumber, defaultValue: `Рівень ${level.levelNumber}` })}
             </Badge>
             <span className="text-xs font-display text-ink-muted truncate">
-              {level.stationTitle}
+              {t("workbench.stationTitle", { defaultValue: level.stationTitle })}
             </span>
             {isPinned && (
               <span className="text-[10px] font-display px-2 py-0.5 rounded-md bg-accent-blue-light text-accent-blue border border-accent-blue-border">
-                Закріплено
+                {t("drawer.pinned", "Закріплено")}
               </span>
             )}
           </div>
           <h2 className="text-lg sm:text-xl font-bold tracking-tight text-ink font-display truncate">
-            {level.title}
+            {t("level.level1Title", { defaultValue: level.title })}
           </h2>
           <p className="text-xs text-ink-muted leading-relaxed font-sans line-clamp-2">
-            {level.briefing}
+            {t("level.level1Briefing", { defaultValue: level.briefing })}
           </p>
         </div>
 
@@ -97,7 +100,11 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           {/* Pin / Dock Toggle Button */}
           <button
             onClick={onTogglePin}
-            title={isPinned ? "Unpin Drawer (Floating Overlay)" : "Pin Drawer (Side-by-side Dock)"}
+            title={
+              isPinned
+                ? t("drawer.unpin", "Unpin Drawer (Floating Overlay)")
+                : t("drawer.pin", "Pin Drawer (Side-by-side Dock)")
+            }
             className={`p-1.5 rounded-lg border transition-all duration-150 cursor-pointer outline-none ${
               isPinned
                 ? "bg-accent-blue-light text-accent-blue border-accent-blue-border shadow-xs"
@@ -114,7 +121,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           {/* Close Button */}
           <button
             onClick={onClose}
-            title="Close Drawer (ESC)"
+            title={t("drawer.close", "Close Drawer (ESC)")}
             className="p-1.5 rounded-lg bg-paper hover:bg-paper-muted text-ink-muted hover:text-ink transition-colors cursor-pointer border border-paper-border"
           >
             <X size={15} strokeWidth={1.75} />
@@ -125,7 +132,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       {/* Tab Navigation */}
       <div className="px-5 pt-3 bg-paper-subtle border-b border-paper-border">
         <Tabs
-          tabs={DRAWER_TABS}
+          tabs={drawerTabs}
           activeTab={activeTab}
           onChange={setActiveTab}
           variant="line"
@@ -138,9 +145,11 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         <div className="p-3.5 rounded-2xl bg-paper border border-paper-border shadow-paper-sm text-xs space-y-1.5">
           <span className="font-display font-bold text-accent-blue flex items-center gap-1.5 text-xs">
             <Terminal size={13} strokeWidth={2} />
-            Інженерне завдання:
+            {t("drawer.objectiveTitle", "Інженерне завдання:")}
           </span>
-          <p className="text-ink leading-relaxed font-sans">{level.objective}</p>
+          <p className="text-ink leading-relaxed font-sans">
+            {t("level.level1Objective", { defaultValue: level.objective })}
+          </p>
         </div>
 
         {/* TAB 1: CODE (C# & Go) */}
@@ -172,7 +181,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
               </div>
 
               <Badge variant="neutral" size="sm" className="font-display text-[10px]">
-                Синтаксис перевірено
+                {t("drawer.syntaxVerified", "Синтаксис перевірено")}
               </Badge>
             </div>
 
@@ -190,10 +199,10 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             <div className="p-4 rounded-2xl bg-paper-subtle border border-paper-border space-y-1.5">
               <span className="text-xs font-display font-bold text-ink flex items-center gap-1.5">
                 <Code2 size={14} strokeWidth={2} className="text-accent-blue" />
-                Зв&apos;язок фізичного сигналу з архітектурою програми
+                {t("drawer.signalArchitectureLink", "Зв'язок фізичного сигналу з архітектурою програми")}
               </span>
               <p className="text-xs text-ink-muted leading-relaxed font-sans">
-                {level.codeSnippet.explanation}
+                {t("level.level1Explanation", { defaultValue: level.codeSnippet.explanation })}
               </p>
             </div>
           </div>
@@ -237,30 +246,26 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2.5">
               <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">
                 <GitBranch size={15} strokeWidth={2} className="text-accent-blue" />
-                <span>Інверсія керування (IoC &amp; DI контракт)</span>
+                <span>{t("drawer.iocTitle", "Інверсія керування (IoC & DI контракт)")}</span>
               </div>
 
               <p className="text-xs text-ink-muted leading-relaxed font-sans">
-                Телевізійний приймач не створює команди вручну. Він приймає
-                абстракції, що реалізують контракт{" "}
-                <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">
-                  IRemoteCommand
-                </code>
-                . Метод{" "}
-                <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">
-                  Execute
-                </code>{" "}
-                передається у вхідний порт контролера телевізора через Dependency Injection.
+                {t(
+                  "drawer.iocDescription",
+                  "Телевізійний приймач не створює команди вручну. Він приймає абстракції, що реалізують контракт IRemoteCommand. Метод Execute передається у вхідний порт контролера телевізора через Dependency Injection."
+                )}
               </p>
 
               <div className="p-3 bg-paper rounded-xl border border-paper-border font-sans text-xs text-ink-muted space-y-2">
                 <div className="flex items-center justify-between text-xs text-ink">
-                  <span>Контракт команди</span>
+                  <span>{t("drawer.commandContractLabel", "Контракт команди")}</span>
                   <span className="text-accent-ok font-bold">✓ IRemoteCommand</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-ink">
-                  <span>Реєстр команд</span>
-                  <span className="text-accent-blue font-bold">✓ Впровадження через DI</span>
+                  <span>{t("drawer.commandRegistryLabel", "Реєстр команд")}</span>
+                  <span className="text-accent-blue font-bold">
+                    {t("drawer.diInjectionLabel", "✓ Впровадження через DI")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -268,7 +273,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             {/* Technical Glossary */}
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2">
               <span className="text-xs font-display font-bold text-ink-muted">
-                Ключові терміни (Без перекладу)
+                {t("drawer.keyTermsTitle", "Ключові терміни (Без перекладу)")}
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {level.untranslatedTerms.map((term) => (
@@ -289,10 +294,14 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
       <div className="px-5 py-3 border-t border-paper-border bg-paper-subtle flex items-center justify-between text-xs font-display text-ink-muted">
         <span className="flex items-center gap-1.5">
           <Minimize2 size={12} strokeWidth={1.75} />
-          <span>{isPinned ? "Закріплено на верстаку" : "Esc або закрити"}</span>
+          <span>
+            {isPinned
+              ? t("drawer.footerPinned", "Закріплено на верстаку")
+              : t("drawer.footerEsc", "Esc або закрити")}
+          </span>
         </span>
         <span className="flex items-center gap-1 text-accent-blue font-bold">
-          <span>Телевізор • Схема активна</span>
+          <span>{t("drawer.footerActive", "Телевізор • Схема активна")}</span>
           <ExternalLink size={12} strokeWidth={1.75} />
         </span>
       </div>
