@@ -263,6 +263,7 @@ export const InteractiveCodePlayground: React.FC = () => {
           }
         }}
         isTaskCompleted={isCodingTaskCompleted}
+        codeLang={codeLang}
       />
 
       {/* 2. Educational Two-Phase Banner (Guided Demo <-> Self Practice) */}

@@ -6,6 +6,14 @@
 
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import {
+  theoryUa,
+  theoryEn,
+  theoryDa,
+  type SyntaxTokenExplanation,
+  type TaskTheory,
+  type TheoryDictionary,
+} from "./theory";
 
 export const SUPPORTED_LOCALES = ["ua", "en", "da"] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -397,6 +405,7 @@ export const defaultResources = {
           dependencyInjection: "Контейнер залежностей (IoC Container & AddScoped)",
         },
       },
+      theory: theoryUa,
     },
   },
   en: {
@@ -754,6 +763,7 @@ export const defaultResources = {
           dependencyInjection: "IoC Container & Provider Registration (AddScoped)",
         },
       },
+      theory: theoryEn,
     },
   },
   da: {
@@ -1111,6 +1121,7 @@ export const defaultResources = {
           dependencyInjection: "IoC Container & Udbyderregistrering (AddScoped)",
         },
       },
+      theory: theoryDa,
     },
   },
 };
@@ -1150,4 +1161,12 @@ export function initI18n(initialLocale?: SupportedLocale) {
 }
 
 export { i18n };
+export {
+  theoryUa,
+  theoryEn,
+  theoryDa,
+  type SyntaxTokenExplanation,
+  type TaskTheory,
+  type TheoryDictionary,
+};
 export const I18N_PACKAGE_VERSION = "0.0.1";

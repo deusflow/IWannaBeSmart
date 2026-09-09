@@ -28,6 +28,7 @@ import {
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { audioFx } from "../../../utils/audioFx";
+import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 
 export const CodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -60,6 +61,7 @@ export const CodeGymRunner: React.FC = () => {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [hasError, setHasError] = useState<boolean>(false);
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
+  const [showTheory, setShowTheory] = useState<boolean>(false);
 
   // Sprint Timer (Round 3)
   const SPRINT_SECONDS = 15;
@@ -80,6 +82,8 @@ export const CodeGymRunner: React.FC = () => {
     audioFx.playRelayClick();
     setSelectedTaskId(taskId);
     setActiveRound(1);
+    setShowTheory(false);
+    setShowTooltip(false);
     const nextTask = FINTECH_TASKS.find((t) => t.id === taskId);
     if (nextTask) {
       resetPosState(nextTask.initialState);
@@ -398,6 +402,16 @@ export const CodeGymRunner: React.FC = () => {
             {t(currentTask.descKey)}
           </div>
         )}
+
+        {/* Blueprint Style Theory & Code Anatomy Card */}
+        <div className="pt-0.5">
+          <SyntaxAnatomyCard
+            taskId={currentTask.id}
+            codeLang={codeLang}
+            isOpen={showTheory}
+            onToggle={() => setShowTheory((p) => !p)}
+          />
+        </div>
 
         {/* 3-Round Mode Selector Tabs */}
         <div className="grid grid-cols-3 gap-2 pt-1">

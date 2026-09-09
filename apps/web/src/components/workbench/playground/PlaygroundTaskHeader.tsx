@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { CodingTask } from "@iw/sim-engine";
 import { BookOpen, Lightbulb, HelpCircle } from "lucide-react";
+import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 
 interface PlaygroundTaskHeaderProps {
   tasks: CodingTask[];
@@ -15,6 +16,7 @@ interface PlaygroundTaskHeaderProps {
   showHint: boolean;
   onToggleHint: () => void;
   isTaskCompleted?: (taskId: string) => boolean;
+  codeLang?: "csharp" | "go";
 }
 
 export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
@@ -24,9 +26,11 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
   showHint,
   onToggleHint,
   isTaskCompleted,
+  codeLang = "csharp",
 }) => {
   const { t } = useTranslation();
   const [showPlainEnglish, setShowPlainEnglish] = useState(false);
+  const [showTheory, setShowTheory] = useState(false);
   const currentTask = tasks.find((t) => t.id === currentTaskId) || tasks[0];
 
   return (
@@ -43,6 +47,7 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
                 onClick={() => {
                   onSelectTask(task.id);
                   setShowPlainEnglish(false);
+                  setShowTheory(false);
                 }}
                 className={`min-w-[28px] h-7 px-1.5 flex items-center justify-center text-xs font-mono font-bold rounded-lg transition-all cursor-pointer gap-0.5 ${
                   isActive
@@ -143,6 +148,16 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
             </div>
           </div>
         )}
+
+        {/* Blueprint Style Theory & Code Anatomy Card */}
+        <div className="pt-0.5">
+          <SyntaxAnatomyCard
+            taskId={currentTaskId}
+            codeLang={codeLang}
+            isOpen={showTheory}
+            onToggle={() => setShowTheory((p) => !p)}
+          />
+        </div>
       </div>
     </div>
   );
