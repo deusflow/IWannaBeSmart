@@ -3,6 +3,7 @@ import type { StationLevel } from "@iw/sim-engine";
 import { Badge, Tabs, type TabItem } from "@iw/ui";
 import { SyntaxCodeBlock } from "./SyntaxCodeBlock";
 import { CircuitCanvas } from "./circuit/CircuitCanvas";
+import { ArchitectureCanvas } from "./architecture/ArchitectureCanvas";
 import {
   X,
   Code2,
@@ -201,9 +202,11 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           </div>
         )}
 
-        {/* TAB 3: ARCHITECTURE */}
+        {/* TAB 3: ARCHITECTURE (Visual Blueprint Editor) */}
         {activeTab === "architecture" && (
-          <div className="space-y-3.5">
+          <div className="space-y-4">
+            <ArchitectureCanvas />
+
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2.5">
               <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">
                 <GitBranch size={15} strokeWidth={2} className="text-accent-blue" />
@@ -212,15 +215,21 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
 
               <p className="text-xs text-ink-muted leading-relaxed font-sans">
                 Телевізійний приймач не створює команди вручну. Він приймає
-                абстракції, що реалізують контракт <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">IRemoteCommand</code>.
-                Це відтворює реальну фізику: ІЧ-фотодіод не знає, яку саме дію
-                призначено для кнопки на пульті.
+                абстракції, що реалізують контракт{" "}
+                <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">
+                  IRemoteCommand
+                </code>
+                . Метод{" "}
+                <code className="text-ink font-sans font-bold bg-paper px-1 rounded border border-paper-border">
+                  Execute
+                </code>{" "}
+                передається у вхідний порт контролера телевізора через Dependency Injection.
               </p>
 
               <div className="p-3 bg-paper rounded-xl border border-paper-border font-sans text-xs text-ink-muted space-y-2">
                 <div className="flex items-center justify-between text-xs text-ink">
-                  <span>Демодуляція сигналу</span>
-                  <span className="text-accent-ok font-bold">✓ 38 kHz ІЧ-приймач готовий</span>
+                  <span>Контракт команди</span>
+                  <span className="text-accent-ok font-bold">✓ IRemoteCommand</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-ink">
                   <span>Реєстр команд</span>

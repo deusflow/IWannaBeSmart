@@ -1,0 +1,262 @@
+import type { ProjectFile } from "./types";
+
+export const PROJECT_FILES: ProjectFile[] = [
+  // 1. Interfaces
+  {
+    id: "interface-remote-command",
+    name: "IRemoteCommand.cs",
+    folder: "interfaces",
+    path: "interfaces/IRemoteCommand.cs",
+    entityType: "interface",
+    role: "Контракт інкапсуляції команд пульта",
+    inputs: [],
+    outputs: [
+      {
+        id: "out-execute",
+        name: "Execute",
+        typeAnnotation: "(ITVReceiver receiver) -> void",
+        description: "Виконання дії команди над отримувачем",
+        color: "#A855F7",
+      },
+    ],
+  },
+  {
+    id: "interface-tv-receiver",
+    name: "ITVReceiver.cs",
+    folder: "interfaces",
+    path: "interfaces/ITVReceiver.cs",
+    entityType: "interface",
+    role: "Контракт пристрою-отримувача стану",
+    inputs: [],
+    outputs: [
+      {
+        id: "out-toggle-power",
+        name: "TogglePowerState()",
+        typeAnnotation: "void",
+        description: "Зміна стану живлення",
+        color: "#A855F7",
+      },
+      {
+        id: "out-tune-channel",
+        name: "TuneChannel(int ch)",
+        typeAnnotation: "void",
+        description: "Перемикання тюнера",
+        color: "#A855F7",
+      },
+      {
+        id: "out-set-volume",
+        name: "SetVolume(int vol)",
+        typeAnnotation: "void",
+        description: "Регулювання гучності",
+        color: "#A855F7",
+      },
+    ],
+  },
+
+  // 2. Commands
+  {
+    id: "class-power-command",
+    name: "PowerCommand.cs",
+    folder: "commands",
+    path: "commands/PowerCommand.cs",
+    entityType: "class",
+    role: "Команда перемикання живлення телевізора",
+    implementsInterface: "IRemoteCommand",
+    inputs: [
+      {
+        id: "in-receiver",
+        name: "receiver",
+        typeAnnotation: "ITVReceiver (DI)",
+        description: "Впровадження залежності отримувача",
+        color: "#3B82F6",
+      },
+    ],
+    outputs: [
+      {
+        id: "out-execute",
+        name: "Execute",
+        typeAnnotation: "void",
+        description: "Тригер виконання команди живлення",
+        color: "#10B981",
+      },
+    ],
+  },
+  {
+    id: "class-volume-up-command",
+    name: "VolumeUpCommand.cs",
+    folder: "commands",
+    path: "commands/VolumeUpCommand.cs",
+    entityType: "class",
+    role: "Команда збільшення гучності",
+    implementsInterface: "IRemoteCommand",
+    inputs: [
+      {
+        id: "in-receiver",
+        name: "receiver",
+        typeAnnotation: "ITVReceiver (DI)",
+        description: "Впровадження залежності отримувача",
+        color: "#3B82F6",
+      },
+    ],
+    outputs: [
+      {
+        id: "out-execute",
+        name: "Execute",
+        typeAnnotation: "void",
+        description: "Тригер виконання команди гучності",
+        color: "#10B981",
+      },
+    ],
+  },
+  {
+    id: "class-channel-next-command",
+    name: "ChannelNextCommand.cs",
+    folder: "commands",
+    path: "commands/ChannelNextCommand.cs",
+    entityType: "class",
+    role: "Команда перемикання на наступний канал",
+    implementsInterface: "IRemoteCommand",
+    inputs: [
+      {
+        id: "in-receiver",
+        name: "receiver",
+        typeAnnotation: "ITVReceiver (DI)",
+        description: "Впровадження залежності отримувача",
+        color: "#3B82F6",
+      },
+    ],
+    outputs: [
+      {
+        id: "out-execute",
+        name: "Execute",
+        typeAnnotation: "void",
+        description: "Тригер виконання зміни каналу",
+        color: "#10B981",
+      },
+    ],
+  },
+
+  // 3. Controllers
+  {
+    id: "class-tv-controller",
+    name: "TVController.cs",
+    folder: "controllers",
+    path: "controllers/TVController.cs",
+    entityType: "controller",
+    role: "Центральний диспетчер та приймач команд ТВ",
+    inputs: [
+      {
+        id: "in-command-handler",
+        name: "CommandHandler",
+        typeAnnotation: "IRemoteCommand",
+        description: "Вхідний порт для підключення обробника команди",
+        color: "#F59E0B",
+      },
+      {
+        id: "in-display-service",
+        name: "displayService",
+        typeAnnotation: "DisplayService (DI)",
+        description: "Впровадження сервісу відео",
+        color: "#3B82F6",
+      },
+      {
+        id: "in-audio-service",
+        name: "audioService",
+        typeAnnotation: "AudioService (DI)",
+        description: "Впровадження сервісу звуку",
+        color: "#3B82F6",
+      },
+    ],
+    outputs: [
+      {
+        id: "out-dispatch",
+        name: "Dispatch()",
+        typeAnnotation: "void",
+        description: "Диспетчеризація отриманої команди",
+        color: "#F59E0B",
+      },
+      {
+        id: "out-on-state-changed",
+        name: "OnStateChanged",
+        typeAnnotation: "event",
+        description: "Подія оновлення стану телевізора",
+        color: "#F59E0B",
+      },
+    ],
+  },
+
+  // 4. Services
+  {
+    id: "service-audio",
+    name: "AudioService.cs",
+    folder: "services",
+    path: "services/AudioService.cs",
+    entityType: "service",
+    role: "Сервіс керування аудіо-підсилювачем",
+    inputs: [
+      {
+        id: "in-audio-hw",
+        name: "amplifierDriver",
+        typeAnnotation: "LM386 Driver",
+        description: "Апаратний драйвер підсилювача",
+        color: "#10B981",
+      },
+    ],
+    outputs: [
+      {
+        id: "out-set-vol",
+        name: "SetVolume(int level)",
+        typeAnnotation: "void",
+        description: "Встановлення рівня гучності",
+        color: "#10B981",
+      },
+      {
+        id: "out-mute",
+        name: "MuteToggle()",
+        typeAnnotation: "bool",
+        description: "Перемикання беззвучного режиму",
+        color: "#10B981",
+      },
+    ],
+  },
+  {
+    id: "service-display",
+    name: "DisplayService.cs",
+    folder: "services",
+    path: "services/DisplayService.cs",
+    entityType: "service",
+    role: "Сервіс керування матрицею та OSD",
+    inputs: [
+      {
+        id: "in-display-hw",
+        name: "crtDriver",
+        typeAnnotation: "TDA9351 Driver",
+        description: "Апаратний драйвер матриці",
+        color: "#10B981",
+      },
+    ],
+    outputs: [
+      {
+        id: "out-render-osd",
+        name: "RenderOSD(string text)",
+        typeAnnotation: "void",
+        description: "Вивід повідомлень на екран",
+        color: "#10B981",
+      },
+      {
+        id: "out-blank",
+        name: "BlankScreen()",
+        typeAnnotation: "void",
+        description: "Очищення/вимкнення растра",
+        color: "#10B981",
+      },
+    ],
+  },
+];
+
+export const FOLDER_LABELS: Record<string, string> = {
+  interfaces: "interfaces/",
+  commands: "commands/",
+  controllers: "controllers/",
+  services: "services/",
+};

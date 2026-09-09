@@ -56,6 +56,11 @@ export interface CircuitSlice {
   isEdgeBroken: (edgeId: CircuitEdgeId) => boolean;
 }
 
+export interface ArchitectureSlice {
+  isArchitecturePowerWired: boolean;
+  setArchitecturePowerWired: (wired: boolean) => void;
+}
+
 export interface TVStateSlice {
   power: boolean;
   channel: number;
@@ -106,7 +111,7 @@ export interface WorkbenchActions {
   // Core physical pipeline dispatcher
   dispatchRemoteCommand: (
     commandName: string,
-    execute: (state: TVStateSlice & ConnectionsSlice & CircuitSlice) => {
+    execute: (state: TVStateSlice & ConnectionsSlice & CircuitSlice & ArchitectureSlice) => {
       tvUpdates?: Partial<TVStateSlice>;
       connectionUpdates?: Partial<Record<HardwarePointKey, Partial<HardwarePoint>>>;
     }
@@ -116,6 +121,7 @@ export interface WorkbenchActions {
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
+  ArchitectureSlice &
   IRSigSlice &
   WorkbenchActions;
 
@@ -450,6 +456,10 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       });
     },
 
+    // 2c. Architecture Visual Editor Slice (Block H, Level 1 Wiring)
+    isArchitecturePowerWired: false,
+    setArchitecturePowerWired: (wired: boolean) => set({ isArchitecturePowerWired: wired }),
+
     // 3. Physical IR Transmission Slice (Item 55)
     isIrEmitting: false,
     isBeamFlying: false,
@@ -546,6 +556,14 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     // Remote Actions with strict FSM State Guards
     pressPower: () => {
       get().dispatchRemoteCommand("Живлення (Power)", (state) => {
+        // Architecture Guard: Level 1 Wiring check
+        if (!state.isArchitecturePowerWired) {
+          return {
+            tvUpdates: {
+              osdMessage: "Архітектурна помилка: PowerCommand не зв'язано з TVController (вкладка Architecture)",
+            },
+          };
+        }
         if (state.isEdgeBroken("edge-psu-mcu")) {
           return {
             tvUpdates: {
