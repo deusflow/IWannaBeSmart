@@ -13,12 +13,18 @@ interface PlaygroundEditorProps {
   code: string;
   onChange: (val: string) => void;
   language: "csharp" | "go";
+  phase?: "demo" | "practice";
+  ghostCode?: string | null;
+  showGhost?: boolean;
 }
 
 export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
   code,
   onChange,
   language,
+  phase = "demo",
+  ghostCode,
+  showGhost = false,
 }) => {
   const extensions = useMemo(() => {
     return language === "go" ? [go()] : [cpp()];
@@ -35,14 +41,35 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
           <span className="ml-2 font-mono text-[11px] text-gray-400 font-bold">
             {language === "csharp" ? "Program.cs" : "main.go"}
           </span>
+          {phase === "practice" && (
+            <span className="ml-2 px-1.5 py-0.2 rounded bg-emerald-950/60 border border-emerald-600/40 text-[9px] font-mono font-bold text-emerald-400 uppercase">
+              Practice Mode
+            </span>
+          )}
         </div>
         <span className="text-[10px] font-mono text-gray-500 font-medium">
           JetBrains Mono • UTF-8
         </span>
       </div>
 
-      {/* CodeMirror Surface */}
-      <div className="font-mono text-xs selection:bg-purple-900/50">
+      {/* CodeMirror Surface with Ghost Text Overlay */}
+      <div className="relative font-mono text-xs selection:bg-purple-900/50">
+        {/* Ghost Text Overlay: semi-transparent blueprint watermark displayed for 3s */}
+        {showGhost && ghostCode && (
+          <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden select-none animate-in fade-in duration-200">
+            {/* Badge */}
+            <div className="absolute top-2 right-4 z-30 px-2.5 py-0.5 rounded-full bg-[#1A1D20]/90 border border-amber-400/40 text-[10px] font-mono font-bold text-amber-300 shadow-md flex items-center gap-1.5">
+              <span>👻</span>
+              <span>Ghost Blueprint (3s)</span>
+            </div>
+
+            {/* Faint target code aligned over editor */}
+            <div className="w-full h-[190px] pt-[6px] pl-[46px] pr-4 bg-[#18191C]/80 backdrop-blur-[0.5px] border border-dashed border-amber-500/30 font-mono text-xs leading-[1.4] text-amber-200/40 whitespace-pre overflow-hidden">
+              {ghostCode}
+            </div>
+          </div>
+        )}
+
         <CodeMirror
           value={code}
           height="190px"
@@ -59,7 +86,7 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
             indentOnInput: true,
             bracketMatching: true,
             closeBrackets: true,
-            autocompletion: true,
+            autocompletion: phase !== "practice",
             rectangularSelection: true,
             crosshairCursor: true,
             highlightActiveLine: true,
@@ -69,7 +96,7 @@ export const PlaygroundEditor: React.FC<PlaygroundEditorProps> = ({
             searchKeymap: true,
             historyKeymap: true,
             foldKeymap: true,
-            completionKeymap: true,
+            completionKeymap: phase !== "practice",
             lintKeymap: true,
           }}
         />

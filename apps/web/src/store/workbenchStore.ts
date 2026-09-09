@@ -85,6 +85,9 @@ export interface MentorSlice {
   guidedStep: 1 | 2 | 3;
   isHintActive: boolean;
   xp: number;
+  completedCodingTasks: Record<string, boolean>;
+  completeCodingTask: (taskId: string) => boolean;
+  isCodingTaskCompleted: (taskId: string) => boolean;
   setMentorPhase: (phase: MentorPhase) => void;
   setGuidedStep: (step: 1 | 2 | 3) => void;
   triggerHint: () => void;
@@ -512,6 +515,21 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     guidedStep: 1,
     isHintActive: false,
     xp: 0,
+    completedCodingTasks: {},
+    completeCodingTask: (taskId: string) => {
+      const alreadyCompleted = Boolean(get().completedCodingTasks[taskId]);
+      if (!alreadyCompleted) {
+        set((s) => ({
+          completedCodingTasks: { ...s.completedCodingTasks, [taskId]: true },
+          xp: s.xp + 25,
+        }));
+        return true;
+      }
+      return false;
+    },
+    isCodingTaskCompleted: (taskId: string) => {
+      return Boolean(get().completedCodingTasks[taskId]);
+    },
     setMentorPhase: (phase) => set({ mentorPhase: phase }),
     setGuidedStep: (step) => set({ guidedStep: step }),
     triggerHint: () => {

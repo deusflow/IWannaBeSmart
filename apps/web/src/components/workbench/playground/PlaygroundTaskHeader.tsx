@@ -14,6 +14,7 @@ interface PlaygroundTaskHeaderProps {
   onSelectTask: (taskId: string) => void;
   showHint: boolean;
   onToggleHint: () => void;
+  isTaskCompleted?: (taskId: string) => boolean;
 }
 
 export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
@@ -22,6 +23,7 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
   onSelectTask,
   showHint,
   onToggleHint,
+  isTaskCompleted,
 }) => {
   const { t } = useTranslation();
   const [showPlainEnglish, setShowPlainEnglish] = useState(false);
@@ -29,11 +31,12 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
 
   return (
     <div className="p-3.5 bg-paper rounded-2xl border border-paper-border space-y-2.5">
-      {/* Top: Compact Engineering Task Switcher [ 1 ] [ 2 ] ... [ 7 ] & Concept Badge */}
+      {/* Top: Compact Engineering Task Switcher [ 1 ] [ 2✓ ] ... [ 7 ] & Concept Badge */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 p-1 bg-[#EBE5D8] rounded-xl border border-[#1A1D20]/20 shrink-0 shadow-paper-xs">
           {tasks.map((task) => {
             const isActive = task.id === currentTaskId;
+            const isCompleted = isTaskCompleted?.(task.id);
             return (
               <button
                 key={task.id}
@@ -41,15 +44,28 @@ export const PlaygroundTaskHeader: React.FC<PlaygroundTaskHeaderProps> = ({
                   onSelectTask(task.id);
                   setShowPlainEnglish(false);
                 }}
-                className={`w-7 h-7 flex items-center justify-center text-xs font-mono font-bold rounded-lg transition-all cursor-pointer ${
+                className={`min-w-[28px] h-7 px-1.5 flex items-center justify-center text-xs font-mono font-bold rounded-lg transition-all cursor-pointer gap-0.5 ${
                   isActive
                     ? "bg-[#1A1D20] text-white shadow-xs border border-[#1A1D20]"
+                    : isCompleted
+                    ? "text-emerald-700 bg-emerald-500/15 border border-emerald-600/30 hover:bg-emerald-500/25"
                     : "text-[#1A1D20]/60 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 border border-transparent"
                 }`}
-                title={`${t("playground.taskSelectorLabel")} ${task.order}: ${t(task.titleKey)}`}
+                title={`${t("playground.taskSelectorLabel")} ${task.order}: ${t(task.titleKey)}${
+                  isCompleted ? ` (${t("playground.taskCompletedBadge", "Пройдено")})` : ""
+                }`}
                 aria-label={`${t("playground.taskSelectorLabel")} ${task.order}`}
               >
-                {task.order}
+                <span>{task.order}</span>
+                {isCompleted && (
+                  <span
+                    className={`text-[10px] font-extrabold leading-none ${
+                      isActive ? "text-emerald-400" : "text-emerald-600"
+                    }`}
+                  >
+                    ✓
+                  </span>
+                )}
               </button>
             );
           })}

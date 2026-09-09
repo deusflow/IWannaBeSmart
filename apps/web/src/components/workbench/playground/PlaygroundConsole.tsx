@@ -14,6 +14,7 @@ interface PlaygroundConsoleProps {
   feedbackMessage?: string;
   currentTvState: VirtualTvState;
   currentTask?: CodingTask;
+  phase?: "demo" | "practice";
 }
 
 export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
@@ -22,51 +23,56 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
   feedbackMessage,
   currentTvState,
   currentTask,
+  phase = "demo",
 }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-2xl border border-[#2B2D33] overflow-hidden bg-[#151619] shadow-md space-y-0">
-      {/* Console Header */}
-      <div className="px-3.5 py-1.5 bg-[#1C1D21] border-b border-[#2B2D33] flex items-center justify-between">
+    <div className="w-full rounded-2xl overflow-hidden border border-[#2B2D33] shadow-lg bg-[#141416] text-gray-200">
+      {/* Console Header Bar */}
+      <div className="px-3.5 py-1.5 bg-[#18191C] border-b border-[#2B2D33] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Terminal size={12} className="text-gray-400" />
-          <span className="font-mono text-[11px] font-bold text-gray-300">
+          <Terminal size={13} className="text-gray-400" />
+          <span className="font-mono text-xs font-bold text-gray-300">
             {t("playground.consoleTitle")}
           </span>
+          {phase === "demo" && (
+            <span className="px-1.5 py-0.2 rounded bg-blue-950/60 border border-blue-600/40 text-[9px] font-mono font-bold text-blue-400 uppercase">
+              Demo Output
+            </span>
+          )}
         </div>
-
-        {/* Live TV State Pill */}
-        <div className="flex items-center gap-2 font-mono text-[10px]">
-          <span className="text-gray-500">{t("playground.tvStateHeading")}:</span>
-          <span
-            className={`px-1.5 py-0.5 rounded font-bold border ${
-              currentTvState.isOn
-                ? "bg-emerald-950/60 text-emerald-400 border-emerald-600/40"
-                : "bg-gray-800/80 text-gray-400 border-gray-700/60"
-            }`}
-          >
-            PWR: {currentTvState.isOn ? "ON" : "OFF"}
-          </span>
-          <span className="px-1.5 py-0.5 rounded bg-gray-800/80 text-gray-300 border border-gray-700/60">
-            CH: {currentTvState.channel}
-          </span>
-          <span className="px-1.5 py-0.5 rounded bg-gray-800/80 text-gray-300 border border-gray-700/60">
-            VOL: {currentTvState.volume}
-          </span>
+        <div className="flex items-center gap-3 text-[11px] font-mono text-gray-400">
+          <div className="flex items-center gap-1">
+            <span className="text-gray-500">PWR:</span>
+            <span className={`font-bold ${currentTvState.isOn ? "text-emerald-400" : "text-gray-500"}`}>
+              {currentTvState.isOn ? "ON" : "OFF"}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-gray-500">CH:</span>
+            <span className="font-bold text-blue-400">{currentTvState.channel}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-gray-500">VOL:</span>
+            <span className="font-bold text-amber-400">{currentTvState.volume}</span>
+          </div>
         </div>
       </div>
 
-      {/* Console Output Body */}
-      <div className="p-3.5 font-mono text-xs space-y-2.5 min-h-[95px] max-h-[220px] overflow-y-auto">
+      {/* Console Body */}
+      <div className="p-3 font-mono text-xs min-h-[95px] max-h-[190px] overflow-y-auto space-y-2 select-text">
         {!result ? (
-          <div className="text-gray-500 text-xs italic flex items-center gap-2 py-3">
-            <Info size={14} className="text-gray-500 shrink-0" />
-            <span>Натисніть «Запустити код», щоб виконати програму</span>
+          <div className="text-gray-500 italic flex items-center gap-2 py-4 justify-center">
+            <span>
+              {phase === "demo"
+                ? "Натисніть «▶ Запустити демо», щоб побачити як працює приклад..."
+                : "Введіть код самостійно та натисніть «▶ Перевірити код»..."}
+            </span>
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Logs from parser / runtime */}
+            {/* Step-by-step Execution Logs */}
             {result.logs.map((log, i) => (
               <div
                 key={i}
@@ -91,19 +97,23 @@ export const PlaygroundConsole: React.FC<PlaygroundConsoleProps> = ({
               </div>
             ))}
 
-            {/* Validation Feedback */}
+            {/* Validation or Demo Feedback */}
             {feedbackMessage && (
               <div
                 className={`p-3 rounded-xl flex items-start gap-2.5 text-xs border ${
-                  taskPassed
+                  taskPassed === true
                     ? "bg-emerald-950/40 border-emerald-600/40 text-emerald-300 shadow-xs"
-                    : "bg-red-950/40 border-red-600/40 text-red-300 shadow-xs"
+                    : taskPassed === false
+                    ? "bg-red-950/40 border-red-600/40 text-red-300 shadow-xs"
+                    : "bg-blue-950/40 border-blue-600/40 text-blue-300 shadow-xs"
                 }`}
               >
-                {taskPassed ? (
+                {taskPassed === true ? (
                   <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />
-                ) : (
+                ) : taskPassed === false ? (
                   <XCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+                ) : (
+                  <Info size={16} className="text-blue-400 shrink-0 mt-0.5" />
                 )}
                 <div className="leading-relaxed font-sans font-medium">{feedbackMessage}</div>
               </div>
