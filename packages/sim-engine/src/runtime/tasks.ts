@@ -367,4 +367,46 @@ container.Register("calc", NewCalcCommand())
       return { passed: false, messageKey: "playground.task9Failed" };
     },
   },
+  {
+    id: "task-command-registry",
+    order: 10,
+    titleKey: "playground.task10Title",
+    conceptKey: "playground.task10Concept",
+    descKey: "playground.task10Desc",
+    hintKey: "playground.task10Hint",
+    successKey: "playground.task10Success",
+    simpleExplanationKey: "playground.task10Simple",
+    careerImpactKey: "playground.task10Career",
+    initialCode: {
+      csharp: `// Реєстр команд: заміна switch на гнучкий Dictionary
+string button = "CALC";
+var registry = new Dictionary<string, IRemoteCommand>();
+registry["PWR"] = new PowerCommand();
+registry["CALC"] = new CalcCommand();
+
+registry[button].Execute();
+`,
+      go: `// Реєстр команд: заміна switch на гнучку map
+button := "CALC"
+registry := make(map[string]IRemoteCommand)
+registry["PWR"] = PowerCommand{}
+registry["CALC"] = CalcCommand{}
+
+registry[button].Execute()
+`,
+    },
+    validate: (before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      const hasRegistry = code && /registry\s*\[[^\]]+\]\s*\.\s*Execute\s*\(\s*\)/i.test(code);
+      const isCs = code && /Dictionary<string,\s*IRemoteCommand>/i.test(code);
+      const isGo = code && /make\s*\(\s*map\[string\]IRemoteCommand\s*\)/i.test(code);
+
+      if (hasRegistry && (isCs || isGo || code?.includes("registry")) && (after.osdMessage === "CALC_MODE" || after.isOn !== before.isOn)) {
+        return { passed: true, messageKey: "playground.task10Success" };
+      }
+      return { passed: false, messageKey: "playground.task10Failed" };
+    },
+  },
 ];

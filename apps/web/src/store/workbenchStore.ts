@@ -11,6 +11,7 @@
 
 import { create } from "zustand";
 import type { Node, Edge } from "@xyflow/react";
+import { audioFx } from "../utils/audioFx";
 
 /**
  * Physical animation & transmission timings (Item 56)
@@ -84,10 +85,12 @@ export interface MentorSlice {
   mentorPhase: MentorPhase;
   guidedStep: 1 | 2 | 3;
   isHintActive: boolean;
+  isStationVictoryModalOpen: boolean;
   xp: number;
   completedCodingTasks: Record<string, boolean>;
   completeCodingTask: (taskId: string) => boolean;
   isCodingTaskCompleted: (taskId: string) => boolean;
+  setStationVictoryModalOpen: (open: boolean) => void;
   setMentorPhase: (phase: MentorPhase) => void;
   setGuidedStep: (step: 1 | 2 | 3) => void;
   triggerHint: () => void;
@@ -366,6 +369,7 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     },
 
     togglePower: () => {
+      audioFx.playRelayClick();
       // Hardware fault guard: If PSU -> MCU is broken, MCU has no VCC power rail!
       if (get().isEdgeBroken("edge-psu-mcu")) {
         set({
@@ -376,6 +380,9 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       }
       const state = get();
       const nextPower = !state.power;
+      if (nextPower) {
+        audioFx.playCrtHum();
+      }
       const isDisplayBroken = state.isEdgeBroken("edge-mcu-display");
       set({
         power: nextPower,
@@ -526,14 +533,20 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     mentorPhase: "GUIDED",
     guidedStep: 1,
     isHintActive: false,
+    isStationVictoryModalOpen: false,
     xp: 0,
     completedCodingTasks: {},
+    setStationVictoryModalOpen: (open) => set({ isStationVictoryModalOpen: open }),
     completeCodingTask: (taskId: string) => {
       const alreadyCompleted = Boolean(get().completedCodingTasks[taskId]);
       if (!alreadyCompleted) {
+        const xpGain = taskId === "task-command-registry" ? 50 : 25;
+        const nextCompleted = { ...get().completedCodingTasks, [taskId]: true };
+        const totalCompleted = Object.keys(nextCompleted).length;
         set((s) => ({
-          completedCodingTasks: { ...s.completedCodingTasks, [taskId]: true },
-          xp: s.xp + 25,
+          completedCodingTasks: nextCompleted,
+          xp: s.xp + xpGain,
+          isStationVictoryModalOpen: totalCompleted >= 10 ? true : s.isStationVictoryModalOpen,
         }));
         return true;
       }
@@ -733,6 +746,7 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       if (reactionTimer) clearTimeout(reactionTimer);
 
       // STAGE 1 (T=0): Remote Button Click -> Emitter LED lights up + IR_DATA active
+      audioFx.playRemoteBeep();
       set((state) => ({
         isIrEmitting: true,
         lastOpcode: commandName,
@@ -764,6 +778,13 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
           isIrMcuBroken || isPsuMcuBroken
             ? { tvUpdates: {}, connectionUpdates: undefined }
             : execute(state);
+
+        if (tvUpdates?.power !== undefined) {
+          audioFx.playRelayClick();
+          if (tvUpdates.power) {
+            audioFx.playCrtHum();
+          }
+        }
 
         // FSM Guard: Screen phosphor excitation (flare) ONLY occurs if TV is currently powered
         // or transitioning into powered state (PowerToggle ON)

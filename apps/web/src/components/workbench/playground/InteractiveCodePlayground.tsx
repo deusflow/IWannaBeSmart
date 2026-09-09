@@ -12,6 +12,7 @@ import {
   type RuntimeResult,
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { audioFx } from "../../../utils/audioFx";
 import { PlaygroundTaskHeader } from "./PlaygroundTaskHeader";
 import { PlaygroundEditor } from "./PlaygroundEditor";
 import { PlaygroundConsole } from "./PlaygroundConsole";
@@ -186,6 +187,7 @@ export const InteractiveCodePlayground: React.FC = () => {
           );
 
           if (validation.passed) {
+            audioFx.playSuccessFanfare();
             setTaskPassed(true);
             const isNewlyCompleted = completeCodingTask(currentTaskId);
             if (isNewlyCompleted) {
@@ -199,6 +201,7 @@ export const InteractiveCodePlayground: React.FC = () => {
               )
             );
           } else {
+            audioFx.playErrorBuzz();
             setTaskPassed(false);
             setFeedbackMessage(
               validation.messageKey
@@ -208,10 +211,12 @@ export const InteractiveCodePlayground: React.FC = () => {
           }
         }
       } else {
+        audioFx.playErrorBuzz();
         setTaskPassed(false);
         setFeedbackMessage(result.error || t("playground.errorSyntax"));
       }
     } catch (err: unknown) {
+      audioFx.playErrorBuzz();
       const msg = err instanceof Error ? err.message : String(err);
       setTaskPassed(false);
       setFeedbackMessage(msg);

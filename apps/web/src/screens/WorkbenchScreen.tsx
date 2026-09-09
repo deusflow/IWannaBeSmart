@@ -8,7 +8,9 @@ import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDe
 import { EngineeringDrawer } from "../components/workbench/EngineeringDrawer";
 import { ArchitectureCanvas } from "../components/workbench/architecture/ArchitectureCanvas";
 import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
-import { ArrowLeft, Terminal, Network } from "lucide-react";
+import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
+import { audioFx } from "../utils/audioFx";
+import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy } from "lucide-react";
 
 /**
  * Engineering Microchip XP icon — silicon die with contact pins.
@@ -45,6 +47,7 @@ export const WorkbenchScreen: React.FC = () => {
   const [activeView, setActiveView] = useState<"device" | "architecture">("device");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
+  const [isMuted, setIsMuted] = useState(audioFx.isMuted());
 
   const {
     power,
@@ -54,8 +57,20 @@ export const WorkbenchScreen: React.FC = () => {
     isBeamFlying,
     xp,
     mentorPhase,
+    completedCodingTasks,
+    isStationVictoryModalOpen,
+    setStationVictoryModalOpen,
   } = useWorkbenchStore();
 
+  const handleToggleSound = () => {
+    const nextMuted = audioFx.toggleMute();
+    setIsMuted(nextMuted);
+    if (!nextMuted) {
+      audioFx.playRelayClick();
+    }
+  };
+
+  const isCompletedAllTasks = Object.keys(completedCodingTasks).length >= 10;
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
 
   return (
@@ -101,6 +116,33 @@ export const WorkbenchScreen: React.FC = () => {
 
         {/* Right */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          {/* Sound Mute/Unmute Toggle [ 🔊 / 🔇 ] */}
+          <button
+            id="btn-sound-toggle"
+            onClick={handleToggleSound}
+            className={`p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-paper-sm flex items-center justify-center active:scale-95 ${
+              isMuted
+                ? "bg-paper-muted border-paper-border text-ink-muted hover:text-ink"
+                : "bg-paper border-paper-border hover:border-accent-blue text-accent-blue"
+            }`}
+            title={isMuted ? t("workbench.soundOff") : t("workbench.soundOn")}
+            aria-label={isMuted ? t("workbench.soundOff") : t("workbench.soundOn")}
+          >
+            {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+          </button>
+
+          {/* Station Mastery Trophy (Re-opens Victory Modal if all 10 tasks passed) */}
+          {isCompletedAllTasks && (
+            <button
+              onClick={() => setStationVictoryModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-600/40 text-amber-800 hover:bg-amber-500/25 font-balsamiq font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95"
+              title={t("victoryModal.title")}
+            >
+              <Trophy size={14} className="text-amber-600" />
+              <span className="hidden sm:inline font-mono">10/10 ✓</span>
+            </button>
+          )}
+
           <LanguageSwitcher />
 
           <div
@@ -302,6 +344,13 @@ export const WorkbenchScreen: React.FC = () => {
           </button>
         </aside>
       )}
+
+      {/* Station Victory & Mastery Matrix Modal */}
+      <StationCompletionModal
+        isOpen={isStationVictoryModalOpen}
+        onClose={() => setStationVictoryModalOpen(false)}
+        xp={xp}
+      />
     </div>
   );
 };

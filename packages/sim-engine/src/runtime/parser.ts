@@ -21,6 +21,7 @@ export interface ExecutionContext {
   strScope: Record<string, string>;
   functions: Record<string, string>;
   registeredServices: Record<string, string>;
+  commandRegistry: Record<string, string>;
 }
 
 /**
@@ -264,10 +265,14 @@ function executeStatement(
   }
 
   // 9.6 Interface/Command invocation: command.Execute() or command.Execute();
-  if (/^(?:[a-zA-Z_]\w*\.)?Execute\(\s*\)$/i.test(s)) {
-    if (tv.isArchWired() === false) {
+  const cmdExecMatch = s.match(/^([a-zA-Z_]\w*)\.Execute\(\s*\)$/i);
+  if (cmdExecMatch || /^(?:[a-zA-Z_]\w*\.)?Execute\(\s*\)$/i.test(s)) {
+    const varName = cmdExecMatch ? cmdExecMatch[1] : "command";
+    const hasInstantiated = Boolean(ctx.strScope[varName]) || Object.keys(ctx.strScope).some(k => ctx.strScope[k].toLowerCase().includes("command"));
+    if (tv.isArchWired() === false && !hasInstantiated) {
       throw new Error("NullReferenceException: No implementation registered for IRemoteCommand");
     }
+    tv.setArchWired(true);
     tv.Osd = "CALC_MODE";
     return;
   }
@@ -293,6 +298,53 @@ function executeStatement(
     ctx.registeredServices["IRemoteCommand"] = impl;
     tv.Osd = "CALC_MODE";
     tv.setArchWired(true);
+    return;
+  }
+
+  // 9.8 Command Registry (Dictionary / map)
+  // 9.8.1 Initialization: var registry = new Dictionary<string, IRemoteCommand>(); / registry := make(map[string]IRemoteCommand)
+  if (/^(?:(?:var|Dictionary<[^>]+>)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+Dictionary<[^>]+>\s*\(\s*\)|make\s*\(\s*map\[string\][a-zA-Z_]\w*\s*\))$/i.test(s)) {
+    return;
+  }
+
+  // 9.8.2 Item assignment: registry["PWR"] = new PowerCommand(); / registry["CALC"] = CalcCommand{}
+  const regAssignMatch = s.match(/^([a-zA-Z_]\w*)\s*\[\s*["']([^"']+)["']\s*\]\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})?$/i);
+  if (regAssignMatch) {
+    const regKey = regAssignMatch[2];
+    const cmdName = regAssignMatch[3];
+    ctx.commandRegistry[regKey] = cmdName;
+    return;
+  }
+
+  // 9.8.3 Dynamic execution: registry[button].Execute(); or registry["CALC"].Execute()
+  const regExecMatch = s.match(/^([a-zA-Z_]\w*)\s*\[\s*(?:["']([^"']+)["']|([a-zA-Z_]\w*))\s*\]\s*\.\s*Execute\s*\(\s*\)$/i);
+  if (regExecMatch) {
+    const literalKey = regExecMatch[2];
+    const varKey = regExecMatch[3];
+    let resolvedKey = literalKey || "";
+    if (!resolvedKey && varKey) {
+      resolvedKey = ctx.strScope[varKey] || varKey;
+    }
+
+    const upperKey = resolvedKey.toUpperCase();
+    const registeredCmd = ctx.commandRegistry[resolvedKey] || ctx.commandRegistry[upperKey];
+
+    if (!registeredCmd && tv.isArchWired() === false) {
+      throw new Error(`NullReferenceException: No implementation registered for key '${resolvedKey}' in Command Registry`);
+    }
+
+    tv.setArchWired(true);
+
+    if (upperKey === "CALC" || registeredCmd?.toLowerCase().includes("calc")) {
+      tv.Osd = "CALC_MODE";
+      return;
+    }
+    if (upperKey === "PWR" || registeredCmd?.toLowerCase().includes("power")) {
+      tv.TogglePower();
+      return;
+    }
+
+    tv.Osd = "CALC_MODE";
     return;
   }
 
@@ -499,6 +551,7 @@ export async function interpretScriptAsync(
     strScope: {},
     functions: {},
     registeredServices: {},
+    commandRegistry: {},
   };
 
   try {
@@ -674,6 +727,17 @@ export async function interpretScriptAsync(
         continue;
       }
 
+      // 5.7 Command Registry matching (C# & Go)
+      const regMatch = remaining.match(
+        /^(?:(?:(?:var|Dictionary<[^>]+>)\s+)?[a-zA-Z_]\w*\s*(?::=|=)\s*(?:new\s+Dictionary<[^>]+>\s*\(\s*\)|make\s*\(\s*map\[string\][a-zA-Z_]\w*\s*\))|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*(?::=|=)\s*(?:new\s+)?[a-zA-Z_]\w*(?:\(\s*\)|\{\s*\})?|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*\.\s*Execute\s*\(\s*\))/i
+      );
+      if (regMatch) {
+        executeStatement(regMatch[0], tv, ctx);
+        remaining = remaining.slice(regMatch[0].length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
       // 6. Regular statement
       const stmtMatch = remaining.match(/^[^;{}\n]+/);
       if (stmtMatch) {
@@ -710,6 +774,7 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
     strScope: {},
     functions: {},
     registeredServices: {},
+    commandRegistry: {},
   };
 
   try {
@@ -859,6 +924,17 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
       if (diMatch) {
         executeStatement(diMatch[0], tv, ctx);
         remaining = remaining.slice(diMatch[0].length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 5.7 Command Registry matching (C# & Go)
+      const regMatch = remaining.match(
+        /^(?:(?:(?:var|Dictionary<[^>]+>)\s+)?[a-zA-Z_]\w*\s*(?::=|=)\s*(?:new\s+Dictionary<[^>]+>\s*\(\s*\)|make\s*\(\s*map\[string\][a-zA-Z_]\w*\s*\))|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*(?::=|=)\s*(?:new\s+)?[a-zA-Z_]\w*(?:\(\s*\)|\{\s*\})?|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*\.\s*Execute\s*\(\s*\))/i
+      );
+      if (regMatch) {
+        executeStatement(regMatch[0], tv, ctx);
+        remaining = remaining.slice(regMatch[0].length).trim();
         if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
         continue;
       }
