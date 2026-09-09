@@ -23,6 +23,7 @@ export const InteractiveCodePlayground: React.FC = () => {
     power,
     channel,
     volume,
+    isArchitecturePowerWired,
     applyCodeExecution,
     completeCodingTask,
     isCodingTaskCompleted,
@@ -107,8 +108,9 @@ export const InteractiveCodePlayground: React.FC = () => {
       isOn: power,
       channel,
       volume,
+      isArchitectureWired: isArchitecturePowerWired,
     }),
-    [power, channel, volume]
+    [power, channel, volume, isArchitecturePowerWired]
   );
 
   const handleSelectTask = useCallback(

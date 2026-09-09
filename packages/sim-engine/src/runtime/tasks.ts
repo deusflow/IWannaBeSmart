@@ -279,14 +279,92 @@ default:
 }
 `,
     },
-    validate: (_before, _after, result, code) => {
+    validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
-      if (code && /case\s*["']CALC["']/i.test(code)) {
+      if (
+        code &&
+        /case\s*["']CALC["']/i.test(code) &&
+        (after.osdMessage === "CALC_MODE" || after.channel === 1 || /CALC_MODE/i.test(code))
+      ) {
         return { passed: true, messageKey: "playground.task7Success" };
       }
       return { passed: false, messageKey: "playground.task7Failed" };
+    },
+  },
+  {
+    id: "task-interface-polymorphism",
+    order: 8,
+    titleKey: "playground.task8Title",
+    conceptKey: "playground.task8Concept",
+    descKey: "playground.task8Desc",
+    hintKey: "playground.task8Hint",
+    successKey: "playground.task8Success",
+    simpleExplanationKey: "playground.task8Simple",
+    careerImpactKey: "playground.task8Career",
+    initialCode: {
+      csharp: `// Інтерфейс як стандартна розетка: контролер просто викликає Execute()
+IRemoteCommand command = new CalcCommand();
+
+command.Execute();
+`,
+      go: `// Інтерфейс як стандартна розетка: контролер просто викликає Execute()
+command := CalcCommand{}
+
+command.Execute()
+`,
+    },
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (
+        code &&
+        /(?:command|cmd)\.Execute\s*\(\s*\)/i.test(code) &&
+        (after.osdMessage === "CALC_MODE" || /Execute/i.test(code))
+      ) {
+        return { passed: true, messageKey: "playground.task8Success" };
+      }
+      return { passed: false, messageKey: "playground.task8Failed" };
+    },
+  },
+  {
+    id: "task-di-container",
+    order: 9,
+    titleKey: "playground.task9Title",
+    conceptKey: "playground.task9Concept",
+    descKey: "playground.task9Desc",
+    hintKey: "playground.task9Hint",
+    successKey: "playground.task9Success",
+    simpleExplanationKey: "playground.task9Simple",
+    careerImpactKey: "playground.task9Career",
+    initialCode: {
+      csharp: `// Реєстрація розетки в DI-контейнері: зв'язуємо контракт з реалізацією
+services.AddTransient<IRemoteCommand, CalcCommand>();
+`,
+      go: `// Реєстрація розетки в DI-контейнері: зв'язуємо контракт з реалізацією
+container.Register("calc", NewCalcCommand())
+`,
+    },
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      const isCsValid =
+        code &&
+        /services\.(?:AddTransient|AddSingleton|AddScoped)\s*<\s*IRemoteCommand\s*,\s*CalcCommand\s*>\s*\(\s*\)/i.test(
+          code
+        );
+      const isGoValid =
+        code &&
+        /container\.Register\s*\(\s*["']calc["']\s*,\s*(?:NewCalcCommand\(\)|CalcCommand\{\})\s*\)/i.test(
+          code
+        );
+      if ((isCsValid || isGoValid) && after.osdMessage === "CALC_MODE") {
+        return { passed: true, messageKey: "playground.task9Success" };
+      }
+      return { passed: false, messageKey: "playground.task9Failed" };
     },
   },
 ];

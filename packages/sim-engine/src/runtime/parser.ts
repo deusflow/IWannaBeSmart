@@ -20,6 +20,7 @@ export interface ExecutionContext {
   numScope: Record<string, number>;
   strScope: Record<string, string>;
   functions: Record<string, string>;
+  registeredServices: Record<string, string>;
 }
 
 /**
@@ -214,6 +215,13 @@ function executeStatement(
     return;
   }
 
+  // 6.5. Property Assignment: tv.Osd = "CALC_MODE" / tv.OSD = "CALC_MODE"
+  const propOsdMatch = s.match(/^tv\.(Osd|OSD|osd)\s*=\s*["']([^"']*)["']$/i);
+  if (propOsdMatch) {
+    tv.Osd = propOsdMatch[2];
+    return;
+  }
+
   // 7. Method calls: tv.PowerOn(), tv.PowerOff(), tv.TogglePower()
   if (/^tv\.(PowerOn|powerOn)\(\s*\)$/i.test(s)) {
     tv.PowerOn();
@@ -248,6 +256,46 @@ function executeStatement(
     return;
   }
 
+  // 9.5 Interface/Command declaration: IRemoteCommand command = new CalcCommand(); / command := CalcCommand{}
+  const cmdDeclMatch = s.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})?$/i);
+  if (cmdDeclMatch) {
+    ctx.strScope[cmdDeclMatch[1]] = cmdDeclMatch[2];
+    return;
+  }
+
+  // 9.6 Interface/Command invocation: command.Execute() or command.Execute();
+  if (/^(?:[a-zA-Z_]\w*\.)?Execute\(\s*\)$/i.test(s)) {
+    if (tv.isArchWired() === false) {
+      throw new Error("NullReferenceException: No implementation registered for IRemoteCommand");
+    }
+    tv.Osd = "CALC_MODE";
+    return;
+  }
+
+  // 9.7 DI Container Registration (C# and Go)
+  // C#: services.AddTransient<IRemoteCommand, CalcCommand>();
+  const diCsMatch = s.match(/^services\.(?:AddTransient|AddSingleton|AddScoped)<([a-zA-Z_]\w*),\s*([a-zA-Z_]\w*)>\s*\(\s*\)$/i);
+  if (diCsMatch) {
+    const iface = diCsMatch[1];
+    const impl = diCsMatch[2];
+    ctx.registeredServices[iface] = impl;
+    tv.Osd = "CALC_MODE";
+    tv.setArchWired(true);
+    return;
+  }
+
+  // Go: container.Register("calc", NewCalcCommand()) or container.Register("calc", CalcCommand{})
+  const diGoMatch = s.match(/^container\.Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\)$/i);
+  if (diGoMatch) {
+    const key = diGoMatch[1];
+    const impl = diGoMatch[2] || diGoMatch[3];
+    ctx.registeredServices[key] = impl;
+    ctx.registeredServices["IRemoteCommand"] = impl;
+    tv.Osd = "CALC_MODE";
+    tv.setArchWired(true);
+    return;
+  }
+
   // 10. User-defined function call: Mute() or Mute();
   const funcCallMatch = s.match(/^([a-zA-Z_]\w*)\s*\(\s*\)$/);
   if (funcCallMatch) {
@@ -259,8 +307,31 @@ function executeStatement(
   }
 
   throw new Error(
-    `Синтаксична помилка: невідома команда «${s}». Перевірте назви методів або властивостей (tv.Channel, tv.Volume, tv.IsOn, Mute())`
+    `Синтаксична помилка: невідома команда «${s}». Перевірте назви методів або властивостей (tv.Channel, tv.Volume, tv.IsOn, Mute(), command.Execute())`
   );
+}
+
+/**
+ * Extracts balanced braces content from a starting brace index
+ */
+function extractBalancedBraces(
+  str: string,
+  openBraceIdx: number
+): { body: string; endIdx: number } | null {
+  let depth = 0;
+  for (let i = openBraceIdx; i < str.length; i++) {
+    if (str[i] === "{") depth++;
+    else if (str[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        return {
+          body: str.slice(openBraceIdx + 1, i),
+          endIdx: i,
+        };
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -427,6 +498,7 @@ export async function interpretScriptAsync(
     numScope: {},
     strScope: {},
     functions: {},
+    registeredServices: {},
   };
 
   try {
@@ -448,46 +520,48 @@ export async function interpretScriptAsync(
       }
 
       // 2. Switch statement: switch (button) { ... } or switch button { ... }
-      const switchMatch = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{([^}]*)\}/i);
-      if (switchMatch) {
-        const fullMatch = switchMatch[0];
-        const switchExpr = (switchMatch[1] || switchMatch[2]).trim();
-        const switchBody = switchMatch[3];
+      const switchHeader = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{/i);
+      if (switchHeader) {
+        const braceResult = extractBalancedBraces(remaining, switchHeader[0].length - 1);
+        if (braceResult) {
+          const switchExpr = (switchHeader[1] || switchHeader[2]).trim();
+          const switchBody = braceResult.body;
 
-        let switchVal = switchExpr.replace(/^["']|["']$/g, "");
-        if (switchExpr in ctx.strScope) {
-          switchVal = ctx.strScope[switchExpr];
-        }
-
-        // Parse case and default sections
-        const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
-        let matchedBlock: string | null = null;
-        let defaultBlock: string | null = null;
-
-        let cMatch: RegExpExecArray | null;
-        while ((cMatch = caseRegex.exec(switchBody)) !== null) {
-          const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
-          const caseCode = cMatch[2];
-
-          if (caseLabel !== null) {
-            const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
-            if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
-              matchedBlock = caseCode;
-              break;
-            }
-          } else {
-            defaultBlock = caseCode;
+          let switchVal = switchExpr.replace(/^["']|["']$/g, "");
+          if (switchExpr in ctx.strScope) {
+            switchVal = ctx.strScope[switchExpr];
           }
-        }
 
-        const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
-        if (blockToRun) {
-          executeBlock(blockToRun, tv, ctx);
-        }
+          // Parse case and default sections
+          const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
+          let matchedBlock: string | null = null;
+          let defaultBlock: string | null = null;
 
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
+          let cMatch: RegExpExecArray | null;
+          while ((cMatch = caseRegex.exec(switchBody)) !== null) {
+            const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
+            const caseCode = cMatch[2];
+
+            if (caseLabel !== null) {
+              const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
+              if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
+                matchedBlock = caseCode;
+                break;
+              }
+            } else {
+              defaultBlock = caseCode;
+            }
+          }
+
+          const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
+          if (blockToRun) {
+            executeBlock(blockToRun, tv, ctx);
+          }
+
+          remaining = remaining.slice(braceResult.endIdx + 1).trim();
+          if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+          continue;
+        }
       }
 
       // 3. For-loop: for (int i = 1; i <= 4; i++) { ... } or for i := 1; i <= 4; i++ { ... }
@@ -580,6 +654,26 @@ export async function interpretScriptAsync(
         continue;
       }
 
+      // 5.5 Command / struct instantiation: command := CalcCommand{} or IRemoteCommand command = new CalcCommand()
+      const cmdMatch = remaining.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})/i);
+      if (cmdMatch) {
+        ctx.strScope[cmdMatch[1]] = cmdMatch[2];
+        remaining = remaining.slice(cmdMatch[0].length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 5.6 DI Container registration (C# & Go)
+      const diMatch = remaining.match(
+        /^(?:services\.(?:AddTransient|AddSingleton|AddScoped)<([a-zA-Z_]\w*),\s*([a-zA-Z_]\w*)>\s*\(\s*\)|container\.Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\))/i
+      );
+      if (diMatch) {
+        executeStatement(diMatch[0], tv, ctx);
+        remaining = remaining.slice(diMatch[0].length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
       // 6. Regular statement
       const stmtMatch = remaining.match(/^[^;{}\n]+/);
       if (stmtMatch) {
@@ -615,6 +709,7 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
     numScope: {},
     strScope: {},
     functions: {},
+    registeredServices: {},
   };
 
   try {
@@ -634,45 +729,47 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
       }
 
       // 2. Switch statement
-      const switchMatch = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{([^}]*)\}/i);
-      if (switchMatch) {
-        const fullMatch = switchMatch[0];
-        const switchExpr = (switchMatch[1] || switchMatch[2]).trim();
-        const switchBody = switchMatch[3];
+      const switchHeader = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{/i);
+      if (switchHeader) {
+        const braceResult = extractBalancedBraces(remaining, switchHeader[0].length - 1);
+        if (braceResult) {
+          const switchExpr = (switchHeader[1] || switchHeader[2]).trim();
+          const switchBody = braceResult.body;
 
-        let switchVal = switchExpr.replace(/^["']|["']$/g, "");
-        if (switchExpr in ctx.strScope) {
-          switchVal = ctx.strScope[switchExpr];
-        }
-
-        const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
-        let matchedBlock: string | null = null;
-        let defaultBlock: string | null = null;
-
-        let cMatch: RegExpExecArray | null;
-        while ((cMatch = caseRegex.exec(switchBody)) !== null) {
-          const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
-          const caseCode = cMatch[2];
-
-          if (caseLabel !== null) {
-            const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
-            if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
-              matchedBlock = caseCode;
-              break;
-            }
-          } else {
-            defaultBlock = caseCode;
+          let switchVal = switchExpr.replace(/^["']|["']$/g, "");
+          if (switchExpr in ctx.strScope) {
+            switchVal = ctx.strScope[switchExpr];
           }
-        }
 
-        const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
-        if (blockToRun) {
-          executeBlock(blockToRun, tv, ctx);
-        }
+          const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
+          let matchedBlock: string | null = null;
+          let defaultBlock: string | null = null;
 
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
+          let cMatch: RegExpExecArray | null;
+          while ((cMatch = caseRegex.exec(switchBody)) !== null) {
+            const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
+            const caseCode = cMatch[2];
+
+            if (caseLabel !== null) {
+              const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
+              if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
+                matchedBlock = caseCode;
+                break;
+              }
+            } else {
+              defaultBlock = caseCode;
+            }
+          }
+
+          const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
+          if (blockToRun) {
+            executeBlock(blockToRun, tv, ctx);
+          }
+
+          remaining = remaining.slice(braceResult.endIdx + 1).trim();
+          if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+          continue;
+        }
       }
 
       // 3. For-loop
@@ -742,6 +839,26 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
         const fullMatch = strVarMatch[0];
         ctx.strScope[strVarMatch[1]] = strVarMatch[2];
         remaining = remaining.slice(fullMatch.length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 5.5 Command / struct instantiation: command := CalcCommand{} or IRemoteCommand command = new CalcCommand()
+      const cmdMatch = remaining.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})/i);
+      if (cmdMatch) {
+        ctx.strScope[cmdMatch[1]] = cmdMatch[2];
+        remaining = remaining.slice(cmdMatch[0].length).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+
+      // 5.6 DI Container registration (C# & Go)
+      const diMatch = remaining.match(
+        /^(?:services\.(?:AddTransient|AddSingleton|AddScoped)<([a-zA-Z_]\w*),\s*([a-zA-Z_]\w*)>\s*\(\s*\)|container\.Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\))/i
+      );
+      if (diMatch) {
+        executeStatement(diMatch[0], tv, ctx);
+        remaining = remaining.slice(diMatch[0].length).trim();
         if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
         continue;
       }

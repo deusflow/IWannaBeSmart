@@ -25,6 +25,13 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
     chassisPrevChannel,
     isEdgeBroken,
     mentorPhase,
+    calcDisplay,
+    calcPrevValue,
+    calcOperation,
+    calcInputDigit,
+    calcSetOperation,
+    calcEvaluate,
+    calcClear,
   } = useWorkbenchStore();
 
   const isPsuMcuBroken = isEdgeBroken("edge-psu-mcu");
@@ -142,30 +149,126 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                     </div>
                   </div>
 
-                  {/* Center Cinematic Display: Channel Title & Wide Stereo Visualizer */}
-                  <div className="relative z-10 my-auto text-center space-y-3 sm:space-y-4 py-2 sm:py-4">
-                    <div className="inline-block px-5 sm:px-8 py-2 rounded-2xl bg-emerald-950/75 border border-emerald-600/70 shadow-lg backdrop-blur-xs">
-                      <h2 className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-emerald-300 tracking-wide">
-                        {currentChannelName}
-                      </h2>
-                    </div>
+                  {/* Center Display: Interactive Calculator Widget in CALC_MODE or Channel Title & Waveform */}
+                  {osdMessage && osdMessage.includes("CALC") ? (
+                    <div className="relative z-10 my-auto w-full max-w-[340px] p-3 rounded-2xl bg-[#0D1115]/95 border border-purple-500/60 shadow-2xl backdrop-blur-md space-y-2 text-left animate-fadeIn">
+                      {/* Calculator Header */}
+                      <div className="flex items-center justify-between border-b border-purple-500/30 pb-1.5 text-[10px] font-mono text-purple-300">
+                        <div className="flex items-center gap-1.5 font-bold">
+                          <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                          <span>IRemoteCommand: CALC_MODE</span>
+                        </div>
+                        <span className="text-[9.5px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-700/50">
+                          IoC / DI Active
+                        </span>
+                      </div>
 
-                    {/* Wide Stereo Visualizer Waveform Reacting to Volume (0..100) */}
-                    <div className="h-10 sm:h-14 flex items-center justify-center gap-1 sm:gap-1.5 opacity-85 pt-1">
-                      {[
-                        25, 45, 75, 50, 95, 70, 35, 85, 45, 100, 80, 60, 35, 90, 70, 45,
-                        85, 55, 30, 75, 60, 90, 40, 80, 50, 95, 65, 30, 85, 45, 70, 55,
-                      ].map((h, i) => (
-                        <div
-                          key={i}
-                          className="w-1 sm:w-1.5 bg-emerald-400 rounded-full transition-all duration-150"
-                          style={{
-                            height: `${Math.max(4, (h * (isMuted ? 2 : volume)) / 80)}px`,
-                          }}
-                        />
-                      ))}
+                      {/* Digital Phosphor Display Output */}
+                      <div className="p-2.5 rounded-xl bg-[#070A0D] border border-purple-500/40 shadow-inner">
+                        <div className="text-[10px] font-mono text-purple-400/70 text-right h-3.5 tracking-wider">
+                          {calcPrevValue !== null && calcOperation ? `${calcPrevValue} ${calcOperation}` : "CALCULATOR READY"}
+                        </div>
+                        <div className="font-mono text-2xl font-bold text-emerald-300 text-right tracking-widest truncate py-0.5">
+                          {calcDisplay || "0"}
+                        </div>
+                      </div>
+
+                      {/* Remote Mapping Helper & Interactive Buttons */}
+                      <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                        {[7, 8, 9].map((n) => (
+                          <button
+                            key={n}
+                            onClick={() => calcInputDigit(n)}
+                            className="h-6 sm:h-7 rounded-lg bg-[#191E24] hover:bg-[#252C35] active:scale-95 text-white font-mono font-bold text-xs flex items-center justify-center border border-[#2D3540] cursor-pointer"
+                          >
+                            {n}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => calcSetOperation("+")}
+                          className="h-6 sm:h-7 rounded-lg bg-purple-950/80 hover:bg-purple-900 active:scale-95 text-purple-200 font-mono font-bold text-xs flex items-center justify-center border border-purple-600/60 cursor-pointer"
+                          title="VOL+ на пульті або клік"
+                        >
+                          + (VOL+)
+                        </button>
+
+                        {[4, 5, 6].map((n) => (
+                          <button
+                            key={n}
+                            onClick={() => calcInputDigit(n)}
+                            className="h-6 sm:h-7 rounded-lg bg-[#191E24] hover:bg-[#252C35] active:scale-95 text-white font-mono font-bold text-xs flex items-center justify-center border border-[#2D3540] cursor-pointer"
+                          >
+                            {n}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => calcSetOperation("-")}
+                          className="h-6 sm:h-7 rounded-lg bg-purple-950/80 hover:bg-purple-900 active:scale-95 text-purple-200 font-mono font-bold text-xs flex items-center justify-center border border-purple-600/60 cursor-pointer"
+                          title="VOL- на пульті або клік"
+                        >
+                          - (VOL-)
+                        </button>
+
+                        {[1, 2, 3].map((n) => (
+                          <button
+                            key={n}
+                            onClick={() => calcInputDigit(n)}
+                            className="h-6 sm:h-7 rounded-lg bg-[#191E24] hover:bg-[#252C35] active:scale-95 text-white font-mono font-bold text-xs flex items-center justify-center border border-[#2D3540] cursor-pointer"
+                          >
+                            {n}
+                          </button>
+                        ))}
+                        <button
+                          onClick={calcEvaluate}
+                          className="h-6 sm:h-7 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 active:scale-95 text-emerald-300 font-mono font-bold text-xs flex items-center justify-center border border-emerald-600/70 cursor-pointer"
+                          title="CH+ на пульті або клік"
+                        >
+                          = (CH+)
+                        </button>
+
+                        <button
+                          onClick={calcClear}
+                          className="h-6 sm:h-7 rounded-lg bg-red-950/60 hover:bg-red-900 active:scale-95 text-red-300 font-mono font-bold text-xs flex items-center justify-center border border-red-700/50 cursor-pointer"
+                          title="CH- на пульті або клік"
+                        >
+                          C (CH-)
+                        </button>
+                        <button
+                          onClick={() => calcInputDigit(0)}
+                          className="h-6 sm:h-7 rounded-lg bg-[#191E24] hover:bg-[#252C35] active:scale-95 text-white font-mono font-bold text-xs flex items-center justify-center border border-[#2D3540] cursor-pointer"
+                        >
+                          0
+                        </button>
+                        <div className="col-span-2 flex items-center justify-center text-[9px] font-mono text-purple-300/80 border border-purple-500/20 rounded-lg bg-purple-950/40 px-1">
+                          Пульт: 0–9, VOL±, CH±
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="relative z-10 my-auto text-center space-y-3 sm:space-y-4 py-2 sm:py-4">
+                      <div className="inline-block px-5 sm:px-8 py-2 rounded-2xl bg-emerald-950/75 border border-emerald-600/70 shadow-lg backdrop-blur-xs">
+                        <h2 className="font-display text-xl sm:text-3xl md:text-4xl font-bold text-emerald-300 tracking-wide">
+                          {currentChannelName}
+                        </h2>
+                      </div>
+
+                      {/* Wide Stereo Visualizer Waveform Reacting to Volume (0..100) */}
+                      <div className="h-10 sm:h-14 flex items-center justify-center gap-1 sm:gap-1.5 opacity-85 pt-1">
+                        {[
+                          25, 45, 75, 50, 95, 70, 35, 85, 45, 100, 80, 60, 35, 90, 70, 45,
+                          85, 55, 30, 75, 60, 90, 40, 80, 50, 95, 65, 30, 85, 45, 70, 55,
+                        ].map((h, i) => (
+                          <div
+                            key={i}
+                            className="w-1 sm:w-1.5 bg-emerald-400 rounded-full transition-all duration-150"
+                            style={{
+                              height: `${Math.max(4, (h * (isMuted ? 2 : volume)) / 80)}px`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Bottom OSD Bar: Volume & Status */}
                   <div className="relative z-10 flex items-center justify-between text-xs sm:text-sm font-display text-emerald-400/90 pt-2 border-t border-emerald-900/60">
@@ -178,6 +281,11 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                       <span className="font-bold text-xs sm:text-sm">
                         Гучність: {isMuted ? "Вимкнено" : `${volume} / 100`}
                       </span>
+                      {isMuted && (
+                        <span className="px-1.5 py-0.5 rounded bg-red-500/25 border border-red-500/50 text-red-300 font-mono text-[10px] font-extrabold tracking-wider animate-pulse">
+                          MUTE
+                        </span>
+                      )}
                     </div>
 
                     {/* Segmented Volume Meter (24 segments for 0..100) */}

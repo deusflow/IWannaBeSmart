@@ -10,6 +10,7 @@ export class VirtualTV {
   private _channel: number;
   private _volume: number;
   private _osdMessage?: string;
+  private _isArchitectureWired: boolean;
   private _logs: RuntimeLogEntry[] = [];
   private _mutationsCount = 0;
 
@@ -18,6 +19,7 @@ export class VirtualTV {
     this._channel = initial.channel;
     this._volume = initial.volume;
     this._osdMessage = initial.osdMessage;
+    this._isArchitectureWired = initial.isArchitectureWired ?? true;
   }
 
   // ── Property: IsOn ──────────────────────────────────────────
@@ -91,6 +93,35 @@ export class VirtualTV {
     this.Volume = val;
   }
 
+  // ── Property: Osd / OSD ─────────────────────────────────────
+  get Osd(): string | undefined {
+    return this._osdMessage;
+  }
+  set Osd(val: string | undefined) {
+    if (this._osdMessage !== val) {
+      this._osdMessage = val;
+      this._mutationsCount++;
+      this._logs.push({
+        type: "mutation",
+        message: `tv.Osd = "${val ?? ""}"`,
+      });
+    }
+  }
+
+  get OSD(): string | undefined {
+    return this.Osd;
+  }
+  set OSD(val: string | undefined) {
+    this.Osd = val;
+  }
+
+  get osd(): string | undefined {
+    return this.Osd;
+  }
+  set osd(val: string | undefined) {
+    this.Osd = val;
+  }
+
   // ── Methods ────────────────────────────────────────────────
   public PowerOn(): void {
     this.IsOn = true;
@@ -132,6 +163,14 @@ export class VirtualTV {
     this.SetVolume(vol);
   }
 
+  public isArchWired(): boolean {
+    return this._isArchitectureWired;
+  }
+
+  public setArchWired(val: boolean): void {
+    this._isArchitectureWired = val;
+  }
+
   // ── Diagnostics & Snapshot ─────────────────────────────────
   public getSnapshot(): VirtualTvState {
     return {
@@ -139,6 +178,7 @@ export class VirtualTV {
       channel: this._channel,
       volume: this._volume,
       osdMessage: this._osdMessage,
+      isArchitectureWired: this._isArchitectureWired,
     };
   }
 

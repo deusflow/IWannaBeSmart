@@ -29,6 +29,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
   const { t } = useTranslation();
   const {
     isIrEmitting,
+    osdMessage,
     pressPower,
     pressChannelUp,
     pressChannelDown,
@@ -38,6 +39,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
     pressSelectChannel,
   } = useWorkbenchStore();
 
+  const isCalcMode = osdMessage === "CALC_MODE";
   const isHorizontal = orientation === "horizontal";
 
   // -------------------------------------------------------------
@@ -141,13 +143,13 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <div className="col-span-3 p-1.5 bg-[#121416] rounded-xl border border-[#23272D]">
               <div className="grid grid-cols-3 gap-1">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
-                  const isAvailable = num <= 4;
+                  const isAvailable = isCalcMode || num <= 4;
                   return (
                     <button
                       key={num}
                       disabled={!isAvailable}
                       onClick={() => pressSelectChannel(num)}
-                      title={`Канал ${num}`}
+                      title={isCalcMode ? `Цифра ${num}` : `Канал ${num}`}
                       className={`h-5 rounded font-sans text-[10px] font-bold flex items-center justify-center transition-all duration-100 outline-none border ${
                         isAvailable
                           ? "bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] border-[#363C46] active:scale-90 cursor-pointer"
@@ -165,9 +167,9 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                   TTX
                 </button>
                 <button
-                  onClick={() => pressSelectChannel(1)}
+                  onClick={() => pressSelectChannel(0)}
                   className="h-5 rounded bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] font-sans text-[10px] font-bold flex items-center justify-center border border-[#363C46] active:scale-90 cursor-pointer"
-                  title="Канал 0 / 1"
+                  title="Цифра 0"
                 >
                   0
                 </button>
@@ -377,13 +379,13 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
         {/* 2. NUMERIC KEYPAD: 3 Columns × 4 Rows */}
         <div className="w-full grid grid-cols-3 gap-1 p-1.5 bg-[#121416] rounded-2xl border border-[#23272D] mb-2.5">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
-            const isAvailable = num <= 4;
+            const isAvailable = isCalcMode || num <= 4;
             return (
               <button
                 key={num}
                 disabled={!isAvailable}
                 onClick={() => pressSelectChannel(num)}
-                title={`Канал ${num}`}
+                title={isCalcMode ? `Цифра ${num}` : `Канал ${num}`}
                 className={`h-6 rounded-md font-sans text-xs font-bold flex items-center justify-center transition-all duration-100 outline-none border ${
                   isAvailable
                     ? "bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] border-[#363C46] active:scale-90 cursor-pointer"
@@ -402,8 +404,9 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             TTX
           </button>
           <button
-            onClick={() => pressSelectChannel(1)}
+            onClick={() => pressSelectChannel(0)}
             className="h-6 rounded-md bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] font-sans text-xs font-bold flex items-center justify-center border border-[#363C46] cursor-pointer"
+            title="Цифра 0"
           >
             0
           </button>

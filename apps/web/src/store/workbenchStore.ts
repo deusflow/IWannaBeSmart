@@ -161,12 +161,24 @@ export interface WorkbenchActions {
   ) => void;
 }
 
+export interface CalculatorSlice {
+  calcDisplay: string;
+  calcPrevValue: number | null;
+  calcOperation: "+" | "-" | null;
+  calcClearOnNext: boolean;
+  calcInputDigit: (digit: number) => void;
+  calcSetOperation: (op: "+" | "-") => void;
+  calcEvaluate: () => void;
+  calcClear: () => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
   ArchitectureSlice &
   MentorSlice &
   IRSigSlice &
+  CalculatorSlice &
   WorkbenchActions;
 
 // Helper to calculate initial connection points
@@ -562,6 +574,70 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       }
     },
 
+    // 2e. Calculator State & Actions
+    calcDisplay: "0",
+    calcPrevValue: null,
+    calcOperation: null,
+    calcClearOnNext: false,
+
+    calcInputDigit: (digit: number) => {
+      set((s) => {
+        let nextDisp = s.calcDisplay;
+        if (s.calcClearOnNext || nextDisp === "0") {
+          nextDisp = String(digit);
+        } else {
+          nextDisp = (nextDisp + digit).slice(0, 10);
+        }
+        return {
+          calcDisplay: nextDisp,
+          calcClearOnNext: false,
+        };
+      });
+    },
+
+    calcSetOperation: (op: "+" | "-") => {
+      set((s) => {
+        const curVal = parseFloat(s.calcDisplay) || 0;
+        let prev = s.calcPrevValue;
+        if (prev !== null && s.calcOperation && !s.calcClearOnNext) {
+          prev = s.calcOperation === "+" ? prev + curVal : prev - curVal;
+        } else {
+          prev = curVal;
+        }
+        return {
+          calcPrevValue: prev,
+          calcDisplay: String(prev),
+          calcOperation: op,
+          calcClearOnNext: true,
+        };
+      });
+    },
+
+    calcEvaluate: () => {
+      set((s) => {
+        if (s.calcPrevValue === null || !s.calcOperation) {
+          return {};
+        }
+        const curVal = parseFloat(s.calcDisplay) || 0;
+        const result = s.calcOperation === "+" ? s.calcPrevValue + curVal : s.calcPrevValue - curVal;
+        return {
+          calcDisplay: String(result),
+          calcPrevValue: null,
+          calcOperation: null,
+          calcClearOnNext: true,
+        };
+      });
+    },
+
+    calcClear: () => {
+      set({
+        calcDisplay: "0",
+        calcPrevValue: null,
+        calcOperation: null,
+        calcClearOnNext: false,
+      });
+    },
+
     // 3. Physical IR Transmission Slice (Item 55)
     isIrEmitting: false,
     isBeamFlying: false,
@@ -588,11 +664,49 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
           }
         }
 
+        let isPowerWired = state.isArchitecturePowerWired;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let nextArchEdges = state.archEdges as any[];
+
+        if (osd === "CALC_MODE" || (osd && osd.includes("CALC"))) {
+          isPowerWired = true;
+          // Ensure edges contain power-command -> tv-controller
+          const hasCmdEdge = nextArchEdges.some(
+            (e) =>
+              e.source?.includes("power-command") &&
+              e.sourceHandle === "out-execute" &&
+              e.target?.includes("tv-controller") &&
+              e.targetHandle === "in-command-handler"
+          );
+          if (!hasCmdEdge) {
+            nextArchEdges = [
+              ...nextArchEdges,
+              {
+                id: "edge-power-to-tv-controller",
+                source: "node-class-power-command",
+                sourceHandle: "out-execute",
+                target: "node-class-tv-controller",
+                targetHandle: "in-command-handler",
+                type: "architectureEdge",
+                data: {
+                  sourceLabel: "Execute",
+                  targetLabel: "CommandHandler",
+                  portType: "IRemoteCommand",
+                  isHighlighted: true,
+                  lastInvokedAt: Date.now(),
+                },
+              },
+            ];
+          }
+        }
+
         return {
           power: nextPower,
           channel: nextChannel,
           volume: nextVolume,
           osdMessage: osd,
+          isArchitecturePowerWired: isPowerWired,
+          archEdges: nextArchEdges,
           screenReactionPulse: nextPower,
           connections: {
             ...state.connections,
@@ -738,6 +852,11 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     },
 
     pressChannelUp: () => {
+      if (get().osdMessage === "CALC_MODE") {
+        get().dispatchRemoteCommand("CALC [=]", () => ({}));
+        get().calcEvaluate();
+        return;
+      }
       get().dispatchRemoteCommand("Наступний канал", (state) => {
         // FSM Guard: If TV is unpowered, MCU ignores channel changes
         if (!state.power) {
@@ -754,6 +873,11 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     },
 
     pressChannelDown: () => {
+      if (get().osdMessage === "CALC_MODE") {
+        get().dispatchRemoteCommand("CALC [C]", () => ({}));
+        get().calcClear();
+        return;
+      }
       get().dispatchRemoteCommand("Попередній канал", (state) => {
         // FSM Guard: If TV is unpowered, MCU ignores channel changes
         if (!state.power) {
@@ -770,6 +894,11 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     },
 
     pressSelectChannel: (targetChannel: number) => {
+      if (get().osdMessage === "CALC_MODE") {
+        get().dispatchRemoteCommand(`CALC [${targetChannel}]`, () => ({}));
+        get().calcInputDigit(targetChannel);
+        return;
+      }
       get().dispatchRemoteCommand(`Канал ${targetChannel}`, (state) => {
         // FSM Guard: If TV is unpowered, MCU ignores channel keypad
         if (!state.power) {
@@ -786,6 +915,11 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     },
 
     pressVolumeUp: () => {
+      if (get().osdMessage === "CALC_MODE") {
+        get().dispatchRemoteCommand("CALC [+]", () => ({}));
+        get().calcSetOperation("+");
+        return;
+      }
       get().dispatchRemoteCommand("Гучність +", (state) => {
         // FSM Guard: If TV is unpowered, volume amplifier remains off
         if (!state.power) {
@@ -803,6 +937,11 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     },
 
     pressVolumeDown: () => {
+      if (get().osdMessage === "CALC_MODE") {
+        get().dispatchRemoteCommand("CALC [-]", () => ({}));
+        get().calcSetOperation("-");
+        return;
+      }
       get().dispatchRemoteCommand("Гучність -", (state) => {
         // FSM Guard: If TV is unpowered, volume amplifier remains off
         if (!state.power) {
