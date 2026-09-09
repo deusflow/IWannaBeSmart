@@ -49,8 +49,11 @@ export const POSBlueprintDevice: React.FC = () => {
 
   return (
     <div className="w-full max-w-xl mx-auto p-4 select-none">
-      {/* ── Top Thermal Printer Mechanism ── */}
-      <div className="relative mb-[-12px] z-20 flex flex-col items-center">
+        {/* ── Top Thermal Printer Mechanism ── */}
+        <div
+          data-guide="pos-printer"
+          className="relative mb-[-12px] z-20 flex flex-col items-center"
+        >
         {/* Printer Head Casing */}
         <div className="w-64 h-5 bg-[#141518] border-t-2 border-x-2 border-[#2C3038] rounded-t-xl flex items-center justify-between px-3 text-[9px] font-mono text-gray-500 shadow-md">
           <div className="flex items-center gap-1">
@@ -165,6 +168,7 @@ export const POSBlueprintDevice: React.FC = () => {
 
         {/* POS LCD Display Screen */}
         <div
+          data-guide="pos-lcd"
           className={`relative z-10 rounded-2xl border-2 p-4 shadow-inner space-y-3 transition-colors duration-300 ${
             isBlocked
               ? "bg-[#180A0C] border-red-600/70 shadow-red-950/40"
@@ -188,7 +192,10 @@ export const POSBlueprintDevice: React.FC = () => {
             </span>
 
             {/* Active Payment Gateway Badge (Task 6) */}
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#16181D] border border-[#2B2F38] text-[9px] font-mono">
+            <div
+              data-guide="pos-net"
+              className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#16181D] border border-[#2B2F38] text-[9px] font-mono"
+            >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
                   posState.isGatewayRegistered && posState.activeGateway
@@ -341,8 +348,10 @@ export const POSBlueprintDevice: React.FC = () => {
           </div>
         </div>
 
-        {/* Contactless / Chip Slot Visual */}
-        <div className="relative z-10 my-3 flex items-center justify-between px-2 text-[10px] font-mono text-gray-500">
+          <div
+            data-guide="pos-chip"
+            className="relative z-10 my-3 flex items-center justify-between px-2 text-[10px] font-mono text-gray-500"
+          >
           <div className="flex items-center gap-1">
             <span
               className={`w-1.5 h-1.5 rounded-full ${

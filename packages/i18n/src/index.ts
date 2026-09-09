@@ -283,6 +283,16 @@ export const defaultResources = {
         task10Failed: "Реєстр команд не спрацював або синтаксис невірний. Перевірте реєстрацію PWR та CALC у словнику та виклик registry[button].Execute().",
         task10Simple: "Реєстр команд — це телефонна книга або швидкий набір: ми записуємо під кожну клавішу («PWR», «CALC») конкретний пристрій, а коли натискаємо кнопку — пристрій виконується миттєво без розпитувань через if чи switch!",
         task10Career: "Command Registry / Dispatch Table — це серце роутерів Web API (ASP.NET Core Endpoint Routing, Gin router у Go), обробників подій в ігрових рушіях та чергах повідомлень (RabbitMQ, Kafka).",
+        task1Engineering: "State Mutation via Assignment Operator (=).\\nProperty 'IsOn' — Boolean field в пам'яті об'єкта VirtualTV.\\nОператор = записує значення true у RAM (heap) об'єкта tv, мінімально змінюючи 1 bit стану.",
+        task2Engineering: "Conditional Branching: if/else Control Flow.\\nCPU виконує розгалуження через CMP/JMP інструкції.\\nif (tv.IsOn) перевіряє Boolean bit; обирає гілку. Principle: Single Responsibility per branch.",
+        task3Engineering: "Increment Operator (++ / +=).\\ntv.Channel++ — синтаксичний цукор для tv.Channel = tv.Channel + 1.\\nPrimitive mutation: read → add 1 → write back. No heap allocation.",
+        task4Engineering: "Guard Clause / Defensive Programming.\\nif (channel > 4) { channel = 1 } — захисна умова, запобігає некоректним станам.\\nPrinciple: Fail Fast. In memory: значення скидається до safe initial state (1).",
+        task5Engineering: "Iteration via for Loop / O(n) Complexity.\\nfor (int i = 1; i <= 4; i++) — Iteration Control Structure.\\nCPU: послідовність ADD/CMP/JMP. Term: Sequential State Traversal — O(n) time.",
+        task6Engineering: "Encapsulation via Function Declaration (Subroutine).\\nvoid Mute() {} — оголошення підпрограми.\\nFunction call = push stack frame → execute → pop frame. DRY: Single source of truth.",
+        task7Engineering: "Anti-pattern: God Switch / OCP Violation.\\nswitch(button){} — процедурна диспетчеризація, порушує Open-Closed Principle.\\nKожна нова команда вимагає модифікації існуючого коду. Technical debt grows O(n).",
+        task8Engineering: "Interface Polymorphism / Command Pattern.\\nIRemoteCommand — contract (абстракція), не реалізація.\\ncommand.Execute() — Dynamic Dispatch через vtable (virtual method table).\\nLoose Coupling: TVController ізольований від конкретних команд.",
+        task9Engineering: "Inversion of Control (IoC) / Dependency Injection Container.\\nservices.AddTransient<IRemoteCommand, CalcCommand>() — реєстрація mapping interface→impl.\\nRun-time: Container розв'язує залежність через Reflection/Factory.",
+        task10Engineering: "Command Registry / Dispatch Table (Open-Closed Principle).\\nDictionary<string, IRemoteCommand> = O(1) lookup через Hash Table.\\nregistry[button].Execute() — dynamic dispatch без switch/case. OCP compliant.",
       },
       victoryModal: {
         stampBadge: "СТАНЦІЮ ЗАВЕРШЕНО • ВСІ 10 ЗАВДАНЬ ВИКОНАНО",
@@ -381,6 +391,8 @@ export const defaultResources = {
         success: "Транзакцію успішно захищено! Guard Clause заблокував несанкціоноване списання коштів.",
         failed: "Guard Clause не спрацював або статус не \"DECLINED\". Перевірте умову if (amount > balance) та return.",
         syntaxError: "Синтаксична помилка у фінтех-скрипті.",
+        simple: "Охоронець на касі: якщо клієнт хоче зняти більше, ніж є в гаманці, касир зупиняє операцію. Код перевіряє баланс, і при недостатніх коштах негайно зупиняє виконання (return).",
+        engineering: "Guard Clause + Early Return. if (amount > balance) { return; } — перевірка передумови. Fail Fast: відмова без побічних ефектів. FSM: status = 'DECLINED' до завершення транзакції.",
       },
       fintechTask2: {
         title: "Завдання 2: Розрахунок комісії (State Mutation & Fee Calculation)",
@@ -390,6 +402,8 @@ export const defaultResources = {
         success: "Комісію успішно враховано! Суму списано з рахунку, термінал переведено в статус APPROVED.",
         failed: "Невірний розрахунок комісії або списання. Перевірте totalAmount = amount + fee та balance -= totalAmount.",
         syntaxError: "Синтаксична помилка у розрахунку комісії.",
+        simple: "Рахунок у кафе: до вартості страви додають сервісний збір. Термінал рахує totalAmount = amount + fee і списує підсумок з балансу.",
+        engineering: "State Mutation + Arithmetic. totalAmount = amount + fee — обчислення нового стану. balance -= totalAmount — Compound Assignment (mutates field in-place). FSM: IDLE → APPROVED.",
       },
       fintechTask3: {
         title: "Завдання 3: Захист спроб PIN (State Locking & Guard Counter)",
@@ -399,6 +413,8 @@ export const defaultResources = {
         success: "Картку заблоковано після 3 невірних спроб! Клавіатуру вимкнено, активовано аварійний протокол.",
         failed: "Помилка лічильника або блокування. Перевірте if (pin != enteredPin) та блокування при failedAttempts >= 3.",
         syntaxError: "Синтаксична помилка у перевірці PIN-коду.",
+        simple: "Банкомат блокує картку після 3 невірних PIN: лічильник помилок зростає при кожній невалідній спробі, при досягненні ліміту — картка замикається.",
+        engineering: "State Locking via Counter Guard. failedAttempts++ — Increment per invalid attempt. if (failedAttempts >= 3) { isLocked = true } — Threshold Guard. OWASP: Rate Limiting + Account Lockout.",
       },
       fintechTask4: {
         title: "Завдання 4: Друк Z-звіту: Пакетна обробка (For Loop / Batch Settlement)",
@@ -408,6 +424,8 @@ export const defaultResources = {
         success: "Z-звіт успішно сформовано! Термопринтер роздрукував чек із підсумком пакетної обробки.",
         failed: "Помилка підрахунку виторгу в циклі for. Перевірте межі масиву (.Length / len) та накопичення dailyTotal += transactions[i].",
         syntaxError: "Синтаксична помилка у циклі for.",
+        simple: "Закриття зміни: касир підбиває підсумок, рахуючи кожен чек по черзі. Цикл for пробігає всі транзакції та накопичує суму в dailyTotal.",
+        engineering: "Batch Processing via for Loop. for (int i = 0; i < transactions.Length; i++) — Sequential Traversal O(n). dailyTotal += transactions[i] — Accumulator Pattern. Side effect: receipt lines buffer.",
       },
       fintechTask5: {
         title: "Завдання 5: Платіжний контракт: Поліморфізм (Interface Polymorphism)",
@@ -417,6 +435,8 @@ export const defaultResources = {
         success: "Поліморфний контракт спрацював бездоганно! Шлюз авторизував платіж через Interface без жорсткої прив'язки.",
         failed: "Помилка виклику gateway.Charge або обробки !approved. Перевірте early return при !approved та статус \"APPROVED\".",
         syntaxError: "Синтаксична помилка у виклику контракту Interface.",
+        simple: "Розетка для будь-якого банку: термінал не знає конкретного банку. Він смикає розетку gateway.Charge, а банк виконує заряд. Відмова → термінал відхиляє платіж.",
+        engineering: "Interface Polymorphism / Strategy Pattern. gateway.Charge(totalAmount) — виклик через IPaymentGateway contract. Dynamic dispatch через vtable. Loose Coupling: термінал ізольований від Payment Provider.",
       },
       fintechTask6: {
         title: "Завдання 6: Реєстрація процесингу: Dependency Injection (IoC Container)",
@@ -426,6 +446,8 @@ export const defaultResources = {
         success: "Провайдер процесингу зареєстровано в IoC контейнері! Мережевий лінк [ NET: DANKORT ] активовано.",
         failed: "Помилка реєстрації залежності. Перевірте services.AddScoped<IPaymentGateway, DankortGateway>() або container.Register(\"payment_gateway\", NewDankortGateway()).",
         syntaxError: "Синтаксична помилка у конфігурації Dependency Injection.",
+        simple: "Реєстрація в щитку: замість прямого new DankortGateway() реєструємо шлюз в IoC Container. Термінал отримує готовий зареєстрований сервіс автоматично.",
+        engineering: "Dependency Injection / IoC Container. services.AddScoped<IPaymentGateway, DankortGateway>() — реєстрація mapping. Lifetime: Scoped per request. SOLID D: залежність від абстракції, не конкретики.",
       },
       fintechVictoryModal: {
         title: "Модуль 2: Фінтех POS-термінал завершено!",
@@ -680,6 +702,16 @@ export const defaultResources = {
         task10Failed: "Command registry failed or syntax is incorrect. Check PWR and CALC registration and registry[button].Execute().",
         task10Simple: "A command registry is like speed dial on a phone: we bind each key ('PWR', 'CALC') to a specific handler, and pressing a button executes it directly without giant if/switch chains!",
         task10Career: "Command Registry / Dispatch Tables power Web API routers (ASP.NET Core Endpoint Routing, Gin in Go), game engine event dispatchers, and messaging consumers (RabbitMQ, Kafka).",
+        task1Engineering: "State Mutation via Assignment Operator (=).\\nProperty 'IsOn' — Boolean field in the VirtualTV object's heap memory.\\nOperator = writes true to RAM, changing 1 bit of machine state.",
+        task2Engineering: "Conditional Branching: if/else Control Flow.\\nCPU uses CMP/JMP instructions to choose the execution path.\\nif (tv.IsOn) checks the Boolean bit; selects branch. Principle: Single Responsibility per branch.",
+        task3Engineering: "Increment Operator (++ / +=).\\ntv.Channel++ is syntactic sugar for tv.Channel = tv.Channel + 1.\\nPrimitive mutation: read → add 1 → write back. No heap allocation.",
+        task4Engineering: "Guard Clause / Defensive Programming / Early Exit.\\nif (channel > 4) { channel = 1 } — precondition check to prevent invalid states.\\nPrinciple: Fail Fast. In memory: resets value to safe initial state (1).",
+        task5Engineering: "Iteration via for Loop / O(n) Complexity.\\nfor (int i = 1; i <= 4; i++) — Iteration Control Structure.\\nCPU: sequence of ADD/CMP/JMP. Sequential State Traversal — O(n) time complexity.",
+        task6Engineering: "Encapsulation via Function Declaration (Subroutine).\\nvoid Mute() {} — defines a reusable subroutine.\\nFunction call = push stack frame → execute → pop frame. DRY: Single source of truth.",
+        task7Engineering: "Anti-pattern: God Switch / OCP Violation.\\nswitch(button){} — procedural dispatch, violates Open-Closed Principle.\\nEvery new command requires modifying existing code. Technical debt grows O(n).",
+        task8Engineering: "Interface Polymorphism / Command Pattern.\\nIRemoteCommand — abstract contract, not implementation.\\ncommand.Execute() — Dynamic Dispatch via vtable (virtual method table).\\nLoose Coupling: TVController is decoupled from concrete commands.",
+        task9Engineering: "Inversion of Control (IoC) / Dependency Injection Container.\\nservices.AddTransient<IRemoteCommand, CalcCommand>() — registers interface→impl mapping.\\nRuntime: Container resolves dependency via Reflection/Factory pattern.",
+        task10Engineering: "Command Registry / Dispatch Table (Open-Closed Principle).\\nDictionary<string, IRemoteCommand> = O(1) lookup via Hash Table.\\nregistry[button].Execute() — dynamic dispatch without switch/case. OCP compliant.",
       },
       victoryModal: {
         stampBadge: "STATION COMPLETED • ALL 10 TASKS PASSED",
@@ -778,6 +810,8 @@ export const defaultResources = {
         success: "Transaction protected! The Guard Clause prevented unauthorized funds deduction.",
         failed: "Guard Clause failed or status is not \"DECLINED\". Verify if (amount > balance) and return.",
         syntaxError: "Syntax error in fintech script.",
+        simple: "A bouncer at the cash register: if the customer wants to withdraw more than available, the cashier stops the operation. Code checks the balance and immediately stops execution (return) if funds are insufficient.",
+        engineering: "Guard Clause + Early Return. if (amount > balance) { return; } — precondition at function entry. Fail Fast: immediate refusal, no side effects. FSM: status = DECLINED before transaction end.",
       },
       fintechTask2: {
         title: "Task 2: Fee Calculation (State Mutation & Fee Calculation)",
@@ -787,6 +821,8 @@ export const defaultResources = {
         success: "Fee calculation applied! Funds deducted and POS terminal approved transaction.",
         failed: "Incorrect fee calculation or deduction. Verify totalAmount = amount + fee and balance -= totalAmount.",
         syntaxError: "Syntax error in fee calculation script.",
+        simple: "A restaurant bill: a service fee is always added to the meal price. The terminal computes totalAmount = amount + fee then charges the account.",
+        engineering: "State Mutation + Arithmetic. totalAmount = amount + fee — new state via arithmetic. balance -= totalAmount — Compound Assignment (mutates in-place). FSM: IDLE → APPROVED.",
       },
       fintechTask3: {
         title: "Task 3: PIN Protection (State Locking & Guard Counter)",
@@ -796,6 +832,8 @@ export const defaultResources = {
         success: "Card locked after 3 failed attempts! Keypad disabled and security protocol engaged.",
         failed: "Lockout logic failed. Verify if (pin != enteredPin) and lock conditions at failedAttempts >= 3.",
         syntaxError: "Syntax error in PIN lockout script.",
+        simple: "An ATM blocks the card after 3 wrong PINs: a counter increments on each invalid attempt and at the threshold the card locks (brute-force protection).",
+        engineering: "State Locking via Counter Guard. failedAttempts++ — Increment per invalid attempt. if (failedAttempts >= 3) { isLocked = true } — Threshold Guard. OWASP A07: Rate Limiting + Account Lockout.",
       },
       fintechTask4: {
         title: "Task 4: Z-Report Printing (For Loop / Batch Settlement)",
@@ -805,6 +843,8 @@ export const defaultResources = {
         success: "Z-Report generated successfully! Thermal printer ejected settled batch receipt.",
         failed: "Batch summation failed in for loop. Verify array length (.Length / len) and dailyTotal += transactions[i].",
         syntaxError: "Syntax error in for loop batch settlement.",
+        simple: "End-of-shift close-out: the cashier tallies all receipts one by one. The for loop traverses every transaction and accumulates the sum into dailyTotal.",
+        engineering: "Batch Processing via for Loop. for (int i = 0; i < transactions.Length; i++) — Sequential Traversal O(n). dailyTotal += transactions[i] — Accumulator Pattern. Side effect: printer buffer written.",
       },
       fintechTask5: {
         title: "Task 5: Payment Contract: Interface Polymorphism",
@@ -814,6 +854,8 @@ export const defaultResources = {
         success: "Polymorphic interface contract verified! Gateway authorized payment without concrete coupling.",
         failed: "Gateway call or !approved branching failed. Verify early return when !approved and status = \"APPROVED\".",
         syntaxError: "Syntax error in Interface contract invocation.",
+        simple: "A universal socket for any bank: the terminal doesn't know the specific bank — it just pulls the socket (gateway.Charge) and the bank handles the charge. Failure → decline.",
+        engineering: "Interface Polymorphism / Strategy Pattern. gateway.Charge(totalAmount) — via IPaymentGateway contract. Dynamic dispatch via vtable. Loose Coupling: terminal isolated from Payment Provider.",
       },
       fintechTask6: {
         title: "Task 6: Processing Registration: Dependency Injection (IoC Container)",
@@ -823,6 +865,8 @@ export const defaultResources = {
         success: "Payment provider registered in IoC container! Network badge [ NET: DANKORT ] connected and operational.",
         failed: "IoC container registration failed. Check services.AddScoped<IPaymentGateway, DankortGateway>() or container.Register(\"payment_gateway\", NewDankortGateway()).",
         syntaxError: "Syntax error in Dependency Injection configuration.",
+        simple: "Registration at the main board: instead of wiring new DankortGateway() directly, we register the gateway in the IoC Container. The terminal receives the ready-to-use service automatically.",
+        engineering: "Dependency Injection / IoC Container. services.AddScoped<IPaymentGateway, DankortGateway>() — registers interface→impl mapping. Lifetime: Scoped per request. SOLID D: depend on abstraction.",
       },
       fintechVictoryModal: {
         title: "Module 2: Fintech POS Terminal Completed!",
@@ -1077,6 +1121,16 @@ export const defaultResources = {
         task10Failed: "Kommandoregistret fejlede eller syntaksen er forkert. Kontroller PWR og CALC registrering samt registry[button].Execute().",
         task10Simple: "Et kommandoregister er som hurtigkald på en telefon: vi tildeler hver knap ('PWR', 'CALC') et specifikt apparat, og ved et tryk køres det direkte uden if/switch spørgsmål!",
         task10Career: "Command Registry / Dispatch Tables driver Web API routing (ASP.NET Core Endpoint Routing, Gin i Go), event dispatchers i spilmotorer og beskedkøer (RabbitMQ, Kafka).",
+        task1Engineering: "State Mutation via Assignment Operator (=).\\nProperty 'IsOn' — Boolean field i VirtualTV-objektets heap-hukommelse.\\nOperatoren = skriver true til RAM, ændrer 1 bit i maskinens tilstand.",
+        task2Engineering: "Conditional Branching: if/else Control Flow.\\nCPU bruger CMP/JMP-instruktioner til at vælge eksekveringsvej.\\nif (tv.IsOn) tjekker Boolean-bit; vælger gren. Single Responsibility per branch.",
+        task3Engineering: "Increment Operator (++ / +=).\\ntv.Channel++ er syntaktisk sukker for tv.Channel = tv.Channel + 1.\\nPrimitive mutation: læs → add 1 → skriv tilbage. Ingen heap-allokering.",
+        task4Engineering: "Guard Clause / Defensive Programming.\\nif (channel > 4) { channel = 1 } — prætilstandskontrol, forhindrer ugyldige tilstande.\\nPrincip: Fail Fast. In memory: nulstiller til safe initial state (1).",
+        task5Engineering: "Iteration via for Loop / O(n) Complexity.\\nfor (int i = 1; i <= 4; i++) — Iteration Control Structure.\\nCPU: sekvens af ADD/CMP/JMP. Sequential State Traversal — O(n) tidskompleksitet.",
+        task6Engineering: "Encapsulation via Function Declaration (Subroutine).\\nvoid Mute() {} — definerer en genanvendelig underprogram.\\nFunktionskald = push stack frame → eksekver → pop frame. DRY: Single source of truth.",
+        task7Engineering: "Anti-pattern: God Switch / OCP Violation.\\nswitch(button){} — procedurel afsendelse, krænker Open-Closed Principle.\\nHver ny kommando kræver ændring af eksisterende kode. Teknisk gæld vokser O(n).",
+        task8Engineering: "Interface Polymorphism / Command Pattern.\\nIRemoteCommand — abstrakt kontrakt, ikke implementering.\\ncommand.Execute() — Dynamic Dispatch via vtable. Løs kobling: TVController adskilt fra konkrete kommandoer.",
+        task9Engineering: "Inversion of Control (IoC) / DI Container.\\nservices.AddTransient<IRemoteCommand, CalcCommand>() — registrerer interface→impl mapping.\\nRuntime: Container løser afhængighed via Reflection/Factory.",
+        task10Engineering: "Command Registry / Dispatch Table (Open-Closed Principle).\\nDictionary<string, IRemoteCommand> = O(1) opslag via Hash Table.\\nregistry[button].Execute() — dynamisk afsendelse uden switch/case. OCP-kompatibelt.",
       },
       victoryModal: {
         stampBadge: "STATION GENNEMFØRT • ALLE 10 OPGAVER BESTÅET",
@@ -1175,6 +1229,8 @@ export const defaultResources = {
         success: "Transaktion beskyttet! Guard Clause blokerede uautoriseret debitering.",
         failed: "Guard Clause fejlede eller status er ikke \"DECLINED\". Kontroller if (amount > balance) og return.",
         syntaxError: "Syntaksfejl i fintech-script.",
+        simple: "En bortvisning ved kassen: vil kunden hæve mere end saldoen, stopper kassereren operationen. Koden tjekker balancen og returnerer straks (return) ved utilstrækkelige midler.",
+        engineering: "Guard Clause + Early Return. if (amount > balance) { return; } — prætilstandskontrol. Fail Fast: øjeblikkelig afvisning. FSM: status = DECLINED inden transaktionsslut.",
       },
       fintechTask2: {
         title: "Opgave 2: Gebyrberegning (State Mutation & Fee Calculation)",
@@ -1184,6 +1240,8 @@ export const defaultResources = {
         success: "Gebyr beregnet korrekt! Beløb fratrukket og transaktion godkendt.",
         failed: "Forkert gebyrberegning eller debitering. Kontroller totalAmount og balance -= totalAmount.",
         syntaxError: "Syntaksfejl i gebyrberegningsscript.",
+        simple: "En restaurantregning: et servicegebyr tillægges altid. Terminalen beregner totalAmount = amount + fee og debiterer derefter kontoen.",
+        engineering: "State Mutation + Arithmetic. totalAmount = amount + fee. balance -= totalAmount — Compound Assignment (muterer in-place). FSM: IDLE → APPROVED efter debitering.",
       },
       fintechTask3: {
         title: "Opgave 3: PIN-beskyttelse (State Locking & Guard Counter)",
@@ -1193,6 +1251,8 @@ export const defaultResources = {
         success: "Kort spærret efter 3 fejlforsøg! Tastaturet er deaktiveret.",
         failed: "Spærrelogik fejlede. Kontroller if (pin != enteredPin) og failedAttempts >= 3.",
         syntaxError: "Syntaksfejl i PIN-spærrescript.",
+        simple: "En hæveautomat blokerer kortet efter 3 forkerte PIN-koder: tæller inkrementeres og ved tærskel låses kortet (brute-force beskyttelse).",
+        engineering: "State Locking via Counter Guard. failedAttempts++ — Increment per ugyldigt forsøg. if (failedAttempts >= 3) { isLocked = true }. OWASP: Rate Limiting + Account Lockout.",
       },
       fintechTask4: {
         title: "Opgave 4: Udskriv Z-rapport (For Loop / Batch Settlement)",
@@ -1202,6 +1262,8 @@ export const defaultResources = {
         success: "Z-rapport oprettet! Termoprinteren udskrev kvittering for batchafstemning.",
         failed: "Summering fejlede i for loop. Kontroller arraygrænser (.Length / len) og dailyTotal += transactions[i].",
         syntaxError: "Syntaksfejl i for loop.",
+        simple: "Dagsafslutning: kassereren løber alle kvitteringer igennem. for-løkken gennemgår alle transaktioner og akkumulerer summen i dailyTotal.",
+        engineering: "Batch Processing via for Loop. Sequential Traversal O(n). dailyTotal += transactions[i] — Accumulator Pattern. Sideeffekt: kvitteringslinjer skrives til printerbufferen.",
       },
       fintechTask5: {
         title: "Opgave 5: Betalingskontrakt: Interface Polymorfi",
@@ -1211,6 +1273,8 @@ export const defaultResources = {
         success: "Polymorft interface verificeret! Gatewayen autoriserede betalingen uden direkte kobling.",
         failed: "Gateway-kald eller !approved forgrening fejlede. Kontroller early return ved !approved og status = \"APPROVED\".",
         syntaxError: "Syntaksfejl i kald af Interface kontrakt.",
+        simple: "En universel stikkontakt til enhver bank: terminalen kender ikke banken — den trækker stikket (gateway.Charge). Fejl → afvisning.",
+        engineering: "Interface Polymorphism / Strategy Pattern. gateway.Charge(totalAmount) via IPaymentGateway kontrakt. Dynamic dispatch via vtable. Løs kobling: terminal isoleret fra betalingsudbyder.",
       },
       fintechTask6: {
         title: "Opgave 6: Registrering af processering: Dependency Injection (IoC Container)",
@@ -1220,6 +1284,8 @@ export const defaultResources = {
         success: "Betalingsudbyder registreret i IoC-containeren! Netværk [ NET: DANKORT ] forbundet og aktivt.",
         failed: "IoC container-registrering fejlede. Kontroller services.AddScoped<IPaymentGateway, DankortGateway>() eller container.Register(\"payment_gateway\", NewDankortGateway()).",
         syntaxError: "Syntaksfejl i Dependency Injection konfiguration.",
+        simple: "Registrering i skydebrettet: i stedet for new DankortGateway() registrerer vi gateway'en i IoC Container. Terminalen modtager den færdige service.",
+        engineering: "DI / IoC Container. services.AddScoped<IPaymentGateway, DankortGateway>() — registrerer mapping. Lifetime: Scoped. SOLID D: afhængighed af abstraktion, ikke konkret klasse.",
       },
       fintechVictoryModal: {
         title: "Modul 2: Fintech POS-terminal fuldført!",

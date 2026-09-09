@@ -16,6 +16,7 @@ export const CODING_TASKS: CodingTask[] = [
     hintKey: "playground.task1Hint",
     successKey: "playground.task1Success",
     simpleExplanationKey: "playground.task1Simple",
+    engineeringKey: "playground.task1Engineering",
     careerImpactKey: "playground.task1Career",
     initialCode: {
       csharp: "// Увімкніть живлення телевізора\ntv.IsOn = true;\n",
@@ -49,6 +50,7 @@ export const CODING_TASKS: CodingTask[] = [
     hintKey: "playground.task2Hint",
     successKey: "playground.task2Success",
     simpleExplanationKey: "playground.task2Simple",
+    engineeringKey: "playground.task2Engineering",
     careerImpactKey: "playground.task2Career",
     initialCode: {
       csharp: `// Перемикач живлення через if / else
@@ -110,6 +112,7 @@ if tv.IsOn {
     hintKey: "playground.task3Hint",
     successKey: "playground.task3Success",
     simpleExplanationKey: "playground.task3Simple",
+    engineeringKey: "playground.task3Engineering",
     careerImpactKey: "playground.task3Career",
     initialCode: {
       csharp: `// Збільшіть номер поточного каналу на 1 (tv.Channel++ або tv.Channel += 1)
@@ -155,6 +158,7 @@ tv.Channel++
     hintKey: "playground.task4Hint",
     successKey: "playground.task4Success",
     simpleExplanationKey: "playground.task4Simple",
+    engineeringKey: "playground.task4Engineering",
     careerImpactKey: "playground.task4Career",
     initialCode: {
       csharp: `// Якщо номер каналу більший за 4 — скиньте його на 1
@@ -218,6 +222,7 @@ if tv.Channel > 4 {
     hintKey: "playground.task5Hint",
     successKey: "playground.task5Success",
     simpleExplanationKey: "playground.task5Simple",
+    engineeringKey: "playground.task5Engineering",
     careerImpactKey: "playground.task5Career",
     initialCode: {
       csharp: `// Цикл автопошуку по каналах від 1 до 4
@@ -271,6 +276,7 @@ for i := 1; i <= 4; i++ {
     hintKey: "playground.task6Hint",
     successKey: "playground.task6Success",
     simpleExplanationKey: "playground.task6Simple",
+    engineeringKey: "playground.task6Engineering",
     careerImpactKey: "playground.task6Career",
     initialCode: {
       csharp: `// Оголосіть функцію Mute() і викличте її
@@ -338,6 +344,7 @@ ___()`,
     hintKey: "playground.task7Hint",
     successKey: "playground.task7Success",
     simpleExplanationKey: "playground.task7Simple",
+    engineeringKey: "playground.task7Engineering",
     careerImpactKey: "playground.task7Career",
     initialCode: {
       csharp: `// Додайте обробку кнопки "CALC" у цей громіздкий switch
@@ -445,6 +452,7 @@ case "___":
     hintKey: "playground.task8Hint",
     successKey: "playground.task8Success",
     simpleExplanationKey: "playground.task8Simple",
+    engineeringKey: "playground.task8Engineering",
     careerImpactKey: "playground.task8Career",
     initialCode: {
       csharp: `// Інтерфейс як стандартна розетка: контролер просто викликає Execute()
@@ -494,6 +502,7 @@ command.___()`,
     hintKey: "playground.task9Hint",
     successKey: "playground.task9Success",
     simpleExplanationKey: "playground.task9Simple",
+    engineeringKey: "playground.task9Engineering",
     careerImpactKey: "playground.task9Career",
     initialCode: {
       csharp: `// Реєстрація розетки в DI-контейнері: зв'язуємо контракт з реалізацією
@@ -541,6 +550,7 @@ container.Register("calc", NewCalcCommand())
     hintKey: "playground.task10Hint",
     successKey: "playground.task10Success",
     simpleExplanationKey: "playground.task10Simple",
+    engineeringKey: "playground.task10Engineering",
     careerImpactKey: "playground.task10Career",
     initialCode: {
       csharp: `// Реєстр команд: заміна switch на гнучкий Dictionary

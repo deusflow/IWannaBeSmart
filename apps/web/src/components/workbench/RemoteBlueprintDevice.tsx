@@ -99,6 +99,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 <button
                   onClick={pressPower}
                   title="Живлення (Power)"
+                  data-guide="remote-pwr"
                   className="py-1.5 rounded-xl bg-accent-break hover:bg-accent-break-hover active:scale-95 text-white flex items-center justify-center gap-1 transition-all duration-100 shadow-sm border border-red-600/70 cursor-pointer outline-none"
                 >
                   <Power size={11} strokeWidth={2.5} />
@@ -197,6 +198,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 <button
                   onClick={pressVolumeDown}
                   title="Гучність -"
+                  data-guide="remote-vol-down"
                   className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
                 >
                   <ChevronDown size={11} strokeWidth={2.5} />
@@ -217,6 +219,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 <button
                   onClick={pressChannelUp}
                   title="Канал вперед"
+                  data-guide="remote-ch-up"
                   className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
                 >
                   <ChevronUp size={11} strokeWidth={2.5} />

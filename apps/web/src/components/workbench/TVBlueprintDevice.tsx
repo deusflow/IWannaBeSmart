@@ -84,6 +84,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
         >
           {/* Active Screen Surface with Phosphor Reaction to IR Beam Arrival */}
           <div
+            data-guide="tv-screen"
             className={`relative flex-1 rounded-t-lg sm:rounded-t-xl overflow-hidden transition-all duration-150 flex flex-col justify-between p-4 sm:p-6 ${
               power
                 ? screenReactionPulse
@@ -348,6 +349,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               <button
                 onClick={chassisTogglePower}
                 title="Увімкнення телевізора"
+                data-guide="tv-power-btn"
                 className={`px-2 py-0.5 rounded text-[10px] font-display font-bold flex items-center gap-1 transition-all cursor-pointer ${
                   power
                     ? "bg-accent-break/20 text-accent-break border border-accent-break/40"
@@ -382,6 +384,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               <div className="flex items-center gap-1">
                 <span className="text-[9px] text-[#858D94] font-sans">ІЧ</span>
                 <div
+                  data-guide="tv-ir-port"
                   title="TSOP38238 38kHz Photodiode Receptor"
                   className={`h-2.5 w-4 sm:w-5 rounded-xs border flex items-center justify-center transition-all duration-100 ${
                     irSignalPulse
@@ -400,6 +403,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
               <div className="flex items-center gap-1">
                 <span className="text-[9px] text-[#858D94] font-sans">Мережа</span>
                 <div
+                  data-guide="tv-power-plug"
                   className={`h-2 w-2 rounded-full border transition-all duration-300 ${
                     isPsuMcuBroken
                       ? "bg-[#1C1F24] border-[#2D3139]"

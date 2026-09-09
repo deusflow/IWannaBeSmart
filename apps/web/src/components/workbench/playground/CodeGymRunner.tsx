@@ -29,6 +29,9 @@ import {
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
+import { GuidedStepBar, type GuidedStepData } from "./GuidedStepBar";
+import { PreciseErrorPointer } from "./PreciseErrorPointer";
+import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
 
 export const CodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -71,6 +74,12 @@ export const CodeGymRunner: React.FC = () => {
   // Mastery stars for this task
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
 
+  // Guide Spotlight — pulses the targeted POS device node
+  useGuideSpotlight(currentTask.id);
+
+  // Show guided explanation bar before first round attempt
+  const [showGuide, setShowGuide] = useState<boolean>(true);
+
   // CodeMirror language extensions
   const extensions = useMemo(() => {
     return codeLang === "go" ? [go()] : [cpp()];
@@ -84,6 +93,7 @@ export const CodeGymRunner: React.FC = () => {
     setActiveRound(1);
     setShowTheory(false);
     setShowTooltip(false);
+    setShowGuide(true); // Reset guide for new task
     const nextTask = FINTECH_TASKS.find((t) => t.id === taskId);
     if (nextTask) {
       resetPosState(nextTask.initialState);
@@ -413,6 +423,23 @@ export const CodeGymRunner: React.FC = () => {
           />
         </div>
 
+        {/* ── Guided Step Bar: two-layer explanation before first round ── */}
+        {showGuide && activeRound === 1 && currentTask.simpleExplanationKey && (
+          <GuidedStepBar
+            data={{
+              simpleKey: currentTask.simpleExplanationKey,
+              engineeringKey: currentTask.engineeringKey || currentTask.simpleExplanationKey,
+            } as GuidedStepData}
+            onStartPractice={() => {
+              setShowGuide(false);
+              setTimeout(() => {
+                const cm = document.querySelector(".cm-content") as HTMLElement | null;
+                cm?.focus();
+              }, 50);
+            }}
+          />
+        )}
+
         {/* 3-Round Mode Selector Tabs */}
         <div className="grid grid-cols-3 gap-2 pt-1">
           {[
@@ -544,26 +571,35 @@ export const CodeGymRunner: React.FC = () => {
 
         {/* Footer & Controls */}
         <div className="px-4 py-3 bg-[#18191C] border-t border-[#2B2D33] flex items-center justify-between flex-wrap gap-3">
-          {/* Feedback message */}
-          <div className="flex-1 min-w-0 flex items-center gap-2">
-            {hasError && <AlertTriangle size={15} className="text-red-400 shrink-0" />}
-            {roundCompleted && <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />}
-            <span
-              className={`text-xs font-mono truncate ${
-                hasError
-                  ? "text-red-400 font-bold"
-                  : roundCompleted
-                  ? "text-emerald-300 font-bold"
-                  : "text-gray-400"
-              }`}
-            >
-              {feedback ||
-                (activeRound === 1
-                  ? t("codegym.round1Desc")
-                  : activeRound === 2
-                  ? t("codegym.round2Desc")
-                  : t("codegym.round3Desc"))}
-            </span>
+          {/* Feedback message + PreciseErrorPointer */}
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="flex items-center gap-2">
+              {hasError && <AlertTriangle size={15} className="text-red-400 shrink-0" />}
+              {roundCompleted && <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />}
+              <span
+                className={`text-xs font-mono truncate ${
+                  hasError
+                    ? "text-red-400 font-bold"
+                    : roundCompleted
+                    ? "text-emerald-300 font-bold"
+                    : "text-gray-400"
+                }`}
+              >
+                {feedback ||
+                  (activeRound === 1
+                    ? t("codegym.round1Desc")
+                    : activeRound === 2
+                    ? t("codegym.round2Desc")
+                    : t("codegym.round3Desc"))}
+              </span>
+            </div>
+            {hasError && (activeRound === 1 || activeRound === 3) && (
+              <PreciseErrorPointer
+                userInput={typedCode}
+                targetCode={targetCode}
+                hasError={hasError}
+              />
+            )}
           </div>
 
           {/* Action Buttons */}

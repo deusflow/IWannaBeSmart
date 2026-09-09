@@ -36,6 +36,8 @@ export interface CodingTask {
   hintKey: string;
   successKey: string;
   simpleExplanationKey?: string;
+  /** i18n key for engineering-precision explanation with English CS terms */
+  engineeringKey?: string;
   careerImpactKey?: string;
   initialCode: {
     csharp: string;

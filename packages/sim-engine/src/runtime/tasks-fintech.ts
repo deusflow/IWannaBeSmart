@@ -13,6 +13,10 @@ export interface FintechTask {
   descKey: string;
   hintKey: string;
   successKey: string;
+  /** i18n key for plain-language analogy explanation */
+  simpleExplanationKey?: string;
+  /** i18n key for engineering-precision explanation with English CS terms */
+  engineeringKey?: string;
   targetCode: {
     csharp: string;
     go: string;
@@ -39,6 +43,8 @@ export const FINTECH_TASKS: FintechTask[] = [
     descKey: "fintechTask1.desc",
     hintKey: "fintechTask1.hint",
     successKey: "fintechTask1.success",
+    simpleExplanationKey: "fintechTask1.simple",
+    engineeringKey: "fintechTask1.engineering",
     initialState: {
       balance: 500.0,
       transactionAmount: 750.0,
@@ -90,6 +96,8 @@ export const FINTECH_TASKS: FintechTask[] = [
     descKey: "fintechTask2.desc",
     hintKey: "fintechTask2.hint",
     successKey: "fintechTask2.success",
+    simpleExplanationKey: "fintechTask2.simple",
+    engineeringKey: "fintechTask2.engineering",
     initialState: {
       balance: 500.0,
       transactionAmount: 120.0,
@@ -150,6 +158,8 @@ status = "___"`,
     descKey: "fintechTask3.desc",
     hintKey: "fintechTask3.hint",
     successKey: "fintechTask3.success",
+    simpleExplanationKey: "fintechTask3.simple",
+    engineeringKey: "fintechTask3.engineering",
     initialState: {
       balance: 500.0,
       transactionAmount: 50.0,
@@ -232,6 +242,8 @@ status = "___"`,
     descKey: "fintechTask4.desc",
     hintKey: "fintechTask4.hint",
     successKey: "fintechTask4.success",
+    simpleExplanationKey: "fintechTask4.simple",
+    engineeringKey: "fintechTask4.engineering",
     initialState: {
       balance: 1200.0,
       transactionAmount: 0.0,
@@ -298,6 +310,8 @@ status = "___"`,
     descKey: "fintechTask5.desc",
     hintKey: "fintechTask5.hint",
     successKey: "fintechTask5.success",
+    simpleExplanationKey: "fintechTask5.simple",
+    engineeringKey: "fintechTask5.engineering",
     initialState: {
       balance: 500.0,
       transactionAmount: 150.0,
@@ -365,6 +379,8 @@ status = "___"`,
     descKey: "fintechTask6.desc",
     hintKey: "fintechTask6.hint",
     successKey: "fintechTask6.success",
+    simpleExplanationKey: "fintechTask6.simple",
+    engineeringKey: "fintechTask6.engineering",
     initialState: {
       balance: 500.0,
       transactionAmount: 200.0,
