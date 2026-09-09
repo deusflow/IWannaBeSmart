@@ -38,6 +38,9 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   role: string;
   inputs: PortDefinition[];
   outputs: PortDefinition[];
+  /** Temporary 1s flash when camera focuses an already-placed node */
+  isFlashing?: boolean;
+  /** @deprecated use isFlashing instead — kept for type compatibility */
   isHighlighted?: boolean;
 }
 
