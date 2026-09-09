@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { PROJECT_FILES, FOLDER_LABELS } from "./projectData";
 import type { ProjectFile, EntityType } from "./types";
 import {
@@ -14,6 +15,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   FolderTree,
+  Search,
+  X,
   LucideIcon,
 } from "lucide-react";
 
@@ -40,7 +43,9 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   onAddNode,
   activeFileIds,
 }) => {
+  const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({
     interfaces: true,
     commands: true,
@@ -59,31 +64,43 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
 
   const folders = Object.keys(FOLDER_LABELS) as (keyof typeof FOLDER_LABELS)[];
 
+  // Filter files by search query
+  const filteredFiles = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return PROJECT_FILES;
+    return PROJECT_FILES.filter(
+      (f) =>
+        f.name.toLowerCase().includes(q) ||
+        f.role.toLowerCase().includes(q) ||
+        f.path.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
+
   if (isCollapsed) {
     return (
-      <div className="w-10 bg-paper border-r border-paper-border flex flex-col items-center py-3 select-none shrink-0">
+      <div className="w-10 bg-paper border-r border-paper-border flex flex-col items-center py-3 select-none shrink-0 h-full">
         <button
           onClick={() => setIsCollapsed(false)}
-          title="Розгорнути дерево проекту (Project Explorer)"
+          title={t("architecture.projectTree")}
           className="p-1.5 rounded-lg hover:bg-paper-muted text-ink-muted hover:text-ink cursor-pointer border border-paper-border"
         >
           <PanelLeftOpen size={16} />
         </button>
         <div className="mt-4 [writing-mode:vertical-rl] rotate-180 text-[11px] font-display font-bold text-ink-muted tracking-wider">
-          Дерево проекту
+          {t("architecture.projectTree")}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-56 sm:w-60 bg-paper border-r border-paper-border flex flex-col select-none shrink-0 overflow-hidden">
+    <div className="w-64 sm:w-72 bg-paper border-r border-paper-border flex flex-col select-none shrink-0 overflow-hidden h-full">
       {/* Header */}
       <div className="px-3 py-2.5 border-b border-paper-border flex items-center justify-between gap-2 bg-paper-subtle">
         <div className="flex items-center gap-1.5 min-w-0">
-          <FolderTree size={14} className="text-accent-blue shrink-0" />
+          <FolderTree size={15} className="text-accent-blue shrink-0" />
           <span className="font-display font-bold text-xs text-ink truncate">
-            Дерево проекту
+            {t("architecture.projectTree")}
           </span>
         </div>
         <button
@@ -95,18 +112,43 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
         </button>
       </div>
 
+      {/* Quick Search Input */}
+      <div className="p-2 border-b border-paper-border bg-paper">
+        <div className="relative flex items-center">
+          <Search size={13} className="absolute left-2.5 text-ink-subtle pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("architecture.searchPlaceholder")}
+            className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-paper-muted text-xs font-mono text-ink placeholder:text-ink-subtle border border-paper-border focus:border-accent-blue focus:outline-none transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 text-ink-subtle hover:text-ink cursor-pointer p-0.5"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Subtitle / Drag hint */}
-      <div className="px-3 py-1.5 bg-paper-muted/50 border-b border-paper-border/60">
-        <p className="font-balsamiq text-[9.5px] text-ink-muted leading-tight">
-          Перетягніть або натисніть файл, щоб додати на дошку
+      <div className="px-3 py-1.5 bg-paper-muted/40 border-b border-paper-border/60">
+        <p className="font-balsamiq text-[10px] text-ink-muted leading-tight">
+          {t("architecture.dragHint")}
         </p>
       </div>
 
       {/* Folder Tree */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {folders.map((folderKey) => {
-          const isOpen = openFolders[folderKey];
-          const filesInFolder = PROJECT_FILES.filter((f) => f.folder === folderKey);
+          const filesInFolder = filteredFiles.filter((f) => f.folder === folderKey);
+          if (searchQuery && filesInFolder.length === 0) return null;
+
+          // If searching, force folder open
+          const isOpen = searchQuery ? true : openFolders[folderKey];
 
           return (
             <div key={folderKey} className="space-y-0.5">
@@ -133,7 +175,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
 
               {/* Folder Content */}
               {isOpen && (
-                <div className="pl-4 space-y-0.5 border-l border-paper-border/70 ml-2.5">
+                <div className="pl-3.5 space-y-0.5 border-l border-paper-border/70 ml-2.5">
                   {filesInFolder.map((file) => {
                     const Icon = ICON_MAP[file.entityType] || Box;
                     const colorClass = COLOR_MAP[file.entityType];
@@ -145,31 +187,37 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
                         draggable
                         onDragStart={(e) => handleDragStart(e, file)}
                         onClick={() => onAddNode(file.id)}
-                        title={`${file.name}\n${file.role}\n(Перетягніть на дошку або клікніть)`}
-                        className={`group px-2 py-1 rounded-md flex items-center justify-between gap-1.5 transition-all duration-150 cursor-grab active:cursor-grabbing border ${
+                        title={`${file.name}\n${file.role}\n(${t("architecture.dragHint")})`}
+                        className={`group px-2 py-1.5 rounded-lg flex items-center justify-between gap-1.5 transition-all duration-150 cursor-grab active:cursor-grabbing border ${
                           isOnBoard
-                            ? "bg-paper-subtle border-accent-blue/30 text-ink"
+                            ? "bg-paper-subtle border-accent-blue/30 text-ink shadow-xs"
                             : "bg-paper hover:bg-paper-muted border-transparent hover:border-paper-border text-ink-muted hover:text-ink"
                         }`}
                       >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <div
-                            className={`p-1 rounded shrink-0 ${colorClass}`}
-                          >
-                            <Icon size={11} />
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className={`p-1 rounded shrink-0 ${colorClass}`}>
+                            <Icon size={12} />
                           </div>
-                          <span className="font-mono text-[11px] truncate">
-                            {file.name}
-                          </span>
+                          <div className="min-w-0">
+                            <span className="font-mono text-[11.5px] font-medium block truncate leading-tight">
+                              {file.name}
+                            </span>
+                            <span className="font-balsamiq text-[9.5px] text-ink-subtle block truncate">
+                              {file.role}
+                            </span>
+                          </div>
                         </div>
 
-                        <div className="shrink-0 flex items-center">
+                        <div className="shrink-0 flex items-center pl-1">
                           {isOnBoard ? (
-                            <span className="h-1.5 w-1.5 rounded-full bg-accent-blue" title="Розміщено на дошці" />
+                            <span
+                              className="h-2 w-2 rounded-full bg-accent-blue shadow-xs"
+                              title="Розміщено на дошці"
+                            />
                           ) : (
                             <Plus
-                              size={12}
-                              className="opacity-0 group-hover:opacity-100 text-ink-subtle transition-opacity"
+                              size={13}
+                              className="opacity-0 group-hover:opacity-100 text-accent-blue transition-opacity"
                             />
                           )}
                         </div>
@@ -181,6 +229,12 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
             </div>
           );
         })}
+
+        {filteredFiles.length === 0 && (
+          <div className="p-4 text-center text-xs font-balsamiq text-ink-subtle">
+            Файлів не знайдено
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import type { StationLevel } from "@iw/sim-engine";
 import { Badge, Tabs, type TabItem } from "@iw/ui";
 import { SyntaxCodeBlock } from "./SyntaxCodeBlock";
 import { CircuitCanvas } from "./circuit/CircuitCanvas";
-import { ArchitectureCanvas } from "./architecture/ArchitectureCanvas";
 import {
   X,
   Code2,
@@ -13,6 +13,7 @@ import {
   PinOff,
   Minimize2,
   ExternalLink,
+  Maximize2,
 } from "lucide-react";
 
 interface EngineeringDrawerProps {
@@ -22,6 +23,7 @@ interface EngineeringDrawerProps {
   onClose: () => void;
   level: StationLevel;
   inline?: boolean;
+  onOpenArchitectureStudio?: () => void;
 }
 
 const DRAWER_TABS: TabItem[] = [
@@ -37,7 +39,9 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
   onClose,
   level,
   inline = false,
+  onOpenArchitectureStudio,
 }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("code");
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
 
@@ -202,10 +206,33 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           </div>
         )}
 
-        {/* TAB 3: ARCHITECTURE (Visual Blueprint Editor) */}
+        {/* TAB 3: ARCHITECTURE */}
         {activeTab === "architecture" && (
           <div className="space-y-4">
-            <ArchitectureCanvas />
+            {/* Fullscreen Studio Launcher Hero Card */}
+            <div className="p-4 rounded-2xl bg-paper border border-accent-blue/40 shadow-paper-sm space-y-3">
+              <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">
+                <div className="h-7 w-7 rounded-lg bg-accent-blue-light text-accent-blue flex items-center justify-center">
+                  <Maximize2 size={16} strokeWidth={2} />
+                </div>
+                <span>Architecture Studio</span>
+              </div>
+
+              <p className="text-xs text-ink-muted leading-relaxed font-sans">
+                {t("architecture.fullscreenCardDesc")}
+              </p>
+
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenArchitectureStudio?.();
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-balsamiq font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Maximize2 size={14} />
+                <span>{t("architecture.openFullscreen")}</span>
+              </button>
+            </div>
 
             <div className="p-4 rounded-xl bg-paper-subtle border border-paper-border space-y-2.5">
               <div className="flex items-center gap-2 text-ink font-display text-sm font-bold">

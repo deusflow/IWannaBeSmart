@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -28,7 +29,12 @@ import {
   RotateCcw,
   Cable,
   Maximize2,
+  ArrowLeft,
 } from "lucide-react";
+
+interface ArchitectureCanvasProps {
+  onBackToTv?: () => void;
+}
 
 const nodeTypes = {
   architectureNode: ArchitectureNode,
@@ -47,7 +53,7 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-class-power-command",
       type: "architectureNode",
-      position: { x: 40, y: 70 },
+      position: { x: 50, y: 120 },
       data: {
         fileId: powerCommand.id,
         name: powerCommand.name,
@@ -62,7 +68,7 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-class-tv-controller",
       type: "architectureNode",
-      position: { x: 380, y: 50 },
+      position: { x: 440, y: 90 },
       data: {
         fileId: tvController.id,
         name: tvController.name,
@@ -77,7 +83,8 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
   ];
 };
 
-const InnerArchitectureCanvas: React.FC = () => {
+const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv }) => {
+  const { t } = useTranslation();
   const { setArchitecturePowerWired } = useWorkbenchStore();
   const { screenToFlowPosition, fitView } = useReactFlow();
 
@@ -160,8 +167,8 @@ const InnerArchitectureCanvas: React.FC = () => {
 
       // Default cascade position if no drag coordinates
       const targetPos = position || {
-        x: 60 + (nodes.length % 5) * 40,
-        y: 80 + (nodes.length % 4) * 50,
+        x: 80 + (nodes.length % 5) * 50,
+        y: 100 + (nodes.length % 4) * 60,
       };
 
       const newNode: Node<ArchitectureNodeData> = {
@@ -209,8 +216,8 @@ const InnerArchitectureCanvas: React.FC = () => {
   // Quick Action: Auto-Wire Level 1
   const handleAutoWire = useCallback(() => {
     // Ensure both PowerCommand and TVController are on the board
-    addNodeByFileId("class-power-command", { x: 40, y: 70 });
-    addNodeByFileId("class-tv-controller", { x: 380, y: 50 });
+    addNodeByFileId("class-power-command", { x: 50, y: 120 });
+    addNodeByFileId("class-tv-controller", { x: 440, y: 90 });
 
     const wireId = "arch-edge-power-command-execute-controller";
     const autoEdge: Edge<ArchitectureEdgeData> = {
@@ -243,25 +250,37 @@ const InnerArchitectureCanvas: React.FC = () => {
     setNodes(createInitialNodes());
     setEdges([]);
     setTimeout(() => {
-      fitView({ padding: 0.15, duration: 400 });
+      fitView({ padding: 0.2, duration: 400 });
     }, 50);
   }, [fitView, setEdges, setNodes]);
 
   return (
-    <div className="flex flex-col w-full rounded-2xl overflow-hidden border border-paper-border bg-paper-subtle shadow-paper-sm">
+    <div className="flex flex-col w-full h-full overflow-hidden bg-paper-subtle">
       {/* Top Mission Callout Bar (Level 1: Wiring the Power Command) */}
       <div
-        className={`px-3.5 py-2.5 border-b transition-colors duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 select-none ${
+        className={`px-4 py-2.5 border-b transition-colors duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none shrink-0 ${
           isPowerWired
-            ? "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60"
-            : "bg-amber-50/80 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/60"
+            ? "bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60"
+            : "bg-amber-50/90 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/60"
         }`}
       >
-        <div className="flex items-start sm:items-center gap-2 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Back to TV Navigation Button */}
+          {onBackToTv && (
+            <button
+              onClick={onBackToTv}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/50 text-ink font-balsamiq font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0"
+              title={t("workbench.backToTv")}
+            >
+              <ArrowLeft size={14} className="text-accent-blue" />
+              <span>{t("workbench.backToTv")}</span>
+            </button>
+          )}
+
           <div
-            className={`p-1.5 rounded-lg shrink-0 ${
+            className={`p-1.5 rounded-xl shrink-0 ${
               isPowerWired
-                ? "bg-emerald-500 text-white"
+                ? "bg-emerald-500 text-white shadow-xs"
                 : "bg-amber-500 text-white animate-pulse"
             }`}
           >
@@ -270,64 +289,66 @@ const InnerArchitectureCanvas: React.FC = () => {
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-display font-bold text-xs text-ink">
-                Рівень 1: Архітектурне підключення команди Power
+              <span className="font-display font-bold text-xs sm:text-sm text-ink">
+                {t("architecture.level1Title")}
               </span>
               <Badge
                 variant={isPowerWired ? "ok" : "accent"}
                 size="sm"
                 className="font-balsamiq text-[10px]"
               >
-                {isPowerWired ? "✓ Зв'язок активний" : "Очікує з'єднання"}
+                {isPowerWired
+                  ? t("architecture.connectionActive")
+                  : t("architecture.waitingConnection")}
               </Badge>
             </div>
-            <p className="font-balsamiq text-[10.5px] text-ink-muted leading-tight">
+            <p className="font-balsamiq text-[10.5px] sm:text-xs text-ink-muted leading-tight">
               {isPowerWired
-                ? "Контракт виконано! Метод Execute класу PowerCommand зв'язано з TVController. Кнопка Power на пульті активна."
-                : "З'єднайте вихідний порт Execute класу PowerCommand із вхідним портом CommandHandler контролера TVController."}
+                ? t("architecture.missionSuccess")
+                : t("architecture.missionInstructions")}
             </p>
           </div>
         </div>
 
         {/* Toolbar Controls */}
-        <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
           <button
             onClick={handleAutoWire}
             title="Автоматично підключити провід Execute -> CommandHandler"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue text-ink text-xs font-balsamiq font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue text-ink text-xs font-balsamiq font-bold transition-all cursor-pointer shadow-paper-sm active:scale-95"
           >
-            <Sparkles size={12} className="text-accent-blue" />
-            <span>Авто-з&apos;єднання</span>
+            <Sparkles size={13} className="text-accent-blue" />
+            <span>{t("architecture.autoWire")}</span>
           </button>
 
           <button
             onClick={handleReset}
             title="Скинути полотно до початкового стану"
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-paper hover:bg-paper-muted border border-paper-border text-ink-muted hover:text-ink text-xs font-balsamiq font-bold transition-all cursor-pointer shadow-xs"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border text-ink-muted hover:text-ink text-xs font-balsamiq font-bold transition-all cursor-pointer shadow-paper-sm"
           >
-            <RotateCcw size={12} />
-            <span>Скинути</span>
+            <RotateCcw size={13} />
+            <span>{t("architecture.reset")}</span>
           </button>
 
           <button
-            onClick={() => fitView({ padding: 0.15, duration: 400 })}
-            title="Центрувати схему"
-            className="p-1 rounded-lg bg-paper hover:bg-paper-muted border border-paper-border text-ink-muted hover:text-ink cursor-pointer"
+            onClick={() => fitView({ padding: 0.2, duration: 400 })}
+            title={t("architecture.centerView")}
+            className="p-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border text-ink-muted hover:text-ink cursor-pointer shadow-paper-sm"
           >
-            <Maximize2 size={13} />
+            <Maximize2 size={14} />
           </button>
         </div>
       </div>
 
-      {/* Editor Body: Left Project Explorer + Right ReactFlow Canvas */}
-      <div className="flex w-full h-[480px] relative bg-paper-subtle">
-        {/* Project Explorer Tree */}
+      {/* Editor Fullscreen Body: Left Project Explorer (Full height) + Right ReactFlow Canvas */}
+      <div className="flex-1 flex w-full h-full relative overflow-hidden bg-paper-subtle">
+        {/* Full-Height Project Explorer Tree */}
         <ProjectExplorer
           onAddNode={addNodeByFileId}
           activeFileIds={activeFileIds}
         />
 
-        {/* ReactFlow Visual Canvas */}
+        {/* Full-Screen ReactFlow Visual Canvas */}
         <div
           className="flex-1 h-full relative"
           onDragOver={onDragOver}
@@ -342,16 +363,16 @@ const InnerArchitectureCanvas: React.FC = () => {
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             fitView
-            fitViewOptions={{ padding: 0.15 }}
-            minZoom={0.35}
-            maxZoom={1.6}
+            fitViewOptions={{ padding: 0.2 }}
+            minZoom={0.3}
+            maxZoom={1.8}
             proOptions={{ hideAttribution: true }}
             className="bg-notebook-grid w-full h-full"
           >
-            <Background color="rgba(29, 32, 35, 0.08)" gap={16} size={1} />
+            <Background color="rgba(29, 32, 35, 0.08)" gap={18} size={1} />
             <Controls
               showInteractive={false}
-              className="!bg-paper !border-paper-border !rounded-lg !shadow-paper-sm [&>button]:!bg-paper [&>button]:!border-paper-border [&>button]:!text-ink-muted hover:[&>button]:!text-ink"
+              className="!bg-paper !border-paper-border !rounded-xl !shadow-paper-md [&>button]:!bg-paper [&>button]:!border-paper-border [&>button]:!text-ink-muted hover:[&>button]:!text-ink"
             />
           </ReactFlow>
         </div>
@@ -360,10 +381,10 @@ const InnerArchitectureCanvas: React.FC = () => {
   );
 };
 
-export const ArchitectureCanvas: React.FC = () => {
+export const ArchitectureCanvas: React.FC<ArchitectureCanvasProps> = (props) => {
   return (
     <ReactFlowProvider>
-      <InnerArchitectureCanvas />
+      <InnerArchitectureCanvas {...props} />
     </ReactFlowProvider>
   );
 };

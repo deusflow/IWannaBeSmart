@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   BaseEdge,
   getBezierPath,
@@ -23,6 +24,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
   data,
   markerEnd,
 }) => {
+  const { t } = useTranslation();
   const edgeData = (data as unknown as ArchitectureEdgeData) || {};
   const isPowerWire = !!edgeData.isValidPowerWire;
 
@@ -91,16 +93,16 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
                 <div className="h-3.5 w-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
                   <Check size={10} strokeWidth={3} />
                 </div>
-                <span>Активний зв&apos;язок</span>
+                <span>{t("architecture.activeWire")}</span>
               </>
             ) : (
-              <span>З&apos;єднання</span>
+              <span>{t("architecture.connection")}</span>
             )}
 
             {/* Disconnect Wire button */}
             <button
               onClick={handleDelete}
-              title="Від'єднати провід"
+              title={t("architecture.disconnect")}
               className="p-0.5 rounded-full hover:bg-red-100 dark:hover:bg-red-950/80 text-ink-subtle hover:text-red-600 transition-colors cursor-pointer"
             >
               <X size={10} strokeWidth={2.5} />

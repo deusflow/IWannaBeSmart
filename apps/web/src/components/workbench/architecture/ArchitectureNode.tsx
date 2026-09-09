@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import type { ArchitectureNodeData, EntityType } from "./types";
 import { FileCode, Box, Cpu, Zap, LucideIcon } from "lucide-react";
@@ -51,6 +52,7 @@ const COLOR_MAP: Record<
 };
 
 export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
+  const { t } = useTranslation();
   const nodeData = data as unknown as ArchitectureNodeData;
   const Icon = ICON_MAP[nodeData.entityType] || Box;
   const theme = COLOR_MAP[nodeData.entityType] || COLOR_MAP.class;
@@ -102,7 +104,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
           {/* Left Column: Inputs (DI Dependencies) */}
           <div className="space-y-2">
             <div className="text-[9px] font-balsamiq font-bold uppercase tracking-wider text-ink-subtle">
-              Входи (DI)
+              {t("architecture.inputsDI")}
             </div>
             {hasInputs ? (
               nodeData.inputs.map((inp) => (
@@ -128,7 +130,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
               ))
             ) : (
               <span className="text-[9px] font-balsamiq text-ink-subtle/70 italic">
-                Немає входів
+                {t("architecture.noInputs")}
               </span>
             )}
           </div>
@@ -136,7 +138,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ data, selected }) => {
           {/* Right Column: Outputs (Methods / Events) */}
           <div className="space-y-2 text-right">
             <div className="text-[9px] font-balsamiq font-bold uppercase tracking-wider text-ink-subtle">
-              Методи / Події
+              {t("architecture.methodsOutputs")}
             </div>
             {hasOutputs ? (
               nodeData.outputs.map((out) => (
