@@ -60,7 +60,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-[#1A1D20]/40 shrink-0" />
           <span className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#1A1D20]/60">
-            Architect's Guide
+            {t("guide.title", "Architect's Guide")}
           </span>
         </div>
 
@@ -75,7 +75,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             }`}
           >
             <Lightbulb size={11} />
-            <span>Простими словами</span>
+            <span>{t("guide.simpleTab", "Simple words")}</span>
           </button>
           <button
             onClick={() => setActiveLayer("engineering")}
@@ -86,7 +86,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             }`}
           >
             <Cpu size={11} />
-            <span>Інженерна суть</span>
+            <span>{t("guide.engineeringTab", "Engineering essence")}</span>
           </button>
         </div>
 
@@ -94,7 +94,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           <button
             onClick={() => setDismissed(true)}
             className="w-6 h-6 rounded-md flex items-center justify-center text-[#1A1D20]/40 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors cursor-pointer"
-            title="Сховати пояснення"
+            title={t("guide.hide", "Hide explanation")}
           >
             <X size={13} />
           </button>
@@ -108,7 +108,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <div className="inline-flex items-center gap-1.5 mb-2 px-2 py-0.5 rounded-md bg-[#1A1D20]/8 border border-[#1A1D20]/15">
               <Lightbulb size={11} className="text-[#1A1D20]/60" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1A1D20]/60">
-                [ 💡 Простими словами ]
+                {`[ 💡 ${t("guide.simpleLabel", "Simple words")} ]`}
               </span>
             </div>
             <p className="font-balsamiq text-sm text-[#1A1D20] leading-relaxed">
@@ -120,7 +120,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <div className="inline-flex items-center gap-1.5 mb-2 px-2 py-0.5 rounded-md bg-[#1A1D20]/8 border border-[#1A1D20]/15">
               <Cpu size={11} className="text-[#1A1D20]/60" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1A1D20]/60">
-                [ ⚙️ Інженерна суть ]
+                {`[ ⚙️ ${t("guide.engineeringLabel", "Engineering essence")} ]`}
               </span>
             </div>
             <p className="font-mono text-xs text-[#1A1D20] leading-relaxed whitespace-pre-wrap">
@@ -136,8 +136,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           <ChevronRight size={10} />
           <span>
             {activeLayer === "simple"
-              ? "Натисни «Інженерна суть» для технічного визначення"
-              : "Натисни «Простими словами» для побутового порівняння"}
+              ? t("guide.simpleHint", "Tap ‘Engineering essence’ for the technical definition")
+              : t("guide.engineeringHint", "Tap ‘Simple words’ for a plain-language comparison")}
           </span>
         </div>
 
@@ -147,7 +147,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1A1D20] text-[#EBE5D8] font-mono font-bold text-xs hover:bg-[#2A2D35] active:scale-95 transition-all cursor-pointer shadow-sm"
         >
           <PenLine size={13} />
-          <span>✍️ До практики / Почати ввід</span>
+          <span>{t("guide.startPractice", "✍️ Start practice / Begin typing")}</span>
         </button>
       </div>
     </div>

@@ -69,20 +69,30 @@ export const CodeGymRunner: React.FC = () => {
   // Dynamic gutter width for ghost overlay alignment
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const [gutterWidth, setGutterWidth] = useState<number>(40);
+  const updateGutterWidth = useCallback(() => {
+    const node = editorContainerRef.current;
+    if (!node) return;
+    const gutterEl = node.querySelector(".cm-gutters") as HTMLElement | null;
+    setGutterWidth(gutterEl ? gutterEl.getBoundingClientRect().width : 40);
+  }, []);
   const editorContainerCallbackRef = useCallback((node: HTMLDivElement | null) => {
     editorContainerRef.current = node;
     if (node) {
-      const gutterEl = node.querySelector(".cm-gutters") as HTMLElement | null;
-      if (gutterEl) {
-        setGutterWidth(gutterEl.offsetWidth);
-      }
+      updateGutterWidth();
+      const resizeObserver = new ResizeObserver(() => updateGutterWidth());
+      resizeObserver.observe(node);
+      return () => resizeObserver.disconnect();
     }
-  }, []);
+  }, [updateGutterWidth]);
 
   // Sprint Timer (Round 3)
-  const SPRINT_SECONDS = currentTask.sprintTimeLimit ?? 30;
-  const [timeLeft, setTimeLeft] = useState<number>(SPRINT_SECONDS);
+  const sprintTimeLimit = Math.max(25, Math.ceil(targetCode.length / 3.2));
+  const [timeLeft, setTimeLeft] = useState<number>(sprintTimeLimit);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+
+  useEffect(() => {
+    updateGutterWidth();
+  }, [activeRound, codeLang, targetCode, updateGutterWidth]);
 
   // Mastery stars for this task
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
@@ -119,7 +129,7 @@ export const CodeGymRunner: React.FC = () => {
     setFeedback(null);
     setHasError(false);
     setIsTimerRunning(false);
-    setTimeLeft(SPRINT_SECONDS);
+    setTimeLeft(sprintTimeLimit);
 
     if (activeRound === 1) {
       setTypedCode("");
@@ -226,7 +236,7 @@ export const CodeGymRunner: React.FC = () => {
   }, [activeRound, isTimerRunning, timeLeft, t]);
 
   const handleStartSprint = () => {
-    setTimeLeft(SPRINT_SECONDS);
+    setTimeLeft(sprintTimeLimit);
     setIsTimerRunning(true);
     setHasError(false);
     setFeedback(null);
@@ -556,8 +566,16 @@ export const CodeGymRunner: React.FC = () => {
           {/* Round 1 (Trace): Blueprint Ghost Guide Overlay — gutter-aligned */}
           {activeRound === 1 && (
             <div
-              className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none p-3 pt-2 leading-[1.4] whitespace-pre text-gray-600 opacity-60"
-              style={{ paddingLeft: `${gutterWidth + 6}px` }}
+              className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none whitespace-pre text-gray-600 opacity-60"
+              style={{
+                paddingLeft: `${gutterWidth + 6}px`,
+                paddingTop: "8px",
+                paddingRight: "12px",
+                paddingBottom: "8px",
+                fontFamily: "inherit",
+                fontSize: "inherit",
+                lineHeight: "1.4",
+              }}
             >
               {targetCode}
             </div>
@@ -638,7 +656,7 @@ export const CodeGymRunner: React.FC = () => {
                     className="px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
                   >
                     <Play size={13} />
-                    <span>Почати спринт (15с)</span>
+                    <span>{`Почати спринт (${sprintTimeLimit}с)`}</span>
                   </button>
                 )}
 
@@ -684,7 +702,7 @@ export const CodeGymRunner: React.FC = () => {
                 setFeedback(null);
                 setRoundCompleted(false);
                 setIsTimerRunning(false);
-                setTimeLeft(SPRINT_SECONDS);
+                setTimeLeft(sprintTimeLimit);
               }}
               title="Reset Round"
               className="p-1.5 rounded-xl bg-[#23252B] hover:bg-[#2F323A] text-gray-400 hover:text-white transition-colors cursor-pointer border border-[#343842]"

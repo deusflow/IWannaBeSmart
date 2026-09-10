@@ -8,6 +8,7 @@
  */
 
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle } from "lucide-react";
 
 interface TokenError {
@@ -30,7 +31,11 @@ interface PreciseErrorPointerProps {
 
 // ── Token-level detectors ─────────────────────────────────────────────────────
 
-function detectTokenError(input: string, target: string): TokenError | null {
+function detectTokenError(
+  input: string,
+  target: string,
+  t: ReturnType<typeof useTranslation>["t"]
+): TokenError | null {
   // Find first mismatch position
   let mismatchAt = -1;
   const minLen = Math.min(input.length, target.length);
@@ -43,73 +48,71 @@ function detectTokenError(input: string, target: string): TokenError | null {
   const expectedChar = target[mismatchAt];
   const gotChar = input[mismatchAt];
 
-  // ── Rule 1: Semicolon missing / replaced ──
   if (expectedChar === ";") {
     return {
       token: "';'",
-      description: "Очікується крапка з комою ';' для завершення інструкції",
+      description: t("errorPointer.semicolonExpected"),
       term: "Statement Terminator",
     };
   }
 
-  // ── Rule 2: Case mismatch (same letter, different case) ──
   if (expectedChar.toLowerCase() === gotChar?.toLowerCase() && expectedChar !== gotChar) {
     return {
       token: `'${expectedChar}'`,
-      description: `Регістр символу невірний: очікується '${expectedChar}', отримано '${gotChar}'`,
+      description: t("errorPointer.caseMismatch", {
+        expected: expectedChar,
+        actual: gotChar ?? "∅",
+      }),
       term: "Case Sensitivity",
     };
   }
 
-  // ── Rule 3: Missing opening parenthesis ──
   if (expectedChar === "(") {
     return {
       token: "'('",
-      description: "Очікується відкриваюча дужка '(' для виклику методу або умови",
+      description: t("errorPointer.openParen"),
       term: "Opening Parenthesis",
     };
   }
 
-  // ── Rule 4: Missing closing parenthesis ──
   if (expectedChar === ")") {
     return {
       token: "')'",
-      description: "Очікується закриваюча дужка ')' для завершення виразу",
+      description: t("errorPointer.closeParen"),
       term: "Closing Parenthesis",
     };
   }
 
-  // ── Rule 5: Missing opening brace ──
   if (expectedChar === "{") {
     return {
       token: "'{'",
-      description: "Очікується відкриваюча фігурна дужка '{' для початку блоку",
+      description: t("errorPointer.openBrace"),
       term: "Opening Block Brace",
     };
   }
 
-  // ── Rule 6: Assignment vs comparison ──
   if (expectedChar === "=" && gotChar === "=") {
     return {
       token: "'='",
-      description: "Очікується оператор присвоєння '=', а не порівняння '=='",
+      description: t("errorPointer.assignmentVsComparison"),
       term: "Assignment Operator",
     };
   }
 
-  // ── Rule 7: Dot accessor missing ──
   if (expectedChar === "." && gotChar !== ".") {
     return {
       token: "'.'",
-      description: "Очікується оператор доступу до члену '.' (dot accessor)",
+      description: t("errorPointer.memberAccess"),
       term: "Member Access Operator",
     };
   }
 
-  // ── Rule 8: Generic wrong character ──
   return {
     token: `'${expectedChar}'`,
-    description: `Символ не відповідає трафарету: очікується '${expectedChar}', отримано '${gotChar ?? "∅"}'`,
+    description: t("errorPointer.syntaxMismatch", {
+      expected: expectedChar,
+      actual: gotChar ?? "∅",
+    }),
     term: "Syntax Mismatch",
   };
 }
@@ -121,10 +124,11 @@ export const PreciseErrorPointer: React.FC<PreciseErrorPointerProps> = ({
   targetCode,
   hasError,
 }) => {
+  const { t } = useTranslation();
   const error = useMemo(() => {
     if (!hasError || !userInput) return null;
-    return detectTokenError(userInput, targetCode);
-  }, [hasError, userInput, targetCode]);
+    return detectTokenError(userInput, targetCode, t);
+  }, [hasError, userInput, targetCode, t]);
 
   if (!error) return null;
 

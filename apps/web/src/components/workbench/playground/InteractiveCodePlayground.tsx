@@ -3,7 +3,7 @@
  * @description 3-Star Code Gym muscle memory engine for Virtual TV: Trace -> Cloze -> Sprint
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import CodeMirror from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -62,7 +62,7 @@ export const InteractiveCodePlayground: React.FC = () => {
   // Target code for current language & task
   const targetCode = currentTask.targetCode[codeLang];
   const clozeTemplate = currentTask.clozeTemplate[codeLang];
-  const sprintLimit = currentTask.sprintTimeLimit || 15;
+  const sprintLimit = Math.max(25, Math.ceil(targetCode.length / 3.2));
 
   // Editor content per round
   const [typedCode, setTypedCode] = useState<string>("");
@@ -84,6 +84,21 @@ export const InteractiveCodePlayground: React.FC = () => {
 
   // Show guided explanation bar before first round attempt
   const [showGuide, setShowGuide] = useState<boolean>(true);
+  const editorContainerRef = useRef<HTMLDivElement | null>(null);
+  const [gutterWidth, setGutterWidth] = useState<number>(40);
+  const updateGutterWidth = useCallback(() => {
+    const node = editorContainerRef.current;
+    if (!node) return;
+    const gutterEl = node.querySelector(".cm-gutters") as HTMLElement | null;
+    setGutterWidth(gutterEl ? gutterEl.getBoundingClientRect().width : 40);
+  }, []);
+  useEffect(() => {
+    updateGutterWidth();
+    if (!editorContainerRef.current) return;
+    const resizeObserver = new ResizeObserver(() => updateGutterWidth());
+    resizeObserver.observe(editorContainerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [activeRound, codeLang, targetCode, updateGutterWidth]);
 
   // CodeMirror language extensions
   const extensions = useMemo(() => {
@@ -664,10 +679,21 @@ export const InteractiveCodePlayground: React.FC = () => {
         </div>
 
         {/* Interactive Editor Surface */}
-        <div className="relative font-mono text-xs">
+        <div className="relative font-mono text-xs" ref={editorContainerRef}>
           {/* Round 1 (Trace): Blueprint Ghost Guide Overlay */}
           {activeRound === 1 && (
-            <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none p-3 pt-2 pl-[46px] leading-[1.4] whitespace-pre text-gray-600 opacity-60">
+            <div
+              className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none whitespace-pre text-gray-600 opacity-60"
+              style={{
+                paddingLeft: `${gutterWidth + 6}px`,
+                paddingTop: "8px",
+                paddingRight: "12px",
+                paddingBottom: "8px",
+                fontFamily: "inherit",
+                fontSize: "inherit",
+                lineHeight: "1.4",
+              }}
+            >
               {targetCode}
             </div>
           )}

@@ -49,6 +49,7 @@ export const WorkshopHubScreen: React.FC = () => {
 
   // Total stars across platform (TV 30 ★ + POS 18 ★ = 48 ★)
   const totalStars = totalTvStars + totalPosStars;
+  const maxPlatformStars = CODING_TASKS.length * 3 + FINTECH_TASKS.length * 3;
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (isTvCompleted && isPosEligibleForCert);
@@ -138,7 +139,7 @@ export const WorkshopHubScreen: React.FC = () => {
                 {t("hub.totalStars", "Зірки майстерності")}
               </div>
               <div className="font-display font-extrabold text-sm text-[#1A1D20]">
-                {totalStars} / {CODING_TASKS.length * 3 + FINTECH_TASKS.length * 3}
+                {totalStars} / {maxPlatformStars}
               </div>
             </div>
           </div>

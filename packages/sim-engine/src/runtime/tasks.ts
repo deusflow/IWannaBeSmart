@@ -92,7 +92,7 @@ if tv.IsOn {
     tv.IsOn = ___
 }`,
     },
-    sprintTimeLimit: 25,
+    sprintTimeLimit: 30,
     validate: (before, after, result) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -130,7 +130,7 @@ tv.Channel++
       csharp: "tv.___++;",
       go: "tv.___++",
     },
-    sprintTimeLimit: 30,
+    sprintTimeLimit: 20,
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -188,7 +188,7 @@ if tv.Channel > 4 {
     tv.Channel = ___
 }`,
     },
-    sprintTimeLimit: 30,
+    sprintTimeLimit: 25,
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -252,7 +252,7 @@ for i := 1; i <= 4; i++ {
     tv.Channel = ___
 }`,
     },
-    sprintTimeLimit: 35,
+    sprintTimeLimit: 25,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -318,7 +318,7 @@ ___();`,
 
 ___()`,
     },
-    sprintTimeLimit: 35,
+    sprintTimeLimit: 25,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -428,7 +428,7 @@ case "___":
     tv.SetMode("___")
 }`,
     },
-    sprintTimeLimit: 25,
+    sprintTimeLimit: 40,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -478,7 +478,7 @@ command.___();`,
       go: `command := ___
 command.___()`,
     },
-    sprintTimeLimit: 35,
+    sprintTimeLimit: 30,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -520,7 +520,7 @@ container.Register("calc", NewCalcCommand())
       csharp: "services.AddTransient<___, ___>();",
       go: 'container.Register("___", ___())',
     },
-    sprintTimeLimit: 35,
+    sprintTimeLimit: 25,
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -590,7 +590,7 @@ registry := make(map[string]___)
 registry["CALC"] = ___
 registry[___].Execute()`,
     },
-    sprintTimeLimit: 35,
+    sprintTimeLimit: 45,
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
