@@ -138,7 +138,7 @@ export const WorkshopHubScreen: React.FC = () => {
                 {t("hub.totalStars", "Зірки майстерності")}
               </div>
               <div className="font-display font-extrabold text-sm text-[#1A1D20]">
-                {totalStars} / 18
+                {totalStars} / {CODING_TASKS.length * 3 + FINTECH_TASKS.length * 3}
               </div>
             </div>
           </div>

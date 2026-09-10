@@ -3,7 +3,7 @@
  * @description 3-Star Code Gym muscle memory engine: Trace -> Cloze -> Sprint for POS Tasks 1..4
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import CodeMirror from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -66,8 +66,21 @@ export const CodeGymRunner: React.FC = () => {
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const [showTheory, setShowTheory] = useState<boolean>(false);
 
+  // Dynamic gutter width for ghost overlay alignment
+  const editorContainerRef = useRef<HTMLDivElement | null>(null);
+  const [gutterWidth, setGutterWidth] = useState<number>(40);
+  const editorContainerCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    editorContainerRef.current = node;
+    if (node) {
+      const gutterEl = node.querySelector(".cm-gutters") as HTMLElement | null;
+      if (gutterEl) {
+        setGutterWidth(gutterEl.offsetWidth);
+      }
+    }
+  }, []);
+
   // Sprint Timer (Round 3)
-  const SPRINT_SECONDS = 15;
+  const SPRINT_SECONDS = currentTask.sprintTimeLimit ?? 30;
   const [timeLeft, setTimeLeft] = useState<number>(SPRINT_SECONDS);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
@@ -539,10 +552,13 @@ export const CodeGymRunner: React.FC = () => {
         </div>
 
         {/* Interactive Editor Surface */}
-        <div className="relative font-mono text-xs">
-          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay */}
+        <div className="relative font-mono text-xs" ref={editorContainerCallbackRef}>
+          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay — gutter-aligned */}
           {activeRound === 1 && (
-            <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none p-3 pt-2 pl-[46px] leading-[1.4] whitespace-pre text-gray-600 opacity-60">
+            <div
+              className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none p-3 pt-2 leading-[1.4] whitespace-pre text-gray-600 opacity-60"
+              style={{ paddingLeft: `${gutterWidth + 6}px` }}
+            >
               {targetCode}
             </div>
           )}
