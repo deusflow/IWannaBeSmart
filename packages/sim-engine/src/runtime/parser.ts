@@ -59,24 +59,24 @@ function evaluateCondition(
   const c = condStr.trim();
 
   // Negation: !tv.IsOn or !tv.isOn
-  if (/^!\s*tv\.(IsOn|isOn)$/i.test(c)) {
+  if (/^!\s*tv\s*\.\s*(IsOn|isOn)$/i.test(c)) {
     return !tv.IsOn;
   }
 
   // Direct boolean: tv.IsOn or tv.isOn
-  if (/^tv\.(IsOn|isOn)$/i.test(c)) {
+  if (/^tv\s*\.\s*(IsOn|isOn)$/i.test(c)) {
     return tv.IsOn;
   }
 
   // Equality: tv.IsOn == true or tv.IsOn == false
-  const eqMatch = c.match(/^tv\.(IsOn|isOn)\s*==\s*(true|false)$/i);
+  const eqMatch = c.match(/^tv\s*\.\s*(IsOn|isOn)\s*==\s*(true|false)$/i);
   if (eqMatch) {
     const expected = eqMatch[2].toLowerCase() === "true";
     return tv.IsOn === expected;
   }
 
   // Inequality: tv.IsOn != true or tv.IsOn != false
-  const neqMatch = c.match(/^tv\.(IsOn|isOn)\s*!=\s*(true|false)$/i);
+  const neqMatch = c.match(/^tv\s*\.\s*(IsOn|isOn)\s*!=\s*(true|false)$/i);
   if (neqMatch) {
     const notExpected = neqMatch[2].toLowerCase() === "true";
     return tv.IsOn !== notExpected;
@@ -84,7 +84,7 @@ function evaluateCondition(
 
   // Number comparison for Channel or Volume (e.g. tv.Channel > 4, tv.Volume <= 100)
   const numMatch = c.match(
-    /^tv\.(Channel|Volume|channel|volume)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
+    /^tv\s*\.\s*(Channel|Volume|channel|volume)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
   );
   if (numMatch) {
     const prop =
@@ -104,6 +104,31 @@ function evaluateCondition(
         return prop >= val;
       case "<=":
         return prop <= val;
+    }
+  }
+
+  // Inverted comparison: e.g. 4 < tv.Channel
+  const invNumMatch = c.match(
+    /^([a-zA-Z_]\w*|-?\d+)\s*(==|!=|>|<|>=|<=)\s*tv\s*\.\s*(Channel|Volume|channel|volume)$/i
+  );
+  if (invNumMatch) {
+    const val = resolveNumValue(invNumMatch[1], scope);
+    const op = invNumMatch[2];
+    const prop =
+      invNumMatch[3].toLowerCase() === "channel" ? tv.Channel : tv.Volume;
+    switch (op) {
+      case "==":
+        return val === prop;
+      case "!=":
+        return val !== prop;
+      case ">":
+        return val > prop;
+      case "<":
+        return val < prop;
+      case ">=":
+        return val >= prop;
+      case "<=":
+        return val <= prop;
     }
   }
 
@@ -134,11 +159,11 @@ function executeStatement(
 
   // 1. Property Assignment: tv.IsOn = true | false | !tv.IsOn
   const propBoolMatch = s.match(
-    /^tv\.(IsOn|isOn)\s*=\s*(true|false|!\s*tv\.(?:IsOn|isOn))$/i
+    /^tv\s*\.\s*(IsOn|isOn)\s*=\s*(true|false|!\s*tv\s*\.\s*(?:IsOn|isOn))$/i
   );
   if (propBoolMatch) {
     const rhs = propBoolMatch[2].trim();
-    if (/^!\s*tv\.(?:IsOn|isOn)$/i.test(rhs)) {
+    if (/^!\s*tv\s*\.\s*(?:IsOn|isOn)$/i.test(rhs)) {
       tv.IsOn = !tv.IsOn;
     } else {
       tv.IsOn = rhs.toLowerCase() === "true";
@@ -147,25 +172,25 @@ function executeStatement(
   }
 
   // 2. Increment/Decrement: tv.Channel++ / tv.Channel-- / tv.Volume++ / tv.Volume--
-  if (/^tv\.(Channel|channel)\+\+$/i.test(s) || /^\+\+tv\.(Channel|channel)$/i.test(s)) {
+  if (/^tv\s*\.\s*(Channel|channel)\s*\+\+$/i.test(s) || /^\+\+\s*tv\s*\.\s*(Channel|channel)$/i.test(s)) {
     tv.Channel = tv.Channel + 1;
     return;
   }
-  if (/^tv\.(Channel|channel)--$/i.test(s) || /^--tv\.(Channel|channel)$/i.test(s)) {
+  if (/^tv\s*\.\s*(Channel|channel)\s*--$/i.test(s) || /^--\s*tv\s*\.\s*(Channel|channel)$/i.test(s)) {
     tv.Channel = tv.Channel - 1;
     return;
   }
-  if (/^tv\.(Volume|volume)\+\+$/i.test(s) || /^\+\+tv\.(Volume|volume)$/i.test(s)) {
+  if (/^tv\s*\.\s*(Volume|volume)\s*\+\+$/i.test(s) || /^\+\+\s*tv\s*\.\s*(Volume|volume)$/i.test(s)) {
     tv.Volume = tv.Volume + 1;
     return;
   }
-  if (/^tv\.(Volume|volume)--$/i.test(s) || /^--tv\.(Volume|volume)$/i.test(s)) {
+  if (/^tv\s*\.\s*(Volume|volume)\s*--$/i.test(s) || /^--\s*tv\s*\.\s*(Volume|volume)$/i.test(s)) {
     tv.Volume = tv.Volume - 1;
     return;
   }
 
   // 3. Compound Assignment: tv.Channel += <val>, tv.Channel -= <val>
-  const compChMatch = s.match(/^tv\.(Channel|channel)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
+  const compChMatch = s.match(/^tv\s*\.\s*(Channel|channel)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
   if (compChMatch) {
     const op = compChMatch[2];
     const val = resolveNumValue(compChMatch[3], ctx.numScope);
@@ -173,7 +198,7 @@ function executeStatement(
     return;
   }
 
-  const compVolMatch = s.match(/^tv\.(Volume|volume)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
+  const compVolMatch = s.match(/^tv\s*\.\s*(Volume|volume)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
   if (compVolMatch) {
     const op = compVolMatch[2];
     const val = resolveNumValue(compVolMatch[3], ctx.numScope);
@@ -183,7 +208,7 @@ function executeStatement(
 
   // 4. Arithmetic Assignment: tv.Channel = tv.Channel + 1, tv.Volume = tv.Volume + 5
   const arithChMatch = s.match(
-    /^tv\.(Channel|channel)\s*=\s*tv\.(?:Channel|channel)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
+    /^tv\s*\.\s*(Channel|channel)\s*=\s*tv\s*\.\s*(?:Channel|channel)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
   );
   if (arithChMatch) {
     const op = arithChMatch[2];
@@ -193,7 +218,7 @@ function executeStatement(
   }
 
   const arithVolMatch = s.match(
-    /^tv\.(Volume|volume)\s*=\s*tv\.(?:Volume|volume)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
+    /^tv\s*\.\s*(Volume|volume)\s*=\s*tv\s*\.\s*(?:Volume|volume)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
   );
   if (arithVolMatch) {
     const op = arithVolMatch[2];
@@ -203,54 +228,54 @@ function executeStatement(
   }
 
   // 5. Property Assignment: tv.Channel = <number | scopeVar>
-  const propChMatch = s.match(/^tv\.(Channel|channel)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
+  const propChMatch = s.match(/^tv\s*\.\s*(Channel|channel)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
   if (propChMatch) {
     tv.Channel = resolveNumValue(propChMatch[2], ctx.numScope);
     return;
   }
 
   // 6. Property Assignment: tv.Volume = <number | scopeVar>
-  const propVolMatch = s.match(/^tv\.(Volume|volume)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
+  const propVolMatch = s.match(/^tv\s*\.\s*(Volume|volume)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
   if (propVolMatch) {
     tv.Volume = resolveNumValue(propVolMatch[2], ctx.numScope);
     return;
   }
 
   // 6.5. Property Assignment: tv.Osd = "CALC_MODE" / tv.OSD = "CALC_MODE"
-  const propOsdMatch = s.match(/^tv\.(Osd|OSD|osd)\s*=\s*["']([^"']*)["']$/i);
+  const propOsdMatch = s.match(/^tv\s*\.\s*(Osd|OSD|osd)\s*=\s*["']([^"']*)["']$/i);
   if (propOsdMatch) {
     tv.Osd = propOsdMatch[2];
     return;
   }
 
   // 7. Method calls: tv.PowerOn(), tv.PowerOff(), tv.TogglePower()
-  if (/^tv\.(PowerOn|powerOn)\(\s*\)$/i.test(s)) {
+  if (/^tv\s*\.\s*(PowerOn|powerOn)\s*\(\s*\)$/i.test(s)) {
     tv.PowerOn();
     return;
   }
-  if (/^tv\.(PowerOff|powerOff)\(\s*\)$/i.test(s)) {
+  if (/^tv\s*\.\s*(PowerOff|powerOff)\s*\(\s*\)$/i.test(s)) {
     tv.PowerOff();
     return;
   }
-  if (/^tv\.(TogglePower|togglePower)\(\s*\)$/i.test(s)) {
+  if (/^tv\s*\.\s*(TogglePower|togglePower)\s*\(\s*\)$/i.test(s)) {
     tv.TogglePower();
     return;
   }
 
   // 8. Parameterized methods: tv.SetChannel(ch), tv.SetVolume(vol)
-  const setChMatch = s.match(/^tv\.(SetChannel|setChannel)\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
+  const setChMatch = s.match(/^tv\s*\.\s*(SetChannel|setChannel)\s*\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
   if (setChMatch) {
     tv.SetChannel(resolveNumValue(setChMatch[2], ctx.numScope));
     return;
   }
 
-  const setVolMatch = s.match(/^tv\.(SetVolume|setVolume)\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
+  const setVolMatch = s.match(/^tv\s*\.\s*(SetVolume|setVolume)\s*\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
   if (setVolMatch) {
     tv.SetVolume(resolveNumValue(setVolMatch[2], ctx.numScope));
     return;
   }
 
-  const setModeMatch = s.match(/^tv\.(SetMode|setMode)\(\s*["']([^"']*)["']\s*\)$/i);
+  const setModeMatch = s.match(/^tv\s*\.\s*(SetMode|setMode)\s*\(\s*["']([^"']*)["']\s*\)$/i);
   if (setModeMatch) {
     tv.SetMode(setModeMatch[2]);
     return;
@@ -271,8 +296,8 @@ function executeStatement(
   }
 
   // 9.6 Interface/Command invocation: command.Execute() or command.Execute();
-  const cmdExecMatch = s.match(/^([a-zA-Z_]\w*)\.Execute\(\s*\)$/i);
-  if (cmdExecMatch || /^(?:[a-zA-Z_]\w*\.)?Execute\(\s*\)$/i.test(s)) {
+  const cmdExecMatch = s.match(/^([a-zA-Z_]\w*)\s*\.\s*Execute\s*\(\s*\)$/i);
+  if (cmdExecMatch || /^(?:[a-zA-Z_]\w*\s*\.\s*)?Execute\s*\(\s*\)$/i.test(s)) {
     const varName = cmdExecMatch ? cmdExecMatch[1] : "command";
     const hasInstantiated = Boolean(ctx.strScope[varName]) || Object.keys(ctx.strScope).some(k => ctx.strScope[k].toLowerCase().includes("command"));
     if (tv.isArchWired() === false && !hasInstantiated) {
@@ -285,7 +310,7 @@ function executeStatement(
 
   // 9.7 DI Container Registration (C# and Go)
   // C#: services.AddTransient<IRemoteCommand, CalcCommand>();
-  const diCsMatch = s.match(/^services\.(?:AddTransient|AddSingleton|AddScoped)<([a-zA-Z_]\w*),\s*([a-zA-Z_]\w*)>\s*\(\s*\)$/i);
+  const diCsMatch = s.match(/^services\s*\.\s*(?:AddTransient|AddSingleton|AddScoped)\s*<\s*([a-zA-Z_]\w*)\s*,\s*([a-zA-Z_]\w*)\s*>\s*\(\s*\)$/i);
   if (diCsMatch) {
     const iface = diCsMatch[1];
     const impl = diCsMatch[2];
@@ -296,7 +321,7 @@ function executeStatement(
   }
 
   // Go: container.Register("calc", NewCalcCommand()) or container.Register("calc", CalcCommand{})
-  const diGoMatch = s.match(/^container\.Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\)$/i);
+  const diGoMatch = s.match(/^container\s*\.\s*Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\)$/i);
   if (diGoMatch) {
     const key = diGoMatch[1];
     const impl = diGoMatch[2] || diGoMatch[3];
@@ -393,23 +418,6 @@ function extractBalancedBraces(
 }
 
 /**
- * Execute a block of statements (separated by ; or newlines)
- */
-function executeBlock(
-  blockStr: string,
-  tv: VirtualTV,
-  ctx: ExecutionContext
-): void {
-  const rawParts = blockStr.split(/[\n;]+/);
-  for (const part of rawParts) {
-    const stmt = part.trim();
-    if (stmt) {
-      executeStatement(stmt, tv, ctx);
-    }
-  }
-}
-
-/**
  * For-loop configuration details
  */
 interface ForLoopConfig {
@@ -483,7 +491,7 @@ function parseForHeader(headerStr: string): ForLoopConfig {
       stepVal = parseInt(compMatch[2], 10);
     } else {
       const explicitMatch = stepPart.match(
-        new RegExp(`^${varName}\\s*=\\s*${varName}\\s*([+-])\s*(\\d+)$`)
+        new RegExp(`^${varName}\\s*=\\s*${varName}\\s*([+-])\\s*(\\d+)$`)
       );
       if (explicitMatch) {
         stepOp = explicitMatch[1] === "+" ? "+=" : "-=";
@@ -540,6 +548,425 @@ function nextLoopVal(
 const MAX_LOOP_ITERATIONS = 50;
 
 /**
+ * Synchronous block interpreter: handles functions, switches, loops, and if/else blocks recursively
+ */
+function executeBlock(
+  blockStr: string,
+  tv: VirtualTV,
+  ctx: ExecutionContext
+): void {
+  let remaining = blockStr.trim();
+
+  while (remaining.length > 0) {
+    remaining = remaining.trim();
+    if (!remaining) break;
+
+    // 0. Skip stray semicolons or newlines
+    if (remaining.startsWith(";") || remaining.startsWith("\n")) {
+      remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 1. Function declaration: void FuncName() { ... } or func FuncName() { ... }
+    const funcHeader = remaining.match(/^(?:void|func)\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*\{/i);
+    if (funcHeader) {
+      const braceResult = extractBalancedBraces(remaining, funcHeader[0].length - 1);
+      if (braceResult) {
+        const funcName = funcHeader[1];
+        ctx.functions[funcName] = braceResult.body;
+        remaining = remaining.slice(braceResult.endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 2. Switch statement: switch (button) { ... } or switch button { ... }
+    const switchHeader = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{/i);
+    if (switchHeader) {
+      const braceResult = extractBalancedBraces(remaining, switchHeader[0].length - 1);
+      if (braceResult) {
+        const switchExpr = (switchHeader[1] || switchHeader[2]).trim();
+        const switchBody = braceResult.body;
+
+        let switchVal = switchExpr.replace(/^["']|["']$/g, "");
+        if (switchExpr in ctx.strScope) {
+          switchVal = ctx.strScope[switchExpr];
+        }
+
+        const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
+        let matchedBlock: string | null = null;
+        let defaultBlock: string | null = null;
+
+        let cMatch: RegExpExecArray | null;
+        while ((cMatch = caseRegex.exec(switchBody)) !== null) {
+          const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
+          const caseCode = cMatch[2];
+
+          if (caseLabel !== null) {
+            const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
+            if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
+              matchedBlock = caseCode;
+              break;
+            }
+          } else {
+            defaultBlock = caseCode;
+          }
+        }
+
+        const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
+        if (blockToRun) {
+          executeBlock(blockToRun, tv, ctx);
+        }
+
+        remaining = remaining.slice(braceResult.endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 3. For-loop: for (int i = 1; i <= 4; i++) { ... } or for i := 1; i <= 4; i++ { ... }
+    const forParenHeader = remaining.match(/^for\s*\(([^)]+)\)\s*\{/i);
+    const forNoParenHeader = remaining.match(/^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{/i);
+    const forHeader = forParenHeader || forNoParenHeader;
+    if (forHeader) {
+      const braceResult = extractBalancedBraces(remaining, forHeader[0].length - 1);
+      if (braceResult) {
+        const headerStr = forHeader[1];
+        const bodyStr = braceResult.body;
+
+        const cfg = parseForHeader(headerStr);
+        let curVal = cfg.initVal;
+        let iterCount = 0;
+
+        while (
+          checkLoopCondition(curVal, cfg.condOp, cfg.limitVal) &&
+          iterCount < MAX_LOOP_ITERATIONS
+        ) {
+          iterCount++;
+          const iterCtx: ExecutionContext = {
+            ...ctx,
+            numScope: { ...ctx.numScope, [cfg.varName]: curVal },
+          };
+          executeBlock(bodyStr, tv, iterCtx);
+          curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
+        }
+
+        if (iterCount >= MAX_LOOP_ITERATIONS) {
+          throw new Error(
+            `Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Перевірте умову виходу з циклу.`
+          );
+        }
+
+        remaining = remaining.slice(braceResult.endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 4. If statement (C# with () or Go without ()) with balanced braces and optional else
+    const ifHeader = remaining.match(/^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\s{])?))\s*\{/i);
+    if (ifHeader) {
+      const braceResult = extractBalancedBraces(remaining, ifHeader[0].length - 1);
+      if (braceResult) {
+        const conditionStr = ifHeader[1] || ifHeader[2];
+        const thenBlock = braceResult.body;
+        let elseBlock: string | null = null;
+        let endIdx = braceResult.endIdx;
+
+        // Check if followed by else
+        const afterThen = remaining.slice(endIdx + 1).trim();
+        const elseHeader = afterThen.match(/^else\s*\{/i);
+        if (elseHeader) {
+          const elseBrace = extractBalancedBraces(afterThen, elseHeader[0].length - 1);
+          if (elseBrace) {
+            elseBlock = elseBrace.body;
+            const elseStartInRemaining = remaining.indexOf(afterThen);
+            endIdx = elseStartInRemaining + elseBrace.endIdx;
+          }
+        }
+
+        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
+        if (condResult) {
+          executeBlock(thenBlock, tv, ctx);
+        } else if (elseBlock !== null) {
+          executeBlock(elseBlock, tv, ctx);
+        }
+
+        remaining = remaining.slice(endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 5. String variable declaration / assignment
+    const strVarMatch = remaining.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']/i);
+    if (strVarMatch) {
+      ctx.strScope[strVarMatch[1]] = strVarMatch[2];
+      remaining = remaining.slice(strVarMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 5.5 Command / struct instantiation: command := CalcCommand{} or IRemoteCommand command = new CalcCommand()
+    const cmdMatch = remaining.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})/i);
+    if (cmdMatch) {
+      ctx.strScope[cmdMatch[1]] = cmdMatch[2];
+      remaining = remaining.slice(cmdMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 5.6 DI Container registration (C# & Go)
+    const diMatch = remaining.match(
+      /^(?:services\s*\.\s*(?:AddTransient|AddSingleton|AddScoped)\s*<\s*([a-zA-Z_]\w*)\s*,\s*([a-zA-Z_]\w*)\s*>\s*\(\s*\)|container\s*\.\s*Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\))/i
+    );
+    if (diMatch) {
+      executeStatement(diMatch[0], tv, ctx);
+      remaining = remaining.slice(diMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 5.7 Command Registry matching (C# & Go)
+    const regMatch = remaining.match(
+      /^(?:(?:(?:var|Dictionary<[^>]+>)\s+)?[a-zA-Z_]\w*\s*(?::=|=)\s*(?:new\s+Dictionary<[^>]+>\s*\(\s*\)|make\s*\(\s*map\[string\][a-zA-Z_]\w*\s*\))|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*(?::=|=)\s*(?:new\s+)?[a-zA-Z_]\w*(?:\(\s*\)|\{\s*\})?|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*\.\s*Execute\s*\(\s*\))/i
+    );
+    if (regMatch) {
+      executeStatement(regMatch[0], tv, ctx);
+      remaining = remaining.slice(regMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 6. Regular statement
+    const stmtMatch = remaining.match(/^[^;{}\n]+/);
+    if (stmtMatch) {
+      const stmt = stmtMatch[0].trim();
+      executeStatement(stmt, tv, ctx);
+      remaining = remaining.slice(stmtMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    throw new Error(`Неочікуваний символ поблизу: «${remaining.slice(0, 20)}»`);
+  }
+}
+
+/**
+ * Asynchronous block interpreter: handles step delays and snapshot events
+ */
+async function executeBlockAsync(
+  blockStr: string,
+  tv: VirtualTV,
+  ctx: ExecutionContext,
+  options?: InterpreterOptions
+): Promise<void> {
+  let remaining = blockStr.trim();
+
+  while (remaining.length > 0) {
+    remaining = remaining.trim();
+    if (!remaining) break;
+
+    if (remaining.startsWith(";") || remaining.startsWith("\n")) {
+      remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 1. Function declaration
+    const funcHeader = remaining.match(/^(?:void|func)\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*\{/i);
+    if (funcHeader) {
+      const braceResult = extractBalancedBraces(remaining, funcHeader[0].length - 1);
+      if (braceResult) {
+        ctx.functions[funcHeader[1]] = braceResult.body;
+        remaining = remaining.slice(braceResult.endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 2. Switch statement
+    const switchHeader = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{/i);
+    if (switchHeader) {
+      const braceResult = extractBalancedBraces(remaining, switchHeader[0].length - 1);
+      if (braceResult) {
+        const switchExpr = (switchHeader[1] || switchHeader[2]).trim();
+        const switchBody = braceResult.body;
+
+        let switchVal = switchExpr.replace(/^["']|["']$/g, "");
+        if (switchExpr in ctx.strScope) {
+          switchVal = ctx.strScope[switchExpr];
+        }
+
+        const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
+        let matchedBlock: string | null = null;
+        let defaultBlock: string | null = null;
+
+        let cMatch: RegExpExecArray | null;
+        while ((cMatch = caseRegex.exec(switchBody)) !== null) {
+          const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
+          const caseCode = cMatch[2];
+
+          if (caseLabel !== null) {
+            const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
+            if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
+              matchedBlock = caseCode;
+              break;
+            }
+          } else {
+            defaultBlock = caseCode;
+          }
+        }
+
+        const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
+        if (blockToRun) {
+          await executeBlockAsync(blockToRun, tv, ctx, options);
+        }
+
+        remaining = remaining.slice(braceResult.endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 3. For-loop with live step mutation callback
+    const forParenHeader = remaining.match(/^for\s*\(([^)]+)\)\s*\{/i);
+    const forNoParenHeader = remaining.match(/^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{/i);
+    const forHeader = forParenHeader || forNoParenHeader;
+    if (forHeader) {
+      const braceResult = extractBalancedBraces(remaining, forHeader[0].length - 1);
+      if (braceResult) {
+        const headerStr = forHeader[1];
+        const bodyStr = braceResult.body;
+
+        const cfg = parseForHeader(headerStr);
+        let curVal = cfg.initVal;
+        let iterCount = 0;
+
+        while (
+          checkLoopCondition(curVal, cfg.condOp, cfg.limitVal) &&
+          iterCount < MAX_LOOP_ITERATIONS
+        ) {
+          iterCount++;
+          const iterCtx: ExecutionContext = {
+            ...ctx,
+            numScope: { ...ctx.numScope, [cfg.varName]: curVal },
+          };
+          await executeBlockAsync(bodyStr, tv, iterCtx, options);
+
+          if (options?.onStepMutation) {
+            options.onStepMutation(tv.getSnapshot());
+          }
+
+          if (options?.stepDelayMs && options.stepDelayMs > 0) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, options.stepDelayMs)
+            );
+          }
+
+          curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
+        }
+
+        if (iterCount >= MAX_LOOP_ITERATIONS) {
+          throw new Error(
+            `Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Перевірте умову виходу з циклу.`
+          );
+        }
+
+        remaining = remaining.slice(braceResult.endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 4. If statement with balanced braces and optional else
+    const ifHeader = remaining.match(/^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\s{])?))\s*\{/i);
+    if (ifHeader) {
+      const braceResult = extractBalancedBraces(remaining, ifHeader[0].length - 1);
+      if (braceResult) {
+        const conditionStr = ifHeader[1] || ifHeader[2];
+        const thenBlock = braceResult.body;
+        let elseBlock: string | null = null;
+        let endIdx = braceResult.endIdx;
+
+        const afterThen = remaining.slice(endIdx + 1).trim();
+        const elseHeader = afterThen.match(/^else\s*\{/i);
+        if (elseHeader) {
+          const elseBrace = extractBalancedBraces(afterThen, elseHeader[0].length - 1);
+          if (elseBrace) {
+            elseBlock = elseBrace.body;
+            const elseStartInRemaining = remaining.indexOf(afterThen);
+            endIdx = elseStartInRemaining + elseBrace.endIdx;
+          }
+        }
+
+        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
+        if (condResult) {
+          await executeBlockAsync(thenBlock, tv, ctx, options);
+        } else if (elseBlock !== null) {
+          await executeBlockAsync(elseBlock, tv, ctx, options);
+        }
+
+        remaining = remaining.slice(endIdx + 1).trim();
+        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+        continue;
+      }
+    }
+
+    // 5. String variable declaration / assignment
+    const strVarMatch = remaining.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']/i);
+    if (strVarMatch) {
+      ctx.strScope[strVarMatch[1]] = strVarMatch[2];
+      remaining = remaining.slice(strVarMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 5.5 Command / struct instantiation
+    const cmdMatch = remaining.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})/i);
+    if (cmdMatch) {
+      ctx.strScope[cmdMatch[1]] = cmdMatch[2];
+      remaining = remaining.slice(cmdMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 5.6 DI Container registration
+    const diMatch = remaining.match(
+      /^(?:services\s*\.\s*(?:AddTransient|AddSingleton|AddScoped)\s*<\s*([a-zA-Z_]\w*)\s*,\s*([a-zA-Z_]\w*)\s*>\s*\(\s*\)|container\s*\.\s*Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\))/i
+    );
+    if (diMatch) {
+      executeStatement(diMatch[0], tv, ctx);
+      remaining = remaining.slice(diMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 5.7 Command Registry matching
+    const regMatch = remaining.match(
+      /^(?:(?:(?:var|Dictionary<[^>]+>)\s+)?[a-zA-Z_]\w*\s*(?::=|=)\s*(?:new\s+Dictionary<[^>]+>\s*\(\s*\)|make\s*\(\s*map\[string\][a-zA-Z_]\w*\s*\))|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*(?::=|=)\s*(?:new\s+)?[a-zA-Z_]\w*(?:\(\s*\)|\{\s*\})?|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*\.\s*Execute\s*\(\s*\))/i
+    );
+    if (regMatch) {
+      executeStatement(regMatch[0], tv, ctx);
+      remaining = remaining.slice(regMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    // 6. Regular statement
+    const stmtMatch = remaining.match(/^[^;{}\n]+/);
+    if (stmtMatch) {
+      const stmt = stmtMatch[0].trim();
+      executeStatement(stmt, tv, ctx);
+      remaining = remaining.slice(stmtMatch[0].length).trim();
+      if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
+      continue;
+    }
+
+    throw new Error(`Неочікуваний символ поблизу: «${remaining.slice(0, 20)}»`);
+  }
+}
+
+/**
  * Asynchronous parser: handles loops, functions, and switch statements with non-blocking step delays
  */
 export async function interpretScriptAsync(
@@ -561,204 +988,7 @@ export async function interpretScriptAsync(
   };
 
   try {
-    let remaining = cleaned;
-
-    while (remaining.trim().length > 0) {
-      remaining = remaining.trim();
-
-      // 1. Function declaration: void FuncName() { ... } or func FuncName() { ... }
-      const funcMatch = remaining.match(/^(?:void|func)\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*\{([^}]*)\}/i);
-      if (funcMatch) {
-        const fullMatch = funcMatch[0];
-        const funcName = funcMatch[1];
-        const funcBody = funcMatch[2];
-        ctx.functions[funcName] = funcBody;
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 2. Switch statement: switch (button) { ... } or switch button { ... }
-      const switchHeader = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{/i);
-      if (switchHeader) {
-        const braceResult = extractBalancedBraces(remaining, switchHeader[0].length - 1);
-        if (braceResult) {
-          const switchExpr = (switchHeader[1] || switchHeader[2]).trim();
-          const switchBody = braceResult.body;
-
-          let switchVal = switchExpr.replace(/^["']|["']$/g, "");
-          if (switchExpr in ctx.strScope) {
-            switchVal = ctx.strScope[switchExpr];
-          }
-
-          // Parse case and default sections
-          const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
-          let matchedBlock: string | null = null;
-          let defaultBlock: string | null = null;
-
-          let cMatch: RegExpExecArray | null;
-          while ((cMatch = caseRegex.exec(switchBody)) !== null) {
-            const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
-            const caseCode = cMatch[2];
-
-            if (caseLabel !== null) {
-              const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
-              if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
-                matchedBlock = caseCode;
-                break;
-              }
-            } else {
-              defaultBlock = caseCode;
-            }
-          }
-
-          const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
-          if (blockToRun) {
-            executeBlock(blockToRun, tv, ctx);
-          }
-
-          remaining = remaining.slice(braceResult.endIdx + 1).trim();
-          if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-          continue;
-        }
-      }
-
-      // 3. For-loop: for (int i = 1; i <= 4; i++) { ... } or for i := 1; i <= 4; i++ { ... }
-      const forParenMatch = remaining.match(/^for\s*\(([^)]+)\)\s*\{([^}]*)\}/i);
-      const forNoParenMatch = remaining.match(
-        /^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{([^}]*)\}/i
-      );
-
-      const forMatch = forParenMatch || forNoParenMatch;
-      if (forMatch) {
-        const fullMatch = forMatch[0];
-        const headerStr = forMatch[1];
-        const bodyStr = forMatch[2];
-
-        const cfg = parseForHeader(headerStr);
-        let curVal = cfg.initVal;
-        let iterCount = 0;
-
-        while (
-          checkLoopCondition(curVal, cfg.condOp, cfg.limitVal) &&
-          iterCount < MAX_LOOP_ITERATIONS
-        ) {
-          iterCount++;
-          const iterCtx: ExecutionContext = {
-            ...ctx,
-            numScope: { ...ctx.numScope, [cfg.varName]: curVal },
-          };
-          executeBlock(bodyStr, tv, iterCtx);
-
-          // Trigger live snapshot callback for TV rendering
-          if (options?.onStepMutation) {
-            options.onStepMutation(tv.getSnapshot());
-          }
-
-          // Non-blocking step pause (e.g. 300ms)
-          if (options?.stepDelayMs && options.stepDelayMs > 0) {
-            await new Promise((resolve) =>
-              setTimeout(resolve, options.stepDelayMs)
-            );
-          }
-
-          curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
-        }
-
-        if (iterCount >= MAX_LOOP_ITERATIONS) {
-          throw new Error(
-            `Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Перевірте умову виходу з циклу.`
-          );
-        }
-
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) {
-          remaining = remaining.slice(1).trim();
-        }
-        continue;
-      }
-
-      // 4. If statement (C# with () or Go without ())
-      const ifRegex =
-        /^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\\s{])?))\s*\{([^}]*)\}(?:\s*else\s*\{([^}]*)\})?/i;
-      const ifMatch = remaining.match(ifRegex);
-
-      if (ifMatch) {
-        const fullMatch = ifMatch[0];
-        const conditionStr = ifMatch[1] || ifMatch[2];
-        const thenBlock = ifMatch[3];
-        const elseBlock = ifMatch[4] || "";
-
-        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
-        if (condResult) {
-          executeBlock(thenBlock, tv, ctx);
-        } else if (elseBlock) {
-          executeBlock(elseBlock, tv, ctx);
-        }
-
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) {
-          remaining = remaining.slice(1).trim();
-        }
-        continue;
-      }
-
-      // 5. String variable declaration / assignment
-      const strVarMatch = remaining.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']/i);
-      if (strVarMatch) {
-        const fullMatch = strVarMatch[0];
-        ctx.strScope[strVarMatch[1]] = strVarMatch[2];
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 5.5 Command / struct instantiation: command := CalcCommand{} or IRemoteCommand command = new CalcCommand()
-      const cmdMatch = remaining.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})/i);
-      if (cmdMatch) {
-        ctx.strScope[cmdMatch[1]] = cmdMatch[2];
-        remaining = remaining.slice(cmdMatch[0].length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 5.6 DI Container registration (C# & Go)
-      const diMatch = remaining.match(
-        /^(?:services\.(?:AddTransient|AddSingleton|AddScoped)<([a-zA-Z_]\w*),\s*([a-zA-Z_]\w*)>\s*\(\s*\)|container\.Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\))/i
-      );
-      if (diMatch) {
-        executeStatement(diMatch[0], tv, ctx);
-        remaining = remaining.slice(diMatch[0].length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 5.7 Command Registry matching (C# & Go)
-      const regMatch = remaining.match(
-        /^(?:(?:(?:var|Dictionary<[^>]+>)\s+)?[a-zA-Z_]\w*\s*(?::=|=)\s*(?:new\s+Dictionary<[^>]+>\s*\(\s*\)|make\s*\(\s*map\[string\][a-zA-Z_]\w*\s*\))|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*(?::=|=)\s*(?:new\s+)?[a-zA-Z_]\w*(?:\(\s*\)|\{\s*\})?|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*\.\s*Execute\s*\(\s*\))/i
-      );
-      if (regMatch) {
-        executeStatement(regMatch[0], tv, ctx);
-        remaining = remaining.slice(regMatch[0].length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 6. Regular statement
-      const stmtMatch = remaining.match(/^[^;{}\n]+/);
-      if (stmtMatch) {
-        const stmt = stmtMatch[0].trim();
-        executeStatement(stmt, tv, ctx);
-        remaining = remaining.slice(stmtMatch[0].length).trim();
-        if (remaining.startsWith(";")) {
-          remaining = remaining.slice(1).trim();
-        }
-        continue;
-      }
-
-      throw new Error(`Неочікуваний символ поблизу: «${remaining.slice(0, 20)}»`);
-    }
-
+    await executeBlockAsync(cleaned, tv, ctx, options);
     return { success: true };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
@@ -784,182 +1014,7 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
   };
 
   try {
-    let remaining = cleaned;
-
-    while (remaining.trim().length > 0) {
-      remaining = remaining.trim();
-
-      // 1. Function declaration
-      const funcMatch = remaining.match(/^(?:void|func)\s+([a-zA-Z_]\w*)\s*\(\s*\)\s*\{([^}]*)\}/i);
-      if (funcMatch) {
-        const fullMatch = funcMatch[0];
-        ctx.functions[funcMatch[1]] = funcMatch[2];
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 2. Switch statement
-      const switchHeader = remaining.match(/^switch\s*(?:\(([^)]+)\)|([^{\s]+))\s*\{/i);
-      if (switchHeader) {
-        const braceResult = extractBalancedBraces(remaining, switchHeader[0].length - 1);
-        if (braceResult) {
-          const switchExpr = (switchHeader[1] || switchHeader[2]).trim();
-          const switchBody = braceResult.body;
-
-          let switchVal = switchExpr.replace(/^["']|["']$/g, "");
-          if (switchExpr in ctx.strScope) {
-            switchVal = ctx.strScope[switchExpr];
-          }
-
-          const caseRegex = /(?:case\s+([^:]+):|default\s*:)([\s\S]*?)(?=(?:case\s+[^:]+:|default\s*:|$))/gi;
-          let matchedBlock: string | null = null;
-          let defaultBlock: string | null = null;
-
-          let cMatch: RegExpExecArray | null;
-          while ((cMatch = caseRegex.exec(switchBody)) !== null) {
-            const caseLabel = cMatch[1] ? cMatch[1].trim() : null;
-            const caseCode = cMatch[2];
-
-            if (caseLabel !== null) {
-              const expectedVal = caseLabel.replace(/^["']|["']$/g, "").trim();
-              if (expectedVal.toLowerCase() === switchVal.toLowerCase()) {
-                matchedBlock = caseCode;
-                break;
-              }
-            } else {
-              defaultBlock = caseCode;
-            }
-          }
-
-          const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
-          if (blockToRun) {
-            executeBlock(blockToRun, tv, ctx);
-          }
-
-          remaining = remaining.slice(braceResult.endIdx + 1).trim();
-          if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-          continue;
-        }
-      }
-
-      // 3. For-loop
-      const forParenMatch = remaining.match(/^for\s*\(([^)]+)\)\s*\{([^}]*)\}/i);
-      const forNoParenMatch = remaining.match(
-        /^for\s+([^;{]+;[^;{]+;[^{]+)\s*\{([^}]*)\}/i
-      );
-
-      const forMatch = forParenMatch || forNoParenMatch;
-      if (forMatch) {
-        const fullMatch = forMatch[0];
-        const headerStr = forMatch[1];
-        const bodyStr = forMatch[2];
-
-        const cfg = parseForHeader(headerStr);
-        let curVal = cfg.initVal;
-        let iterCount = 0;
-
-        while (
-          checkLoopCondition(curVal, cfg.condOp, cfg.limitVal) &&
-          iterCount < MAX_LOOP_ITERATIONS
-        ) {
-          iterCount++;
-          const iterCtx: ExecutionContext = {
-            ...ctx,
-            numScope: { ...ctx.numScope, [cfg.varName]: curVal },
-          };
-          executeBlock(bodyStr, tv, iterCtx);
-          curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
-        }
-
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) {
-          remaining = remaining.slice(1).trim();
-        }
-        continue;
-      }
-
-      // 4. If statement
-      const ifRegex =
-        /^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\\s{])?))\s*\{([^}]*)\}(?:\s*else\s*\{([^}]*)\})?/i;
-      const ifMatch = remaining.match(ifRegex);
-
-      if (ifMatch) {
-        const fullMatch = ifMatch[0];
-        const conditionStr = ifMatch[1] || ifMatch[2];
-        const thenBlock = ifMatch[3];
-        const elseBlock = ifMatch[4] || "";
-
-        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
-        if (condResult) {
-          executeBlock(thenBlock, tv, ctx);
-        } else if (elseBlock) {
-          executeBlock(elseBlock, tv, ctx);
-        }
-
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) {
-          remaining = remaining.slice(1).trim();
-        }
-        continue;
-      }
-
-      // 5. String variable declaration
-      const strVarMatch = remaining.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']/i);
-      if (strVarMatch) {
-        const fullMatch = strVarMatch[0];
-        ctx.strScope[strVarMatch[1]] = strVarMatch[2];
-        remaining = remaining.slice(fullMatch.length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 5.5 Command / struct instantiation: command := CalcCommand{} or IRemoteCommand command = new CalcCommand()
-      const cmdMatch = remaining.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})/i);
-      if (cmdMatch) {
-        ctx.strScope[cmdMatch[1]] = cmdMatch[2];
-        remaining = remaining.slice(cmdMatch[0].length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 5.6 DI Container registration (C# & Go)
-      const diMatch = remaining.match(
-        /^(?:services\.(?:AddTransient|AddSingleton|AddScoped)<([a-zA-Z_]\w*),\s*([a-zA-Z_]\w*)>\s*\(\s*\)|container\.Register\s*\(\s*["']([^"']+)["']\s*,\s*(?:New([a-zA-Z_]\w*)\(\)|([a-zA-Z_]\w*)\s*\{\s*\})\s*\))/i
-      );
-      if (diMatch) {
-        executeStatement(diMatch[0], tv, ctx);
-        remaining = remaining.slice(diMatch[0].length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 5.7 Command Registry matching (C# & Go)
-      const regMatch = remaining.match(
-        /^(?:(?:(?:var|Dictionary<[^>]+>)\s+)?[a-zA-Z_]\w*\s*(?::=|=)\s*(?:new\s+Dictionary<[^>]+>\s*\(\s*\)|make\s*\(\s*map\[string\][a-zA-Z_]\w*\s*\))|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*(?::=|=)\s*(?:new\s+)?[a-zA-Z_]\w*(?:\(\s*\)|\{\s*\})?|[a-zA-Z_]\w*\s*\[\s*["']?[^\]]+["']?\s*\]\s*\.\s*Execute\s*\(\s*\))/i
-      );
-      if (regMatch) {
-        executeStatement(regMatch[0], tv, ctx);
-        remaining = remaining.slice(regMatch[0].length).trim();
-        if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
-        continue;
-      }
-
-      // 6. Regular statement
-      const stmtMatch = remaining.match(/^[^;{}\n]+/);
-      if (stmtMatch) {
-        const stmt = stmtMatch[0].trim();
-        executeStatement(stmt, tv, ctx);
-        remaining = remaining.slice(stmtMatch[0].length).trim();
-        if (remaining.startsWith(";")) {
-          remaining = remaining.slice(1).trim();
-        }
-        continue;
-      }
-
-      throw new Error(`Неочікуваний символ поблизу: «${remaining.slice(0, 20)}»`);
-    }
-
+    executeBlock(cleaned, tv, ctx);
     return { success: true };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);

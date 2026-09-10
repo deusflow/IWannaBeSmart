@@ -395,6 +395,12 @@ export class VirtualPOS {
   }
 }
 
+function stripComments(code: string): string {
+  const noBlock = code.replace(/\/\*[\s\S]*?\*\//g, "");
+  const noLine = noBlock.replace(/\/\/.*$/gm, "");
+  return noLine;
+}
+
 /**
  * Execute script against VirtualPOS with support for:
  * 1. Guard Clauses and Early Returns (Task 1)
@@ -428,10 +434,11 @@ export function executePosScript(
       };
     }
 
-    const rawLines = code
+    const cleanCode = stripComments(code);
+    const rawLines = cleanCode
       .split("\n")
       .map((l) => l.trim())
-      .filter((l) => l.length > 0 && !l.startsWith("//") && !l.startsWith("/*"));
+      .filter((l) => l.length > 0);
 
     const normalized = rawLines.join(" ");
 
@@ -518,55 +525,102 @@ export function executePosScript(
     }
 
     // ── Task 4: For Loop / Batch Settlement ───────────────────
-    // C#: for (int i = 0; i < transactions.Length; i++) { dailyTotal += transactions[i]; }
-    // Go: for i := 0; i < len(transactions); i++ { dailyTotal += transactions[i] }
-    const csharpForPattern = /for\s*\(\s*int\s+([a-zA-Z_]\w*)\s*=\s*0\s*;\s*\1\s*<\s*transactions\.Length\s*;\s*\1\+\+\s*\)\s*\{([^}]*)\}/i;
-    const goForPattern = /for\s+([a-zA-Z_]\w*)\s*:=\s*0\s*;\s*\1\s*<\s*len\s*\(\s*transactions\s*\)\s*;\s*\1\+\+\s*\{([^}]*)\}/i;
+    // C# standard: for (int i = 0; i < transactions.Length; i++) { dailyTotal += transactions[i]; }
+    //              for (var i = 0; i < transactions.Length; ++i) { dailyTotal += transactions[i]; }
+    // C# foreach:  foreach (var tx in transactions) { dailyTotal += tx; }
+    // Go standard: for i := 0; i < len(transactions); i++ { dailyTotal += transactions[i] }
+    // Go range:    for _, tx := range transactions { dailyTotal += tx }
+    //              for i, tx := range transactions { dailyTotal += tx }
+    const csharpForPattern = /for\s*\(\s*(?:int|var)\s+([a-zA-Z_]\w*)\s*=\s*0\s*;\s*\1\s*<\s*transactions\.Length\s*;\s*(?:\1\+\+|\+\+\1|\1\s*\+=\s*1|\1\s*=\s*\1\s*\+\s*1)\s*\)\s*\{([^}]*)\}/i;
+    const goForPattern = /for\s+([a-zA-Z_]\w*)\s*:=\s*0\s*;\s*\1\s*<\s*len\s*\(\s*transactions\s*\)\s*;\s*(?:\1\+\+|\+\+\1|\1\s*\+=\s*1|\1\s*=\s*\1\s*\+\s*1)\s*\{([^}]*)\}/i;
+    const csharpForeachPattern = /foreach\s*\(\s*(?:var|int|double|decimal|float)\s+([a-zA-Z_]\w*)\s+in\s+transactions\s*\)\s*\{([^}]*)\}/i;
+    const goRangePattern = /for\s+(?:([a-zA-Z_]\w*|_)\s*,\s*)?([a-zA-Z_]\w*)\s*:=\s*range\s+transactions\s*\{([^}]*)\}/i;
 
-    const forMatch = normalized.match(csharpForPattern) || normalized.match(goForPattern);
-    if (forMatch) {
-      const loopVar = forMatch[1];
-      const body = forMatch[2];
+    const forIndexedMatch = normalized.match(csharpForPattern) || normalized.match(goForPattern);
+    const foreachMatch = normalized.match(csharpForeachPattern);
+    const goRangeMatch = normalized.match(goRangePattern);
 
+    let loopValid = false;
+
+    if (forIndexedMatch) {
+      const loopVar = forIndexedMatch[1];
+      const body = forIndexedMatch[2];
       const accumulatePattern = new RegExp(
         `dailyTotal\\s*\\+=\\s*transactions\\[${loopVar}\\]|dailyTotal\\s*=\\s*dailyTotal\\s*\\+\\s*transactions\\[${loopVar}\\]`,
         "i"
       );
-
       if (accumulatePattern.test(body)) {
-        let sum = 0;
-        for (let i = 0; i < pos.transactions.length; i++) {
-          sum += pos.transactions[i];
-        }
-        pos.dailyTotal += sum;
-        pos.status = "SETTLED";
-
-        pos.receiptLines = [
-          "=== Z-REPORT: BATCH SETTLEMENT ===",
-          `TERMINAL: ${pos.terminalId}`,
-          `DATE: ${new Date().toISOString().slice(0, 10)} 18:00`,
-          "BATCH: #0042 • EMV BATCH CLOSED",
-          "--------------------------------",
-          ...pos.transactions.map(
-            (tx, idx) => `TX #${String(idx + 1).padStart(2, "0")}: $${tx.toFixed(2)}`
-          ),
-          "--------------------------------",
-          `DAILY TOTAL: $${pos.dailyTotal.toFixed(2)}`,
-          "STATUS: BATCH SETTLED & CLOSED",
-          "================================",
-        ];
-
-        logs.push({
-          type: "mutation",
-          message: `Цикл for підсумував ${pos.transactions.length} транзакцій: dailyTotal = $${pos.dailyTotal.toFixed(2)}`,
-        });
-
-        return {
-          success: true,
-          newState: pos.getSnapshot(),
-          logs: [...pos.getLogs(), ...logs],
-        };
+        loopValid = true;
       }
+    } else if (foreachMatch) {
+      const elemVar = foreachMatch[1];
+      const body = foreachMatch[2];
+      const accumulatePattern = new RegExp(
+        `dailyTotal\\s*\\+=\\s*${elemVar}|dailyTotal\\s*=\\s*dailyTotal\\s*\\+\\s*${elemVar}`,
+        "i"
+      );
+      if (accumulatePattern.test(body)) {
+        loopValid = true;
+      }
+    } else if (goRangeMatch) {
+      const elemVar = goRangeMatch[2];
+      const body = goRangeMatch[3];
+      const accumulatePattern = new RegExp(
+        `dailyTotal\\s*\\+=\\s*${elemVar}|dailyTotal\\s*=\\s*dailyTotal\\s*\\+\\s*${elemVar}`,
+        "i"
+      );
+      if (accumulatePattern.test(body)) {
+        loopValid = true;
+      }
+    }
+
+    if (loopValid) {
+      let sum = 0;
+      for (let i = 0; i < pos.transactions.length; i++) {
+        sum += pos.transactions[i];
+      }
+      pos.dailyTotal += sum;
+      pos.status = "SETTLED";
+
+      pos.receiptLines = [
+        "=== Z-REPORT: BATCH SETTLEMENT ===",
+        `TERMINAL: ${pos.terminalId}`,
+        `DATE: ${new Date().toISOString().slice(0, 10)} 18:00`,
+        "BATCH: #0042 • EMV BATCH CLOSED",
+        "--------------------------------",
+        ...pos.transactions.map(
+          (tx, idx) => `TX #${String(idx + 1).padStart(2, "0")}: $${tx.toFixed(2)}`
+        ),
+        "--------------------------------",
+        `DAILY TOTAL: $${pos.dailyTotal.toFixed(2)}`,
+        "STATUS: BATCH SETTLED & CLOSED",
+        "================================",
+      ];
+
+      logs.push({
+        type: "mutation",
+        message: `Цикл for/foreach підсумував ${pos.transactions.length} транзакцій: dailyTotal = $${pos.dailyTotal.toFixed(2)}`,
+      });
+
+      return {
+        success: true,
+        newState: pos.getSnapshot(),
+        logs: [...pos.getLogs(), ...logs],
+      };
+    }
+
+    // Diagnostic if student attempted a loop that failed validation
+    if (/\b(?:for|foreach)\b/i.test(normalized)) {
+      logs.push({
+        type: "error",
+        message: "Синтаксична помилка циклу: перевірте структуру (for/foreach/range) та підсумовування dailyTotal += ...",
+      });
+      return {
+        success: false,
+        newState: pos.getSnapshot(),
+        logs: [...pos.getLogs(), ...logs],
+        error: "Loop syntax error: failed to match valid for/foreach loop summing transactions into dailyTotal",
+      };
     }
 
     // ── Task 3: PIN Protection & Lockout Counter ─────────────

@@ -277,20 +277,35 @@ status = "___"`,
 
       const hasCsharpFor = Boolean(
         code &&
-          /for\s*\(\s*int\s+([a-zA-Z_]\w*)\s*=\s*0\s*;\s*\1\s*<\s*transactions\.Length\s*;\s*\1\+\+\s*\)/i.test(
+          /for\s*\(\s*(?:int|var)\s+([a-zA-Z_]\w*)\s*=\s*0\s*;\s*\1\s*<\s*transactions\.Length\s*;\s*(?:\1\+\+|\+\+\1|\1\s*\+=\s*1|\1\s*=\s*\1\s*\+\s*1)\s*\)/i.test(
+            code
+          )
+      );
+      const hasCsharpForeach = Boolean(
+        code &&
+          /foreach\s*\(\s*(?:var|int|double|decimal|float)\s+([a-zA-Z_]\w*)\s+in\s+transactions\s*\)/i.test(
             code
           )
       );
       const hasGoFor = Boolean(
         code &&
-          /for\s+([a-zA-Z_]\w*)\s*:=\s*0\s*;\s*\1\s*<\s*len\s*\(\s*transactions\s*\)\s*;\s*\1\+\+/i.test(
+          /for\s+([a-zA-Z_]\w*)\s*:=\s*0\s*;\s*\1\s*<\s*len\s*\(\s*transactions\s*\)\s*;\s*(?:\1\+\+|\+\+\1|\1\s*\+=\s*1|\1\s*=\s*\1\s*\+\s*1)/i.test(
             code
           )
       );
-      const hasSum = Boolean(code && /dailyTotal\s*\+=\s*transactions\[/i.test(code));
+      const hasGoRange = Boolean(
+        code &&
+          /for\s+(?:([a-zA-Z_]\w*|_)\s*,\s*)?([a-zA-Z_]\w*)\s*:=\s*range\s+transactions/i.test(
+            code
+          )
+      );
+      const hasSum = Boolean(
+        code &&
+          /dailyTotal\s*(?:\+=|=.*dailyTotal\s*\+)\s*(?:transactions\[|[a-zA-Z_]\w*)/i.test(code)
+      );
 
       if (
-        (hasCsharpFor || hasGoFor) &&
+        (hasCsharpFor || hasCsharpForeach || hasGoFor || hasGoRange) &&
         hasSum &&
         after.dailyTotal === 550 &&
         after.receiptLines &&

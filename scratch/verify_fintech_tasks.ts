@@ -129,6 +129,30 @@ assert(
   "Task 4 Go validator passes"
 );
 
+// Task 4: C# foreach variant
+const t4CsForeach = `foreach (var tx in transactions) { dailyTotal += tx; }`;
+const t4CsForeachRes = executePosScript(t4CsForeach, task4.initialState);
+assert(t4CsForeachRes.success === true, "Task 4 C# foreach succeeds");
+assert(t4CsForeachRes.newState.dailyTotal === 550, "Task 4 C# foreach sums correctly");
+assert(task4.validate(task4.initialState, t4CsForeachRes.newState, t4CsForeachRes, t4CsForeach).passed, "Task 4 C# foreach validator passes");
+
+// Task 4: C# var i & ++i with comments
+const t4CsComments = `// Calculate batch total
+for (var i = 0; i < transactions.Length; ++i) {
+    dailyTotal += transactions[i]; /* accumulate */
+}`;
+const t4CsCommentsRes = executePosScript(t4CsComments, task4.initialState);
+assert(t4CsCommentsRes.success === true, "Task 4 C# var & ++i with comments succeeds");
+assert(t4CsCommentsRes.newState.dailyTotal === 550, "Task 4 C# var & ++i with comments sums correctly");
+
+// Task 4: Go range variant
+const t4GoRange = `for _, tx := range transactions {\n    dailyTotal += tx\n}`;
+const t4GoRangeRes = executePosScript(t4GoRange, task4.initialState);
+assert(t4GoRangeRes.success === true, "Task 4 Go range succeeds");
+assert(t4GoRangeRes.newState.dailyTotal === 550, "Task 4 Go range sums correctly");
+assert(task4.validate(task4.initialState, t4GoRangeRes.newState, t4GoRangeRes, t4GoRange).passed, "Task 4 Go range validator passes");
+
+
 // 6. Task 5: Payment Contract (Interface Polymorphism)
 const task5 = FINTECH_TASKS[4];
 assert(task5.id === "task-pos-interface-polymorphism", "Task 5 ID matches");

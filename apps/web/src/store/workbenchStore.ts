@@ -11,7 +11,7 @@
 
 import { create } from "zustand";
 import type { Node, Edge } from "@xyflow/react";
-import type { VirtualPosState } from "@iw/sim-engine";
+import { CODING_TASKS, type VirtualPosState } from "@iw/sim-engine";
 import { audioFx } from "../utils/audioFx";
 
 /**
@@ -548,19 +548,47 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     guidedStep: 1,
     isHintActive: false,
     isStationVictoryModalOpen: false,
-    xp: 0,
-    completedCodingTasks: {},
+    xp: (() => {
+      try {
+        return typeof window !== "undefined"
+          ? parseInt(localStorage.getItem("iw_user_xp") || "0", 10) || 0
+          : 0;
+      } catch {
+        return 0;
+      }
+    })(),
+    completedCodingTasks: (() => {
+      try {
+        return typeof window !== "undefined"
+          ? JSON.parse(localStorage.getItem("iw_completed_tasks") || "{}")
+          : {};
+      } catch {
+        return {};
+      }
+    })(),
     setStationVictoryModalOpen: (open) => set({ isStationVictoryModalOpen: open }),
     completeCodingTask: (taskId: string) => {
       const alreadyCompleted = Boolean(get().completedCodingTasks[taskId]);
       if (!alreadyCompleted) {
         const xpGain = taskId === "task-command-registry" ? 50 : 25;
         const nextCompleted = { ...get().completedCodingTasks, [taskId]: true };
-        const totalCompleted = Object.keys(nextCompleted).length;
+        const tvTaskIds = CODING_TASKS.map((t) => t.id);
+        const allTvCompleted = tvTaskIds.every((id) => nextCompleted[id]);
+        const nextXp = get().xp + xpGain;
+
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("iw_completed_tasks", JSON.stringify(nextCompleted));
+            localStorage.setItem("iw_user_xp", String(nextXp));
+          }
+        } catch {
+          // Safe catch
+        }
+
         set((s) => ({
           completedCodingTasks: nextCompleted,
-          xp: s.xp + xpGain,
-          isStationVictoryModalOpen: totalCompleted >= 10 ? true : s.isStationVictoryModalOpen,
+          xp: nextXp,
+          isStationVictoryModalOpen: allTvCompleted ? true : s.isStationVictoryModalOpen,
         }));
         return true;
       }
@@ -577,7 +605,18 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
         set({ isHintActive: false });
       }, 4000);
     },
-    addXp: (amount) => set((s) => ({ xp: s.xp + amount })),
+    addXp: (amount) =>
+      set((s) => {
+        const nextXp = s.xp + amount;
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("iw_user_xp", String(nextXp));
+          }
+        } catch {
+          // Safe catch
+        }
+        return { xp: nextXp };
+      }),
 
     // Code Gym Mastery Stars & Fintech Station
     taskMasteryStars: (() => {
