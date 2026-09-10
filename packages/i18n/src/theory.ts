@@ -39,6 +39,40 @@ export const theoryUa: TheoryDictionary = {
   diffTitle: "Різниця C# та Go",
   hideBtn: "Згорнути теорію",
   tasks: {
+    "task-0-1-power-on": {
+      concept: "Ми подаємо команду увімкнення пристрою. У коді це означає викликати метод на об'єкті безпосередньо у поточному контексті.",
+      tokens: [
+        { token: "tv", role: "Object", explanation: "Об'єкт телевізора, який живе в пам'яті програми." },
+        { token: ".", role: "Member Access", explanation: "Оператор доступу до властивостей і методів об'єкта." },
+        { token: "PowerOn", role: "Method", explanation: "Назва дії, що запускає увімкнення телевізора." },
+        { token: "()", role: "Invocation", explanation: "Круглі дужки викликають метод саме зараз." },
+        { token: ";", role: "Terminator", explanation: "Крапка з комою сигналізує компілятору C#, що інструкція завершена." },
+      ],
+      notes: "Команда — це не магія, а звичайний виклик методу. Після `tv.PowerOn()` комп'ютер виконує відповідну логіку та змінює стан телебачення.",
+      diff: "У C# метод викликається з дужками і крапкою з комою, а в Go — без крапки з комою, але з такими самими іменами методів.",
+    },
+    "task-0-2-types": {
+      concept: "Ми вчимося відрізняти число від тексту. Число зберігається без лапок, а текст завжди береться в подвійні лапки.",
+      tokens: [
+        { token: "int", role: "Type", explanation: "Цілий тип даних для чисел без дробів." },
+        { token: "channel", role: "Variable", explanation: "Ім'я змінної, у якій зберігається номер каналу." },
+        { token: "1", role: "Integer Literal", explanation: "Числовий літерал, який зберігається як число." },
+        { token: "string", role: "Type", explanation: "Тип даних для тексту та символів." },
+        { token: "\"NEWS\"", role: "String Literal", explanation: "Текст записаний у подвійних лапках — це рядок, а не число." },
+      ],
+      notes: "Найчастіша помилка новачків — забути лапки навколо тексту. Якщо в рядку є символи, це не число, а рядок, і його треба брати в \"\".",
+      diff: "У C# типи оголошуються явно (`int`, `string`), а в Go — через коротке оголошення `:=` і без двокрапок у тексті.",
+    },
+    "task-0-3-sequential": {
+      concept: "Код виконується в строгому порядку: зверху вниз, рядок за рядком. Спочатку увімкнення, потім перемикання каналу.",
+      tokens: [
+        { token: "tv.PowerOn()", role: "Statement", explanation: "Перша інструкція: увімкнення телевізора." },
+        { token: "tv.SetChannel(2)", role: "Second Statement", explanation: "Друга інструкція: зміна каналу на 2 після увімкнення." },
+        { token: ";", role: "Terminator", explanation: "Кожна інструкція завершується символом завершення в C#." },
+      ],
+      notes: "Комп'ютер не «розуміє» контекст на інтуїції. Він просто читає інструкції по порядку, тому послідовність коду впливає на результат.",
+      diff: "У Go інструкції теж йдуть зверху вниз, але крапка з комою не потрібна, бо компілятор вставляє її автоматично.",
+    },
     "task-1-assignment": {
       concept: "Ми підключаємо живлення до телевізора. У коді це означає звернутися до потрібного пристрою в пам'яті комп'ютера та записати в його перемикач стан 'увімкнено'.",
       tokens: [
@@ -233,6 +267,40 @@ export const theoryEn: TheoryDictionary = {
   diffTitle: "C# vs Go Differences",
   hideBtn: "Collapse Theory",
   tasks: {
+    "task-0-1-power-on": {
+      concept: "We dispatch a power command to the device. In code, that means invoking a method on an object immediately in the current execution context.",
+      tokens: [
+        { token: "tv", role: "Object", explanation: "The TV object stored in application memory." },
+        { token: ".", role: "Member Access", explanation: "The dot operator accesses members inside an object." },
+        { token: "PowerOn", role: "Method", explanation: "The action name that turns the TV on." },
+        { token: "()", role: "Invocation", explanation: "Parentheses execute the method immediately." },
+        { token: ";", role: "Terminator", explanation: "Semicolon ends the instruction in C#." },
+      ],
+      notes: "A command is simply a method call. Once `tv.PowerOn()` runs, the CPU executes the corresponding logic and changes the device state.",
+      diff: "In C# you call methods with parentheses and a semicolon. In Go, the method name is the same, but the semicolon is omitted.",
+    },
+    "task-0-2-types": {
+      concept: "We learn to separate numbers from text. A number has no quotes, while text must be wrapped in double quotes.",
+      tokens: [
+        { token: "int", role: "Type", explanation: "Whole-number type for integer values." },
+        { token: "channel", role: "Variable", explanation: "Name of the variable storing the channel value." },
+        { token: "1", role: "Integer Literal", explanation: "Numeric literal stored as an integer value." },
+        { token: "string", role: "Type", explanation: "Type for text and strings." },
+        { token: "\"NEWS\"", role: "String Literal", explanation: "Text wrapped in double quotes is a string literal, not a number." },
+      ],
+      notes: "The most common beginner error is forgetting to quote text. If the value contains letters, it is not a number but a string and must be wrapped in \"\".",
+      diff: "C# declares types explicitly (`int`, `string`), while Go often uses short declarations (`:=`) and omits explicit type names in simple assignments.",
+    },
+    "task-0-3-sequential": {
+      concept: "Code executes in a strict order: top to bottom, one statement after another. Power first, channel change second.",
+      tokens: [
+        { token: "tv.PowerOn()", role: "Statement", explanation: "First statement: turn the TV on." },
+        { token: "tv.SetChannel(2)", role: "Second Statement", explanation: "Second statement: move to channel 2 after power is on." },
+        { token: ";", role: "Terminator", explanation: "The statement terminator in C# marks the end of the instruction." },
+      ],
+      notes: "The computer does not infer intent. It reads instructions in order, so instruction order defines the resulting behavior.",
+      diff: "Go also executes statements top-to-bottom, but C# requires semicolons while Go inserts them automatically.",
+    },
     "task-1-assignment": {
       concept: "We supply power to the television. In code, this means accessing the specific object in computer memory and writing the 'on' state into its switch property.",
       tokens: [
@@ -427,6 +495,40 @@ export const theoryDa: TheoryDictionary = {
   diffTitle: "Forskel mellem C# og Go",
   hideBtn: "Skjul teori",
   tasks: {
+    "task-0-1-power-on": {
+      concept: "Vi udløser en strømkommando til enheden. I koden betyder det at kalde en metode på et objekt med det samme i den aktuelle eksekveringskontekst.",
+      tokens: [
+        { token: "tv", role: "Objekt", explanation: "TV-objektet, der ligger i applikationens hukommelse." },
+        { token: ".", role: "Medlemsadgang", explanation: "Prikoperatoren giver adgang til objektets egenskaber og metoder." },
+        { token: "PowerOn", role: "Metode", explanation: "Handlingsnavnet, der tænder for fjernsynet." },
+        { token: "()", role: "Kald", explanation: "Parenteser udfører metoden med det samme." },
+        { token: ";", role: "Terminator", explanation: "Semikolon afslutter instruktionen i C#." },
+      ],
+      notes: "En kommando er bare et metodekald. Når `tv.PowerOn()` køres, udfører computeren den tilsvarende logik og ændrer enhedens tilstand.",
+      diff: "I C# kaldes metoder med parenteser og semikolon. I Go er metoden den samme, men semikolon er udeladt.",
+    },
+    "task-0-2-types": {
+      concept: "Vi lærer at skelne tal fra tekst. Tal har ingen citater, mens tekst altid skal være omgivet af dobbelte citationstegn.",
+      tokens: [
+        { token: "int", role: "Type", explanation: "Heltalstype til numeriske værdier uden decimaler." },
+        { token: "channel", role: "Variabel", explanation: "Navnet på variablen, der gemmer kanalnummeret." },
+        { token: "1", role: "Heltalsliteral", explanation: "Numerisk literal gemt som en heltalværdi." },
+        { token: "string", role: "Type", explanation: "Datatype til tekst og strenge." },
+        { token: "\"NEWS\"", role: "Tekstliteral", explanation: "Tekst omgivet af dobbelte citationstegn er en streng, ikke et tal." },
+      ],
+      notes: "Den mest almindelige fejltagelse for nybegyndere er at glemme citationstegn omkring tekst. Hvis værdien indeholder bogstaver, er det ikke et tal, men en streng.",
+      diff: "C# erklærer typer eksplicit (`int`, `string`), mens Go ofte bruger kort erklæring (`:=`) og udelader eksplicit type i enkle tildelinger.",
+    },
+    "task-0-3-sequential": {
+      concept: "Koden udføres i en streng rækkefølge: fra top til bund, en instruktion efter den anden. Først tænding, derefter kanalsskift.",
+      tokens: [
+        { token: "tv.PowerOn()", role: "Instruktion", explanation: "Første instruktion: tænd fjernsynet." },
+        { token: "tv.SetChannel(2)", role: "Anden instruktion", explanation: "Anden instruktion: skift til kanal 2 efter strømmen er tændt." },
+        { token: ";", role: "Terminator", explanation: "Semikolon markerer slutningen af instruktionen i C#." },
+      ],
+      notes: "Computeren gætter ikke på hensigt. Den læser instruktioner i rækkefølge, så rækkefølgen bestemmer resultatet.",
+      diff: "Go udfører også instruktioner fra top til bund, men C# kræver semikolon, mens Go indsætter det automatisk.",
+    },
     "task-1-assignment": {
       concept: "Vi tænder for fjernsynet. I koden betyder det at tilgå det specifikke objekt i computerens arbejdshukommelse og sætte dets tænd/sluk-egenskab til 'tændt'.",
       tokens: [

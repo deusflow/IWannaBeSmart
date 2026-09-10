@@ -50,10 +50,41 @@ export const InteractiveCodePlayground: React.FC = () => {
     setStationVictoryModalOpen,
   } = useWorkbenchStore();
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string>("task-1-assignment");
+  const tierMeta = {
+    0: { label: "РАНГ 0: СТАРТ", maxStars: 9, unlockAt: 0 },
+    1: { label: "РАНГ 1: ЛОГІКА", maxStars: 18, unlockAt: 6 },
+    2: { label: "РАНГ 2: АРХІТЕКТУРА", maxStars: 15, unlockAt: 18 },
+  } as const;
+  const tierKeys = [0, 1, 2] as const;
+
+  const [selectedTier, setSelectedTier] = useState<0 | 1 | 2>(0);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("task-0-1-power-on");
   const currentTask: CodingTask = useMemo(
     () => CODING_TASKS.find((t) => t.id === selectedTaskId) || CODING_TASKS[0],
     [selectedTaskId]
+  );
+
+  const tierStarTotals = useMemo(
+    () => ({
+      0: CODING_TASKS.filter((task) => task.tier === 0).reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0),
+      1: CODING_TASKS.filter((task) => task.tier === 1).reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0),
+      2: CODING_TASKS.filter((task) => task.tier === 2).reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0),
+    }),
+    [taskMasteryStars]
+  );
+
+  const visibleTasks = useMemo(
+    () => CODING_TASKS.filter((task) => (task.tier ?? 0) === selectedTier),
+    [selectedTier]
+  );
+
+  const isTierUnlocked = useCallback(
+    (tier: 0 | 1 | 2) => {
+      if (tier === 0) return true;
+      if (tier === 1) return tierStarTotals[0] >= 6;
+      return tierStarTotals[1] >= 18;
+    },
+    [tierStarTotals]
   );
 
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
@@ -107,8 +138,13 @@ export const InteractiveCodePlayground: React.FC = () => {
 
   // Handle task switching
   const handleSelectTask = (taskId: string) => {
+    const task = CODING_TASKS.find((item) => item.id === taskId);
+    if (!task) return;
+    const nextTier = (task.tier ?? 0) as 0 | 1 | 2;
+    if (nextTier > 0 && !isTierUnlocked(nextTier)) return;
     if (taskId === selectedTaskId) return;
     audioFx.playRelayClick();
+    setSelectedTier(nextTier);
     setSelectedTaskId(taskId);
     setActiveRound(1);
     setShowTheory(false);
@@ -123,6 +159,14 @@ export const InteractiveCodePlayground: React.FC = () => {
       applyCodeExecution({ volume: 50 });
     }
   };
+
+  useEffect(() => {
+    const tierMatch = visibleTasks.some((task) => task.id === selectedTaskId);
+    if (!tierMatch && visibleTasks[0]) {
+      setSelectedTaskId(visibleTasks[0].id);
+      setSelectedTier(visibleTasks[0].tier ?? 0);
+    }
+  }, [selectedTaskId, visibleTasks]);
 
   // Reset or setup editor when round, language, or task changes
   useEffect(() => {
@@ -445,9 +489,58 @@ export const InteractiveCodePlayground: React.FC = () => {
     <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
       {/* ── Top Header: Task Selector, Task Title, Round Tabs & Mastery Stars ── */}
       <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-paper-border shadow-paper-sm space-y-3">
-        {/* Task Navigation Bar (Tasks 1..10) */}
-        <div className="grid grid-cols-5 sm:grid-cols-5 lg:grid-cols-10 gap-1.5 border-b border-paper-border/70 pb-3">
-          {CODING_TASKS.map((task, idx) => {
+        {/* Tier Navigation Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 border-b border-paper-border/70 pb-3">
+          {tierKeys.map((tier) => {
+            const isUnlocked = isTierUnlocked(tier);
+            const isCurrent = selectedTier === tier;
+            const maxStars = tierMeta[tier].maxStars;
+            const currentTierStars = tierStarTotals[tier] || 0;
+
+            return (
+              <button
+                key={tier}
+                disabled={!isUnlocked}
+                onClick={() => {
+                  if (!isUnlocked) return;
+                  const firstTask = CODING_TASKS.filter((task) => (task.tier ?? 0) === tier)[0];
+                  if (firstTask) {
+                    setSelectedTier(tier);
+                    setSelectedTaskId(firstTask.id);
+                    setActiveRound(1);
+                    setShowGuide(true);
+                  }
+                }}
+                className={`p-2 rounded-xl border text-left transition-all ${
+                  isCurrent
+                    ? "bg-[#1E2024] border-[#1E2024] text-white shadow-sm"
+                    : isUnlocked
+                    ? "bg-paper/70 hover:bg-paper border-paper-border text-ink hover:border-accent-blue/40"
+                    : "bg-paper/40 border-paper-border/50 text-ink-muted/50 cursor-not-allowed opacity-60"
+                }`}
+                title={`${tierMeta[tier].label} (${currentTierStars}/${maxStars} ★)`}
+              >
+                <div className="font-mono text-[10px] font-extrabold uppercase tracking-wide">
+                  {tierMeta[tier].label} ({currentTierStars}/{maxStars} ★)
+                </div>
+                <div className="mt-1 flex items-center gap-1 text-[9px]">
+                  {Array.from({ length: 3 }).map((_, starIdx) => (
+                    <span
+                      key={starIdx}
+                      className={currentTierStars >= (starIdx + 1) ? "text-amber-400" : "text-gray-300 opacity-40"}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Task Cards for the active tier */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 pt-2">
+          {visibleTasks.map((task, idx) => {
             const isCurrent = task.id === currentTask.id;
             const taskStars = taskMasteryStars[task.id] || 0;
             return (

@@ -8,8 +8,119 @@ import { executeTvScript } from "./evaluator";
 
 export const CODING_TASKS: CodingTask[] = [
   {
-    id: "task-1-assignment",
+    id: "task-0-1-power-on",
+    tier: 0,
     order: 1,
+    titleKey: "playground.task01Title",
+    conceptKey: "playground.task01Concept",
+    descKey: "playground.task01Desc",
+    hintKey: "playground.task01Hint",
+    successKey: "playground.task01Success",
+    simpleExplanationKey: "playground.task01Simple",
+    engineeringKey: "playground.task01Engineering",
+    careerImpactKey: "playground.task01Career",
+    initialCode: {
+      csharp: "// Подаємо команду увімкнення\ntv.PowerOn();\n",
+      go: "// Подаємо команду увімкнення\ntv.PowerOn()\n",
+    },
+    targetCode: {
+      csharp: "tv.PowerOn();",
+      go: "tv.PowerOn()",
+    },
+    clozeTemplate: {
+      csharp: "tv.___();",
+      go: "tv.___()",
+    },
+    sprintTimeLimit: 20,
+    validate: (_before, after, result) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (after.isOn) {
+        return { passed: true, messageKey: "playground.task01Success" };
+      }
+      return { passed: false, messageKey: "playground.task01Hint" };
+    },
+  },
+  {
+    id: "task-0-2-types",
+    tier: 0,
+    order: 2,
+    titleKey: "playground.task02Title",
+    conceptKey: "playground.task02Concept",
+    descKey: "playground.task02Desc",
+    hintKey: "playground.task02Hint",
+    successKey: "playground.task02Success",
+    simpleExplanationKey: "playground.task02Simple",
+    engineeringKey: "playground.task02Engineering",
+    careerImpactKey: "playground.task02Career",
+    initialCode: {
+      csharp: "// Типи даних: число vs текст\nint channel = 1;\nstring label = \"NEWS\";\n",
+      go: "// Типи даних: число vs текст\nchannel := 1\nlabel := \"NEWS\"\n",
+    },
+    targetCode: {
+      csharp: 'int channel = 1; string label = "NEWS";',
+      go: 'channel := 1; label := "NEWS"',
+    },
+    clozeTemplate: {
+      csharp: '___ channel = ___; ___ label = "___";',
+      go: '___ := ___; ___ := "___"',
+    },
+    sprintTimeLimit: 20,
+    validate: (_before, _after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (!code) {
+        return { passed: false, messageKey: "playground.task02Hint" };
+      }
+      const matchesCSharp = /int\s+channel\s*=\s*1\s*;\s*string\s+label\s*=\s*"NEWS"\s*;?/i.test(code);
+      const matchesGo = /channel\s*:=\s*1\s*;?\s*label\s*:=\s*"NEWS"\s*;?/i.test(code);
+      if (matchesCSharp || matchesGo) {
+        return { passed: true, messageKey: "playground.task02Success" };
+      }
+      return { passed: false, messageKey: "playground.task02Hint" };
+    },
+  },
+  {
+    id: "task-0-3-sequential",
+    tier: 0,
+    order: 3,
+    titleKey: "playground.task03Title",
+    conceptKey: "playground.task03Concept",
+    descKey: "playground.task03Desc",
+    hintKey: "playground.task03Hint",
+    successKey: "playground.task03Success",
+    simpleExplanationKey: "playground.task03Simple",
+    engineeringKey: "playground.task03Engineering",
+    careerImpactKey: "playground.task03Career",
+    initialCode: {
+      csharp: "// Команди читаються зверху вниз\ntv.PowerOn();\ntv.SetChannel(2);\n",
+      go: "// Команди читаються зверху вниз\ntv.PowerOn()\ntv.SetChannel(2)\n",
+    },
+    targetCode: {
+      csharp: "tv.PowerOn();\ntv.SetChannel(2);",
+      go: "tv.PowerOn()\ntv.SetChannel(2)",
+    },
+    clozeTemplate: {
+      csharp: "tv.___();\ntv.___(2);",
+      go: "tv.___()\ntv.___(2)",
+    },
+    sprintTimeLimit: 20,
+    validate: (_before, after, result) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (after.isOn && after.channel === 2) {
+        return { passed: true, messageKey: "playground.task03Success" };
+      }
+      return { passed: false, messageKey: "playground.task03Hint" };
+    },
+  },
+  {
+    id: "task-1-assignment",
+    tier: 1,
+    order: 4,
     titleKey: "playground.task1Title",
     conceptKey: "playground.task1Concept",
     descKey: "playground.task1Desc",
@@ -43,7 +154,8 @@ export const CODING_TASKS: CodingTask[] = [
   },
   {
     id: "task-2-branching",
-    order: 2,
+    tier: 1,
+    order: 5,
     titleKey: "playground.task2Title",
     conceptKey: "playground.task2Concept",
     descKey: "playground.task2Desc",
@@ -105,7 +217,8 @@ if tv.IsOn {
   },
   {
     id: "task-variable-mutation",
-    order: 3,
+    tier: 1,
+    order: 6,
     titleKey: "playground.task3Title",
     conceptKey: "playground.task3Concept",
     descKey: "playground.task3Desc",
@@ -151,7 +264,8 @@ tv.Channel++
   },
   {
     id: "task-boundary-guard",
-    order: 4,
+    tier: 1,
+    order: 7,
     titleKey: "playground.task4Title",
     conceptKey: "playground.task4Concept",
     descKey: "playground.task4Desc",
@@ -215,7 +329,8 @@ if tv.Channel > 4 {
   },
   {
     id: "task-for-loop",
-    order: 5,
+    tier: 1,
+    order: 8,
     titleKey: "playground.task5Title",
     conceptKey: "playground.task5Concept",
     descKey: "playground.task5Desc",
@@ -269,7 +384,8 @@ for i := 1; i <= 4; i++ {
   },
   {
     id: "task-function-encapsulation",
-    order: 6,
+    tier: 2,
+    order: 9,
     titleKey: "playground.task6Title",
     conceptKey: "playground.task6Concept",
     descKey: "playground.task6Desc",
@@ -337,7 +453,8 @@ ___()`,
   },
   {
     id: "task-antipattern-god-object",
-    order: 7,
+    tier: 2,
+    order: 10,
     titleKey: "playground.task7Title",
     conceptKey: "playground.task7Concept",
     descKey: "playground.task7Desc",
@@ -445,7 +562,8 @@ case "___":
   },
   {
     id: "task-interface-polymorphism",
-    order: 8,
+    tier: 2,
+    order: 11,
     titleKey: "playground.task8Title",
     conceptKey: "playground.task8Concept",
     descKey: "playground.task8Desc",
@@ -495,7 +613,8 @@ command.___()`,
   },
   {
     id: "task-di-container",
-    order: 9,
+    tier: 2,
+    order: 12,
     titleKey: "playground.task9Title",
     conceptKey: "playground.task9Concept",
     descKey: "playground.task9Desc",
@@ -543,7 +662,8 @@ container.Register("calc", NewCalcCommand())
   },
   {
     id: "task-command-registry",
-    order: 10,
+    tier: 2,
+    order: 13,
     titleKey: "playground.task10Title",
     conceptKey: "playground.task10Concept",
     descKey: "playground.task10Desc",

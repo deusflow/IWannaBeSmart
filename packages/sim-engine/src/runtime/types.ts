@@ -29,6 +29,7 @@ export interface RuntimeResult {
 
 export interface CodingTask {
   id: string;
+  tier?: 0 | 1 | 2;
   order: number;
   titleKey: string;
   conceptKey: string;
