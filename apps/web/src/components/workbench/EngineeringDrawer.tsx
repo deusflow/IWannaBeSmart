@@ -11,6 +11,8 @@ import {
   PinOff,
   Minimize2,
   ExternalLink,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 interface EngineeringDrawerProps {
@@ -30,9 +32,11 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
   onClose,
   level,
   inline = false,
+  onOpenArchitectureStudio,
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("code");
+  const [isObjectiveExpanded, setIsObjectiveExpanded] = useState<boolean>(false);
 
   const drawerTabs: TabItem[] = React.useMemo(
     () => [
@@ -135,20 +139,48 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
 
       {/* Content Area with Vellum Grid */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-notebook-grid space-y-4">
-        {/* Objective Callout */}
-        <div className="p-3.5 rounded-2xl bg-paper border border-paper-border shadow-paper-sm text-xs space-y-1.5">
-          <span className="font-display font-bold text-accent-blue flex items-center gap-1.5 text-xs">
-            <Terminal size={13} strokeWidth={2} />
-            {t("drawer.objectiveTitle", "Інженерне завдання:")}
-          </span>
-          <p className="text-ink leading-relaxed font-sans">
-            {t("level.level1Objective", { defaultValue: level.objective })}
-          </p>
+        {/* Objective Callout with Accordion Disclosure */}
+        <div className="rounded-2xl bg-paper border border-paper-border shadow-paper-sm overflow-hidden transition-all duration-200">
+          <button
+            onClick={() => setIsObjectiveExpanded((p) => !p)}
+            className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-paper-muted/50 transition-colors"
+            title={isObjectiveExpanded ? t("common.collapse", "Згорнути") : t("common.expand", "Розгорнути")}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-display font-bold text-accent-blue flex items-center gap-1.5 text-xs shrink-0">
+                <Terminal size={13} strokeWidth={2} />
+                {t("drawer.objectiveTitle", "Інженерне завдання:")}
+              </span>
+              <span className="text-ink-muted text-xs font-sans truncate">
+                {t("level.level1Objective", { defaultValue: level.objective })}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-ink-muted text-[11px] font-mono shrink-0">
+              <span>{isObjectiveExpanded ? t("common.collapse", "Згорнути") : t("common.details", "Деталі")}</span>
+              {isObjectiveExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            </div>
+          </button>
+
+          {isObjectiveExpanded && (
+            <div className="px-3.5 pb-3.5 pt-1 border-t border-paper-border/60 text-xs text-ink leading-relaxed font-sans animate-in fade-in space-y-2">
+              <p className="font-medium text-ink">
+                {t("level.level1Objective", { defaultValue: level.objective })}
+              </p>
+              {level.briefing && (
+                <div className="text-[11px] text-ink-muted bg-paper-subtle/80 p-2.5 rounded-xl border border-paper-border/60 leading-normal">
+                  <span className="font-bold text-ink-subtle uppercase text-[9px] block mb-0.5">
+                    {t("level.briefingLabel", "Брифінг:")}
+                  </span>
+                  {t("level.level1Briefing", { defaultValue: level.briefing })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* TAB 1: INTERACTIVE LIVE CODING PLAYGROUND */}
         {activeTab === "code" && (
-          <InteractiveCodePlayground />
+          <InteractiveCodePlayground onOpenArchitectureStudio={onOpenArchitectureStudio} />
         )}
 
         {/* TAB 2: HARDWARE CIRCUIT SCHEMATIC (Block G, Items 59-64) */}

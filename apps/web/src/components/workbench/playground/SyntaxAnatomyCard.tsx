@@ -34,6 +34,7 @@ export const SyntaxAnatomyCard: React.FC<SyntaxAnatomyCardProps> = ({
   className = "",
 }) => {
   const { t } = useTranslation();
+  const [activeSubTab, setActiveSubTab] = React.useState<"concept" | "tokens" | "diff">("concept");
 
   // Retrieve theory object for the task from i18n
   const translatedTheory = t(`theory.tasks.${taskId}`, { returnObjects: true }) as TaskTheory;
@@ -89,64 +90,101 @@ export const SyntaxAnatomyCard: React.FC<SyntaxAnatomyCardProps> = ({
             </button>
           </div>
 
-          {/* 1. Simple Concept (Physical & Logical intuition) */}
-          <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase text-[#1A1D20]">
-              <Sparkles size={13} className="text-amber-700 shrink-0" />
-              <span>{t("theory.conceptTitle", "Фізична та логічна концепція")}</span>
-            </div>
-            <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-relaxed">
-              {theory.concept}
-            </p>
+          {/* Internal Tab Selector within Theory Card */}
+          <div className="flex items-center gap-1.5 border-b border-[#1A1D20]/15 pb-2">
+            <button
+              onClick={() => setActiveSubTab("concept")}
+              className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeSubTab === "concept"
+                  ? "bg-[#1A1D20] text-white shadow-xs"
+                  : "bg-[#FAF8F2] hover:bg-white text-[#1A1D20]/70 border border-[#1A1D20]/15"
+              }`}
+            >
+              <Sparkles size={12} className={activeSubTab === "concept" ? "text-amber-400" : "text-amber-700"} />
+              <span>{t("theory.conceptTitle", "Концепція")}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab("tokens")}
+              className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeSubTab === "tokens"
+                  ? "bg-[#1A1D20] text-white shadow-xs"
+                  : "bg-[#FAF8F2] hover:bg-white text-[#1A1D20]/70 border border-[#1A1D20]/15"
+              }`}
+            >
+              <Layers size={12} className={activeSubTab === "tokens" ? "text-emerald-400" : "text-emerald-800"} />
+              <span>{t("theory.tokensTitle", "Токени")} ({theory.tokens.length})</span>
+            </button>
+
+            {theory.diff && (
+              <button
+                onClick={() => setActiveSubTab("diff")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeSubTab === "diff"
+                    ? "bg-[#1A1D20] text-white shadow-xs"
+                    : "bg-[#FAF8F2] hover:bg-white text-[#1A1D20]/70 border border-[#1A1D20]/15"
+                }`}
+              >
+                <ArrowLeftRight size={12} className={activeSubTab === "diff" ? "text-sky-300" : "text-[#1A1D20]"} />
+                <span>{t("theory.diffTitle", "C# vs Go")}</span>
+              </button>
+            )}
           </div>
 
-          {/* 2. Token Breakdown (Atomic analysis of each symbol) */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase text-[#1A1D20]">
-              <Layers size={13} className="text-emerald-800 shrink-0" />
-              <span>{t("theory.tokensTitle", "Анатомія по токенах (Token Breakdown)")}</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {theory.tokens.map((item, idx) => (
-                <div
-                  key={`${item.token}-${idx}`}
-                  className="p-2.5 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 hover:border-[#1A1D20]/30 transition-colors shadow-2xs space-y-1"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-extrabold text-xs px-2 py-0.5 rounded bg-[#E5DFD1] border border-[#1A1D20]/25 text-[#1A1D20]">
-                      {item.token}
-                    </span>
-                    <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-600/30 text-emerald-900">
-                      {item.role}
-                    </span>
-                  </div>
-                  <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-snug">
-                    {item.explanation}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. Key Engineering Insights (Notes) */}
-          {theory.notes && (
-            <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 flex items-start gap-2.5 shadow-2xs">
-              <AlertCircle size={15} className="text-amber-800 shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70">
-                  {t("theory.notesTitle", "Важливі інженерні нюанси")}:
-                </div>
+          {/* Tab 1: Concept & Notes */}
+          {activeSubTab === "concept" && (
+            <div className="space-y-2.5 animate-in fade-in duration-150">
+              <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1 shadow-2xs">
                 <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-relaxed">
-                  {theory.notes}
+                  {theory.concept}
                 </p>
+              </div>
+
+              {theory.notes && (
+                <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 flex items-start gap-2.5 shadow-2xs">
+                  <AlertCircle size={15} className="text-amber-800 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70">
+                      {t("theory.notesTitle", "Важливі інженерні нюанси")}:
+                    </div>
+                    <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-relaxed">
+                      {theory.notes}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Token Breakdown */}
+          {activeSubTab === "tokens" && (
+            <div className="space-y-2 animate-in fade-in duration-150">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[260px] overflow-y-auto pr-1">
+                {theory.tokens.map((item, idx) => (
+                  <div
+                    key={`${item.token}-${idx}`}
+                    className="p-2.5 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 hover:border-[#1A1D20]/30 transition-colors shadow-2xs space-y-1"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono font-extrabold text-xs px-2 py-0.5 rounded bg-[#E5DFD1] border border-[#1A1D20]/25 text-[#1A1D20]">
+                        {item.token}
+                      </span>
+                      <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-600/30 text-emerald-900">
+                        {item.role}
+                      </span>
+                    </div>
+                    <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-snug">
+                      {item.explanation}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
-          {/* 4. C# vs Go Differences (Diff) */}
-          {theory.diff && (
-            <div className="p-3 rounded-xl bg-[#F0EBE0] border border-[#1A1D20]/20 flex items-start gap-2.5 shadow-2xs">
+          {/* Tab 3: C# vs Go Differences */}
+          {activeSubTab === "diff" && theory.diff && (
+            <div className="p-3 rounded-xl bg-[#F0EBE0] border border-[#1A1D20]/20 flex items-start gap-2.5 shadow-2xs animate-in fade-in duration-150">
               <ArrowLeftRight size={15} className="text-[#1A1D20] shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70">

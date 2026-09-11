@@ -20,6 +20,7 @@ import {
   Trophy,
   Zap,
   Lock,
+  X,
 } from "lucide-react";
 import {
   CODING_TASKS,
@@ -30,11 +31,17 @@ import {
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
-import { GuidedStepBar, type GuidedStepData } from "./GuidedStepBar";
+import { GuidedStepBar } from "./GuidedStepBar";
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
 
-export const InteractiveCodePlayground: React.FC = () => {
+export interface InteractiveCodePlaygroundProps {
+  onOpenArchitectureStudio?: () => void;
+}
+
+export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps> = ({
+  onOpenArchitectureStudio,
+}) => {
   const { t } = useTranslation();
   const {
     power,
@@ -51,11 +58,11 @@ export const InteractiveCodePlayground: React.FC = () => {
     setStationVictoryModalOpen,
   } = useWorkbenchStore();
 
-  const tierMeta = {
-    0: { label: "РАНГ 0: СТАРТ", maxStars: 9, unlockAt: 0 },
-    1: { label: "РАНГ 1: ЛОГІКА", maxStars: 15, unlockAt: 6 },
-    2: { label: "РАНГ 2: АРХІТЕКТУРА", maxStars: 15, unlockAt: 10 },
-  } as const;
+  const tierMeta = useMemo(() => ({
+    0: { label: t("codegym.tier0Label", "РАНГ 0: СТАРТ"), maxStars: 9, unlockAt: 0 },
+    1: { label: t("codegym.tier1Label", "РАНГ 1: ЛОГІКА"), maxStars: 15, unlockAt: 6 },
+    2: { label: t("codegym.tier2Label", "РАНГ 2: АРХІТЕКТУРА"), maxStars: 15, unlockAt: 10 },
+  }), [t]);
   const tierKeys = [0, 1, 2] as const;
 
   const [selectedTier, setSelectedTier] = useState<0 | 1 | 2>(0);
@@ -112,6 +119,19 @@ export const InteractiveCodePlayground: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(sprintLimit);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
+  // WPM & Typing ergonomics
+  const [roundStats, setRoundStats] = useState<{ wpm: number; accuracy: number } | null>(null);
+  const roundStartTimeRef = useRef<number | null>(null);
+  const lastKeySoundTimeRef = useRef<number>(0);
+
+  const playThrottledKeyClick = useCallback(() => {
+    const now = Date.now();
+    if (now - lastKeySoundTimeRef.current > 35) {
+      audioFx.playKeyClick();
+      lastKeySoundTimeRef.current = now;
+    }
+  }, []);
+
   // Mastery stars for this task
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
 
@@ -126,8 +146,6 @@ export const InteractiveCodePlayground: React.FC = () => {
   // Guide Spotlight — pulses the targeted device node
   useGuideSpotlight(currentTask.id);
 
-  // Show guided explanation bar before first round attempt
-  const [showGuide, setShowGuide] = useState<boolean>(true);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const [gutterWidth, setGutterWidth] = useState<number>(40);
   const updateGutterWidth = useCallback(() => {
@@ -162,7 +180,6 @@ export const InteractiveCodePlayground: React.FC = () => {
     setActiveRound(1);
     setShowTheory(false);
     setShowTooltip(false);
-    setShowGuide(true); // Reset guide for new task
 
     // Educational presets for edge conditions on TV
     if (taskId === "task-boundary-guard" && channel <= 4) {
@@ -184,7 +201,6 @@ export const InteractiveCodePlayground: React.FC = () => {
     setActiveRound(1);
     setShowTheory(false);
     setShowTooltip(false);
-    setShowGuide(true);
     setTypedCode("");
     setRoundCompleted(false);
     setFeedback(null);
@@ -217,6 +233,8 @@ export const InteractiveCodePlayground: React.FC = () => {
     setHasError(false);
     setIsTimerRunning(false);
     setTimeLeft(sprintLimit);
+    setRoundStats(null);
+    roundStartTimeRef.current = null;
 
     if (activeRound === 1) {
       setTypedCode("");
@@ -231,6 +249,10 @@ export const InteractiveCodePlayground: React.FC = () => {
   const handleTraceChange = useCallback(
     async (input: string) => {
       setTypedCode(input);
+      if (!roundStartTimeRef.current) {
+        roundStartTimeRef.current = Date.now();
+      }
+      playThrottledKeyClick();
 
       // Verify character by character against target
       let mismatch = false;
@@ -246,7 +268,7 @@ export const InteractiveCodePlayground: React.FC = () => {
       if (mismatch) {
         setHasError(true);
         audioFx.playErrorBuzz();
-        setFeedback("Символ не відповідає трафарету. Використовуйте Backspace.");
+        setFeedback(t("codegym.mismatchPrompt", "Символ не відповідає трафарету. Використовуйте Backspace."));
       } else {
         setHasError(false);
         setFeedback(null);
@@ -254,6 +276,9 @@ export const InteractiveCodePlayground: React.FC = () => {
         // Check if fully and accurately completed
         if (input.trim() === targetCode.trim()) {
           setRoundCompleted(true);
+          const elapsedMinutes = Math.max(0.04, (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000);
+          const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
+          setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
           audioFx.playSuccessFanfare();
           setTaskMastery(currentTask.id, 1);
           completeCodingTask(currentTask.id);
@@ -316,7 +341,7 @@ export const InteractiveCodePlayground: React.FC = () => {
     if (isUnfilled) {
       setHasError(true);
       audioFx.playErrorBuzz();
-      setFeedback("Заповніть усі прогалини (___) перед перевіркою!");
+      setFeedback(t("codegym.fillBlanksPrompt", "Заповніть усі прогалини (___) перед перевіркою!"));
       return;
     }
 
@@ -360,6 +385,7 @@ export const InteractiveCodePlayground: React.FC = () => {
     if (validation.passed) {
       setHasError(false);
       setRoundCompleted(true);
+      setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 2);
       completeCodingTask(currentTask.id);
@@ -466,6 +492,10 @@ export const InteractiveCodePlayground: React.FC = () => {
     if (validation.passed) {
       setHasError(false);
       setRoundCompleted(true);
+      const elapsedSec = Math.max(1, sprintLimit - timeLeft);
+      const elapsedMinutes = elapsedSec / 60;
+      const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
+      setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 3);
       completeCodingTask(currentTask.id);
@@ -533,6 +563,67 @@ export const InteractiveCodePlayground: React.FC = () => {
     );
   }, [taskMasteryStars, completedCodingTasks]);
 
+  // Keyboard Shortcuts (Ctrl+Enter / Cmd+Enter, Esc)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Enter / Cmd+Enter
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (roundCompleted) {
+          if (activeRound < 3) {
+            audioFx.playRelayClick();
+            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3);
+          } else if (nextTask && isNextTaskUnlocked) {
+            audioFx.playRelayClick();
+            handleSelectTask(nextTask.id);
+          }
+          return;
+        }
+
+        if (activeRound === 2) {
+          handleVerifyCloze();
+        } else if (activeRound === 3) {
+          if (!isTimerRunning) {
+            handleStartSprint();
+          } else {
+            handleRunSprint();
+          }
+        }
+        return;
+      }
+
+      // Escape to reset round
+      if (e.key === "Escape") {
+        e.preventDefault();
+        audioFx.playRelayClick();
+        setTypedCode(activeRound === 2 ? clozeTemplate : "");
+        setHasError(false);
+        setFeedback(null);
+        setRoundCompleted(false);
+        setIsTimerRunning(false);
+        setTimeLeft(sprintLimit);
+        setRoundStats(null);
+        roundStartTimeRef.current = null;
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    activeRound,
+    roundCompleted,
+    isTimerRunning,
+    typedCode,
+    clozeTemplate,
+    sprintLimit,
+    nextTask,
+    isNextTaskUnlocked,
+    handleVerifyCloze,
+    handleRunSprint,
+    handleSelectTask,
+  ]);
+
   return (
     <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
       {/* ── Top Header: Task Selector, Task Title, Round Tabs & Mastery Stars ── */}
@@ -560,8 +651,8 @@ export const InteractiveCodePlayground: React.FC = () => {
                 title={
                   !isUnlocked
                     ? tier === 1
-                      ? "Заблоковано: потрібно щонайменше 6 ★ у Ранзі 0"
-                      : "Заблоковано: завершіть Ранг 1 (потрібно щонайменше 10 ★)"
+                      ? t("codegym.tier1Locked", "🔒 Потрібно 6 ★ у Ранзі 0")
+                      : t("codegym.tier2Locked", "🔒 Пройдіть Ранг 1 (≥10 ★)")
                     : `${tierMeta[tier].label} (${currentTierStars}/${maxStars} ★)`
                 }
               >
@@ -580,7 +671,9 @@ export const InteractiveCodePlayground: React.FC = () => {
                 </div>
                 {!isUnlocked ? (
                   <div className="mt-1 text-[9px] font-mono text-amber-900/80 font-semibold truncate">
-                    {tier === 1 ? "🔒 Потрібно 6 ★ у Ранзі 0" : "🔒 Пройдіть Ранг 1 (≥10 ★)"}
+                    {tier === 1
+                      ? t("codegym.tier1Locked", "🔒 Потрібно 6 ★ у Ранзі 0")
+                      : t("codegym.tier2Locked", "🔒 Пройдіть Ранг 1 (≥10 ★)")}
                   </div>
                 ) : (
                   <div className="mt-1 flex items-center gap-1 text-[9px]">
@@ -657,8 +750,8 @@ export const InteractiveCodePlayground: React.FC = () => {
                 <button
                   onClick={() => setShowTooltip(!showTooltip)}
                   className="w-5 h-5 rounded-full bg-[#EBE5D8] border border-[#1A1D20]/30 hover:border-[#1A1D20]/60 text-[#1A1D20] text-[11px] font-mono font-extrabold flex items-center justify-center transition-colors cursor-pointer"
-                  title="Простими словами"
-                  aria-label="Простими словами"
+                  title={t("common.simpleExplanation", "Простими словами")}
+                  aria-label={t("common.simpleExplanation", "Простими словами")}
                 >
                   ?
                 </button>
@@ -678,10 +771,10 @@ export const InteractiveCodePlayground: React.FC = () => {
                   setStationVictoryModalOpen(true);
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-display font-extrabold text-xs shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95"
-                title="Отримати сертифікат телевізійної станції"
+                title={t("codegym.tvCertTooltip", "Отримати сертифікат телевізійної станції")}
               >
                 <Trophy size={14} className="text-stone-900" />
-                <span>Сертифікат</span>
+                <span>{t("codegym.certificateBtn", "Сертифікат")}</span>
               </button>
             )}
 
@@ -704,13 +797,26 @@ export const InteractiveCodePlayground: React.FC = () => {
           </div>
         </div>
 
-        {/* Parchment Tooltip popover */}
+        {/* Parchment Tooltip popover with close button */}
         {showTooltip && (
-          <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-balsamiq leading-relaxed shadow-sm animate-in fade-in">
-            <div className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/70 mb-1">
-              Простими словами:
+          <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-balsamiq leading-relaxed shadow-sm animate-in fade-in flex items-start justify-between gap-2">
+            <div className="flex-1">
+              <div className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/70 mb-1">
+                {t("common.simpleExplanation", "Простими словами")}:
+              </div>
+              <p>{t(currentTask.descKey)}</p>
             </div>
-            {t(currentTask.descKey)}
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setShowTooltip(false);
+              }}
+              className="p-1 rounded-md hover:bg-[#1A1D20]/10 text-[#1A1D20]/60 hover:text-[#1A1D20] transition-colors cursor-pointer shrink-0"
+              title={t("common.close", "Закрити")}
+              aria-label={t("common.close", "Закрити")}
+            >
+              <X size={14} />
+            </button>
           </div>
         )}
 
@@ -724,15 +830,21 @@ export const InteractiveCodePlayground: React.FC = () => {
           />
         </div>
 
-        {/* ── Guided Step Bar: two-layer explanation before first round ── */}
-        {showGuide && activeRound === 1 && currentTask.simpleExplanationKey && (
+        {/* ── Guided Step Bar: Arcade-style briefing & 5-layer didactic engine ── */}
+        {currentTask.simpleExplanationKey && (
           <GuidedStepBar
             data={{
               simpleKey: currentTask.simpleExplanationKey,
               engineeringKey: currentTask.engineeringKey || currentTask.simpleExplanationKey,
-            } as GuidedStepData}
+              taskId: currentTask.id,
+              tier: (currentTask.tier ?? 0) as 0 | 1 | 2,
+              codeLang,
+              targetCode: currentTask.targetCode,
+              onOpenArchitectureStudio,
+            }}
+            persistent={true}
+            defaultExpanded={starsEarned === 0 && activeRound === 1}
             onStartPractice={() => {
-              setShowGuide(false);
               setTimeout(() => {
                 const cm = document.querySelector(".cm-content") as HTMLElement | null;
                 cm?.focus();
@@ -744,9 +856,9 @@ export const InteractiveCodePlayground: React.FC = () => {
         {/* 3-Round Mode Selector Tabs */}
         <div className="grid grid-cols-3 gap-2 pt-1">
           {[
-            { round: 1, label: t("codegym.round1Badge", "Раунд 1"), desc: t("codegym.round1Title", "Сліпий трафарет") },
-            { round: 2, label: t("codegym.round2Badge", "Раунд 2"), desc: t("codegym.round2Title", "Прогалини (Cloze)") },
-            { round: 3, label: t("codegym.round3Badge", "Раунд 3"), desc: `${t("codegym.round3Badge", "Спринт")} (${sprintLimit}с)` },
+            { round: 1, label: t("codegym.round1Badge", "Раунд 1"), desc: t("codegym.round1DescShort", "Сліпий трафарет") },
+            { round: 2, label: t("codegym.round2Badge", "Раунд 2"), desc: t("codegym.round2DescShort", "Прогалини (Cloze)") },
+            { round: 3, label: t("codegym.round3Badge", "Раунд 3"), desc: `${t("codegym.round3DescShort", "Спринт")} (${sprintLimit}с)` },
           ].map(({ round, label, desc }) => {
             const isActive = activeRound === round;
             const isUnlocked = round === 1 || starsEarned >= round - 1;
@@ -818,8 +930,19 @@ export const InteractiveCodePlayground: React.FC = () => {
             </span>
           </div>
 
-          {/* Round-specific status display */}
-          <div className="flex items-center gap-3">
+          {/* Round-specific status display & stats */}
+          <div className="flex items-center gap-2">
+            {roundStats && roundStats.wpm > 0 && (
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[10px] font-bold">
+                ⚡ {roundStats.wpm} WPM
+              </span>
+            )}
+            {roundStats && (
+              <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-bold">
+                {roundStats.accuracy}% точність
+              </span>
+            )}
+
             {activeRound === 1 && (
               <span className="text-[11px] font-mono text-amber-300 font-bold">
                 Тайпінг: {traceCharsMatched} / {targetCode.length} симв.
@@ -861,6 +984,7 @@ export const InteractiveCodePlayground: React.FC = () => {
             theme={oneDark}
             extensions={extensions}
             onChange={(val) => {
+              playThrottledKeyClick();
               if (activeRound === 1) {
                 handleTraceChange(val);
               } else {
@@ -875,6 +999,26 @@ export const InteractiveCodePlayground: React.FC = () => {
               autocompletion: false, // Strict muscle memory: no autocomplete!
             }}
           />
+        </div>
+
+        {/* Tactile Hotkeys Quick Bar */}
+        <div className="px-3.5 py-1 bg-[#141517] border-t border-[#23252B] flex items-center justify-between text-[10px] font-mono text-gray-400">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 rounded bg-[#23252B] border border-[#3A3D46] text-gray-200 font-bold text-[9px]">Ctrl+Enter</kbd>
+              <span>{roundCompleted ? t("codegym.nextRoundBtn", "Наступний крок") : t("common.verify", "Перевірка")}</span>
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 rounded bg-[#23252B] border border-[#3A3D46] text-gray-200 font-bold text-[9px]">Esc</kbd>
+              <span>{t("common.reset", "Скидання")}</span>
+            </span>
+          </div>
+          {activeRound === 2 && (
+            <span className="text-gray-400 hidden sm:inline">
+              Заповніть <code className="text-amber-300 font-bold">___</code> прогалини
+            </span>
+          )}
         </div>
 
         {/* Footer & Controls */}

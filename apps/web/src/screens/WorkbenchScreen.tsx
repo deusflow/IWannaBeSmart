@@ -349,6 +349,11 @@ export const WorkbenchScreen: React.FC = () => {
                   onClose={() => { setIsDrawerOpen(false); setIsDrawerPinned(false); }}
                   level={tvLevel01}
                   inline={true}
+                  onOpenArchitectureStudio={() => {
+                    setActiveView("architecture");
+                    setIsDrawerOpen(false);
+                    setIsDrawerPinned(false);
+                  }}
                 />
               </div>
             )}

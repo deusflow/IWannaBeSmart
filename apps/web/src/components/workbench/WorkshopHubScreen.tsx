@@ -3,7 +3,7 @@
  * @description Workshop Station Hub screen with Engineer Dossier Bar and Station Showcase Cards
  */
 
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Lock,
@@ -13,6 +13,8 @@ import {
   CheckCircle2,
   ShieldCheck,
   Cpu,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -29,6 +31,8 @@ export const WorkshopHubScreen: React.FC = () => {
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
   } = useWorkbenchStore();
+
+  const [isDossierExpanded, setIsDossierExpanded] = useState<boolean>(false);
 
   // TV module stats (13 tasks * 3 stars = 39 max stars)
   const maxTvStars = CODING_TASKS.length * 3;
@@ -57,7 +61,9 @@ export const WorkshopHubScreen: React.FC = () => {
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (isTvCompleted && isPosEligibleForCert);
   const station3XpTarget = 200;
-  const station3ProgressPercent = Math.min(100, Math.round((xp / station3XpTarget) * 100));
+  const station3ProgressPercent = isStation3Unlocked
+    ? 100
+    : Math.min(100, Math.round((xp / station3XpTarget) * 100));
 
   // Pattern mastery detection
   const patterns = useMemo(() => {
@@ -65,27 +71,50 @@ export const WorkshopHubScreen: React.FC = () => {
       {
         id: "state-machine",
         name: "State Machine",
-        unlocked: Boolean(completedCodingTasks["task-2-branching"] || taskMasteryStars["task-pos-pin-lockout"]),
+        unlocked: Boolean(
+          completedCodingTasks["task-2-branching"] ||
+          (taskMasteryStars["task-2-branching"] || 0) >= 1 ||
+          completedCodingTasks["task-pos-pin-lockout"] ||
+          (taskMasteryStars["task-pos-pin-lockout"] || 0) >= 1
+        ),
       },
       {
         id: "guard-clauses",
         name: "Guard Clauses",
-        unlocked: Boolean(completedCodingTasks["task-boundary-guard"] || taskMasteryStars["task-pos-guard-clause"]),
+        unlocked: Boolean(
+          completedCodingTasks["task-boundary-guard"] ||
+          (taskMasteryStars["task-boundary-guard"] || 0) >= 1 ||
+          completedCodingTasks["task-pos-guard-clause"] ||
+          (taskMasteryStars["task-pos-guard-clause"] || 0) >= 1
+        ),
       },
       {
         id: "polymorphism",
         name: "Polymorphism",
-        unlocked: Boolean(completedCodingTasks["task-interface-polymorphism"] || taskMasteryStars["task-pos-interface-polymorphism"]),
+        unlocked: Boolean(
+          completedCodingTasks["task-interface-polymorphism"] ||
+          (taskMasteryStars["task-interface-polymorphism"] || 0) >= 1 ||
+          completedCodingTasks["task-pos-interface-polymorphism"] ||
+          (taskMasteryStars["task-pos-interface-polymorphism"] || 0) >= 1
+        ),
       },
       {
         id: "dependency-injection",
         name: "Dependency Injection",
-        unlocked: Boolean(completedCodingTasks["task-di-container"] || taskMasteryStars["task-pos-dependency-injection"]),
+        unlocked: Boolean(
+          completedCodingTasks["task-di-container"] ||
+          (taskMasteryStars["task-di-container"] || 0) >= 1 ||
+          completedCodingTasks["task-pos-dependency-injection"] ||
+          (taskMasteryStars["task-pos-dependency-injection"] || 0) >= 1
+        ),
       },
       {
         id: "open-closed",
         name: "Open-Closed Principle",
-        unlocked: Boolean(completedCodingTasks["task-command-registry"]),
+        unlocked: Boolean(
+          completedCodingTasks["task-command-registry"] ||
+          (taskMasteryStars["task-command-registry"] || 0) >= 1
+        ),
       },
     ];
   }, [completedCodingTasks, taskMasteryStars]);
@@ -149,24 +178,42 @@ export const WorkshopHubScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Global Engineer Dossier Bar (Панель статистики інженера) ── */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/25 shadow-paper-sm space-y-3.5">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1A1D20]/15 pb-2.5">
+      {/* ── Global Engineer Dossier Bar (Панель статистики інженера) with progressive disclosure ── */}
+      <div className="rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/25 shadow-paper-sm overflow-hidden transition-all duration-300">
+        <div className="p-3 sm:px-5 flex flex-wrap items-center justify-between gap-3 bg-[#E4DDD0] border-b border-[#1A1D20]/15">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-emerald-800" />
+            <ShieldCheck size={16} className="text-emerald-800 shrink-0" />
             <h2 className="font-display font-bold text-sm uppercase tracking-wider text-[#1A1D20]">
               {t("hub.dossierTitle", "Досьє інженера")}
             </h2>
+            <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 font-mono text-[10px] font-bold text-emerald-800">
+              {patterns.filter((p) => p.unlocked).length} / {patterns.length} {t("hub.patternsShort", "Патернів")}
+            </span>
           </div>
-          <div className="text-[11px] font-mono text-[#1A1D20]/70">
-            {t("hub.unlockProgress", "Прогрес розблокування")}:{" "}
-            <span className="font-bold text-[#1A1D20]">{xp} / 200 XP</span>
+
+          <div className="flex items-center gap-3">
+            <div className="text-[11px] font-mono text-[#1A1D20]/70">
+              {t("hub.unlockProgress", "Прогрес")}:{" "}
+              <span className="font-bold text-[#1A1D20]">{xp} / 200 XP</span>
+            </div>
+
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsDossierExpanded((p) => !p);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[#1A1D20]/20 bg-[#FAF8F2] hover:bg-white text-[11px] font-mono font-bold text-[#1A1D20] transition-all cursor-pointer shadow-paper-xs"
+              title={isDossierExpanded ? t("common.collapse", "Згорнути досьє") : t("common.details", "Розгорнути досьє")}
+            >
+              <span>{isDossierExpanded ? t("common.collapse", "Згорнути") : t("common.details", "Деталі")}</span>
+              {isDossierExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            </button>
           </div>
         </div>
 
-        {/* Milestone Progress Bar */}
-        <div className="space-y-1">
-          <div className="w-full h-2.5 rounded-full bg-[#DFD7C5] border border-[#1A1D20]/20 overflow-hidden p-0.5">
+        {/* Milestone Progress Bar (Always visible slim indicator) */}
+        <div className="px-4 sm:px-5 py-2">
+          <div className="w-full h-2 rounded-full bg-[#DFD7C5] border border-[#1A1D20]/15 overflow-hidden p-0.5">
             <div
               className="h-full rounded-full bg-[#1A1D20] transition-all duration-500 ease-out"
               style={{ width: `${station3ProgressPercent}%` }}
@@ -174,31 +221,33 @@ export const WorkshopHubScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Mastered Architectural Patterns */}
-        <div className="space-y-1.5 pt-1">
-          <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/60">
-            {t("hub.masteredPatterns", "Освоєні архітектурні патерни")}:
+        {/* Mastered Architectural Patterns (Expandable details) */}
+        {isDossierExpanded && (
+          <div className="px-4 sm:px-5 pb-4 pt-1 space-y-2 border-t border-[#1A1D20]/10 animate-in fade-in">
+            <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/60">
+              {t("hub.masteredPatterns", "Освоєні архітектурні патерни")}:
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {patterns.map((pattern) => (
+                <div
+                  key={pattern.id}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono font-bold transition-colors ${
+                    pattern.unlocked
+                      ? "bg-[#FAF8F2] border-emerald-600/40 text-emerald-900 shadow-2xs"
+                      : "bg-[#DFD7C5]/50 border-[#1A1D20]/15 text-[#1A1D20]/40"
+                  }`}
+                >
+                  {pattern.unlocked ? (
+                    <CheckCircle2 size={13} className="text-emerald-700 shrink-0" />
+                  ) : (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1A1D20]/30 shrink-0" />
+                  )}
+                  <span>{pattern.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {patterns.map((pattern) => (
-              <div
-                key={pattern.id}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono font-bold transition-colors ${
-                  pattern.unlocked
-                    ? "bg-[#FAF8F2] border-emerald-600/40 text-emerald-900 shadow-2xs"
-                    : "bg-[#DFD7C5]/50 border-[#1A1D20]/15 text-[#1A1D20]/40"
-                }`}
-              >
-                {pattern.unlocked ? (
-                  <CheckCircle2 size={13} className="text-emerald-700 shrink-0" />
-                ) : (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#1A1D20]/30 shrink-0" />
-                )}
-                <span>{pattern.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ── Station Showcase Cards Grid (3 Stations) ── */}
@@ -297,7 +346,7 @@ export const WorkshopHubScreen: React.FC = () => {
                   setStationVictoryModalOpen(true);
                 }}
                 className="p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-600/40 text-amber-800 transition-colors cursor-pointer"
-                title="Переглянути матрицю навичок та сертифікат"
+                title={t("hub.viewTvCertTooltip", "Переглянути матрицю навичок та сертифікат")}
               >
                 <Trophy size={16} />
               </button>
@@ -400,7 +449,7 @@ export const WorkshopHubScreen: React.FC = () => {
                   setPosVictoryModalOpen(true);
                 }}
                 className="p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-600/40 text-amber-800 transition-colors cursor-pointer"
-                title="Переглянути комерційний сертифікат фінтех-інженера"
+                title={t("hub.viewFintechCertTooltip", "Переглянути комерційний сертифікат фінтех-інженера")}
               >
                 <Trophy size={16} />
               </button>

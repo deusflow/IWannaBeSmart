@@ -15,6 +15,8 @@ import {
   CreditCard,
   ShieldCheck,
   Check,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -80,6 +82,7 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
   const { setCurrentStationId } = useWorkbenchStore();
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [isMatrixExpanded, setIsMatrixExpanded] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -191,16 +194,31 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
 
         {/* Commercial Skill Matrix */}
         <div className="space-y-2.5">
-          <div className="flex items-center justify-between border-b border-[#1A1D20]/20 pb-1.5">
+          <div className="flex items-center justify-between border-b border-[#1A1D20]/20 pb-1.5 flex-wrap gap-2">
             <h3 className="font-display font-bold text-sm uppercase tracking-wider text-[#1A1D20] flex items-center gap-1.5">
               <Sparkles size={14} className="text-amber-600" />
               <span>{t("fintechVictoryModal.matrixTitle")}</span>
             </h3>
-            <span className="font-mono text-[11px] font-bold text-[#1A1D20]/70">5 / 5 Освоєно</span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded-md">
+                {FINTECH_SKILLS.length} / {FINTECH_SKILLS.length} Освоєно
+              </span>
+              <button
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setIsMatrixExpanded((p) => !p);
+                }}
+                className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 cursor-pointer transition-colors"
+                title={isMatrixExpanded ? "Згорнути" : "Показати всі"}
+              >
+                <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${FINTECH_SKILLS.length})`)}</span>
+                {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {FINTECH_SKILLS.map((skill) => (
+            {(isMatrixExpanded ? FINTECH_SKILLS : FINTECH_SKILLS.slice(0, 4)).map((skill) => (
               <div
                 key={skill.id}
                 className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1 hover:border-[#1A1D20]/30 transition-colors shadow-xs"
@@ -220,6 +238,19 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
               </div>
             ))}
           </div>
+
+          {!isMatrixExpanded && (
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsMatrixExpanded(true);
+              }}
+              className="w-full py-1.5 rounded-xl border border-dashed border-[#1A1D20]/25 bg-[#FAF8F2]/60 hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span>{t("victoryModal.showAllSkills", `Показати ще ${FINTECH_SKILLS.length - 4} навички`)}</span>
+              <ChevronDown size={13} />
+            </button>
+          )}
         </div>
 
         {/* Action Controls */}

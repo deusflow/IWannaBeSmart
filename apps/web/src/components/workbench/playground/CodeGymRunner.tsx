@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   Trophy,
   Zap,
+  X,
 } from "lucide-react";
 import {
   FINTECH_TASKS,
@@ -29,7 +30,7 @@ import {
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
-import { GuidedStepBar, type GuidedStepData } from "./GuidedStepBar";
+import { GuidedStepBar } from "./GuidedStepBar";
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
 
@@ -91,6 +92,26 @@ export const CodeGymRunner: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(sprintTimeLimit);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
+  // WPM & Typing ergonomics
+  const [roundStats, setRoundStats] = useState<{ wpm: number; accuracy: number } | null>(null);
+  const roundStartTimeRef = useRef<number | null>(null);
+  const lastKeySoundTimeRef = useRef<number>(0);
+
+  const playThrottledKeyClick = useCallback(() => {
+    const now = Date.now();
+    if (now - lastKeySoundTimeRef.current > 35) {
+      audioFx.playKeyClick();
+      lastKeySoundTimeRef.current = now;
+    }
+  }, []);
+
+  // Next task calculation
+  const currentTaskIndex = FINTECH_TASKS.findIndex((t) => t.id === currentTask.id);
+  const nextTask =
+    currentTaskIndex >= 0 && currentTaskIndex < FINTECH_TASKS.length - 1
+      ? FINTECH_TASKS[currentTaskIndex + 1]
+      : null;
+
   useEffect(() => {
     updateGutterWidth();
   }, [activeRound, codeLang, targetCode, updateGutterWidth]);
@@ -100,9 +121,6 @@ export const CodeGymRunner: React.FC = () => {
 
   // Guide Spotlight — pulses the targeted POS device node
   useGuideSpotlight(currentTask.id);
-
-  // Show guided explanation bar before first round attempt
-  const [showGuide, setShowGuide] = useState<boolean>(true);
 
   // CodeMirror language extensions
   const extensions = useMemo(() => {
@@ -117,7 +135,6 @@ export const CodeGymRunner: React.FC = () => {
     setActiveRound(1);
     setShowTheory(false);
     setShowTooltip(false);
-    setShowGuide(true); // Reset guide for new task
     const nextTask = FINTECH_TASKS.find((t) => t.id === taskId);
     if (nextTask) {
       resetPosState(nextTask.initialState);
@@ -131,6 +148,8 @@ export const CodeGymRunner: React.FC = () => {
     setHasError(false);
     setIsTimerRunning(false);
     setTimeLeft(sprintTimeLimit);
+    setRoundStats(null);
+    roundStartTimeRef.current = null;
 
     if (activeRound === 1) {
       setTypedCode("");
@@ -145,6 +164,10 @@ export const CodeGymRunner: React.FC = () => {
   const handleTraceChange = useCallback(
     async (input: string) => {
       setTypedCode(input);
+      if (!roundStartTimeRef.current) {
+        roundStartTimeRef.current = Date.now();
+      }
+      playThrottledKeyClick();
 
       // Verify character by character against target
       let mismatch = false;
@@ -168,6 +191,9 @@ export const CodeGymRunner: React.FC = () => {
         // Check if fully and accurately completed
         if (input.trim() === targetCode.trim()) {
           setRoundCompleted(true);
+          const elapsedMinutes = Math.max(0.04, (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000);
+          const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
+          setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
           audioFx.playSuccessFanfare();
           if (currentTask.id === "task-pos-batch-settlement") {
             audioFx.playPrinterSound();
@@ -185,7 +211,7 @@ export const CodeGymRunner: React.FC = () => {
         }
       }
     },
-    [targetCode, currentTask.id, posState, setTaskMastery, completeCodingTask, addXp, applyPosExecution, t]
+    [targetCode, currentTask.id, posState, setTaskMastery, completeCodingTask, addXp, applyPosExecution, playThrottledKeyClick, t]
   );
 
   // ── Round 2: Cloze verification ──────────────────────────────
@@ -207,6 +233,7 @@ export const CodeGymRunner: React.FC = () => {
     if (validation.passed) {
       setHasError(false);
       setRoundCompleted(true);
+      setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       if (currentTask.id === "task-pos-batch-settlement") {
         audioFx.playPrinterSound();
@@ -269,6 +296,10 @@ export const CodeGymRunner: React.FC = () => {
     if (validation.passed) {
       setHasError(false);
       setRoundCompleted(true);
+      const elapsedSec = Math.max(1, sprintTimeLimit - timeLeft);
+      const elapsedMinutes = elapsedSec / 60;
+      const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
+      setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
       if (currentTask.id === "task-pos-batch-settlement") {
         audioFx.playPrinterSound();
@@ -325,6 +356,66 @@ export const CodeGymRunner: React.FC = () => {
   const allFintechCompleted = useMemo(() => {
     return FINTECH_TASKS.every((task) => (taskMasteryStars[task.id] || 0) >= 1);
   }, [taskMasteryStars]);
+
+  // Keyboard Shortcuts (Ctrl+Enter / Cmd+Enter, Esc, Tab in Cloze)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Enter / Cmd+Enter
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (roundCompleted) {
+          if (activeRound < 3) {
+            audioFx.playRelayClick();
+            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3);
+          } else if (nextTask) {
+            audioFx.playRelayClick();
+            handleSelectTask(nextTask.id);
+          }
+          return;
+        }
+
+        if (activeRound === 2) {
+          handleVerifyCloze();
+        } else if (activeRound === 3) {
+          if (!isTimerRunning) {
+            handleStartSprint();
+          } else {
+            handleRunSprint();
+          }
+        }
+        return;
+      }
+
+      // Escape to reset round
+      if (e.key === "Escape") {
+        e.preventDefault();
+        audioFx.playRelayClick();
+        setTypedCode(activeRound === 2 ? clozeTemplate : "");
+        setHasError(false);
+        setFeedback(null);
+        setRoundCompleted(false);
+        setIsTimerRunning(false);
+        setTimeLeft(sprintTimeLimit);
+        setRoundStats(null);
+        roundStartTimeRef.current = null;
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    activeRound,
+    roundCompleted,
+    isTimerRunning,
+    typedCode,
+    clozeTemplate,
+    sprintTimeLimit,
+    nextTask,
+    handleVerifyCloze,
+    handleRunSprint,
+    handleSelectTask,
+  ]);
 
   return (
     <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
@@ -439,13 +530,26 @@ export const CodeGymRunner: React.FC = () => {
           </div>
         </div>
 
-        {/* Parchment Tooltip popover */}
+        {/* Parchment Tooltip popover with close button */}
         {showTooltip && (
-          <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-balsamiq leading-relaxed shadow-sm animate-in fade-in">
-            <div className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/70 mb-1">
-              Простими словами:
+          <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-balsamiq leading-relaxed shadow-sm animate-in fade-in flex items-start justify-between gap-2">
+            <div className="flex-1">
+              <div className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/70 mb-1">
+                {t("common.simpleExplanation", "Простими словами")}:
+              </div>
+              <p>{t(currentTask.descKey)}</p>
             </div>
-            {t(currentTask.descKey)}
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setShowTooltip(false);
+              }}
+              className="p-1 rounded-md hover:bg-[#1A1D20]/10 text-[#1A1D20]/60 hover:text-[#1A1D20] transition-colors cursor-pointer shrink-0"
+              title={t("common.close", "Закрити")}
+              aria-label={t("common.close", "Закрити")}
+            >
+              <X size={14} />
+            </button>
           </div>
         )}
 
@@ -459,15 +563,19 @@ export const CodeGymRunner: React.FC = () => {
           />
         </div>
 
-        {/* ── Guided Step Bar: two-layer explanation before first round ── */}
-        {showGuide && activeRound === 1 && currentTask.simpleExplanationKey && (
+        {/* ── Guided Step Bar: Arcade-style briefing & 5-layer didactic engine ── */}
+        {currentTask.simpleExplanationKey && (
           <GuidedStepBar
             data={{
               simpleKey: currentTask.simpleExplanationKey,
               engineeringKey: currentTask.engineeringKey || currentTask.simpleExplanationKey,
-            } as GuidedStepData}
+              taskId: currentTask.id,
+              codeLang,
+              targetCode: currentTask.targetCode,
+            }}
+            persistent={true}
+            defaultExpanded={starsEarned === 0 && activeRound === 1}
             onStartPractice={() => {
-              setShowGuide(false);
               setTimeout(() => {
                 const cm = document.querySelector(".cm-content") as HTMLElement | null;
                 cm?.focus();
@@ -557,8 +665,19 @@ export const CodeGymRunner: React.FC = () => {
             </span>
           </div>
 
-          {/* Round-specific status display */}
-          <div className="flex items-center gap-3">
+          {/* Round-specific status display & stats */}
+          <div className="flex items-center gap-2">
+            {roundStats && roundStats.wpm > 0 && (
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[10px] font-bold">
+                ⚡ {roundStats.wpm} WPM
+              </span>
+            )}
+            {roundStats && (
+              <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-bold">
+                {roundStats.accuracy}% точність
+              </span>
+            )}
+
             {activeRound === 1 && (
               <span className="text-[11px] font-mono text-amber-300 font-bold">
                 Тайпінг: {traceCharsMatched} / {targetCode.length} симв.
@@ -600,6 +719,7 @@ export const CodeGymRunner: React.FC = () => {
             theme={oneDark}
             extensions={extensions}
             onChange={(val) => {
+              playThrottledKeyClick();
               if (activeRound === 1) {
                 handleTraceChange(val);
               } else {
@@ -614,6 +734,26 @@ export const CodeGymRunner: React.FC = () => {
               autocompletion: false, // Strict muscle memory: no autocomplete!
             }}
           />
+        </div>
+
+        {/* Tactile Hotkeys Quick Bar */}
+        <div className="px-3.5 py-1 bg-[#141517] border-t border-[#23252B] flex items-center justify-between text-[10px] font-mono text-gray-400">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 rounded bg-[#23252B] border border-[#3A3D46] text-gray-200 font-bold text-[9px]">Ctrl+Enter</kbd>
+              <span>{roundCompleted ? t("codegym.nextRoundBtn", "Наступний крок") : t("common.verify", "Перевірка")}</span>
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 rounded bg-[#23252B] border border-[#3A3D46] text-gray-200 font-bold text-[9px]">Esc</kbd>
+              <span>{t("common.reset", "Скидання")}</span>
+            </span>
+          </div>
+          {activeRound === 2 && (
+            <span className="text-gray-400 hidden sm:inline">
+              Заповніть <code className="text-amber-300 font-bold">___</code> прогалини
+            </span>
+          )}
         </div>
 
         {/* Footer & Controls */}
@@ -700,9 +840,23 @@ export const CodeGymRunner: React.FC = () => {
             )}
 
             {roundCompleted && activeRound === 3 && (
-              <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-xs flex items-center gap-1.5">
-                <Trophy size={14} className="text-amber-400" />
-                <span>3-Star Mastered!</span>
+              <div className="flex items-center gap-2">
+                <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-xs flex items-center gap-1.5">
+                  <Trophy size={14} className="text-amber-400" />
+                  <span>3-Star Mastered!</span>
+                </div>
+                {nextTask && (
+                  <button
+                    onClick={() => {
+                      audioFx.playRelayClick();
+                      handleSelectTask(nextTask.id);
+                    }}
+                    className="px-4 py-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
+                  >
+                    <span>{t("codegym.nextTaskBtn", "Наступне завдання →")}</span>
+                    <ArrowRight size={13} />
+                  </button>
+                )}
               </div>
             )}
 

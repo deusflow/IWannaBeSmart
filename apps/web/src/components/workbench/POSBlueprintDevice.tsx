@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ShieldCheck,
   ShieldAlert,
@@ -20,7 +21,18 @@ import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
 
 export const POSBlueprintDevice: React.FC = () => {
-  const { posState, resetPosState, applyPosExecution } = useWorkbenchStore();
+  const { t } = useTranslation();
+  const {
+    posState,
+    resetPosState,
+    applyPosExecution,
+    posManualPin,
+    posIsCardInserted,
+    posKeypadInput,
+    posTapNfc,
+    posInsertChip,
+    posEjectCard,
+  } = useWorkbenchStore();
   const [receiptTorn, setReceiptTorn] = useState<boolean>(false);
 
   const isDeclined = posState.status === "DECLINED";
@@ -28,12 +40,12 @@ export const POSBlueprintDevice: React.FC = () => {
   const isBlocked = posState.isLocked === true || posState.status === "BLOCKED";
   const isSettled = posState.status === "SETTLED";
 
-  const handleKeypadPress = () => {
+  const handleKeypadPress = (key: string) => {
     if (isBlocked) {
       audioFx.playErrorBuzz();
       return;
     }
-    audioFx.playRelayClick();
+    posKeypadInput(key);
   };
 
   const handleTearReceipt = () => {
@@ -84,7 +96,7 @@ export const POSBlueprintDevice: React.FC = () => {
           >
             <div className="text-center font-bold pb-1 border-b border-dashed border-gray-400 mb-1 flex items-center justify-center gap-1">
               <FileText size={10} />
-              <span>Z-REPORT BATCH SUMMARY</span>
+              <span>{t("posDevice.zReportTitle", "Z-REPORT BATCH SUMMARY")}</span>
             </div>
 
             <div className="space-y-0.5 leading-tight text-gray-800">
@@ -110,7 +122,7 @@ export const POSBlueprintDevice: React.FC = () => {
               className="mt-2.5 w-full py-1 rounded bg-[#E8E4D8] hover:bg-[#DCD7C8] border border-[#C8C2B2] text-[#4A453A] font-bold text-[8px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
             >
               <Scissors size={10} />
-              <span>Відірвати чек</span>
+              <span>{t("posDevice.tearReceipt", "Відірвати чек")}</span>
             </button>
           </div>
         )}
@@ -135,15 +147,20 @@ export const POSBlueprintDevice: React.FC = () => {
             </div>
             <div>
               <div className="font-mono font-bold text-xs tracking-wider text-emerald-400 flex items-center gap-1.5">
-                <span>POS-7402 PRO</span>
+                <span>{t("posDevice.title", "POS-7402 PRO")}</span>
                 {isBlocked && (
                   <span className="px-1.5 py-0.2 rounded bg-red-900/80 border border-red-500/60 text-red-300 text-[9px] uppercase animate-pulse">
-                    LOCKED
+                    {t("posDevice.locked", "LOCKED")}
+                  </span>
+                )}
+                {posIsCardInserted && (
+                  <span className="px-1.5 py-0.2 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[9px] uppercase animate-pulse">
+                    {t("posDevice.cardInserted", "КАРТКУ ВСТАВЛЕНО")}
                   </span>
                 )}
               </div>
               <div className="text-[10px] font-mono text-gray-400">
-                EMV / NFC Core • {posState.terminalId || "TERMINAL-01"}
+                {t("posDevice.subtitle", "EMV / NFC Core")} • {posState.terminalId || "TERMINAL-01"}
               </div>
             </div>
           </div>
@@ -154,7 +171,7 @@ export const POSBlueprintDevice: React.FC = () => {
               audioFx.playRelayClick();
               resetPosState();
             }}
-            title="Reset Terminal State"
+            title={t("posDevice.resetTooltip", "Reset Terminal State")}
             className={`p-1.5 rounded-lg transition-all cursor-pointer border flex items-center gap-1 text-xs font-mono ${
               isBlocked
                 ? "bg-red-900/40 hover:bg-red-900/70 text-red-200 border-red-500/60 animate-bounce"
@@ -162,7 +179,7 @@ export const POSBlueprintDevice: React.FC = () => {
             }`}
           >
             <RefreshCw size={14} className={isBlocked ? "animate-spin" : ""} />
-            {isBlocked && <span className="text-[10px] font-bold">Скинути</span>}
+            {isBlocked && <span className="text-[10px] font-bold">{t("posDevice.reset", "Скинути")}</span>}
           </button>
         </div>
 
@@ -181,12 +198,12 @@ export const POSBlueprintDevice: React.FC = () => {
               {isBlocked ? (
                 <>
                   <AlertOctagon size={12} className="text-red-400 animate-spin" />
-                  <span className="text-red-400 font-bold">CARD LOCKOUT ACTIVE</span>
+                  <span className="text-red-400 font-bold">{t("posDevice.cardLockoutActive", "CARD LOCKOUT ACTIVE")}</span>
                 </>
               ) : (
                 <>
                   <Lock size={12} className="text-amber-400" />
-                  <span className="text-gray-400">TLS 1.3</span>
+                  <span className="text-gray-400">{t("posDevice.tls", "TLS 1.3")}</span>
                 </>
               )}
             </span>
@@ -213,7 +230,7 @@ export const POSBlueprintDevice: React.FC = () => {
                 NET:{" "}
                 {posState.isGatewayRegistered && posState.activeGateway
                   ? posState.activeGateway.replace(/Gateway$/i, "").toUpperCase()
-                  : "DISCONNECTED"}
+                  : t("posDevice.netDisconnected", "DISCONNECTED")}
               </span>
             </div>
 
@@ -227,10 +244,13 @@ export const POSBlueprintDevice: React.FC = () => {
             <div className="p-3 rounded-xl bg-red-950/70 border-2 border-red-500 text-center space-y-1 animate-pulse">
               <div className="flex items-center justify-center gap-1.5 text-red-400 font-mono font-extrabold text-xs uppercase tracking-wider">
                 <AlertOctagon size={16} />
-                <span>КАРТКУ ЗАБЛОКОВАНО</span>
+                <span>{t("posDevice.cardBlocked", "КАРТКУ ЗАБЛОКОВАНО")}</span>
               </div>
               <div className="text-[10px] font-mono text-red-300">
-                Перевищено ліміт 3 спроб введення PIN ({posState.failedAttempts || 3}/3). Клавіатуру вимкнено.
+                {t("posDevice.pinLimitExceeded", {
+                  count: posState.failedAttempts || 3,
+                  defaultValue: `Перевищено ліміт 3 спроб введення PIN (${posState.failedAttempts || 3}/3). Клавіатуру вимкнено.`
+                })}
               </div>
             </div>
           ) : (
@@ -239,20 +259,20 @@ export const POSBlueprintDevice: React.FC = () => {
               {/* Account Balance */}
               <div className="p-3 rounded-xl bg-[#17191D] border border-[#262931]">
                 <div className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">
-                  Поточний баланс
+                  {t("posDevice.currentBalance", "Поточний баланс")}
                 </div>
                 <div className="font-mono font-bold text-lg sm:text-xl text-emerald-400">
                   ${posState.balance.toFixed(2)}
                 </div>
-                <div className="text-[9px] font-mono text-gray-500">Checking •••• 4421</div>
+                <div className="text-[9px] font-mono text-gray-500">{t("posDevice.checkingAccount", "Checking •••• 4421")}</div>
               </div>
 
               {/* Transaction Amount & Fee breakdown */}
               <div className="p-3 rounded-xl bg-[#17191D] border border-[#262931]">
                 <div className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">
                   {posState.dailyTotal && posState.dailyTotal > 0
-                    ? "Денний виторг (Z-звіт)"
-                    : "Сума транзакції"}
+                    ? t("posDevice.dailyTotal", "Денний виторг (Z-звіт)")
+                    : t("posDevice.transactionAmount", "Сума транзакції")}
                 </div>
                 <div className="font-mono font-bold text-lg sm:text-xl text-amber-400">
                   ${(posState.dailyTotal && posState.dailyTotal > 0
@@ -266,17 +286,37 @@ export const POSBlueprintDevice: React.FC = () => {
                   <ArrowDownRight size={10} className="text-amber-400" />
                   {posState.fee && posState.fee > 0 ? (
                     <span className="text-amber-300 font-bold">
-                      Вкл. збір: ${posState.fee.toFixed(2)}
+                      {t("posDevice.inclFee", { fee: posState.fee.toFixed(2), defaultValue: `Вкл. збір: $${posState.fee.toFixed(2)}` })}
                     </span>
                   ) : posState.dailyTotal && posState.dailyTotal > 0 ? (
                     <span className="text-emerald-400 font-bold">
-                      {posState.transactions?.length || 4} транзакцій закрито
+                      {t("posDevice.transactionsClosed", { count: posState.transactions?.length || 4, defaultValue: `${posState.transactions?.length || 4} транзакцій закрито` })}
                     </span>
                   ) : (
-                    <span>Запит транзакції</span>
+                    <span>{t("posDevice.txRequest", "Запит транзакції")}</span>
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* PIN Entry Live LCD Line */}
+          {(posIsCardInserted || posManualPin.length > 0 || (posState.failedAttempts && posState.failedAttempts > 0 && !isBlocked)) && !isBlocked && (
+            <div className="px-3 py-2 rounded-xl bg-[#14161A] border border-amber-500/40 flex items-center justify-between font-mono text-xs">
+              <span className="text-amber-400 font-bold flex items-center gap-1.5">
+                <Lock size={12} />
+                <span>{t("posDevice.enterPinPrompt", "Введіть PIN на клавіатурі")}:</span>
+              </span>
+              <span className="tracking-[0.35em] text-white font-extrabold text-sm">
+                {posManualPin ? "•".repeat(posManualPin.length) : "____"}
+              </span>
+              <span className="text-[10px] text-gray-400 font-bold">
+                {posState.failedAttempts && posState.failedAttempts > 0 ? (
+                  <span className="text-red-400">Спроби: {posState.failedAttempts}/3</span>
+                ) : (
+                  <span>{posManualPin.length}/4</span>
+                )}
+              </span>
             </div>
           )}
 
@@ -284,11 +324,11 @@ export const POSBlueprintDevice: React.FC = () => {
           {posState.fee && posState.fee > 0 && !isBlocked && (
             <div className="px-3 py-1.5 rounded-lg bg-[#14161A] border border-[#262931] flex items-center justify-between text-[10px] font-mono">
               <span className="text-gray-400">
-                Сума: <strong className="text-white">${posState.transactionAmount.toFixed(2)}</strong> + Комісія:{" "}
+                {t("posDevice.amountLabel", "Сума:")} <strong className="text-white">${posState.transactionAmount.toFixed(2)}</strong> + {t("posDevice.feeLabel", "Комісія:")}{" "}
                 <strong className="text-amber-400">${posState.fee.toFixed(2)}</strong>
               </span>
               <span className="text-emerald-400 font-bold">
-                Разом: ${(posState.totalAmount || posState.transactionAmount + posState.fee).toFixed(2)}
+                {t("posDevice.totalLabel", "Разом:")} ${(posState.totalAmount || posState.transactionAmount + posState.fee).toFixed(2)}
               </span>
             </div>
           )}
@@ -317,7 +357,7 @@ export const POSBlueprintDevice: React.FC = () => {
               )}
               <div>
                 <div className="font-mono text-[10px] uppercase font-bold tracking-wider opacity-75">
-                  Стан автомата (FSM State):
+                  {t("posDevice.fsmState", "Стан автомата (FSM State):")}
                 </div>
                 <div className="font-mono font-extrabold text-base tracking-widest">
                   {posState.status}
@@ -327,47 +367,69 @@ export const POSBlueprintDevice: React.FC = () => {
 
             {isDeclined && (
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-900/60 border border-red-500/50 text-red-300">
-                Овердрафт зупинено!
+                {t("posDevice.overdraftStopped", "Овердрафт зупинено!")}
               </span>
             )}
             {isApproved && (
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-900/60 border border-emerald-500/50 text-emerald-300">
-                Авторизовано ✓
+                {t("posDevice.authorized", "Авторизовано ✓")}
               </span>
             )}
             {isSettled && (
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-900/60 border border-cyan-500/50 text-cyan-300">
-                Пакет закрито ✓
+                {t("posDevice.batchClosed", "Пакет закрито ✓")}
               </span>
             )}
             {isBlocked && (
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-900/80 border border-red-500/80 text-red-200 animate-pulse">
-                БЛОКОВАНО ⛔
+                {t("posDevice.blocked", "БЛОКОВАНО ⛔")}
               </span>
             )}
           </div>
         </div>
 
-          <div
-            data-guide="pos-chip"
-            className="relative z-10 my-3 flex items-center justify-between px-2 text-[10px] font-mono text-gray-500"
+        {/* Interactive NFC Tap & Chip Insert Hardware Bar */}
+        <div
+          data-guide="pos-chip"
+          className="relative z-10 my-3 flex items-center justify-between gap-2 text-[10px] font-mono"
+        >
+          {/* Interactive NFC Tap Button */}
+          <button
+            onClick={posTapNfc}
+            disabled={isBlocked}
+            className="flex-1 py-2 px-3 rounded-xl bg-[#22252C] hover:bg-[#2B2F38] border border-[#3A404D] hover:border-emerald-500/60 flex items-center justify-center gap-1.5 text-gray-200 hover:text-emerald-300 transition-all cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+            title={t("posDevice.tapCard", "Прикласти картку (NFC)")}
           >
-          <div className="flex items-center gap-1">
             <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                isBlocked ? "bg-red-500" : "bg-emerald-500 animate-pulse"
+              className={`w-2 h-2 rounded-full ${
+                isBlocked ? "bg-red-500" : "bg-emerald-400 animate-pulse"
               }`}
             />
-            <span>{isBlocked ? "NFC Disabled" : "NFC Ready"}</span>
-          </div>
-          <div className="h-1 flex-1 mx-4 bg-[#282B32] rounded-full overflow-hidden">
-            <div
-              className={`h-full w-1/3 rounded-full ${
-                isBlocked ? "bg-red-500/50" : "bg-emerald-500/50"
-              }`}
-            />
-          </div>
-          <span>EMV CHIP INSERT ▼</span>
+            <span className="font-bold">{t("posDevice.tapCard", "Прикласти картку (NFC)")}</span>
+          </button>
+
+          {/* Interactive Chip Insert Button */}
+          <button
+            onClick={posIsCardInserted ? posEjectCard : posInsertChip}
+            disabled={isBlocked}
+            className={`flex-1 py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm ${
+              posIsCardInserted
+                ? "bg-amber-950/40 hover:bg-amber-900/60 border-amber-500/70 text-amber-300"
+                : "bg-[#22252C] hover:bg-[#2B2F38] border-[#3A404D] hover:border-amber-500/60 text-gray-200 hover:text-amber-300"
+            }`}
+            title={
+              posIsCardInserted
+                ? t("posDevice.ejectCard", "Витягнути картку")
+                : t("posDevice.insertChip", "Вставити чип (EMV)")
+            }
+          >
+            <CreditCard size={13} className={posIsCardInserted ? "text-amber-400 animate-pulse" : "text-gray-400"} />
+            <span className="font-bold">
+              {posIsCardInserted
+                ? t("posDevice.ejectCard", "Витягнути картку")
+                : t("posDevice.insertChip", "Вставити чип (EMV)")}
+            </span>
+          </button>
         </div>
 
         {/* Tactile Keypad (Physically disabled when isBlocked) */}
@@ -376,47 +438,72 @@ export const POSBlueprintDevice: React.FC = () => {
             isBlocked ? "opacity-30 pointer-events-none cursor-not-allowed" : ""
           }`}
         >
-          {/* Numeric buttons */}
+          {/* Row 1 */}
           {["1", "2", "3", "CLR"].map((k) => (
             <button
               key={k}
               disabled={isBlocked}
-              onClick={handleKeypadPress}
-              className={`py-2 rounded-xl font-mono font-bold text-xs border transition-all active:scale-95 cursor-pointer shadow-md ${
+              onClick={() => handleKeypadPress(k)}
+              className={`py-2.5 rounded-xl font-mono font-bold text-xs border transition-all active:scale-95 cursor-pointer shadow-md ${
                 k === "CLR"
-                  ? "bg-amber-900/30 border-amber-600/40 text-amber-300 hover:bg-amber-900/50"
+                  ? "bg-amber-900/30 border-amber-600/50 text-amber-300 hover:bg-amber-900/50"
                   : "bg-[#252830] border-[#373B45] text-gray-200 hover:bg-[#2F333D]"
               }`}
             >
               {k}
             </button>
           ))}
+          {/* Row 2 */}
           {["4", "5", "6", "CNCL"].map((k) => (
             <button
               key={k}
               disabled={isBlocked}
-              onClick={handleKeypadPress}
-              className={`py-2 rounded-xl font-mono font-bold text-xs border transition-all active:scale-95 cursor-pointer shadow-md ${
+              onClick={() => handleKeypadPress(k)}
+              className={`py-2.5 rounded-xl font-mono font-bold text-xs border transition-all active:scale-95 cursor-pointer shadow-md ${
                 k === "CNCL"
-                  ? "bg-red-900/30 border-red-600/40 text-red-300 hover:bg-red-900/50"
+                  ? "bg-red-900/30 border-red-600/50 text-red-300 hover:bg-red-900/50"
                   : "bg-[#252830] border-[#373B45] text-gray-200 hover:bg-[#2F333D]"
               }`}
             >
               {k}
             </button>
           ))}
+          {/* Row 3 */}
           {["7", "8", "9", "ENTR"].map((k) => (
             <button
               key={k}
               disabled={isBlocked}
-              onClick={handleKeypadPress}
-              className={`py-2 rounded-xl font-mono font-bold text-xs border transition-all active:scale-95 cursor-pointer shadow-md ${
+              onClick={() => handleKeypadPress(k)}
+              className={`py-2.5 rounded-xl font-mono font-bold text-xs border transition-all active:scale-95 cursor-pointer shadow-md ${
                 k === "ENTR"
-                  ? "bg-emerald-900/30 border-emerald-600/40 text-emerald-300 hover:bg-emerald-900/50"
+                  ? "bg-emerald-900/30 border-emerald-600/50 text-emerald-300 hover:bg-emerald-900/50"
                   : "bg-[#252830] border-[#373B45] text-gray-200 hover:bg-[#2F333D]"
               }`}
             >
               {k}
+            </button>
+          ))}
+          {/* Row 4: *, 0, #, EJECT */}
+          {[
+            { label: "*", val: "*" },
+            { label: "0", val: "0" },
+            { label: "#", val: "#" },
+            {
+              label: posIsCardInserted ? "EJECT" : "•",
+              val: posIsCardInserted ? "CNCL" : "00",
+            },
+          ].map((item) => (
+            <button
+              key={item.label}
+              disabled={isBlocked}
+              onClick={() => handleKeypadPress(item.val)}
+              className={`py-2.5 rounded-xl font-mono font-bold text-xs border transition-all active:scale-95 cursor-pointer shadow-md ${
+                item.label === "EJECT"
+                  ? "bg-amber-900/40 border-amber-600/50 text-amber-200 hover:bg-amber-900/60"
+                  : "bg-[#252830] border-[#373B45] text-gray-300 hover:bg-[#2F333D]"
+              }`}
+            >
+              {item.label}
             </button>
           ))}
         </div>

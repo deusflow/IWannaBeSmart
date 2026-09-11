@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, Award, Download, ArrowRight, X, Sparkles, Layers } from "lucide-react";
+import { CheckCircle2, Award, Download, ArrowRight, X, Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 
 interface StationCompletionModalProps {
@@ -98,6 +98,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
   const { t } = useTranslation();
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [isMatrixExpanded, setIsMatrixExpanded] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -215,23 +216,36 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
           </div>
         </div>
 
-        {/* Skill Mastery Matrix (8 Core Competencies) */}
+        {/* Skill Mastery Matrix */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between border-b border-[#1A1D20]/15 pb-1.5">
+          <div className="flex items-center justify-between border-b border-[#1A1D20]/15 pb-1.5 flex-wrap gap-2">
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#1A1D20]">
               <Layers size={14} />
               <span>{t("victoryModal.matrixTitle", "Інженерна матриця навичок (Skill Mastery Matrix)")}</span>
             </div>
-            <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-md">
-              8 / 8 Освоєно
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-md">
+                {SKILL_MATRIX.length} / {SKILL_MATRIX.length} Освоєно
+              </span>
+              <button
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setIsMatrixExpanded((p) => !p);
+                }}
+                className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 cursor-pointer transition-colors"
+                title={isMatrixExpanded ? "Згорнути" : "Показати всі"}
+              >
+                <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${SKILL_MATRIX.length})`)}</span>
+                {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {SKILL_MATRIX.map((skill) => (
+            {(isMatrixExpanded ? SKILL_MATRIX : SKILL_MATRIX.slice(0, 4)).map((skill) => (
               <div
                 key={skill.id}
-                className="p-2.5 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-2.5 shadow-xs"
+                className="p-2.5 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-2.5 shadow-xs transition-all"
               >
                 <div className="w-5 h-5 rounded-md bg-emerald-600/20 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
                   <CheckCircle2 size={13} />
@@ -247,6 +261,19 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
               </div>
             ))}
           </div>
+
+          {!isMatrixExpanded && (
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsMatrixExpanded(true);
+              }}
+              className="w-full py-1.5 rounded-xl border border-dashed border-[#1A1D20]/25 bg-[#FAF8F2]/60 hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span>{t("victoryModal.showAllSkills", `Показати ще ${SKILL_MATRIX.length - 4} навички`)}</span>
+              <ChevronDown size={13} />
+            </button>
+          )}
         </div>
 
         {/* Actions Footer */}

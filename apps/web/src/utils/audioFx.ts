@@ -298,6 +298,33 @@ class AudioFxEngine {
       osc.stop(startTime + 0.135);
     });
   }
+
+  /**
+   * Procedural tactile mechanical switch click for Code Gym typing
+   * High-frequency transient burst decaying exponentially in ~12ms.
+   */
+  public playKeyClick(): void {
+    if (this._isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1700 + Math.random() * 250, t);
+    osc.frequency.exponentialRampToValueAtTime(320, t + 0.012);
+
+    gain.gain.setValueAtTime(0.04, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.014);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.015);
+  }
 }
 
 export const audioFx = new AudioFxEngine();
