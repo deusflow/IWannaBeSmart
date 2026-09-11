@@ -28,9 +28,9 @@ import { ArchitectureTerminal } from "./ArchitectureTerminal";
 import { MentorBar } from "./MentorBar";
 import { CompletionModal } from "./CompletionModal";
 import { PROJECT_FILES } from "./projectData";
-import type { ArchitectureNodeData, TerminalLogEntry, PortType } from "./types";
+import type { ArchitectureNodeData, TerminalLogEntry, PortType, InjectedDependencyInfo } from "./types";
 import { Badge } from "@iw/ui";
-import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap } from "lucide-react";
+import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap, X } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 
 interface ArchitectureCanvasProps {
@@ -143,12 +143,13 @@ const lid = () => `log-${++_lid}-${Date.now()}`;
 // ────────────────────────────────────────────────
 const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
   const pc = PROJECT_FILES.find((f) => f.id === "class-power-command")!;
+  const vol = PROJECT_FILES.find((f) => f.id === "class-volume-up-command")!;
   const tv = PROJECT_FILES.find((f) => f.id === "class-tv-controller")!;
   return [
     {
       id: "node-class-power-command",
       type: "architectureNode",
-      position: { x: 60, y: 100 },
+      position: { x: 60, y: 60 },
       width: 310,
       data: {
         fileId: pc.id, name: pc.name, path: pc.path,
@@ -158,15 +159,28 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
       },
     },
     {
+      id: "node-class-volume-up-command",
+      type: "architectureNode",
+      position: { x: 60, y: 310 },
+      width: 310,
+      data: {
+        fileId: vol.id, name: vol.name, path: vol.path,
+        entityType: vol.entityType, role: vol.role,
+        inputs: vol.inputs, outputs: vol.outputs,
+        implementsInterface: vol.implementsInterface,
+      },
+    },
+    {
       id: "node-class-tv-controller",
       type: "architectureNode",
-      position: { x: 460, y: 80 },
+      position: { x: 480, y: 120 },
       width: 310,
       data: {
         fileId: tv.id, name: tv.name, path: tv.path,
         entityType: tv.entityType, role: tv.role,
         inputs: tv.inputs, outputs: tv.outputs,
         implementsInterface: tv.implementsInterface,
+        injectedDependency: null,
       },
     },
   ];
@@ -201,6 +215,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<ArchitectureEdgeData>>(initialEdges);
   const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>([]);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [isHotSwapInsightOpen, setIsHotSwapInsightOpen] = useState(false);
   const [diMode, setDiMode] = useState<"WITH_DI" | "WITHOUT_DI">("WITH_DI");
   const [currentTraceStep, setCurrentTraceStep] = useState<number>(0);
   const flashTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -219,6 +234,45 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       }))
     );
   }, [setEdges]);
+
+  // Synchronize TVController._cmd memory slot with connected edge
+  useEffect(() => {
+    const activeEdge = edges.find(
+      (e) =>
+        e.target.includes("tv-controller") &&
+        e.targetHandle === "in-command-handler"
+    );
+
+    let dep: InjectedDependencyInfo | null = null;
+    if (activeEdge) {
+      if (activeEdge.source.includes("power-command")) {
+        dep = { name: "PowerCommand", address: "0x7F2A", commandType: "power" };
+      } else if (activeEdge.source.includes("volume")) {
+        dep = { name: "VolumeUpCommand", address: "0x9B1C", commandType: "volume" };
+      } else {
+        dep = { name: "CustomCommand", address: "0x4A10", commandType: "other" };
+      }
+    }
+
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === "node-class-tv-controller") {
+          const currentDep = n.data.injectedDependency;
+          if (currentDep?.name === dep?.name && currentDep?.address === dep?.address) {
+            return n;
+          }
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              injectedDependency: dep,
+            },
+          };
+        }
+        return n;
+      })
+    );
+  }, [edges, setNodes]);
 
   // Sync completion modal with store
   useEffect(() => {
@@ -254,9 +308,23 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     [edges]
   );
 
+  const isVolumeWired = useMemo(
+    () =>
+      edges.some(
+        (e) =>
+          e.source.includes("volume") &&
+          e.sourceHandle === "out-execute" &&
+          e.target.includes("tv-controller") &&
+          e.targetHandle === "in-command-handler"
+      ),
+    [edges]
+  );
+
+  const isAnyCommandWired = isPowerWired || isVolumeWired;
+
   useEffect(() => {
-    setArchitecturePowerWired(isPowerWired);
-  }, [isPowerWired, setArchitecturePowerWired]);
+    setArchitecturePowerWired(isAnyCommandWired);
+  }, [isAnyCommandWired, setArchitecturePowerWired]);
 
   // ── Persist graph to store (debounced 50ms) ──
   useEffect(() => {
@@ -487,11 +555,26 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   // ── onConnect ───────────────────────────────
   const onConnect: OnConnect = useCallback(
     (params: Connection) => {
-      const isPowerWire =
-        Boolean(params.source?.includes("power-command")) &&
-        params.sourceHandle === "out-execute" &&
+      const isTargetTvCtor =
         Boolean(params.target?.includes("tv-controller")) &&
         params.targetHandle === "in-command-handler";
+
+      const isPowerSource =
+        Boolean(params.source?.includes("power-command")) &&
+        params.sourceHandle === "out-execute";
+
+      const isVolumeSource =
+        Boolean(params.source?.includes("volume")) &&
+        params.sourceHandle === "out-execute";
+
+      const isPowerWire = isPowerSource && isTargetTvCtor;
+      const isVolumeWire = isVolumeSource && isTargetTvCtor;
+      const isCommandWire = isPowerWire || isVolumeWire;
+      const commandName = isVolumeWire
+        ? "VolumeUpCommand"
+        : isPowerWire
+        ? "PowerCommand"
+        : undefined;
 
       const srcNode = getNodeName(params.source ?? "", nodes);
       const tgtNode = getNodeName(params.target ?? "", nodes);
@@ -502,12 +585,42 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         ...params,
         id: `ae-${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`,
         type: "architectureEdge",
-        data: { isValidPowerWire: isPowerWire, diMode, onDelete: handleDeleteEdge },
+        data: {
+          isValidPowerWire: isCommandWire,
+          commandName,
+          diMode,
+          onDelete: handleDeleteEdge,
+        },
       };
 
-      setEdges((eds) => addEdge(newEdge, eds));
+      // Single-slot rule: If connecting to tv-controller ctor, remove any existing command wire!
+      setEdges((eds) => {
+        const filtered = isTargetTvCtor
+          ? eds.filter(
+              (e) =>
+                !(
+                  e.target.includes("tv-controller") &&
+                  e.targetHandle === "in-command-handler"
+                )
+            )
+          : eds;
+        return addEdge(newEdge, filtered);
+      });
 
-      if (isPowerWire) {
+      if (isVolumeWire) {
+        audioFx.playRelayClick();
+        setIsHotSwapInsightOpen(true);
+        addLog({
+          type: "success",
+          subsystem: "IoC",
+          operation: "HOT_SWAP",
+          message: `${tgtNode}.${tgtPort} -> hot-swapped with ${srcNode} (0x9B1C)`,
+          targetNodeId: params.target ?? undefined,
+          details: "Поліморфізм у дії: TVController.cs не змінено жодним рядком!",
+          codeContext: `// Hot Swap Polymorphism:\nservices.AddTransient<IRemoteCommand, VolumeUpCommand>();\n// TVController._cmd.Execute() тепер змінює гучність!`,
+        });
+      } else if (isPowerWire) {
+        audioFx.playRelayClick();
         if (mentorPhase === "GUIDED") {
           setMentorPhase("VERIFY");
           addLog({
@@ -554,10 +667,62 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, diMode]
   );
 
+  // ── Hot Swap: Toggle between PowerCommand & VolumeUpCommand ──
+  const handleHotSwap = useCallback(() => {
+    // If currently volume is wired, swap to power; otherwise swap to volume
+    const targetSource = isVolumeWired ? "node-class-power-command" : "node-class-volume-up-command";
+    const commandName = isVolumeWired ? "PowerCommand" : "VolumeUpCommand";
+    const addr = isVolumeWired ? "0x7F2A" : "0x9B1C";
+
+    // Ensure target node is on canvas
+    if (isVolumeWired) {
+      addNodeByFileId("class-power-command", { x: 60, y: 60 });
+    } else {
+      addNodeByFileId("class-volume-up-command", { x: 60, y: 310 });
+    }
+    addNodeByFileId("class-tv-controller", { x: 480, y: 120 });
+
+    const newEdge: Edge<ArchitectureEdgeData> = {
+      id: `ae-hotswap-${targetSource}`,
+      source: targetSource,
+      sourceHandle: "out-execute",
+      target: "node-class-tv-controller",
+      targetHandle: "in-command-handler",
+      type: "architectureEdge",
+      data: {
+        isValidPowerWire: true,
+        commandName,
+        diMode,
+        onDelete: handleDeleteEdge,
+      },
+    };
+
+    setEdges((eds) => {
+      const filtered = eds.filter(
+        (e) =>
+          !(e.target.includes("tv-controller") && e.targetHandle === "in-command-handler")
+      );
+      return [...filtered, newEdge];
+    });
+
+    audioFx.playRelayClick();
+    setIsHotSwapInsightOpen(true);
+
+    addLog({
+      type: "success",
+      subsystem: "IoC",
+      operation: "HOT_SWAP",
+      message: `HOT SWAP ➔ Injected ${commandName} (${addr}) into TVController`,
+      targetNodeId: "node-class-tv-controller",
+      details: "Поліморфізм: TVController.cs не змінився! Змінено лише прив'язку DI-контейнера.",
+      codeContext: `// IoC Container configuration update:\nservices.AddTransient<IRemoteCommand, ${commandName}>();\n// TVController._cmd.Execute() тепер виконує ${commandName}!`,
+    });
+  }, [isVolumeWired, addNodeByFileId, handleDeleteEdge, setEdges, diMode, addLog]);
+
   // ── Auto-Wire ────────────────────────────────
   const handleAutoWire = useCallback(() => {
-    addNodeByFileId("class-power-command", { x: 60, y: 100 });
-    addNodeByFileId("class-tv-controller", { x: 460, y: 80 });
+    addNodeByFileId("class-power-command", { x: 60, y: 60 });
+    addNodeByFileId("class-tv-controller", { x: 480, y: 120 });
 
     const autoEdge: Edge<ArchitectureEdgeData> = {
       id: "ae-auto-power",
@@ -566,14 +731,14 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       target: "node-class-tv-controller",
       targetHandle: "in-command-handler",
       type: "architectureEdge",
-      data: { isValidPowerWire: true, diMode, onDelete: handleDeleteEdge },
+      data: { isValidPowerWire: true, commandName: "PowerCommand", diMode, onDelete: handleDeleteEdge },
     };
 
     setEdges((eds) => {
       const filtered = eds.filter(
         (e) =>
-          !(e.source === "node-class-power-command" &&
-            e.target === "node-class-tv-controller")
+          !(e.target.includes("tv-controller") &&
+            e.targetHandle === "in-command-handler")
       );
       return [...filtered, autoEdge];
     });
@@ -640,19 +805,42 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   const triggerCallFlowTrace = useCallback(() => {
     if (isTracing) return;
 
-    if (!isPowerWired) {
+    if (!isAnyCommandWired) {
       audioFx.playErrorBuzz();
+      // Trigger Red Memory Crash Shake on TVController
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === "node-class-tv-controller"
+            ? { ...n, data: { ...n.data, isMemoryCrashing: true } }
+            : n
+        )
+      );
+      setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((n) =>
+            n.id === "node-class-tv-controller"
+              ? { ...n, data: { ...n.data, isMemoryCrashing: false } }
+              : n
+          )
+        );
+      }, 1400);
+
       addLog({
         type: "error",
         subsystem: "FAULT",
         operation: "NULL_REF",
-        message: "NullReferenceException: TVController._cmd is null",
+        message: "NullReferenceException: TVController._cmd is null ⚠️",
         targetNodeId: "node-class-tv-controller",
         details: "Object reference not set to an instance of an object at TVController.Dispatch()",
-        codeContext: "// Runtime Fault:\n// TVController._cmd == null!\n// Dependency injection contract is unfulfilled.\n// Wire PowerCommand.Execute -> TVController.CommandHandler first!",
+        codeContext: "// Runtime Crash (NullReferenceException):\n// TVController._cmd == null!\n// Dependency injection contract is unfulfilled.\n// Підключіть PowerCommand або VolumeUpCommand до TVController.ctor!",
       });
       return;
     }
+
+    const isVol = isVolumeWired;
+    const targetCmdNodeId = isVol ? "node-class-volume-up-command" : "node-class-power-command";
+    const cmdName = isVol ? "VolumeUpCommand" : "PowerCommand";
+    const cmdAddr = isVol ? "0x9B1C" : "0x7F2A";
 
     setIsTracing(true);
     setCurrentTraceStep(1);
@@ -664,7 +852,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       type: "info",
       subsystem: "BUS",
       operation: "DISPATCH",
-      message: "Remote -> TVController.Dispatch()",
+      message: `Remote -> TVController.Dispatch() [Target: ${cmdName}]`,
       targetNodeId: "node-class-tv-controller",
       details: "IR signal decoded by microcontroller bus (Channel 0x01)",
     });
@@ -692,7 +880,8 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       setCurrentTraceStep(2);
       setEdges((eds) =>
         eds.map((e) =>
-          e.source.includes("power-command") && e.target.includes("tv-controller")
+          (e.source.includes("power-command") || e.source.includes("volume")) &&
+          e.target.includes("tv-controller")
             ? { ...e, data: { ...e.data, isPulsing: true, pulseLabel: "IRemoteCommand.Execute()" } }
             : e
         )
@@ -701,27 +890,27 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         type: "info",
         subsystem: "IoC",
         operation: "RESOLVE",
-        message: "TVController.ctor -> injected PowerCommand (0x7F2A)",
-        targetNodeId: "node-class-power-command",
+        message: `TVController.ctor -> resolved ${cmdName} (${cmdAddr})`,
+        targetNodeId: targetCmdNodeId,
         details: "Transient resolution via ServiceProvider container",
       });
     }, 450);
     traceTimers.current.push(t1);
 
-    // Stage 3 (t = 950ms): VTable resolution on PowerCommand
+    // Stage 3 (t = 950ms): VTable resolution on active command node
     const t2 = setTimeout(() => {
       setCurrentTraceStep(3);
-      const pcNode = getNode("node-class-power-command");
-      if (pcNode) {
+      const cmdNode = getNode(targetCmdNodeId);
+      if (cmdNode) {
         setCenter(
-          pcNode.position.x + (pcNode.width ?? 310) / 2,
-          pcNode.position.y + (pcNode.measured?.height ?? 200) / 2,
+          cmdNode.position.x + (cmdNode.width ?? 310) / 2,
+          cmdNode.position.y + (cmdNode.measured?.height ?? 200) / 2,
           { zoom: 1.1, duration: 350 }
         );
       }
       setNodes((nds) =>
         nds.map((n) =>
-          n.id === "node-class-power-command"
+          n.id === targetCmdNodeId
             ? { ...n, data: { ...n.data, isPulsing: true, isVTableTarget: true } }
             : n
         )
@@ -730,31 +919,48 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         type: "success",
         subsystem: "VTABLE",
         operation: "VTABLE_RESOLVED",
-        message: "IRemoteCommand.Execute() -> PowerCommand.Execute()",
-        targetNodeId: "node-class-power-command",
+        message: `IRemoteCommand.Execute() -> ${cmdName}.Execute()`,
+        targetNodeId: targetCmdNodeId,
         details: "Virtual method table offset 0x00 resolved concrete implementation",
-        codeContext: "// Dynamic Polymorphism:\n// vtable[0] -> PowerCommand.Execute()\n// Context: TV power toggle command executed",
+        codeContext: `// Dynamic Polymorphism:\n// vtable[0] -> ${cmdName}.Execute()\n// Код TVController залишився абсолютно незмінним!`,
       });
     }, 950);
     traceTimers.current.push(t2);
 
-    // Stage 4 (t = 1500ms): Hardware relay fires & state toggled
+    // Stage 4 (t = 1500ms): Hardware relay or DSP volume execution
     const t3 = setTimeout(() => {
       setCurrentTraceStep(4);
-      const currentPower = useWorkbenchStore.getState().power;
-      useWorkbenchStore.getState().togglePower();
-      const nextPower = !currentPower;
-      addLog({
-        type: "success",
-        subsystem: "HARDWARE",
-        operation: nextPower ? "RELAY_ON" : "STANDBY",
-        message: nextPower
-          ? "CRT Power Rail -> 115V OK (State: OPERATIONAL)"
-          : "CRT Power Rail -> 0V (State: STANDBY)",
-        details: nextPower
-          ? "Main power relay energized, cathode filament heated"
-          : "Main power relay disengaged, high voltage discharged",
-      });
+      if (isVol) {
+        const store = useWorkbenchStore.getState();
+        if (!store.power) {
+          store.togglePower();
+        }
+        store.changeVolume(10);
+        audioFx.playRemoteBeep();
+        const updatedVol = useWorkbenchStore.getState().volume;
+        addLog({
+          type: "success",
+          subsystem: "HARDWARE",
+          operation: "VOLUME_INC",
+          message: `DSP Audio Amplifier -> Gain +10% (Рівень: ${updatedVol}%)`,
+          details: "Гучність телевізора збільшено! TVController.cs виконав новий алгоритм без переписування коду.",
+        });
+      } else {
+        const currentPower = useWorkbenchStore.getState().power;
+        useWorkbenchStore.getState().togglePower();
+        const nextPower = !currentPower;
+        addLog({
+          type: "success",
+          subsystem: "HARDWARE",
+          operation: nextPower ? "RELAY_ON" : "STANDBY",
+          message: nextPower
+            ? "CRT Power Rail -> 115V OK (State: OPERATIONAL)"
+            : "CRT Power Rail -> 0V (State: STANDBY)",
+          details: nextPower
+            ? "Main power relay energized, cathode filament heated"
+            : "Main power relay disengaged, high voltage discharged",
+        });
+      }
     }, 1500);
     traceTimers.current.push(t3);
 
@@ -774,9 +980,12 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         }))
       );
       setIsTracing(false);
+      if (isVol) {
+        setIsHotSwapInsightOpen(true);
+      }
     }, 2400);
     traceTimers.current.push(t4);
-  }, [isTracing, isPowerWired, addLog, getNode, setCenter, setNodes, setEdges]);
+  }, [isTracing, isAnyCommandWired, isVolumeWired, addLog, getNode, setCenter, setNodes, setEdges]);
 
   // ── Fit view on mount ────────────────────────
   useEffect(() => {
@@ -813,7 +1022,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       {/* ── Mission bar ── */}
       <div
         className={`px-4 py-2 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-2 select-none shrink-0 transition-colors duration-300 ${
-          isPowerWired
+          isAnyCommandWired
             ? "bg-emerald-950/40 border-emerald-800/50"
             : "bg-[#242428] border-[#2E2E32]"
         }`}
@@ -821,25 +1030,31 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         <div className="flex items-center gap-3 min-w-0">
           <div
             className={`p-1.5 rounded-lg shrink-0 ${
-              isPowerWired ? "bg-emerald-500 text-white" : "bg-amber-500/80 text-white animate-pulse"
+              isAnyCommandWired
+                ? "bg-emerald-500 text-white shadow-[0_0_10px_rgba(34,197,94,0.4)]"
+                : "bg-amber-500/80 text-white animate-pulse"
             }`}
           >
-            {isPowerWired ? <CheckCircle2 size={15} /> : <Cable size={15} />}
+            {isAnyCommandWired ? <CheckCircle2 size={15} /> : <Cable size={15} />}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-mono font-bold text-[11px] text-gray-200">
                 {t("architecture.level1Title")}
               </span>
-              <Badge variant={isPowerWired ? "ok" : "accent"} size="sm" className="text-[9px]">
-                {isPowerWired
-                  ? t("architecture.connectionActive")
+              <Badge variant={isAnyCommandWired ? "ok" : "accent"} size="sm" className="text-[9px]">
+                {isAnyCommandWired
+                  ? isVolumeWired
+                    ? "VolumeUpCommand (0x9B1C)"
+                    : "PowerCommand (0x7F2A)"
                   : t("architecture.waitingConnection")}
               </Badge>
             </div>
-            <p className="font-balsamiq text-[9.5px] text-gray-500 leading-tight">
-              {isPowerWired
-                ? t("architecture.missionSuccess")
+            <p className="font-balsamiq text-[9.5px] text-gray-400 leading-tight">
+              {isAnyCommandWired
+                ? isVolumeWired
+                  ? "Підключено VolumeUpCommand — перевірте поліморфне трасування гучності!"
+                  : t("architecture.missionSuccess")
                 : t("architecture.missionInstructions")}
             </p>
           </div>
@@ -873,19 +1088,42 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
             </button>
           </div>
 
+          {/* Hot Swap Quick-Action Button */}
+          <button
+            onClick={handleHotSwap}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/40 hover:bg-purple-900/60 border border-purple-500/50 text-purple-200 hover:text-white text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95 shadow-[0_0_12px_rgba(168,85,247,0.25)]"
+            title={t("architecture.hotSwapBtn", "Швидка заміна (Hot Swap)")}
+          >
+            <RotateCcw size={12} className="text-purple-400" />
+            <span>{isVolumeWired ? "🔄 Hot Swap: Power" : "🔄 Hot Swap: Volume"}</span>
+          </button>
+
           <button
             onClick={triggerCallFlowTrace}
             disabled={isTracing}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95 shadow-sm ${
               isTracing
                 ? "bg-amber-500/20 border-amber-500/50 text-amber-300 animate-pulse cursor-wait"
-                : isPowerWired
+                : isAnyCommandWired
                 ? "bg-amber-600/20 hover:bg-amber-600/30 border-amber-500/40 text-amber-300 hover:shadow-[0_0_12px_rgba(245,158,11,0.3)]"
-                : "bg-[#2E2F36] hover:bg-[#383A44] border-white/[0.07] text-gray-400"
+                : "bg-red-950/40 hover:bg-red-950/60 border-red-500/40 text-red-300 hover:shadow-[0_0_8px_rgba(239,68,68,0.3)]"
             }`}
-            title="Провести тестовий імпульс через шину викликів"
+            title={
+              isAnyCommandWired
+                ? "Провести тестовий імпульс через шину викликів"
+                : "Викликати без залежності (NullReferenceException)"
+            }
           >
-            <Zap size={12} className={isTracing ? "animate-spin text-amber-400" : "text-amber-400"} />
+            <Zap
+              size={12}
+              className={
+                isTracing
+                  ? "animate-spin text-amber-400"
+                  : isAnyCommandWired
+                  ? "text-amber-400"
+                  : "text-red-400"
+              }
+            />
             {isTracing ? "Трасування..." : "⚡ Трасувати виклик"}
           </button>
           <button
@@ -997,7 +1235,9 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
                         : "bg-white/5 border-white/10 text-gray-500"
                     }`}
                   >
-                    4. PowerCommand.Execute() ➔ Реле ТВ
+                    {isVolumeWired
+                      ? "4. VolumeUpCommand.Execute() ➔ Гучність +10%"
+                      : "4. PowerCommand.Execute() ➔ Реле ТВ"}
                   </div>
                 </div>
               </div>
@@ -1057,6 +1297,89 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
           if (onBackToTv) onBackToTv();
         }}
       />
+
+      {/* ── Hot Swap Polymorphic Insight Modal ── */}
+      {isHotSwapInsightOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn select-none">
+          <div className="bg-[#18191D] border border-purple-500/60 rounded-2xl max-w-lg w-full p-6 shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_30px_rgba(168,85,247,0.25)] relative text-white">
+            <button
+              onClick={() => setIsHotSwapInsightOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/50 flex items-center justify-center text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                <Sparkles size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold border border-purple-500/40">
+                    Поліморфізм у дії
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-gray-100 mt-0.5">
+                  {t("architecture.hotSwapTitle", "💡 Фокус Поліморфізму (The Hot Swap)")}
+                </h3>
+              </div>
+            </div>
+
+            <div className="space-y-3 font-sans text-xs text-gray-300 leading-relaxed">
+              <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200">
+                <p className="font-bold text-purple-100 text-sm mb-1">
+                  ⚡ {t("architecture.hotSwapInsight", "У файлі TVController.cs НЕ ЗМІНИЛОСЯ ЖОДНОГО СИМВОЛУ!")}
+                </p>
+                <p className="text-[11.5px] text-purple-200/90">
+                  {t("architecture.hotSwapSubtitle", "Підміна реалізації через єдиний контракт")}: ми замінили деталь на нову (<code className="text-amber-300 font-mono">VolumeUpCommand</code> замість <code className="text-emerald-300 font-mono">PowerCommand</code>), а телевізор продовжує працювати без перекомпіляції.
+                </p>
+              </div>
+
+              <div className="rounded-lg bg-black/60 border border-white/10 p-3 font-mono text-[11px] text-gray-300">
+                <div className="text-gray-500 text-[10px] pb-1 border-b border-white/10 mb-2 flex justify-between">
+                  <span>TVController.cs — Код залишився незмінним:</span>
+                  <span className="text-emerald-400">0 змін</span>
+                </div>
+                <pre className="text-emerald-300">
+{`public class TVController {
+    private readonly IRemoteCommand _cmd;
+
+    // Конструктор приймає будь-яку деталь цього типу:
+    public TVController(IRemoteCommand cmd) => _cmd = cmd;
+
+    public void Dispatch() {
+        _cmd.Execute(); // ➔ Виклик поліморфного методу!
+    }
+}`}
+                </pre>
+              </div>
+
+              <p className="text-[11.5px] text-gray-400">
+                Тепер при натисканні кнопки на пульті телевізор змінює гучність замість вимикання. Ось чому <strong>інтерфейси</strong> та <strong>Dependency Injection</strong> дають свободу: ви змінюєте поведінку системи на льоту, не чіпаючи класи, які її використовують.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-white/10">
+              <button
+                onClick={() => {
+                  setIsHotSwapInsightOpen(false);
+                  triggerCallFlowTrace();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs shadow-[0_0_15px_rgba(245,158,11,0.4)] cursor-pointer transition-all active:scale-95"
+              >
+                <Zap size={13} className="fill-black" />
+                ⚡ Трасувати виклик
+              </button>
+              <button
+                onClick={() => setIsHotSwapInsightOpen(false)}
+                className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-200 font-mono text-xs cursor-pointer transition-colors"
+              >
+                Зрозуміло!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

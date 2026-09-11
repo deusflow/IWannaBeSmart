@@ -247,6 +247,10 @@ export const defaultResources = {
         typeMismatchDetail: "Неможливо з'єднати вихід типу {{sourceType}} із входом типу {{targetType}}. Контракт інтерфейсу не відповідає вимогам порту.",
         diSuccessTitle: "Dependency Injection виконано",
         diSuccessDetail: "Успішно підключено {{sourceClass}}.{{sourcePort}} до {{targetClass}}.{{targetPort}} через контракт {{interfaceType}}.",
+        hotSwapTitle: "💡 Фокус Поліморфізму (The Hot Swap)",
+        hotSwapSubtitle: "Підміна реалізації через єдиний контракт",
+        hotSwapInsight: "У файлі TVController.cs НЕ ЗМІНИЛОСЯ ЖОДНОГО СИМВОЛУ! Контролер викликає той самий метод _cmd.Execute(), але поведінка змінилася. Ось навіщо потрібен інтерфейс!",
+        hotSwapBtn: "🔄 Hot Swap (Підмінити команду)",
       },
       mentor: {
         title: "Архітектурний ментор",
@@ -985,6 +989,10 @@ export const defaultResources = {
         typeMismatchDetail: "Cannot connect output of type {{sourceType}} to input of type {{targetType}}. Interface contract does not match port requirements.",
         diSuccessTitle: "Dependency Injection completed",
         diSuccessDetail: "Successfully wired {{sourceClass}}.{{sourcePort}} to {{targetClass}}.{{targetPort}} via {{interfaceType}} contract.",
+        hotSwapTitle: "💡 The Hot Swap Insight (Polymorphism)",
+        hotSwapSubtitle: "Swapping implementation via a single contract",
+        hotSwapInsight: "NOT A SINGLE CHARACTER CHANGED in TVController.cs! The controller still calls _cmd.Execute(), but behavior changed completely. This is why interfaces exist!",
+        hotSwapBtn: "🔄 Hot Swap (Swap Command)",
       },
       mentor: {
         title: "Architecture Mentor",
@@ -1723,6 +1731,10 @@ export const defaultResources = {
         typeMismatchDetail: "Kan ikke forbinde udgang af typen {{sourceType}} til indgang af typen {{targetType}}. Grænsefladekontrakten matcher ikke portkravene.",
         diSuccessTitle: "Dependency Injection fuldført",
         diSuccessDetail: "Forbandt {{sourceClass}}.{{sourcePort}} med {{targetClass}}.{{targetPort}} via {{interfaceType}}-kontrakten.",
+        hotSwapTitle: "💡 Polymorfiets hemmelighed (The Hot Swap)",
+        hotSwapSubtitle: "Udskiftning af implementering via en enkelt kontrakt",
+        hotSwapInsight: "IKKE ET ENESTE TEGN BLEV ÆNDRET i TVController.cs! Controlleren kalder stadig _cmd.Execute(), men adfærden er helt anderledes. Det er derfor, interfaces findes!",
+        hotSwapBtn: "🔄 Hot Swap (Skift kommando)",
       },
       mentor: {
         title: "Arkitekturmentor",

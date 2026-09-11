@@ -30,6 +30,12 @@ export interface ProjectFile {
   outputs: PortDefinition[]; // Methods & Events (Position.Right)
 }
 
+export interface InjectedDependencyInfo {
+  name: string;
+  address: string;
+  commandType: "power" | "volume" | "other";
+}
+
 export interface ArchitectureNodeData extends Record<string, unknown> {
   fileId: string;
   name: string;
@@ -39,6 +45,10 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   implementsInterface?: string;
   inputs: PortDefinition[];
   outputs: PortDefinition[];
+  /** Injected dependency instance pointer inside constructor (Memory X-Ray) */
+  injectedDependency?: InjectedDependencyInfo | null;
+  /** Active NullReference crash animation on memory slot */
+  isMemoryCrashing?: boolean;
   /** Temporary 1s flash when camera focuses an already-placed node */
   isFlashing?: boolean;
   /** Active live signal execution pulse */

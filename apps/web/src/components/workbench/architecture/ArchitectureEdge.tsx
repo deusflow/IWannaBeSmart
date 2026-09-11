@@ -13,6 +13,7 @@ export interface ArchitectureEdgeData extends Record<string, unknown> {
   isError?: boolean;
   isPulsing?: boolean;
   pulseLabel?: string;
+  commandName?: string;
   diMode?: "WITH_DI" | "WITHOUT_DI";
   onDelete?: (edgeId: string) => void;
 }
@@ -188,7 +189,9 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
                 <div className="h-3.5 w-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
                   <Check size={10} strokeWidth={3} />
                 </div>
-                <span className="text-emerald-200 font-mono tracking-tight">[ ✅ DI: IRemoteCommand ➔ ctor ]</span>
+                <span className="text-emerald-200 font-mono tracking-tight">
+                  [ ✅ DI: {edgeData.commandName || "IRemoteCommand"} ➔ ctor ]
+                </span>
               </>
             ) : (
               <span>{t("architecture.connection")}</span>

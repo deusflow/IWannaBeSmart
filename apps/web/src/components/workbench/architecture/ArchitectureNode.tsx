@@ -98,6 +98,8 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
         ${
           selected
             ? "border-white/30 shadow-[0_0_0_1.5px_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.6)]"
+            : nodeData.isMemoryCrashing
+            ? "border-red-500/90 shadow-[0_0_28px_rgba(239,68,68,0.8)] ring-2 ring-red-500/80 animate-pulse"
             : nodeData.isPulsing
             ? "border-amber-400/90 shadow-[0_0_28px_rgba(245,158,11,0.7)] ring-2 ring-amber-400/80"
             : nodeData.isVTableTarget
@@ -298,6 +300,60 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
           )}
         </div>
       </div>
+
+      {/* ── Memory Field X-Ray Slot (TVController Internal State) ── */}
+      {isTvController && (
+        <div className="mx-3 mb-2 p-2 rounded-lg bg-[#18191D] border border-white/10 font-mono text-[10px] select-none">
+          <div className="flex items-center justify-between text-[8px] text-gray-400 uppercase tracking-wider mb-1.5">
+            <span className="flex items-center gap-1">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  nodeData.injectedDependency ? "bg-emerald-400 animate-pulse" : "bg-red-400"
+                }`}
+              />
+              Рентген пам'яті (Memory Field)
+            </span>
+            <span className="text-gray-500 font-mono">private IRemoteCommand _cmd</span>
+          </div>
+
+          {nodeData.injectedDependency ? (
+            <div className="p-1.5 rounded bg-emerald-950/70 border border-emerald-500/60 flex items-center justify-between text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <span className="font-bold text-gray-200">_cmd =</span>
+                <span className="font-mono text-emerald-300 font-bold truncate">
+                  [{nodeData.injectedDependency.address}] {nodeData.injectedDependency.name}
+                </span>
+              </div>
+              <span className="text-[7.5px] px-1.5 py-0.5 rounded bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 uppercase font-black shrink-0">
+                ACTIVE REF
+              </span>
+            </div>
+          ) : (
+            <div
+              className={`p-1.5 rounded border transition-all ${
+                nodeData.isMemoryCrashing
+                  ? "bg-red-600/30 border-red-500 text-red-200 animate-bounce shadow-[0_0_16px_rgba(239,68,68,0.8)]"
+                  : "bg-red-950/50 border-red-500/40 text-red-300"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-ping" />
+                  <span className="font-bold text-gray-300">_cmd =</span>
+                  <span className="font-black text-red-400 font-mono">null ⚠️</span>
+                </div>
+                <span className="text-[7.5px] px-1.5 py-0.5 rounded bg-red-500/20 border border-red-500/40 text-red-300 uppercase font-black shrink-0">
+                  NULL_REF
+                </span>
+              </div>
+              <div className="text-[8px] text-red-400/80 mt-1 font-sans leading-tight">
+                Конструктор порожній. Виклик Dispatch() викличе виняток.
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Role description ── */}
       <div className="px-3 pb-2.5 border-t border-white/[0.05] pt-2">
