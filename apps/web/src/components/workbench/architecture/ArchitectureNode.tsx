@@ -92,36 +92,50 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
   return (
     <div
       className={`
-        w-[268px] rounded-xl select-none
+        w-[276px] rounded-xl select-none
         bg-[#2B2D33] border transition-all duration-200
         shadow-[0_8px_24px_rgba(0,0,0,0.6)]
         ${
           selected
             ? "border-white/30 shadow-[0_0_0_1.5px_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.6)]"
+            : nodeData.isPulsing
+            ? "border-amber-400/90 shadow-[0_0_28px_rgba(245,158,11,0.7)] ring-2 ring-amber-400/80"
+            : nodeData.isVTableTarget
+            ? "border-blue-400/80 shadow-[0_0_20px_rgba(59,130,246,0.5)] ring-1 ring-blue-400/60"
             : isTargetForStep
             ? "border-purple-500/60 shadow-[0_0_20px_rgba(168,85,247,0.35)] ring-1 ring-purple-500/40"
             : nodeData.isFlashing
-            ? "border-white/25"
+            ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.4)]"
             : "border-white/[0.07] hover:border-white/[0.14]"
         }
       `}
     >
-      {/* ── Header (entity badge + filename + [×]) ── */}
+      {/* ── Header (entity badge + filename + pulse indicators + [×]) ── */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.06]">
         {/* Coloured dot — only colour accent in the header */}
         <div
-          className="w-2 h-2 rounded-full shrink-0"
-          style={{ backgroundColor: badge.dot }}
+          className={`w-2 h-2 rounded-full shrink-0 ${nodeData.isPulsing ? "animate-ping" : ""}`}
+          style={{ backgroundColor: nodeData.isPulsing ? "#F59E0B" : badge.dot }}
         />
 
         {/* Icon + Name */}
-        <div className={`shrink-0 ${badge.icon}`}>
+        <div className={`shrink-0 ${nodeData.isPulsing ? "text-amber-400" : badge.icon}`}>
           <Icon size={13} strokeWidth={2} />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-mono font-bold text-[11px] text-gray-100 truncate leading-tight">
-            {nodeData.name}
+          <h4 className="font-mono font-bold text-[11px] text-gray-100 truncate leading-tight flex items-center gap-1.5">
+            <span>{nodeData.name}</span>
+            {nodeData.isPulsing && (
+              <span className="font-mono text-[7px] font-black px-1 py-0.2 rounded bg-amber-500 text-stone-900 uppercase shrink-0 animate-pulse">
+                ⚡ EXEC
+              </span>
+            )}
+            {nodeData.isVTableTarget && (
+              <span className="font-mono text-[7px] font-bold px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase shrink-0">
+                VTable
+              </span>
+            )}
           </h4>
           <span className="font-mono text-[8.5px] text-gray-500 block truncate">
             {nodeData.path}
@@ -149,12 +163,15 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
         </button>
       </div>
 
-      {/* ── Ports Body ── */}
+      {/* ── Ports Body (Sockets on Left, Plugs on Right) ── */}
       <div className="p-3 grid grid-cols-2 gap-3">
-        {/* Left: Inputs */}
+        {/* Left: Inputs (DI Sockets) */}
         <div className="space-y-1.5">
-          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-gray-600">
-            {t("architecture.inputsDI")}
+          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-purple-400/80 flex items-center gap-1">
+            <span>⏚ {t("architecture.inputsDI")}</span>
+            <span className="text-[7px] px-1 py-px rounded bg-purple-950/70 border border-purple-500/30 text-purple-300">
+              SOCKET
+            </span>
           </div>
           {hasInputs ? (
             nodeData.inputs.map((inp) => {
@@ -166,14 +183,15 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
               return (
                 <div key={inp.id} className="relative flex items-start py-0.5 group">
+                  {/* Socket Receptacle Handle: Square notched receptacle */}
                   <Handle
                     type="target"
                     position={Position.Left}
                     id={inp.id}
-                    className={`!w-3 !h-3 !rounded-full !-left-[17px] !border-[1.5px] !border-[#2B2D33] transition-transform group-hover:scale-125 cursor-crosshair ${
+                    className={`!w-3.5 !h-3.5 !rounded-xs !-left-[18px] !border-2 !border-[#1E2024] shadow-inner transition-all group-hover:scale-125 cursor-crosshair ${
                       isPortTarget
-                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_12px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
-                        : ""
+                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
+                        : "hover:border-purple-300"
                     }`}
                     style={{ backgroundColor: inp.color || "#3B82F6" }}
                   />
@@ -205,10 +223,13 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
           )}
         </div>
 
-        {/* Right: Outputs */}
+        {/* Right: Outputs (Command Plugs) */}
         <div className="space-y-1.5 text-right">
-          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-gray-600">
-            {t("architecture.methodsOutputs")}
+          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-emerald-400/80 flex items-center justify-end gap-1">
+            <span className="text-[7px] px-1 py-px rounded bg-emerald-950/70 border border-emerald-500/30 text-emerald-300">
+              PLUG
+            </span>
+            <span>{t("architecture.methodsOutputs")} ⎋</span>
           </div>
           {hasOutputs ? (
             nodeData.outputs.map((out) => {
@@ -241,14 +262,15 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
                       </span>
                     )}
                   </div>
+                  {/* Plug Prong Handle: Protruding rounded connector */}
                   <Handle
                     type="source"
                     position={Position.Right}
                     id={out.id}
-                    className={`!w-3 !h-3 !rounded-full !-right-[17px] !border-[1.5px] !border-[#2B2D33] transition-transform group-hover:scale-125 cursor-crosshair ${
+                    className={`!w-3.5 !h-3.5 !rounded-r-md !rounded-l-xs !-right-[18px] !border-2 !border-[#1E2024] shadow-md transition-all group-hover:scale-125 cursor-crosshair ${
                       isPortTarget
-                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_12px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
-                        : ""
+                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
+                        : "hover:border-emerald-300"
                     }`}
                     style={{ backgroundColor: out.color || "#10B981" }}
                   />

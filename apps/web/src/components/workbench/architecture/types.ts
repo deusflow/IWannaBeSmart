@@ -40,18 +40,29 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   outputs: PortDefinition[];
   /** Temporary 1s flash when camera focuses an already-placed node */
   isFlashing?: boolean;
+  /** Active live signal execution pulse */
+  isPulsing?: boolean;
+  /** VTable resolved target branch */
+  isVTableTarget?: boolean;
   /** @deprecated use isFlashing instead — kept for type compatibility */
   isHighlighted?: boolean;
 }
 
 export type LogType = "success" | "error" | "info" | "warning";
 
+export type SubsystemTag = "IoC" | "VTABLE" | "BUS" | "HARDWARE" | "FAULT" | "GRAPH";
+
 export interface TerminalLogEntry {
   id: string;
   timestamp: string;
   type: LogType;
-  title: string;
+  subsystem?: SubsystemTag;
+  operation?: string;
   message: string;
+  targetNodeId?: string;
+  details?: string;
+  title?: string;
   codeContext?: string;
 }
+
 

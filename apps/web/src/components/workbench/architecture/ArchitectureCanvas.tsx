@@ -30,7 +30,8 @@ import { CompletionModal } from "./CompletionModal";
 import { PROJECT_FILES } from "./projectData";
 import type { ArchitectureNodeData, TerminalLogEntry, PortType } from "./types";
 import { Badge } from "@iw/ui";
-import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2 } from "lucide-react";
+import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap } from "lucide-react";
+import { audioFx } from "../../../utils/audioFx";
 
 interface ArchitectureCanvasProps {
   onBackToTv?: () => void;
@@ -128,11 +129,10 @@ function generateCodePreview(
 //  Timestamp & log id
 // ────────────────────────────────────────────────
 function nowStr(): string {
-  return new Date().toLocaleTimeString("uk-UA", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const d = new Date();
+  const time = d.toTimeString().slice(0, 8);
+  const ms = String(d.getMilliseconds()).padStart(3, "0");
+  return `${time}.${ms}`;
 }
 
 let _lid = 0;
@@ -149,7 +149,7 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
       id: "node-class-power-command",
       type: "architectureNode",
       position: { x: 60, y: 100 },
-      width: 268,
+      width: 276,
       data: {
         fileId: pc.id, name: pc.name, path: pc.path,
         entityType: pc.entityType, role: pc.role,
@@ -160,7 +160,7 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
       id: "node-class-tv-controller",
       type: "architectureNode",
       position: { x: 440, y: 80 },
-      width: 268,
+      width: 276,
       data: {
         fileId: tv.id, name: tv.name, path: tv.path,
         entityType: tv.entityType, role: tv.role,
@@ -280,8 +280,10 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         );
         addLog({
           type: "info",
-          title: "Ноду видалено",
-          message: "Компонент та всі його з'єднання знято з полотна.",
+          subsystem: "GRAPH",
+          operation: "UNREGISTER",
+          message: "Component detached from canvas container",
+          details: "Removed node and all incident edges",
         });
       }
 
@@ -296,8 +298,10 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       setEdges((eds) => eds.filter((e) => e.id !== edgeId));
       addLog({
         type: "info",
-        title: "Провід відключено",
-        message: "Залежність розірвана вручну.",
+        subsystem: "IoC",
+        operation: "DISCONNECT",
+        message: "Binding severed manually",
+        details: `Edge ${edgeId} unlinked from dependency graph`,
       });
     },
     [setEdges, addLog]
@@ -315,7 +319,13 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
           setEdges((eds) =>
             eds.filter((e) => !toRemove.includes(e.source) && !toRemove.includes(e.target))
           );
-          addLog({ type: "info", title: "Ноду видалено (Delete)", message: "Обраний компонент знято з полотна." });
+          addLog({
+            type: "info",
+            subsystem: "GRAPH",
+            operation: "UNREGISTER",
+            message: "Selected component(s) removed via [DEL]",
+            details: "Dependency graph updated",
+          });
         }
         return nds.filter((n) => !n.selected);
       });
@@ -362,7 +372,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       if (existing) {
         const rfNode = getNode(nodeId);
         if (rfNode) {
-          const cx = rfNode.position.x + (rfNode.width ?? 268) / 2;
+          const cx = rfNode.position.x + (rfNode.width ?? 276) / 2;
           const cy = rfNode.position.y + (rfNode.measured?.height ?? 200) / 2;
           setCenter(cx, cy, { zoom: 1, duration: 420 });
         }
@@ -370,8 +380,11 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         setNodes((nds) => nds.map((n) => ({ ...n, selected: n.id === nodeId })));
         addLog({
           type: "info",
-          title: `${file.name} вже на дошці`,
-          message: "Камеру центровано на наявній ноді.",
+          subsystem: "GRAPH",
+          operation: "FOCUS",
+          message: `Target ${file.name} located on canvas`,
+          targetNodeId: nodeId,
+          details: `Camera centered at (0x${file.id.slice(-4).toUpperCase()})`,
         });
         return;
       }
@@ -386,7 +399,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         id: nodeId,
         type: "architectureNode",
         position: targetPos,
-        width: 268,
+        width: 276,
         data: {
           fileId: file.id, name: file.name, path: file.path,
           entityType: file.entityType, role: file.role,
@@ -397,8 +410,11 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       setNodes((nds) => [...nds, newNode]);
       addLog({
         type: "info",
-        title: `Додано: ${file.name}`,
-        message: `${file.role}`,
+        subsystem: "IoC",
+        operation: "DISCOVER",
+        message: `Component registered: ${file.name}`,
+        targetNodeId: nodeId,
+        details: `${file.role} | Path: ${file.path}`,
       });
     },
     [nodes, setNodes, getNode, setCenter, flashNode, addLog]
@@ -437,18 +453,18 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
         addLog({
           type: "error",
-          title: `✗ ${t("architecture.typeMismatch")}`,
-          message: t("architecture.typeMismatchDetail", {
-            sourceType: srcType,
-            targetType: tgtType,
-          }),
+          subsystem: "FAULT",
+          operation: "TYPE_MISMATCH",
+          message: `Binding rejected: ${srcNodeName}.${srcPortName} -> ${tgtNodeName}.${tgtPortName}`,
+          targetNodeId: connection.target ?? undefined,
+          details: `Cannot bind [${srcType}] to [${tgtType}]`,
           codeContext: `// ✗ Type Mismatch:\n// ${srcNodeName}.${srcPortName} [${srcType}]\n//   → ${tgtNodeName}.${tgtPortName} [${tgtType}]\n// Expected port type: «${tgtType}»`,
         });
       }
 
       return valid;
     },
-    [nodes, addLog, t]
+    [nodes, addLog]
   );
 
   // ── onConnect ───────────────────────────────
@@ -479,14 +495,11 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
           setMentorPhase("VERIFY");
           addLog({
             type: "success",
-            title: `✓ ${t("architecture.diSuccessTitle")}`,
-            message: `${t("architecture.diSuccessDetail", {
-              sourceClass: srcNode,
-              sourcePort: srcPort,
-              targetClass: tgtNode,
-              targetPort: tgtPort,
-              interfaceType: "IRemoteCommand",
-            })} ${t("mentor.verifyMsg")}`,
+            subsystem: "IoC",
+            operation: "RESOLVE",
+            message: `${tgtNode}.${tgtPort} -> injected ${srcNode} (0x7F2A)`,
+            targetNodeId: params.target ?? undefined,
+            details: "Interface IRemoteCommand resolved to concrete instance",
             codeContext: `// Constructor Injection:\npublic class TVController {\n    private readonly IRemoteCommand _cmd;\n    public TVController(IRemoteCommand cmd) {\n        _cmd = cmd; // ← Handled by mentor!\n    }\n    public void Dispatch() => _cmd.Execute();\n}`,
           });
         } else if (mentorPhase === "PRACTICE") {
@@ -494,33 +507,36 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
           setIsCompletionModalOpen(true);
           addLog({
             type: "success",
-            title: `✓ ${t("mentor.completedTitle")}`,
-            message: `${t("mentor.reward")} ${t("mentor.summaryExplanation")}`,
-            codeContext: `services.AddTransient<IRemoteCommand, PowerCommand>();\nservices.AddSingleton<TVController>();`,
+            subsystem: "IoC",
+            operation: "REGISTER",
+            message: "Transient<IRemoteCommand, PowerCommand> wired to TVController",
+            targetNodeId: params.target ?? undefined,
+            details: "Container resolution verified. Contract satisfied.",
+            codeContext: "services.AddTransient<IRemoteCommand, PowerCommand>();\nservices.AddSingleton<TVController>();",
           });
         } else {
           addLog({
             type: "success",
-            title: `✓ ${t("architecture.diSuccessTitle")}`,
-            message: t("architecture.diSuccessDetail", {
-              sourceClass: srcNode,
-              sourcePort: srcPort,
-              targetClass: tgtNode,
-              targetPort: tgtPort,
-              interfaceType: "IRemoteCommand",
-            }),
+            subsystem: "IoC",
+            operation: "RESOLVE",
+            message: `${tgtNode}.${tgtPort} -> injected ${srcNode} (0x7F2A)`,
+            targetNodeId: params.target ?? undefined,
+            details: "Contract IRemoteCommand satisfied by concrete implementation",
             codeContext: `// Constructor Injection:\npublic class TVController {\n    private readonly IRemoteCommand _cmd;\n    public TVController(IRemoteCommand cmd) {\n        _cmd = cmd;\n    }\n    public void Dispatch() => _cmd.Execute();\n}`,
           });
         }
       } else {
         addLog({
           type: "success",
-          title: `✓ ${srcNode} → ${tgtNode}`,
-          message: `${srcPort} → ${tgtPort}`,
+          subsystem: "BUS",
+          operation: "BIND",
+          message: `${srcNode}.${srcPort} -> ${tgtNode}.${tgtPort}`,
+          targetNodeId: params.target ?? undefined,
+          details: "Signal channel established",
         });
       }
     },
-    [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, completeLevel, t]
+    [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, completeLevel]
   );
 
   // ── Auto-Wire ────────────────────────────────
@@ -549,9 +565,11 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
     addLog({
       type: "success",
-      title: "✓ Auto-Wire: PowerCommand → TVController",
-      message:
-        "Dependency Injection виконано автоматично. PowerCommand.Execute() підключено до TVController.CommandHandler через інтерфейс IRemoteCommand.",
+      subsystem: "IoC",
+      operation: "REGISTER",
+      message: "Transient<IRemoteCommand, PowerCommand> -> TVController.ctor (0x7F2A)",
+      targetNodeId: "node-class-tv-controller",
+      details: "Auto-Wire executed: Constructor injection binding verified",
       codeContext: "services.AddTransient<IRemoteCommand, PowerCommand>();",
     });
   }, [addNodeByFileId, handleDeleteEdge, setEdges, addLog]);
@@ -570,12 +588,175 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     setTimeout(() =>
       addLog({
         type: "info",
-        title: "🎯 Місія Level 1",
-        message:
-          "Реалізуйте патерн Command для кнопки живлення телевізора. З'єднайте вихідний порт Execute класу PowerCommand із вхідним портом CommandHandler контролера TVController.",
-      })
-    , 60);
+        subsystem: "GRAPH",
+        operation: "RESET",
+        message: "Canvas state restored to default",
+        details: "Awaiting dependency binding: IRemoteCommand -> TVController",
+      }),
+      60
+    );
   }, [fitView, setEdges, setNodes, setArchNodes, setArchEdges, clearLogs, addLog]);
+
+  // ── handle focus node from terminal ─────────
+  const handleFocusNode = useCallback(
+    (nodeId: string) => {
+      const rfNode = getNode(nodeId);
+      if (rfNode) {
+        const cx = rfNode.position.x + (rfNode.width ?? 276) / 2;
+        const cy = rfNode.position.y + (rfNode.measured?.height ?? 200) / 2;
+        setCenter(cx, cy, { zoom: 1.15, duration: 400 });
+      }
+      flashNode(nodeId);
+    },
+    [getNode, setCenter, flashNode]
+  );
+
+  // ── Live Call-Flow Tracing ──────────────────
+  const [isTracing, setIsTracing] = useState(false);
+  const traceTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    return () => {
+      traceTimers.current.forEach((t) => clearTimeout(t));
+      traceTimers.current = [];
+    };
+  }, []);
+
+  const triggerCallFlowTrace = useCallback(() => {
+    if (isTracing) return;
+
+    if (!isPowerWired) {
+      audioFx.playErrorBuzz();
+      addLog({
+        type: "error",
+        subsystem: "FAULT",
+        operation: "NULL_REF",
+        message: "NullReferenceException: TVController._cmd is null",
+        targetNodeId: "node-class-tv-controller",
+        details: "Object reference not set to an instance of an object at TVController.Dispatch()",
+        codeContext: "// Runtime Fault:\n// TVController._cmd == null!\n// Dependency injection contract is unfulfilled.\n// Wire PowerCommand.Execute -> TVController.CommandHandler first!",
+      });
+      return;
+    }
+
+    setIsTracing(true);
+    traceTimers.current.forEach((t) => clearTimeout(t));
+    traceTimers.current = [];
+
+    // Stage 1 (t = 0ms): Remote dispatch -> TVController
+    addLog({
+      type: "info",
+      subsystem: "BUS",
+      operation: "DISPATCH",
+      message: "Remote -> TVController.Dispatch()",
+      targetNodeId: "node-class-tv-controller",
+      details: "IR signal decoded by microcontroller bus (Channel 0x01)",
+    });
+    audioFx.playRemoteBeep();
+
+    const tvNode = getNode("node-class-tv-controller");
+    if (tvNode) {
+      setCenter(
+        tvNode.position.x + (tvNode.width ?? 276) / 2,
+        tvNode.position.y + (tvNode.measured?.height ?? 200) / 2,
+        { zoom: 1.1, duration: 350 }
+      );
+    }
+
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === "node-class-tv-controller"
+          ? { ...n, data: { ...n.data, isPulsing: true } }
+          : n
+      )
+    );
+
+    // Stage 2 (t = 450ms): Signal travels along DI edge
+    const t1 = setTimeout(() => {
+      setEdges((eds) =>
+        eds.map((e) =>
+          e.source.includes("power-command") && e.target.includes("tv-controller")
+            ? { ...e, data: { ...e.data, isPulsing: true, pulseLabel: "IRemoteCommand.Execute()" } }
+            : e
+        )
+      );
+      addLog({
+        type: "info",
+        subsystem: "IoC",
+        operation: "RESOLVE",
+        message: "TVController.ctor -> injected PowerCommand (0x7F2A)",
+        targetNodeId: "node-class-power-command",
+        details: "Transient resolution via ServiceProvider container",
+      });
+    }, 450);
+    traceTimers.current.push(t1);
+
+    // Stage 3 (t = 950ms): VTable resolution on PowerCommand
+    const t2 = setTimeout(() => {
+      const pcNode = getNode("node-class-power-command");
+      if (pcNode) {
+        setCenter(
+          pcNode.position.x + (pcNode.width ?? 276) / 2,
+          pcNode.position.y + (pcNode.measured?.height ?? 200) / 2,
+          { zoom: 1.1, duration: 350 }
+        );
+      }
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === "node-class-power-command"
+            ? { ...n, data: { ...n.data, isPulsing: true, isVTableTarget: true } }
+            : n
+        )
+      );
+      addLog({
+        type: "success",
+        subsystem: "VTABLE",
+        operation: "VTABLE_RESOLVED",
+        message: "IRemoteCommand.Execute() -> PowerCommand.Execute()",
+        targetNodeId: "node-class-power-command",
+        details: "Virtual method table offset 0x00 resolved concrete implementation",
+        codeContext: "// Dynamic Polymorphism:\n// vtable[0] -> PowerCommand.Execute()\n// Context: TV power toggle command executed",
+      });
+    }, 950);
+    traceTimers.current.push(t2);
+
+    // Stage 4 (t = 1500ms): Hardware relay fires & state toggled
+    const t3 = setTimeout(() => {
+      const currentPower = useWorkbenchStore.getState().power;
+      useWorkbenchStore.getState().togglePower();
+      const nextPower = !currentPower;
+      addLog({
+        type: "success",
+        subsystem: "HARDWARE",
+        operation: nextPower ? "RELAY_ON" : "STANDBY",
+        message: nextPower
+          ? "CRT Power Rail -> 115V OK (State: OPERATIONAL)"
+          : "CRT Power Rail -> 0V (State: STANDBY)",
+        details: nextPower
+          ? "Main power relay energized, cathode filament heated"
+          : "Main power relay disengaged, high voltage discharged",
+      });
+    }, 1500);
+    traceTimers.current.push(t3);
+
+    // Stage 5 (t = 2400ms): Clear pulse highlights & reset tracing state
+    const t4 = setTimeout(() => {
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          data: { ...n.data, isPulsing: false, isVTableTarget: false },
+        }))
+      );
+      setEdges((eds) =>
+        eds.map((e) => ({
+          ...e,
+          data: { ...e.data, isPulsing: false, pulseLabel: undefined },
+        }))
+      );
+      setIsTracing(false);
+    }, 2400);
+    traceTimers.current.push(t4);
+  }, [isTracing, isPowerWired, addLog, getNode, setCenter, setNodes, setEdges]);
 
   // ── Fit view on mount ────────────────────────
   useEffect(() => {
@@ -587,9 +768,10 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   useEffect(() => {
     addLog({
       type: "info",
-      title: "🎯 Місія Level 1",
-      message:
-        "Чому пульт не вмикає телевізор? Контролер очікує команду через інтерфейс IRemoteCommand. З'єднайте вихідний порт Execute класу PowerCommand із вхідним портом CommandHandler контролера TVController.",
+      subsystem: "GRAPH",
+      operation: "BOOT",
+      message: "Architecture runtime initialized [DI Container ready]",
+      details: "Awaiting dependency binding: IRemoteCommand -> TVController",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -645,6 +827,21 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
         {/* Toolbar */}
         <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+          <button
+            onClick={triggerCallFlowTrace}
+            disabled={isTracing}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95 shadow-sm ${
+              isTracing
+                ? "bg-amber-500/20 border-amber-500/50 text-amber-300 animate-pulse cursor-wait"
+                : isPowerWired
+                ? "bg-amber-600/20 hover:bg-amber-600/30 border-amber-500/40 text-amber-300 hover:shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+                : "bg-[#2E2F36] hover:bg-[#383A44] border-white/[0.07] text-gray-400"
+            }`}
+            title="Провести тестовий імпульс через шину викликів"
+          >
+            <Zap size={12} className={isTracing ? "animate-spin text-amber-400" : "text-amber-400"} />
+            {isTracing ? "Трасування..." : "⚡ Трасувати виклик"}
+          </button>
           <button
             onClick={handleAutoWire}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#2E2F36] hover:bg-[#383A44] border border-white/[0.07] text-gray-300 text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95"
@@ -717,6 +914,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
               onClearLogs={clearLogs}
               currentMission={t("architecture.missionInstructions")}
               codePreview={codePreview}
+              onFocusNode={handleFocusNode}
             />
           </div>
 

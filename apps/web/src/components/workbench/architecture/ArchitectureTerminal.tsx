@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Terminal,
@@ -8,44 +8,77 @@ import {
   Target,
   Code2,
   ChevronUp,
-  CheckCircle2,
-  XCircle,
-  Info,
-  AlertTriangle,
   BookOpen,
+  Filter,
 } from "lucide-react";
-import type { TerminalLogEntry, LogType } from "./types";
+import type { TerminalLogEntry, SubsystemTag } from "./types";
 
 interface ArchitectureTerminalProps {
   logs: TerminalLogEntry[];
   onClearLogs: () => void;
   currentMission?: string;
   codePreview?: { csharp: string; go: string };
+  onFocusNode?: (nodeId: string) => void;
 }
 
-// ── Visual config per log type ──
-const LOG_STYLES: Record<LogType, { icon: React.ReactNode; borderColor: string; bg: string }> = {
-  success: {
-    icon: <CheckCircle2 size={12} className="text-emerald-400 shrink-0 mt-0.5" />,
-    borderColor: "#22c55e",
-    bg: "rgba(16,185,129,0.06)",
+// ── Subsystem Badge Visual Styles ──
+const SUBSYSTEM_CONFIG: Record<
+  SubsystemTag,
+  { bg: string; text: string; border: string; label: string }
+> = {
+  IoC: {
+    bg: "bg-purple-950/80",
+    text: "text-purple-300",
+    border: "border-purple-500/50",
+    label: "[IoC]",
   },
-  error: {
-    icon: <XCircle size={12} className="text-red-400 shrink-0 mt-0.5" />,
-    borderColor: "#ef4444",
-    bg: "rgba(239,68,68,0.06)",
+  VTABLE: {
+    bg: "bg-blue-950/80",
+    text: "text-blue-300",
+    border: "border-blue-500/50",
+    label: "[VTABLE]",
   },
-  info: {
-    icon: <Info size={12} className="text-blue-400 shrink-0 mt-0.5" />,
-    borderColor: "#3b82f6",
-    bg: "rgba(59,130,246,0.05)",
+  BUS: {
+    bg: "bg-amber-950/80",
+    text: "text-amber-300",
+    border: "border-amber-500/50",
+    label: "[BUS]",
   },
-  warning: {
-    icon: <AlertTriangle size={12} className="text-amber-400 shrink-0 mt-0.5" />,
-    borderColor: "#f59e0b",
-    bg: "rgba(245,158,11,0.06)",
+  HARDWARE: {
+    bg: "bg-emerald-950/80",
+    text: "text-emerald-300",
+    border: "border-emerald-500/50",
+    label: "[HARDWARE]",
+  },
+  FAULT: {
+    bg: "bg-red-950/80",
+    text: "text-red-300",
+    border: "border-red-500/60 animate-pulse",
+    label: "[FAULT]",
+  },
+  GRAPH: {
+    bg: "bg-gray-800/80",
+    text: "text-gray-400",
+    border: "border-gray-600/40",
+    label: "[GRAPH]",
   },
 };
+
+// Auto-tag legacy or untagged logs
+function resolveSubsystem(entry: TerminalLogEntry): SubsystemTag {
+  if (entry.subsystem) return entry.subsystem;
+  if (entry.type === "error") return "FAULT";
+  const str = `${entry.title || ""} ${entry.message} ${entry.operation || ""}`.toLowerCase();
+  if (str.includes("ioc") || str.includes("di") || str.includes("transient") || str.includes("singleton") || str.includes("inject"))
+    return "IoC";
+  if (str.includes("vtable") || str.includes("iremotecommand") || str.includes("contract") || str.includes("interface"))
+    return "VTABLE";
+  if (str.includes("hardware") || str.includes("relay") || str.includes("crt") || str.includes("rail") || str.includes("rail"))
+    return "HARDWARE";
+  if (str.includes("dispatch") || str.includes("bus") || str.includes("remote") || str.includes("execute"))
+    return "BUS";
+  return "GRAPH";
+}
 
 // ── Educational step guide (always visible, 3 levels) ──
 const STEPS = [
@@ -77,11 +110,13 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
   onClearLogs,
   currentMission,
   codePreview,
+  onFocusNode,
 }) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
   const [activeTab, setActiveTab] = useState<"log" | "theory" | "code">("log");
+  const [filterSubsystem, setFilterSubsystem] = useState<SubsystemTag | "ALL">("ALL");
   const logEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll log
@@ -92,6 +127,11 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
   }, [logs, isExpanded, activeTab]);
 
   const toggle = useCallback(() => setIsExpanded((p) => !p), []);
+
+  const filteredLogs = useMemo(() => {
+    if (filterSubsystem === "ALL") return logs;
+    return logs.filter((log) => resolveSubsystem(log) === filterSubsystem);
+  }, [logs, filterSubsystem]);
 
   // ── Collapsed ──────────────────────────────────────────
   if (!isExpanded) {
@@ -110,8 +150,8 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
             {t("architecture.terminal")}
           </span>
           {logs.length > 0 && (
-            <span className="font-mono text-[9px] text-gray-600 bg-gray-800 px-1.5 py-px rounded-full border border-gray-700">
-              {logs.length}
+            <span className="font-mono text-[9px] text-gray-400 bg-gray-800 px-1.5 py-px rounded-full border border-gray-700">
+              {logs.length} events
             </span>
           )}
         </div>
@@ -130,22 +170,22 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
       style={{
         maxHeight: "44%",
         minHeight: "160px",
-        background: "#131415",
-        borderTop: "1px solid #2E2F33",
-        boxShadow: "0 -6px 28px rgba(0,0,0,0.5)",
+        background: "#101113",
+        borderTop: "1px solid #282A30",
+        boxShadow: "0 -6px 28px rgba(0,0,0,0.6)",
       }}
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between px-3 py-1.5 shrink-0 border-b"
-        style={{ borderColor: "#252628" }}
+        className="flex items-center justify-between px-3 py-1.5 shrink-0 border-b flex-wrap gap-2"
+        style={{ borderColor: "#202226" }}
       >
-        {/* Tabs */}
-        <div className="flex items-center gap-3">
+        {/* Tabs & Subsystem Filter */}
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1.5">
             <Terminal size={12} className="text-emerald-400" />
             <span className="font-mono text-[10px] font-bold text-gray-400">
-              {t("architecture.terminal")}
+              HIGH-SIGNAL BUS
             </span>
           </div>
 
@@ -164,7 +204,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                     : "bg-transparent text-gray-600 hover:text-gray-400"
                 }`}
               >
-                {tab === "log" && t("architecture.liveLog")}
+                {tab === "log" && `${t("architecture.liveLog")} (${filteredLogs.length})`}
                 {tab === "theory" && (
                   <span className="flex items-center gap-1">
                     <BookOpen size={9} />
@@ -180,10 +220,32 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
               </button>
             ))}
           </div>
+
+          {/* Subsystem Filters (Log Tab) */}
+          {activeTab === "log" && (
+            <div className="hidden sm:flex items-center gap-1 bg-[#16181B] p-0.5 rounded border border-[#2B2D33] text-[8.5px] font-mono">
+              <span className="text-gray-500 px-1 flex items-center gap-0.5">
+                <Filter size={9} />
+              </span>
+              {(["ALL", "IoC", "VTABLE", "BUS", "HARDWARE", "FAULT"] as const).map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setFilterSubsystem(tag)}
+                  className={`px-1.5 py-0.2 rounded transition-colors cursor-pointer font-bold ${
+                    filterSubsystem === tag
+                      ? "bg-white/15 text-white"
+                      : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right actions */}
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1">
           {activeTab === "code" && (
             <div className="flex items-center rounded border border-[#303035] overflow-hidden mr-2">
               {(["csharp", "go"] as const).map((lang) => (
@@ -221,65 +283,97 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto min-h-0 px-3 py-2 space-y-1.5">
+      <div className="flex-1 overflow-y-auto min-h-0 px-3 py-2 space-y-1 font-mono text-[10px]">
 
         {/* ── TAB: Log ──────────────────────────── */}
         {activeTab === "log" && (
           <>
-            {/* Mission banner */}
+            {/* Mission banner (compact) */}
             {currentMission && (
               <div
-                className="flex items-start gap-2 px-2.5 py-2 rounded-lg mb-2"
-                style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)" }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded mb-1.5"
+                style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.2)" }}
               >
-                <Target size={12} className="text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-mono text-[8.5px] font-bold text-amber-500 uppercase tracking-wider">
-                    {t("architecture.currentGoal")}
-                  </div>
-                  <p className="font-balsamiq text-[10px] text-amber-100/80 leading-snug mt-0.5">
-                    {currentMission}
-                  </p>
-                </div>
+                <Target size={11} className="text-amber-400 shrink-0" />
+                <span className="font-mono text-[9px] font-bold text-amber-400 uppercase tracking-wider shrink-0">
+                  GOAL:
+                </span>
+                <p className="font-mono text-[9.5px] text-amber-200/85 truncate">
+                  {currentMission}
+                </p>
               </div>
             )}
 
-            {logs.length === 0 ? (
-              <div className="py-8 text-center">
-                <Terminal size={20} className="text-gray-700 mx-auto mb-2" />
-                <p className="font-mono text-[10px] text-gray-600">
-                  {t("architecture.terminalEmpty")}
+            {filteredLogs.length === 0 ? (
+              <div className="py-8 text-center font-mono">
+                <Terminal size={18} className="text-gray-700 mx-auto mb-1.5" />
+                <p className="text-[10px] text-gray-600">
+                  {t("architecture.terminalEmpty", "Журнал подій порожній. Підключіть порт або надішліть команду.")}
                 </p>
               </div>
             ) : (
-              logs.map((entry) => {
-                const style = LOG_STYLES[entry.type];
+              filteredLogs.map((entry) => {
+                const sub = resolveSubsystem(entry);
+                const subStyle = SUBSYSTEM_CONFIG[sub] || SUBSYSTEM_CONFIG.GRAPH;
+                const isClickable = Boolean(entry.targetNodeId && onFocusNode);
+
                 return (
                   <div
                     key={entry.id}
-                    className="px-2.5 py-2 rounded-lg border-l-2"
-                    style={{
-                      borderLeftColor: style.borderColor,
-                      background: style.bg,
+                    onClick={() => {
+                      if (entry.targetNodeId && onFocusNode) {
+                        onFocusNode(entry.targetNodeId);
+                      }
                     }}
+                    className={`px-2 py-0.5 rounded font-mono text-[10px] leading-tight flex items-center gap-2 border border-transparent hover:border-white/15 transition-all select-text ${
+                      isClickable ? "cursor-pointer hover:bg-white/[0.04]" : ""
+                    }`}
                   >
-                    <div className="flex items-start gap-1.5 mb-0.5">
-                      {style.icon}
-                      <span className="font-mono text-[9.5px] font-bold text-gray-200 leading-tight flex-1">
-                        {entry.title}
+                    {/* Timestamp: [HH:mm:ss.SSS] */}
+                    <span className="text-gray-600 text-[9px] shrink-0 font-mono select-none">
+                      [{entry.timestamp}]
+                    </span>
+
+                    {/* Subsystem Badge: [IoC] / [VTABLE] / [BUS] / [HARDWARE] */}
+                    <span
+                      className={`px-1.5 py-0.2 rounded border text-[8px] font-black uppercase shrink-0 ${
+                        subStyle.bg
+                      } ${subStyle.text} ${subStyle.border}`}
+                    >
+                      {subStyle.label}
+                    </span>
+
+                    {/* Operation (if any): RESOLVE / REGISTER / DISPATCH */}
+                    {entry.operation && (
+                      <span className="text-gray-300 font-extrabold uppercase shrink-0 text-[9px]">
+                        {entry.operation}
                       </span>
-                      <span className="font-mono text-[8px] text-gray-600 shrink-0">
-                        {entry.timestamp}
-                      </span>
-                    </div>
-                    <p className="font-balsamiq text-[10px] text-gray-400 leading-snug pl-[18px]">
+                    )}
+
+                    {/* Message / Call Arrow: TVController.ctor -> injected PowerCommand */}
+                    <span className="text-gray-200 truncate flex-1">
                       {entry.message}
-                    </p>
-                    {entry.codeContext && (
-                      <pre className="mt-1.5 ml-[18px] px-2 py-1.5 rounded text-[9px] text-emerald-300 font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed"
-                        style={{ background: "#0B0C0D", border: "1px solid #252628" }}>
-                        {entry.codeContext}
-                      </pre>
+                    </span>
+
+                    {/* Optional Details */}
+                    {entry.details && (
+                      <span className="text-gray-500 text-[8.5px] shrink-0 font-mono hidden md:inline">
+                        ({entry.details})
+                      </span>
+                    )}
+
+                    {/* Focus Target Button / Pill if targetNodeId exists */}
+                    {entry.targetNodeId && onFocusNode && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onFocusNode(entry.targetNodeId!);
+                        }}
+                        className="px-1.5 py-0.2 rounded bg-white/10 hover:bg-accent-blue hover:text-white text-gray-400 text-[8px] font-mono shrink-0 transition-colors flex items-center gap-1 cursor-pointer"
+                        title="Центрувати ноду на полотні"
+                      >
+                        <span>🎯 Focus</span>
+                      </button>
                     )}
                   </div>
                 );
