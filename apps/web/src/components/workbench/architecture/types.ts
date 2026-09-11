@@ -57,6 +57,21 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   isVTableTarget?: boolean;
   /** @deprecated use isFlashing instead — kept for type compatibility */
   isHighlighted?: boolean;
+  /** Interactive Journey Trace callbacks & flags */
+  isJourneyActive?: boolean;
+  isJourneyStepTarget?: boolean;
+  isJourneyDimmed?: boolean;
+  onInspectInterface?: (interfaceName: string) => void;
+  onInspectDi?: () => void;
+}
+
+export type JourneyType = "INTERFACE" | "DI";
+
+export interface ActiveJourneyState {
+  type: JourneyType;
+  interfaceId: string;
+  activeStep: number;
+  activeCommand: "PowerCommand" | "VolumeUpCommand";
 }
 
 export type LogType = "success" | "error" | "info" | "warning";

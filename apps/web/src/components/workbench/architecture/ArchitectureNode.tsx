@@ -63,6 +63,10 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
         ${
           selected
             ? "border-white/40 shadow-[0_0_0_1.5px_rgba(255,255,255,0.25),0_8px_28px_rgba(0,0,0,0.6)]"
+            : nodeData.isJourneyStepTarget
+            ? "border-purple-400 shadow-[0_0_28px_rgba(168,85,247,0.75)] ring-2 ring-purple-400/80 scale-[1.02] z-20"
+            : nodeData.isJourneyDimmed
+            ? "opacity-25 grayscale-[30%] scale-[0.98] transition-all duration-300 pointer-events-none"
             : nodeData.isMemoryCrashing
             ? "border-red-500/90 shadow-[0_0_24px_rgba(239,68,68,0.7)] ring-2 ring-red-500/80 animate-pulse"
             : nodeData.isPulsing
@@ -104,14 +108,32 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
         <div className="flex items-center gap-1.5 shrink-0">
           {nodeData.implementsInterface && (
-            <span className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30">
-              :{nodeData.implementsInterface}
-            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                nodeData.onInspectInterface?.(nodeData.implementsInterface!);
+              }}
+              title={t("journey.inspectContract", "Дослідити шлях контракту :{{iface}}", { iface: nodeData.implementsInterface })}
+              className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-100 hover:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>:{nodeData.implementsInterface}</span>
+              <span className="text-[8px] text-purple-400">🔍</span>
+            </button>
           )}
           {nodeData.entityType === "interface" && (
-            <span className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30">
-              interface
-            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                nodeData.onInspectInterface?.(nodeData.name.replace(/\.cs$/, ""));
+              }}
+              title={t("journey.inspectContract", "Дослідити шлях контракту :{{iface}}", { iface: nodeData.name.replace(/\.cs$/, "") })}
+              className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-100 hover:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>interface</span>
+              <span className="text-[8px] text-purple-400">🔍</span>
+            </button>
           )}
           <button
             onClick={handleClose}
@@ -140,9 +162,26 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
               // Format clean port name: "ctor(IRemoteCommand command)" -> "ctor(command)"
               const cleanName = inp.name.replace(/ctor\(.*?\s+(\w+)\)/, "ctor($1)");
+              const isDiInput = inp.portType === "IRemoteCommand" || inp.name.includes("ctor");
 
               return (
-                <div key={inp.id} className="relative flex items-center py-1 group">
+                <div
+                  key={inp.id}
+                  onClick={
+                    isDiInput
+                      ? (e) => {
+                          e.stopPropagation();
+                          nodeData.onInspectDi?.();
+                        }
+                      : undefined
+                  }
+                  className={`relative flex items-center py-1 group ${
+                    isDiInput
+                      ? "cursor-pointer hover:bg-amber-500/10 rounded-md px-1 -mx-1 transition-colors"
+                      : ""
+                  }`}
+                  title={isDiInput ? t("journey.inspectDi", "Дослідити шлях впровадження DI") : undefined}
+                >
                   <Handle
                     type="target"
                     position={Position.Left}
@@ -155,13 +194,20 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
                     style={{ backgroundColor: inp.color || "#3B82F6" }}
                   />
                   <div className="min-w-0 pl-1">
-                    <span
-                      className={`font-mono text-[10.5px] block leading-tight truncate ${
-                        isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
-                      }`}
-                    >
-                      {cleanName}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <span
+                        className={`font-mono text-[10.5px] block leading-tight truncate ${
+                          isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
+                        }`}
+                      >
+                        {cleanName}
+                      </span>
+                      {isDiInput && (
+                        <span className="text-[8px] text-amber-400/80 font-mono" title={t("journey.inspectDi", "Дослідити шлях впровадження DI")}>
+                          🔍
+                        </span>
+                      )}
+                    </div>
                     <span className="font-mono text-[9px] text-stone-400 block truncate mt-0.5">
                       {inp.portType}
                     </span>

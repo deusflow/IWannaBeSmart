@@ -27,8 +27,15 @@ import { ProjectExplorer } from "./ProjectExplorer";
 import { ArchitectureTerminal } from "./ArchitectureTerminal";
 import { MentorBar } from "./MentorBar";
 import { CompletionModal } from "./CompletionModal";
+import { InterfaceJourneyHUD } from "./InterfaceJourneyHUD";
 import { PROJECT_FILES } from "./projectData";
-import type { ArchitectureNodeData, TerminalLogEntry, PortType, InjectedDependencyInfo } from "./types";
+import type {
+  ArchitectureNodeData,
+  TerminalLogEntry,
+  PortType,
+  InjectedDependencyInfo,
+  ActiveJourneyState,
+} from "./types";
 import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap, X } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 
@@ -217,6 +224,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   const [isHotSwapInsightOpen, setIsHotSwapInsightOpen] = useState(false);
   const [diMode, setDiMode] = useState<"WITH_DI" | "WITHOUT_DI">("WITH_DI");
   const [currentTraceStep, setCurrentTraceStep] = useState<number>(0);
+  const [activeJourney, setActiveJourney] = useState<ActiveJourneyState | null>(null);
   const flashTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   // Debounce ref for store sync
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -503,6 +511,193 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     },
     [nodes, setNodes, getNode, setCenter, flashNode, addLog]
   );
+
+  // ── Journey Handlers & Tracing ──────────────
+  const handleInspectInterface = useCallback(
+    (ifaceId: string) => {
+      const initialCmd: "PowerCommand" | "VolumeUpCommand" = isVolumeWired ? "VolumeUpCommand" : "PowerCommand";
+      setActiveJourney({
+        type: "INTERFACE",
+        interfaceId: ifaceId || "IRemoteCommand",
+        activeStep: 1,
+        activeCommand: initialCmd,
+      });
+
+      // Ensure interface node is present
+      const ifaceNode = getNode("node-interface-remote-command");
+      if (!ifaceNode) {
+        addNodeByFileId("interface-remote-command", { x: 60, y: -160 });
+        setTimeout(() => {
+          const n = getNode("node-interface-remote-command");
+          if (n) {
+            setCenter(n.position.x + 145, n.position.y + 100, { zoom: 1.15, duration: 400 });
+          }
+        }, 60);
+      } else {
+        setCenter(ifaceNode.position.x + 145, ifaceNode.position.y + 100, { zoom: 1.15, duration: 400 });
+      }
+
+      addLog({
+        type: "info",
+        subsystem: "VTABLE",
+        operation: "INSPECT_INTERFACE",
+        message: `⬡ Contract journey started: ${ifaceId || "IRemoteCommand"}`,
+        targetNodeId: "node-interface-remote-command",
+        details: "Station 1: Exploring interface declaration and polymorphic method signatures",
+        codeContext: `public interface IRemoteCommand {\n    void Execute(); // Базовий контракт\n}`,
+      });
+    },
+    [isVolumeWired, getNode, addNodeByFileId, setCenter, addLog]
+  );
+
+  const handleInspectDi = useCallback(() => {
+    const initialCmd: "PowerCommand" | "VolumeUpCommand" = isVolumeWired ? "VolumeUpCommand" : "PowerCommand";
+    setActiveJourney({
+      type: "DI",
+      interfaceId: "IRemoteCommand",
+      activeStep: 2,
+      activeCommand: initialCmd,
+    });
+
+    const tvNode = getNode("node-class-tv-controller");
+    if (tvNode) {
+      setCenter(tvNode.position.x + 145, tvNode.position.y + 100, { zoom: 1.15, duration: 400 });
+    }
+
+    addLog({
+      type: "info",
+      subsystem: "IoC",
+      operation: "INSPECT_DI",
+      message: "⚡ Dependency Injection journey: TVController constructor socket",
+      targetNodeId: "node-class-tv-controller",
+      details: "Station 2: Instance passed via constructor argument and stored in memory slot _cmd",
+      codeContext: `public TVController(IRemoteCommand cmd) {\n    _cmd = cmd; // Dependency Injection slot\n}`,
+    });
+  }, [isVolumeWired, getNode, setCenter, addLog]);
+
+  const handleChangeJourneyStep = useCallback(
+    (step: number, targetNodeId: string) => {
+      setActiveJourney((prev) => (prev ? { ...prev, activeStep: step } : null));
+
+      let node = getNode(targetNodeId);
+      if (!node && targetNodeId === "node-interface-remote-command") {
+        addNodeByFileId("interface-remote-command", { x: 60, y: -160 });
+        setTimeout(() => {
+          const n = getNode("node-interface-remote-command");
+          if (n) {
+            setCenter(n.position.x + 145, n.position.y + 100, { zoom: 1.15, duration: 350 });
+          }
+        }, 60);
+        return;
+      }
+
+      if (node) {
+        setCenter(node.position.x + (node.width ?? 290) / 2, node.position.y + 100, { zoom: 1.15, duration: 350 });
+      }
+    },
+    [getNode, addNodeByFileId, setCenter]
+  );
+
+  const handleChangeJourneyCommand = useCallback(
+    (command: "PowerCommand" | "VolumeUpCommand") => {
+      setActiveJourney((prev) => {
+        if (!prev) return null;
+        return { ...prev, activeCommand: command };
+      });
+
+      const targetId = command === "VolumeUpCommand" ? "node-class-volume-up-command" : "node-class-power-command";
+      const node = getNode(targetId);
+      if (node) {
+        setCenter(node.position.x + 145, node.position.y + 100, { zoom: 1.15, duration: 350 });
+      }
+
+      addLog({
+        type: "info",
+        subsystem: "IoC",
+        operation: "HOT_SWAP_SELECTION",
+        message: `Switched target implementation to ${command}`,
+        targetNodeId: targetId,
+        details: `Polymorphic replacement: runtime behavior redirects to ${command}.Execute()`,
+      });
+    },
+    [getNode, setCenter, addLog]
+  );
+
+  const handleCloseJourney = useCallback(() => {
+    setActiveJourney(null);
+  }, []);
+
+  // ── Processed nodes & edges for journey highlighting & callbacks ──
+  const processedNodes = useMemo(() => {
+    if (!activeJourney) {
+      return nodes.map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          isJourneyActive: false,
+          isJourneyStepTarget: false,
+          isJourneyDimmed: false,
+          onInspectInterface: handleInspectInterface,
+          onInspectDi: handleInspectDi,
+        },
+      }));
+    }
+
+    const { type, activeStep, activeCommand } = activeJourney;
+    const isVol = activeCommand === "VolumeUpCommand";
+    const activeCmdNodeId = isVol ? "node-class-volume-up-command" : "node-class-power-command";
+
+    let targetNodeId = "";
+    if (type === "INTERFACE") {
+      if (activeStep === 1) targetNodeId = "node-interface-remote-command";
+      else if (activeStep === 2) targetNodeId = activeCmdNodeId;
+      else if (activeStep === 3) targetNodeId = "node-class-tv-controller";
+      else if (activeStep === 4) targetNodeId = "node-class-tv-controller";
+    } else {
+      if (activeStep === 1) targetNodeId = activeCmdNodeId;
+      else if (activeStep === 2) targetNodeId = "node-class-tv-controller";
+      else if (activeStep === 3) targetNodeId = "node-class-tv-controller";
+      else if (activeStep === 4) targetNodeId = "node-class-tv-controller";
+    }
+
+    const participatingNodeIds = new Set([
+      "node-interface-remote-command",
+      "node-class-power-command",
+      "node-class-volume-up-command",
+      "node-class-tv-controller",
+    ]);
+
+    return nodes.map((n) => {
+      const isTarget = n.id === targetNodeId;
+      const isParticipating = participatingNodeIds.has(n.id);
+      return {
+        ...n,
+        data: {
+          ...n.data,
+          isJourneyActive: true,
+          isJourneyStepTarget: isTarget,
+          isJourneyDimmed: !isParticipating,
+          onInspectInterface: handleInspectInterface,
+          onInspectDi: handleInspectDi,
+        },
+      };
+    });
+  }, [nodes, activeJourney, handleInspectInterface, handleInspectDi]);
+
+  const processedEdges = useMemo(() => {
+    return edges.map((e) => {
+      const isConnectedToTv = e.target === "node-class-tv-controller";
+      const isJourneyCable = activeJourney !== null && isConnectedToTv;
+      return {
+        ...e,
+        data: {
+          ...e.data,
+          isJourneyActive: isJourneyCable,
+          onInspectDi: handleInspectDi,
+        },
+      };
+    });
+  }, [edges, activeJourney, handleInspectDi]);
 
   // ── Drag & Drop ─────────────────────────────
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -1095,6 +1290,20 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
             <span>{isVolumeWired ? "Hot Swap: Power" : "Hot Swap: Volume"}</span>
           </button>
 
+          {/* Journey Inspector Button */}
+          <button
+            onClick={() => (activeJourney ? handleCloseJourney() : handleInspectInterface("IRemoteCommand"))}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-semibold transition-all cursor-pointer active:scale-95 ${
+              activeJourney
+                ? "bg-purple-600/30 border-purple-400 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.4)]"
+                : "bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-300"
+            }`}
+            title={t("journey.interfaceTitle", "Шлях контракту: IRemoteCommand")}
+          >
+            <Sparkles size={12} className="text-purple-400" />
+            <span>{activeJourney ? t("journey.close", "Закрити") : t("journey.startJourney", "Дослідити зв'язок")}</span>
+          </button>
+
           {/* Trace Button */}
           <button
             onClick={triggerCallFlowTrace}
@@ -1212,8 +1421,8 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
             )}
 
             <ReactFlow
-              nodes={nodes}
-              edges={edges}
+              nodes={processedNodes}
+              edges={processedEdges}
               onNodesChange={handleNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
@@ -1249,6 +1458,18 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
               codePreview={codePreview}
               onFocusNode={handleFocusNode}
             />
+
+            {/* Interactive 4-Station Journey HUD */}
+            {activeJourney && (
+              <InterfaceJourneyHUD
+                journeyState={activeJourney}
+                onChangeStep={handleChangeJourneyStep}
+                onChangeCommand={handleChangeJourneyCommand}
+                onClose={handleCloseJourney}
+                onTriggerTrace={triggerCallFlowTrace}
+                isTracing={isTracing}
+              />
+            )}
           </div>
 
           {/* Interactive Mentor Bar */}
