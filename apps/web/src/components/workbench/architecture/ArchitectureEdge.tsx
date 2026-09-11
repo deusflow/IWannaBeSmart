@@ -6,7 +6,7 @@ import {
   type EdgeProps,
   EdgeLabelRenderer,
 } from "@xyflow/react";
-import { X, Check, AlertCircle } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 
 export interface ArchitectureEdgeData extends Record<string, unknown> {
   isValidPowerWire?: boolean;
@@ -90,17 +90,17 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
         markerEnd={markerEnd}
         style={{
           stroke: wireColor,
-          strokeWidth: isPulsing ? 3.5 : isWithoutDi ? 3 : 2.5,
-          strokeDasharray: isWithoutDi ? "6 4" : undefined,
+          strokeWidth: isPulsing ? 3 : isWithoutDi ? 2.5 : 2,
+          strokeDasharray: isWithoutDi ? "5 4" : undefined,
           filter: isPulsing
-            ? "drop-shadow(0 0 12px rgba(245, 158, 11, 0.95))"
+            ? "drop-shadow(0 0 10px rgba(245, 158, 11, 0.9))"
             : isWithoutDi
-            ? "drop-shadow(0 0 10px rgba(239, 68, 68, 0.85))"
+            ? "drop-shadow(0 0 8px rgba(239, 68, 68, 0.8))"
             : isPowerWire
-            ? "drop-shadow(0 0 8px rgba(34, 197, 94, 0.75))"
+            ? "drop-shadow(0 0 6px rgba(34, 197, 94, 0.6))"
             : isError
-            ? "drop-shadow(0 0 8px rgba(239, 68, 68, 0.75))"
-            : "drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))",
+            ? "drop-shadow(0 0 6px rgba(239, 68, 68, 0.6))"
+            : "drop-shadow(0 0 5px rgba(59, 130, 246, 0.4))",
           transition: "stroke 0.2s ease, filter 0.2s ease, stroke-width 0.2s ease",
         }}
       />
@@ -120,17 +120,10 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
             }}
           />
           <circle
-            r={isPulsing ? 4.5 : 3.5}
+            r={isPulsing ? 4 : 3}
             fill={isPulsing ? "#FDE68A" : isPowerWire ? "#86EFAC" : "#93C5FD"}
-            filter="drop-shadow(0 0 6px #fff)"
+            filter="drop-shadow(0 0 4px #fff)"
           >
-            <animateMotion
-              dur={isPulsing ? "0.8s" : "1.8s"}
-              repeatCount="indefinite"
-              path={edgePath}
-            />
-          </circle>
-          <circle r={2} fill="#FFFFFF">
             <animateMotion
               dur={isPulsing ? "0.8s" : "1.8s"}
               repeatCount="indefinite"
@@ -140,7 +133,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
         </>
       )}
 
-      {/* Midpoint Label & Disconnect Button */}
+      {/* Compact Midpoint Indicator & Disconnect Button */}
       <EdgeLabelRenderer>
         <div
           style={{
@@ -150,65 +143,43 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
           }}
           className="nodrag nopan"
         >
-          <div
-            className={`group px-2.5 py-1 rounded-full border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.6)] backdrop-blur-xs transition-all duration-150 ${
-              isError
-                ? "bg-red-950/90 text-red-200 border-red-500/60 hover:border-red-400"
-                : isWithoutDi
-                ? "bg-red-950/95 text-red-200 border-red-500/80 shadow-[0_0_12px_rgba(239,68,68,0.6)]"
-                : isPulsing
-                ? "bg-amber-950/90 text-amber-200 border-amber-500/80 shadow-[0_0_12px_rgba(245,158,11,0.8)] animate-pulse"
-                : isPowerWire
-                ? "bg-emerald-950/90 text-emerald-200 border-emerald-500/60 hover:border-emerald-400"
-                : "bg-gray-900/90 text-gray-200 border-gray-700 hover:border-gray-500"
-            }`}
-          >
-            {isError ? (
-              <>
-                <div className="h-3.5 w-3.5 rounded-full bg-red-500 text-white flex items-center justify-center">
-                  <AlertCircle size={10} strokeWidth={3} />
-                </div>
-                <span>Помилка типів</span>
-              </>
-            ) : isWithoutDi ? (
-              <>
-                <div className="h-3.5 w-3.5 rounded-full bg-red-500 text-white flex items-center justify-center text-[9px] font-black">
-                  ✕
-                </div>
-                <span className="text-red-300 font-mono tracking-tight">[ ❌ Жорстко: new PowerCommand() ]</span>
-              </>
-            ) : isPulsing ? (
-              <>
-                <div className="h-3.5 w-3.5 rounded-full bg-amber-500 text-stone-900 flex items-center justify-center text-[9px] font-black">
-                  ⚡
-                </div>
-                <span>{edgeData.pulseLabel || "Виклик функції (Call Pulse)"}</span>
-              </>
-            ) : isPowerWire ? (
-              <>
-                <div className="h-3.5 w-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                  <Check size={10} strokeWidth={3} />
-                </div>
-                <span className="text-emerald-200 font-mono tracking-tight">
-                  [ ✅ DI: {edgeData.commandName || "IRemoteCommand"} ➔ ctor ]
-                </span>
-              </>
-            ) : (
-              <span>{t("architecture.connection")}</span>
-            )}
-
-            {/* Disconnect Wire button */}
-            <button
-              onClick={handleDelete}
-              title={t("architecture.disconnect")}
-              className="p-0.5 rounded-full hover:bg-white/20 text-gray-400 hover:text-white transition-colors cursor-pointer"
-            >
-              <X size={10} strokeWidth={2.5} />
-            </button>
-          </div>
+          {isPulsing ? (
+            <div className="px-2 py-0.5 rounded-full bg-amber-500 text-stone-950 font-mono font-bold text-[9px] flex items-center gap-1 shadow-[0_0_12px_rgba(245,158,11,0.8)] animate-pulse">
+              <span>⚡</span>
+              <span>{edgeData.pulseLabel || "Execute()"}</span>
+            </div>
+          ) : isWithoutDi ? (
+            <div className="px-2 py-0.5 rounded-full bg-red-950/90 text-red-200 border border-red-500/60 font-mono text-[9px] font-bold flex items-center gap-1 shadow-sm">
+              <span className="text-red-400">✕</span>
+              <span>new PowerCommand()</span>
+              <button
+                onClick={handleDelete}
+                title={t("architecture.disconnect", "Від'єднати")}
+                className="ml-1 p-0.5 rounded-full hover:bg-white/20 text-gray-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={8} strokeWidth={2.5} />
+              </button>
+            </div>
+          ) : isError ? (
+            <div className="px-2 py-0.5 rounded-full bg-red-950/90 text-red-200 border border-red-500/60 font-mono text-[9px] font-bold flex items-center gap-1">
+              <AlertCircle size={9} className="text-red-400" />
+              <span>{t("architecture.typeError", "Помилка типів")}</span>
+            </div>
+          ) : (
+            <div className="px-2 py-0.5 rounded-full bg-[#18191D]/90 border border-emerald-500/40 text-emerald-300 font-mono text-[9px] flex items-center gap-1.5 transition-all duration-150 hover:border-emerald-400 shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+              <span className="font-semibold">{edgeData.commandName || "DI"}</span>
+              <button
+                onClick={handleDelete}
+                title={t("architecture.disconnect", "Від'єднати")}
+                className="ml-0.5 p-0.5 rounded-full hover:bg-white/20 text-gray-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={8} strokeWidth={2.5} />
+              </button>
+            </div>
+          )}
         </div>
       </EdgeLabelRenderer>
     </>
   );
 };
-

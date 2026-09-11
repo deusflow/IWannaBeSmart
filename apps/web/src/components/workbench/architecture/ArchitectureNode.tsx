@@ -3,50 +3,17 @@ import { useTranslation } from "react-i18next";
 import { Handle, Position, type NodeProps, useReactFlow } from "@xyflow/react";
 import type { ArchitectureNodeData, EntityType } from "./types";
 import { FileCode, Box, Cpu, Zap, X, LucideIcon } from "lucide-react";
+import { useWorkbenchStore } from "../../../store/workbenchStore";
 
-// ── Type badge colours (port annotations only) ──
-const getTypeBadgeStyle = (typeAnnotation?: string): string => {
-  if (!typeAnnotation) return "text-gray-500 bg-gray-800/50 border-gray-700/50";
-  if (typeAnnotation.includes("IRemoteCommand"))
-    return "text-purple-300 bg-purple-950/50 border-purple-600/30";
-  if (typeAnnotation.includes("ITVReceiver"))
-    return "text-blue-300 bg-blue-950/50 border-blue-600/30";
-  if (typeAnnotation.includes("DisplayService") || typeAnnotation.includes("AudioService"))
-    return "text-emerald-300 bg-emerald-950/50 border-emerald-600/30";
-  if (typeAnnotation.includes("hardware"))
-    return "text-orange-300 bg-orange-950/50 border-orange-600/30";
-  return "text-gray-400 bg-gray-800/50 border-gray-700/50";
-};
-
-// ── Entity accent colours (header badge only) ──
-const ENTITY_BADGE: Record<
+// ── Entity accent colors (dot + icon only) ──
+const ENTITY_ACCENT: Record<
   EntityType,
-  { bg: string; text: string; dot: string; icon: string }
+  { dot: string; icon: string }
 > = {
-  interface: {
-    bg: "bg-purple-600/20 border-purple-500/40",
-    text: "text-purple-300",
-    dot: "#8B5CF6",
-    icon: "text-purple-400",
-  },
-  class: {
-    bg: "bg-blue-600/20 border-blue-500/40",
-    text: "text-blue-300",
-    dot: "#3B82F6",
-    icon: "text-blue-400",
-  },
-  controller: {
-    bg: "bg-amber-600/20 border-amber-500/40",
-    text: "text-amber-300",
-    dot: "#F59E0B",
-    icon: "text-amber-400",
-  },
-  service: {
-    bg: "bg-emerald-600/20 border-emerald-500/40",
-    text: "text-emerald-300",
-    dot: "#10B981",
-    icon: "text-emerald-400",
-  },
+  interface: { dot: "#A855F7", icon: "text-purple-400" },
+  class: { dot: "#3B82F6", icon: "text-blue-400" },
+  controller: { dot: "#F59E0B", icon: "text-amber-400" },
+  service: { dot: "#10B981", icon: "text-emerald-400" },
 };
 
 const ICON_MAP: Record<EntityType, LucideIcon> = {
@@ -56,14 +23,12 @@ const ICON_MAP: Record<EntityType, LucideIcon> = {
   service: Zap,
 };
 
-import { useWorkbenchStore } from "../../../store/workbenchStore";
-
 export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const { t } = useTranslation();
   const { deleteElements, getNode } = useReactFlow();
   const nodeData = data as unknown as ArchitectureNodeData;
   const Icon = ICON_MAP[nodeData.entityType] || Box;
-  const badge = ENTITY_BADGE[nodeData.entityType] || ENTITY_BADGE.class;
+  const accent = ENTITY_ACCENT[nodeData.entityType] || ENTITY_ACCENT.class;
 
   const { mentorPhase, guidedStep, isHintActive } = useWorkbenchStore();
 
@@ -92,105 +57,78 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
   return (
     <div
       className={`
-        w-[310px] rounded-xl select-none
-        bg-[#2B2D33] border transition-all duration-200
-        shadow-[0_8px_24px_rgba(0,0,0,0.6)]
+        w-[280px] rounded-xl select-none group/node
+        bg-[#25262B] border transition-all duration-200
+        shadow-[0_8px_24px_rgba(0,0,0,0.5)]
         ${
           selected
             ? "border-white/30 shadow-[0_0_0_1.5px_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.6)]"
             : nodeData.isMemoryCrashing
-            ? "border-red-500/90 shadow-[0_0_28px_rgba(239,68,68,0.8)] ring-2 ring-red-500/80 animate-pulse"
+            ? "border-red-500/90 shadow-[0_0_24px_rgba(239,68,68,0.7)] ring-2 ring-red-500/80 animate-pulse"
             : nodeData.isPulsing
-            ? "border-amber-400/90 shadow-[0_0_28px_rgba(245,158,11,0.7)] ring-2 ring-amber-400/80"
+            ? "border-amber-400/90 shadow-[0_0_24px_rgba(245,158,11,0.7)] ring-2 ring-amber-400/80"
             : nodeData.isVTableTarget
             ? "border-blue-400/80 shadow-[0_0_20px_rgba(59,130,246,0.5)] ring-1 ring-blue-400/60"
             : isTargetForStep
             ? "border-purple-500/60 shadow-[0_0_20px_rgba(168,85,247,0.35)] ring-1 ring-purple-500/40"
             : nodeData.isFlashing
             ? "border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.4)]"
-            : "border-white/[0.07] hover:border-white/[0.14]"
+            : "border-white/[0.08] hover:border-white/[0.16]"
         }
       `}
     >
-      {/* ── Header (entity badge + filename + pulse indicators + [×]) ── */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.06]">
-        {/* Coloured dot — only colour accent in the header */}
-        <div
-          className={`w-2 h-2 rounded-full shrink-0 ${nodeData.isPulsing ? "animate-ping" : ""}`}
-          style={{ backgroundColor: nodeData.isPulsing ? "#F59E0B" : badge.dot }}
-        />
-
-        {/* Icon + Name */}
-        <div className={`shrink-0 ${nodeData.isPulsing ? "text-amber-400" : badge.icon}`}>
-          <Icon size={13} strokeWidth={2} />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h4 className="font-mono font-bold text-[11px] text-gray-100 truncate leading-tight flex items-center gap-1.5">
-            <span>{nodeData.name}</span>
-            {nodeData.isPulsing && (
-              <span className="font-mono text-[7px] font-black px-1 py-0.2 rounded bg-amber-500 text-stone-900 uppercase shrink-0 animate-pulse">
-                ⚡ EXEC
-              </span>
-            )}
-            {nodeData.isVTableTarget && (
-              <span className="font-mono text-[7px] font-bold px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase shrink-0">
-                VTable
-              </span>
-            )}
-          </h4>
-          <span className="font-mono text-[8.5px] text-gray-500 block truncate">
-            {nodeData.path}
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.06] bg-white/[0.015]">
+        <div className="flex items-center gap-2 min-w-0">
+          <div
+            className={`w-2 h-2 rounded-full shrink-0 ${nodeData.isPulsing ? "animate-ping" : ""}`}
+            style={{ backgroundColor: nodeData.isPulsing ? "#F59E0B" : accent.dot }}
+          />
+          <div className={`shrink-0 ${nodeData.isPulsing ? "text-amber-400" : accent.icon}`}>
+            <Icon size={13} strokeWidth={2} />
+          </div>
+          <span className="font-mono font-bold text-[11.5px] text-gray-100 truncate">
+            {nodeData.name.replace(/\.cs$/, "")}
           </span>
-          {nodeData.implementsInterface ? (
-            <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-[7.5px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/35 flex items-center gap-1">
-                <span>⬡</span>
-                <span>implements {nodeData.implementsInterface}</span>
-              </span>
-            </div>
-          ) : nodeData.entityType === "interface" ? (
-            <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-[7.5px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-purple-600/30 text-purple-200 border border-purple-400/40">
-                Контракт-Розетка (Contract)
-              </span>
-            </div>
-          ) : nodeData.entityType === "controller" ? (
-            <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-[7.5px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/35">
-                Споживач (Consumer з DI-слотами)
-              </span>
-            </div>
-          ) : null}
+          {nodeData.isPulsing && (
+            <span className="font-mono text-[7px] font-bold px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase shrink-0 animate-pulse">
+              ⚡ EXEC
+            </span>
+          )}
+          {nodeData.isVTableTarget && (
+            <span className="font-mono text-[7px] font-bold px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase shrink-0">
+              VTable
+            </span>
+          )}
         </div>
 
-        {/* Entity type badge */}
-        <span
-          className={`font-mono text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase shrink-0 ${badge.bg} ${badge.text}`}
-        >
-          {nodeData.entityType}
-        </span>
-
-        {/* [×] Close button */}
-        <button
-          onClick={handleClose}
-          title="Видалити з дошки"
-          className="
-            p-0.5 rounded ml-0.5 shrink-0 cursor-pointer
-            text-gray-600 hover:text-gray-200
-            hover:bg-red-500/20 transition-colors duration-100
-          "
-        >
-          <X size={11} strokeWidth={2.5} />
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {nodeData.implementsInterface && (
+            <span className="text-[7.5px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">
+              :{nodeData.implementsInterface}
+            </span>
+          )}
+          {nodeData.entityType === "interface" && (
+            <span className="text-[7.5px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">
+              interface
+            </span>
+          )}
+          <button
+            onClick={handleClose}
+            title={t("architecture.deleteNode", "Видалити")}
+            className="p-0.5 rounded text-gray-500 hover:text-gray-200 hover:bg-white/10 transition-colors cursor-pointer opacity-0 group-hover/node:opacity-100"
+          >
+            <X size={11} strokeWidth={2.5} />
+          </button>
+        </div>
       </div>
 
       {/* ── Ports Body (Sockets on Left, Plugs on Right) ── */}
       <div className="p-3 grid grid-cols-2 gap-3">
-        {/* Left: Inputs (DI Sockets) */}
+        {/* Left: Inputs (DI Slots) */}
         <div className="space-y-1.5">
-          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-purple-400/90 flex items-center gap-1">
-            <span>📥 {t("architecture.inputsDI", "КОНСТРУКТОР (DI SLOTS)")}</span>
+          <div className="text-[8px] font-mono font-medium text-gray-400 uppercase tracking-wider">
+            {t("architecture.inputsDI", "Входи (DI)")}
           </div>
           {hasInputs ? (
             nodeData.inputs.map((inp) => {
@@ -200,52 +138,48 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
                 ((mentorPhase === "GUIDED" && (guidedStep === 1 || guidedStep === 3)) ||
                   (mentorPhase === "PRACTICE" && isHintActive));
 
+              // Format clean port name: "ctor(IRemoteCommand command)" -> "ctor(command)"
+              const cleanName = inp.name.replace(/ctor\(.*?\s+(\w+)\)/, "ctor($1)");
+
               return (
                 <div key={inp.id} className="relative flex items-start py-0.5 group">
-                  {/* Socket Receptacle Handle: Square notched receptacle */}
                   <Handle
                     type="target"
                     position={Position.Left}
                     id={inp.id}
-                    className={`!w-3.5 !h-3.5 !rounded-xs !-left-[18px] !border-2 !border-[#1E2024] shadow-inner transition-all group-hover:scale-125 cursor-crosshair ${
+                    className={`!w-3 !h-3 !rounded-xs !-left-[18px] !border-2 !border-[#25262B] shadow-inner transition-all group-hover:scale-125 cursor-crosshair ${
                       isPortTarget
-                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
+                        ? "!ring-3 !ring-purple-400 !shadow-[0_0_12px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
                         : "hover:border-purple-300"
                     }`}
                     style={{ backgroundColor: inp.color || "#3B82F6" }}
                   />
                   <div className="min-w-0 pl-1">
                     <span
-                      className={`font-mono font-semibold text-[9.5px] block leading-tight truncate ${
+                      className={`font-mono text-[9.5px] block leading-tight truncate ${
                         isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
                       }`}
                     >
-                      {inp.name}
+                      {cleanName}
                     </span>
-                    {inp.typeAnnotation && (
-                      <span
-                        className={`font-mono text-[7.5px] font-medium px-1 py-px rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
-                          inp.typeAnnotation
-                        )}`}
-                      >
-                        {inp.typeAnnotation}
-                      </span>
-                    )}
+                    <span className="font-mono text-[7.5px] text-gray-400 block truncate">
+                      {inp.portType}
+                    </span>
                   </div>
                 </div>
               );
             })
           ) : (
-            <span className="text-[8.5px] font-mono text-gray-600 italic block">
-              {t("architecture.noInputs")}
+            <span className="text-[8px] font-mono text-gray-600 italic block">
+              {t("architecture.noInputs", "Немає входів")}
             </span>
           )}
         </div>
 
         {/* Right: Outputs (Command Plugs) */}
         <div className="space-y-1.5 text-right">
-          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-emerald-400/90 flex items-center justify-end gap-1">
-            <span>{t("architecture.methodsOutputs", "РЕАЛІЗАЦІЯ МЕТОДІВ")} 📤</span>
+          <div className="text-[8px] font-mono font-medium text-gray-400 uppercase tracking-wider text-right">
+            {t("architecture.methodsOutputs", "Виходи")}
           </div>
           {hasOutputs ? (
             nodeData.outputs.map((out) => {
@@ -255,6 +189,9 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
                 ((mentorPhase === "GUIDED" && guidedStep === 3) ||
                   (mentorPhase === "PRACTICE" && isHintActive));
 
+              // Format clean port name: "IRemoteCommand.Execute()" -> "Execute()"
+              const cleanName = out.name.replace(/^[A-Za-z0-9_]+\./, "");
+
               return (
                 <div
                   key={out.id}
@@ -262,30 +199,23 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
                 >
                   <div className="min-w-0 pr-1 text-right">
                     <span
-                      className={`font-mono font-semibold text-[9.5px] block leading-tight truncate ${
+                      className={`font-mono text-[9.5px] block leading-tight truncate ${
                         isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
                       }`}
                     >
-                      {out.name}
+                      {cleanName}
                     </span>
-                    {out.typeAnnotation && (
-                      <span
-                        className={`font-mono text-[7.5px] font-medium px-1 py-px rounded border inline-block mt-0.5 max-w-full truncate ${getTypeBadgeStyle(
-                          out.typeAnnotation
-                        )}`}
-                      >
-                        {out.typeAnnotation}
-                      </span>
-                    )}
+                    <span className="font-mono text-[7.5px] text-gray-400 block truncate">
+                      {out.portType === "IRemoteCommand" ? "IRemoteCommand" : out.typeAnnotation || out.portType}
+                    </span>
                   </div>
-                  {/* Plug Prong Handle: Protruding rounded connector */}
                   <Handle
                     type="source"
                     position={Position.Right}
                     id={out.id}
-                    className={`!w-3.5 !h-3.5 !rounded-r-md !rounded-l-xs !-right-[18px] !border-2 !border-[#1E2024] shadow-md transition-all group-hover:scale-125 cursor-crosshair ${
+                    className={`!w-3 !h-3 !rounded-r-md !rounded-l-xs !-right-[18px] !border-2 !border-[#25262B] shadow-md transition-all group-hover:scale-125 cursor-crosshair ${
                       isPortTarget
-                        ? "!ring-4 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
+                        ? "!ring-3 !ring-purple-400 !shadow-[0_0_12px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
                         : "hover:border-emerald-300"
                     }`}
                     style={{ backgroundColor: out.color || "#10B981" }}
@@ -294,8 +224,8 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
               );
             })
           ) : (
-            <span className="text-[8.5px] font-mono text-gray-600 italic block">
-              {t("architecture.noOutputs")}
+            <span className="text-[8px] font-mono text-gray-600 italic block">
+              {t("architecture.noOutputs", "Немає методів")}
             </span>
           )}
         </div>
@@ -303,61 +233,47 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
       {/* ── Memory Field X-Ray Slot (TVController Internal State) ── */}
       {isTvController && (
-        <div className="mx-3 mb-2 p-2 rounded-lg bg-[#18191D] border border-white/10 font-mono text-[10px] select-none">
-          <div className="flex items-center justify-between text-[8px] text-gray-400 uppercase tracking-wider mb-1.5">
-            <span className="flex items-center gap-1">
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  nodeData.injectedDependency ? "bg-emerald-400 animate-pulse" : "bg-red-400"
-                }`}
-              />
-              Рентген пам'яті (Memory Field)
-            </span>
-            <span className="text-gray-500 font-mono">private IRemoteCommand _cmd</span>
-          </div>
-
-          {nodeData.injectedDependency ? (
-            <div className="p-1.5 rounded bg-emerald-950/70 border border-emerald-500/60 flex items-center justify-between text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] transition-all">
-              <div className="flex items-center gap-1.5 truncate">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                <span className="font-bold text-gray-200">_cmd =</span>
-                <span className="font-mono text-emerald-300 font-bold truncate">
-                  [{nodeData.injectedDependency.address}] {nodeData.injectedDependency.name}
-                </span>
-              </div>
-              <span className="text-[7.5px] px-1.5 py-0.5 rounded bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 uppercase font-black shrink-0">
-                ACTIVE REF
+        <div className="mx-3 mb-2 px-2.5 py-1.5 rounded-md bg-[#16171A] border border-white/[0.08] font-mono text-[10px] flex items-center justify-between">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-gray-500 text-[8px] uppercase font-bold tracking-wider">RAM</span>
+            <span className="text-gray-400 font-medium">_cmd:</span>
+            {nodeData.injectedDependency ? (
+              <span className="text-emerald-400 font-semibold truncate">
+                [{nodeData.injectedDependency.address}] {nodeData.injectedDependency.name}
               </span>
-            </div>
-          ) : (
-            <div
-              className={`p-1.5 rounded border transition-all ${
-                nodeData.isMemoryCrashing
-                  ? "bg-red-600/30 border-red-500 text-red-200 animate-bounce shadow-[0_0_16px_rgba(239,68,68,0.8)]"
-                  : "bg-red-950/50 border-red-500/40 text-red-300"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-ping" />
-                  <span className="font-bold text-gray-300">_cmd =</span>
-                  <span className="font-black text-red-400 font-mono">null ⚠️</span>
-                </div>
-                <span className="text-[7.5px] px-1.5 py-0.5 rounded bg-red-500/20 border border-red-500/40 text-red-300 uppercase font-black shrink-0">
-                  NULL_REF
-                </span>
-              </div>
-              <div className="text-[8px] text-red-400/80 mt-1 font-sans leading-tight">
-                Конструктор порожній. Виклик Dispatch() викличе виняток.
-              </div>
-            </div>
-          )}
+            ) : (
+              <span
+                className={`font-semibold flex items-center gap-1 ${
+                  nodeData.isMemoryCrashing ? "text-red-400 animate-pulse font-black" : "text-red-400/90"
+                }`}
+              >
+                null <span className="text-[9px]">⚠️</span>
+              </span>
+            )}
+          </div>
+          <div className="shrink-0 ml-2">
+            {nodeData.injectedDependency ? (
+              <span className="text-[7.5px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold uppercase">
+                ✓ Active
+              </span>
+            ) : (
+              <span
+                className={`text-[7.5px] px-1.5 py-0.5 rounded uppercase font-bold ${
+                  nodeData.isMemoryCrashing
+                    ? "bg-red-500/30 text-red-200 border border-red-500/60 animate-bounce shadow-[0_0_12px_rgba(239,68,68,0.6)]"
+                    : "bg-red-500/15 text-red-300 border border-red-500/30"
+                }`}
+              >
+                NullRef
+              </span>
+            )}
+          </div>
         </div>
       )}
 
       {/* ── Role description ── */}
-      <div className="px-3 pb-2.5 border-t border-white/[0.05] pt-2">
-        <p className="font-balsamiq text-[9.5px] text-gray-500 leading-snug">
+      <div className="px-3 py-1.5 border-t border-white/[0.05] bg-white/[0.01]">
+        <p className="font-mono text-[8.5px] text-gray-400 leading-snug truncate" title={nodeData.role}>
           {nodeData.role}
         </p>
       </div>
