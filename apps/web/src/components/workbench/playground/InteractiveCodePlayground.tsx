@@ -21,6 +21,8 @@ import {
   Zap,
   Lock,
   X,
+  Sparkles,
+  HelpCircle,
 } from "lucide-react";
 import {
   CODING_TASKS,
@@ -42,7 +44,7 @@ export interface InteractiveCodePlaygroundProps {
 export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps> = ({
   onOpenArchitectureStudio,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     power,
     channel,
@@ -59,9 +61,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   } = useWorkbenchStore();
 
   const tierMeta = useMemo(() => ({
-    0: { label: t("codegym.tier0Label", "РАНГ 0: СТАРТ"), maxStars: 9, unlockAt: 0 },
-    1: { label: t("codegym.tier1Label", "РАНГ 1: ЛОГІКА"), maxStars: 15, unlockAt: 6 },
-    2: { label: t("codegym.tier2Label", "РАНГ 2: АРХІТЕКТУРА"), maxStars: 15, unlockAt: 10 },
+    0: { label: t("codegym.tier0Label", "РАНГ 0: СТАРТ"), maxStars: 12, unlockAt: 0 },
+    1: { label: t("codegym.tier1Label", "РАНГ 1: ЛОГІКА"), maxStars: 32, unlockAt: 6 },
+    2: { label: t("codegym.tier2Label", "РАНГ 2: АРХІТЕКТУРА"), maxStars: 20, unlockAt: 12 },
   }), [t]);
   const tierKeys = [0, 1, 2] as const;
 
@@ -90,13 +92,14 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     (tier: 0 | 1 | 2) => {
       if (tier === 0) return true;
       if (tier === 1) return tierStarTotals[0] >= 6;
-      return tierStarTotals[1] >= 10;
+      return tierStarTotals[1] >= 12;
     },
     [tierStarTotals]
   );
 
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
-  const [activeRound, setActiveRound] = useState<1 | 2 | 3>(1);
+  const [activeRound, setActiveRound] = useState<1 | 2 | 3 | 4>(1);
+  const [showTransferHint, setShowTransferHint] = useState<boolean>(false);
 
   // Target code for current language & task
   const targetCode = currentTask.targetCode[codeLang];
@@ -235,12 +238,15 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     setTimeLeft(sprintLimit);
     setRoundStats(null);
     roundStartTimeRef.current = null;
+    setShowTransferHint(false);
 
     if (activeRound === 1) {
       setTypedCode("");
     } else if (activeRound === 2) {
       setTypedCode(clozeTemplate);
     } else if (activeRound === 3) {
+      setTypedCode("");
+    } else if (activeRound === 4) {
       setTypedCode("");
     }
   }, [activeRound, codeLang, clozeTemplate, currentTask.id, sprintLimit]);
@@ -532,6 +538,103 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     t,
   ]);
 
+  // ── Round 4: Transfer (Conceptual Variation) ──────────────────────────
+  const handleRunTransfer = useCallback(async () => {
+    if (!typedCode.trim()) {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback(t("codegym.fillBlanksPrompt", "Введіть код для виконання завдання!"));
+      return;
+    }
+
+    const beforeState: VirtualTvState = {
+      isOn: power,
+      channel,
+      volume,
+      isArchitectureWired: isArchitecturePowerWired,
+    };
+
+    const result = await executeTvScriptAsync(
+      typedCode,
+      beforeState,
+      (snapshot) => {
+        applyCodeExecution({
+          power: snapshot.isOn,
+          channel: snapshot.channel,
+          volume: snapshot.volume,
+          osdMessage: snapshot.osdMessage,
+          label: snapshot.label,
+        });
+      },
+      200
+    );
+
+    if (result.success) {
+      applyCodeExecution({
+        power: result.newState.isOn,
+        channel: result.newState.channel,
+        volume: result.newState.volume,
+        osdMessage: result.newState.osdMessage,
+        label: result.newState.label,
+      });
+      if (result.newState.isArchitectureWired) {
+        setArchitecturePowerWired(true);
+      }
+    }
+
+    const currentLangKey = (i18n.language?.startsWith("da")
+      ? "da"
+      : i18n.language?.startsWith("en")
+      ? "en"
+      : "ua") as "ua" | "en" | "da";
+
+    let passed = false;
+    if (currentTask.transferVariant) {
+      passed = result.success && currentTask.transferVariant.validate(beforeState, result.newState, typedCode);
+    } else {
+      const validation = currentTask.validate(beforeState, result.newState, result, typedCode);
+      passed = validation.passed;
+    }
+
+    if (passed) {
+      setHasError(false);
+      setRoundCompleted(true);
+      setRoundStats({ wpm: 0, accuracy: 100 });
+      audioFx.playSuccessFanfare();
+      setTaskMastery(currentTask.id, 4);
+      completeCodingTask(currentTask.id);
+      addXp(75);
+      setFeedback(t("codegym.transferComplete", "Чудово! Варіацію перевірено, 4-ту зірку майстра зараховано!"));
+
+      if (currentTask.id === "task-command-registry") {
+        setStationVictoryModalOpen(true);
+      }
+    } else {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback(
+        result.error
+          ? result.error
+          : currentTask.transferVariant?.hint[currentLangKey] ||
+            t("codegym.transferFailed", "Умова варіації не виконана. Перевірте значення параметрів або стан пристрою.")
+      );
+    }
+  }, [
+    typedCode,
+    power,
+    channel,
+    volume,
+    isArchitecturePowerWired,
+    currentTask,
+    applyCodeExecution,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    setStationVictoryModalOpen,
+    i18n.language,
+    t,
+  ]);
+
   // Trace character progress
   const traceCharsMatched = useMemo(() => {
     let count = 0;
@@ -570,9 +673,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
         if (roundCompleted) {
-          if (activeRound < 3) {
+          if (activeRound < 4) {
             audioFx.playRelayClick();
-            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3);
+            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
           } else if (nextTask && isNextTaskUnlocked) {
             audioFx.playRelayClick();
             handleSelectTask(nextTask.id);
@@ -588,6 +691,8 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           } else {
             handleRunSprint();
           }
+        } else if (activeRound === 4) {
+          handleRunTransfer();
         }
         return;
       }
@@ -618,9 +723,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     clozeTemplate,
     sprintLimit,
     nextTask,
-    isNextTaskUnlocked,
     handleVerifyCloze,
     handleRunSprint,
+    handleRunTransfer,
     handleSelectTask,
   ]);
 

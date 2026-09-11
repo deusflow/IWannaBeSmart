@@ -10,6 +10,8 @@ export interface VirtualTvState {
   osdMessage?: string;
   isArchitectureWired?: boolean;
   label?: string;
+  isSafeGuardActive?: boolean;
+  activeInstanceName?: string;
 }
 
 export type RuntimeLogType = "info" | "mutation" | "error" | "success";
@@ -26,6 +28,17 @@ export interface RuntimeResult {
   logs: RuntimeLogEntry[];
   error?: string;
   mentorFeedback?: string;
+}
+
+export interface TransferVariant {
+  prompt: Record<"ua" | "en" | "da", string>;
+  hint: Record<"ua" | "en" | "da", string>;
+  targetSnippetExample?: string;
+  validate: (
+    before: VirtualTvState,
+    after: VirtualTvState,
+    code: string
+  ) => boolean;
 }
 
 export interface CodingTask {
@@ -54,6 +67,7 @@ export interface CodingTask {
     go: string;
   };
   sprintTimeLimit?: number;
+  transferVariant?: TransferVariant;
   validate: (
     before: VirtualTvState,
     after: VirtualTvState,

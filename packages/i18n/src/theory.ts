@@ -132,6 +132,42 @@ export const theoryUa: TheoryDictionary = {
       notes: "Цикл for автоматизує рутинні повторювані дії: замість 4 однакових рядків ми пишемо одну компактну конструкцію.",
       diff: "У C# тип лічильника оголошується явно (int i = 1), а в Go використовується короткий синтаксис (i := 1).",
     },
+    "task-class-instance": {
+      concept: "Клас — це креслення пристрою, а екземпляр — фізично створений у купі пам'яті (Heap) об'єкт. Оператор new виділяє пам'ять та повертає посилання.",
+      tokens: [
+        { token: "TV", role: "Type / Class", explanation: "Назва класу — креслення типу даних." },
+        { token: "myTv", role: "Variable Name", explanation: "Ім'я змінної-посилання на стеку, що зберігає адресу об'єкта." },
+        { token: "new", role: "Allocation Operator", explanation: "Оператор виділення динамічної пам'яті в керованій купі (Heap)." },
+        { token: "TV() / TV{}", role: "Constructor Call", explanation: "Виклик конструктора класу (в C#) або ініціалізація структури (в Go)." },
+        { token: "myTv.PowerOn()", role: "Instance Method Call", explanation: "Виклик методу на конкретному створеному екземплярі." },
+      ],
+      notes: "Без створення екземпляра через new об'єкт не існує у пам'яті: клас без об'єкта — це лише опис типу на папері.",
+      diff: "У C#: TV myTv = new TV(); myTv.PowerOn();. У Go: myTv := TV{} myTv.PowerOn().",
+    },
+    "task-method-return": {
+      concept: "Методи бувають Командами (змінюють стан без повернення) та Запитами (читають значення і повертають його). tv.GetVolume() повертає число, яке ми захоплюємо у змінну.",
+      tokens: [
+        { token: "int / :=", role: "Type / Declaration", explanation: "Оголошення змінної для збереження повернутого результату." },
+        { token: "vol", role: "Variable", explanation: "Локальна змінна на стеку, яка приймає повернене числове значення." },
+        { token: "tv.GetVolume()", role: "Query Method", explanation: "Виклик методу-запиту: він зчитує стан без побічних мутацій." },
+        { token: "vol + 10", role: "Arithmetic Expression", explanation: "Арифметичне обчислення нового значення на основі отриманого." },
+        { token: "tv.SetVolume(...)", role: "Command Method", explanation: "Метод-мутатор, який записує нове значення гучності." },
+      ],
+      notes: "Command-Query Separation (CQS): метод-запит не повинен змінювати стан системи, а метод-команда не повинен повертати дані.",
+      diff: "У C# тип результату вказується явно int vol = tv.GetVolume();. У Go використовується скорочений вираз vol := tv.GetVolume().",
+    },
+    "task-null-reference": {
+      concept: "Порожнє посилання null (nil у Go) вказує на адресу 0x0. Звернення до нього викликає фатальний крах NullReferenceException. Захисна умова if (broken != null) рятує програму від падіння.",
+      tokens: [
+        { token: "TV broken = null", role: "Null Declaration", explanation: "Змінна вказівника на стеку зі значенням 0x00000000 (у Go: var broken *TV = nil)." },
+        { token: "if", role: "Guard Keyword", explanation: "Умовний захисний бар'єр перед виконанням небезпечної операції." },
+        { token: "broken != null", role: "Null Safety Check", explanation: "Перевірка адреси: чи існує живий екземпляр у пам'яті (у Go: broken != nil)." },
+        { token: "broken.PowerOn()", role: "Guarded Call", explanation: "Безпечний виклик, який виконується лише за умови наявності об'єкта." },
+        { token: "broken?.PowerOn()", role: "Safe Navigation", explanation: "Оператор Elvis (C#): якщо посилання null, виклик тихо оминається без падіння." },
+      ],
+      notes: "NullReferenceException (NRE) — найчастіша причина аварій у продакшні. Захисні перевірки усувають 99% таких падінь.",
+      diff: "У C# використовується null та safe navigation ?.. У Go використовується nil і явна перевірка if broken != nil.",
+    },
     "task-function-encapsulation": {
       concept: "Ми упаковуємо послідовність дій в іменовану функцію Mute(), щоб викликати її за потреби однією командою з будь-якого місця програми.",
       tokens: [
@@ -362,6 +398,42 @@ export const theoryEn: TheoryDictionary = {
       notes: "The for loop prevents code repetition: instead of 4 duplicate lines, we express intent in a single compact construct.",
       diff: "C# explicitly types loop counters (int i = 1), whereas Go utilizes short declaration syntax (i := 1).",
     },
+    "task-class-instance": {
+      concept: "A class is a structural blueprint, while an instance is a living object allocated in Heap memory. The new operator allocates memory and returns an object reference.",
+      tokens: [
+        { token: "TV", role: "Type / Class", explanation: "Type identifier representing the class blueprint." },
+        { token: "myTv", role: "Variable Name", explanation: "Stack reference variable storing the Heap address of the created object." },
+        { token: "new", role: "Allocation Operator", explanation: "Allocates dynamic memory in the managed Heap." },
+        { token: "TV() / TV{}", role: "Constructor Call", explanation: "Executes class constructor (C#) or initializes struct fields (Go)." },
+        { token: "myTv.PowerOn()", role: "Instance Method Call", explanation: "Invokes method on the specific created instance." },
+      ],
+      notes: "Without instantiating via new, an object does not exist in memory: a class without an instance is just an abstract blueprint.",
+      diff: "In C#: TV myTv = new TV(); myTv.PowerOn();. In Go: myTv := TV{} myTv.PowerOn().",
+    },
+    "task-method-return": {
+      concept: "Methods are either Commands (mutating state without return) or Queries (inspecting state and returning data). tv.GetVolume() returns a number captured into a stack variable.",
+      tokens: [
+        { token: "int / :=", role: "Type / Declaration", explanation: "Variable declaration to store the returned numerical result." },
+        { token: "vol", role: "Variable", explanation: "Stack variable capturing the return value." },
+        { token: "tv.GetVolume()", role: "Query Method", explanation: "Query method call: reads volume without triggering side-effect mutations." },
+        { token: "vol + 10", role: "Arithmetic Expression", explanation: "Evaluates new value using processor ALU before applying change." },
+        { token: "tv.SetVolume(...)", role: "Command Method", explanation: "Mutator command updating internal hardware volume." },
+      ],
+      notes: "Command-Query Separation (CQS): query methods should never mutate state, and command methods should avoid returning business data.",
+      diff: "C# explicitly declares the return type int vol = tv.GetVolume();. Go uses short variable declaration vol := tv.GetVolume().",
+    },
+    "task-null-reference": {
+      concept: "A null pointer (nil in Go) points to address 0x0. Accessing members on null triggers a fatal NullReferenceException crash. A Guard check if (broken != null) protects runtime stability.",
+      tokens: [
+        { token: "TV broken = null", role: "Null Declaration", explanation: "Stack pointer initialized to memory address 0x00000000 (Go: var broken *TV = nil)." },
+        { token: "if", role: "Guard Keyword", explanation: "Conditional guard checking reference validity before execution." },
+        { token: "broken != null", role: "Null Safety Check", explanation: "Address comparison ensuring the instance physically exists in memory." },
+        { token: "broken.PowerOn()", role: "Guarded Call", explanation: "Safe execution invoked only when instance reference is non-null." },
+        { token: "broken?.PowerOn()", role: "Safe Navigation", explanation: "Elvis operator (C#): silently skips invocation if reference is null without crashing." },
+      ],
+      notes: "NullReferenceException (NRE) causes the majority of production outages. Defensive guard clauses eliminate 99% of these crashes.",
+      diff: "C# supports null and Elvis safe operator ?.. Go utilizes nil and explicit if broken != nil checks.",
+    },
     "task-function-encapsulation": {
       concept: "We package logic into a reusable Mute() function, allowing any part of the system to silence the device with a single command.",
       tokens: [
@@ -591,6 +663,42 @@ export const theoryDa: TheoryDictionary = {
       ],
       notes: "En for-loop automatiserer gentagelser: i stedet for 4 linjer skriver vi én kompakt konstruktion.",
       diff: "C# erklærer tællertypen eksplicit (int i = 1), mens Go bruger kort notation (i := 1).",
+    },
+    "task-class-instance": {
+      concept: "En klasse er en arkitekttegning, mens en forekomst er et levende objekt allokeret i Heap-hukommelsen. Operatoren new allokerer hukommelse og returnerer en reference.",
+      tokens: [
+        { token: "TV", role: "Type / Class", explanation: "Klassens navn — skabelonen for datatypen." },
+        { token: "myTv", role: "Variable Name", explanation: "Referencevariabel på stakken, der gemmer objektets adresse." },
+        { token: "new", role: "Allocation Operator", explanation: "Allokerer dynamisk hukommelse på den administrerede heap." },
+        { token: "TV() / TV{}", role: "Constructor Call", explanation: "Kører klassens konstruktør (C#) eller initialiserer strukturfelter (Go)." },
+        { token: "myTv.PowerOn()", role: "Instance Method Call", explanation: "Udfører en metode på den specifikke oprettede forekomst." },
+      ],
+      notes: "Uden oprettelse via new eksisterer objektet ikke i hukommelsen: en klasse uden et objekt er blot en tegning på papir.",
+      diff: "I C#: TV myTv = new TV(); myTv.PowerOn();. I Go: myTv := TV{} myTv.PowerOn().",
+    },
+    "task-method-return": {
+      concept: "Metoder er enten Kommandoer (ændrer tilstand uden returværdi) eller Forespørgsler (aflæser tilstand og returnerer data). tv.GetVolume() returnerer et tal, der fanges i en variabel.",
+      tokens: [
+        { token: "int / :=", role: "Type / Declaration", explanation: "Variabelerklæring til at gemme det returnerede numeriske resultat." },
+        { token: "vol", role: "Variable", explanation: "Lokal variabel på stakken der modtager returværdien." },
+        { token: "tv.GetVolume()", role: "Query Method", explanation: "Forespørgselsmetode: aflæser lydstyrken uden utilsigtede sideeffekter." },
+        { token: "vol + 10", role: "Arithmetic Expression", explanation: "Beregner ny værdi ved hjælp af processorens ALU før ændringen gemmes." },
+        { token: "tv.SetVolume(...)", role: "Command Method", explanation: "Kommandometode der opdaterer den interne hardware-lydstyrke." },
+      ],
+      notes: "Command-Query Separation (CQS): forespørgselsmetoder bør aldrig ændre tilstand, og kommandometoder bør ikke returnere data.",
+      diff: "C# erklærer returtypen eksplicit int vol = tv.GetVolume();. Go anvender kort variabelnotation vol := tv.GetVolume().",
+    },
+    "task-null-reference": {
+      concept: "En null-reference (nil i Go) peger på adressen 0x0. Kald på null udløser et fatalt NullReferenceException-nedbrud. En Guard Clause if (broken != null) beskytter programmet mod nedbrud.",
+      tokens: [
+        { token: "TV broken = null", role: "Null Declaration", explanation: "Pointer-variabel på stakken med adressen 0x00000000 (Go: var broken *TV = nil)." },
+        { token: "if", role: "Guard Keyword", explanation: "Betinget sikkerhedsbarriere før afvikling af potentielt farlig kode." },
+        { token: "broken != null", role: "Null Safety Check", explanation: "Adressekontrol der sikrer, at objektet reelt findes i hukommelsen." },
+        { token: "broken.PowerOn()", role: "Guarded Call", explanation: "Sikker afvikling der kun aktiveres hvis referencen ikke er null." },
+        { token: "broken?.PowerOn()", role: "Safe Navigation", explanation: "Elvis-operatoren (C#): springer over kaldet hvis referencen er null uden at crashe." },
+      ],
+      notes: "NullReferenceException (NRE) er den hyppigste årsag til nedbrud i drift. Forebyggende guard clauses forhindrer 99% af disse fejl.",
+      diff: "C# understøtter null og Elvis safe navigation ?.. Go benytter nil og eksplicit if broken != nil.",
     },
     "task-function-encapsulation": {
       concept: "Vi samler instruktioner i en genanvendelig funktion Mute(), så enheden kan dæmpes med en enkelt kommando fra hele systemet.",

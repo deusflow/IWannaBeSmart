@@ -22,6 +22,8 @@ export interface ExecutionContext {
   functions: Record<string, string>;
   registeredServices: Record<string, string>;
   commandRegistry: Record<string, string>;
+  instanceScope: Record<string, boolean>;
+  nullScope: Record<string, boolean>;
 }
 
 /**
@@ -35,7 +37,7 @@ export function stripComments(rawCode: string): string {
 }
 
 /**
- * Resolve numeric literal or local variable from scope
+ * Resolve numeric literal, binary arithmetic expression, or local variable from scope
  */
 function resolveNumValue(expr: string, scope: Record<string, number>): number {
   const trimmed = expr.trim();
@@ -44,6 +46,14 @@ function resolveNumValue(expr: string, scope: Record<string, number>): number {
   }
   if (trimmed in scope) {
     return scope[trimmed];
+  }
+  // Check binary expressions: e.g. vol + 10, vol - 15, 5 + 3
+  const binMatch = trimmed.match(/^([a-zA-Z_]\w*|-?\d+)\s*([+-])\s*([a-zA-Z_]\w*|-?\d+)$/);
+  if (binMatch) {
+    const left = resolveNumValue(binMatch[1], scope);
+    const op = binMatch[2];
+    const right = resolveNumValue(binMatch[3], scope);
+    return op === "+" ? left + right : left - right;
   }
   throw new Error(`Невідома змінна чи число: «${trimmed}»`);
 }
@@ -54,9 +64,30 @@ function resolveNumValue(expr: string, scope: Record<string, number>): number {
 function evaluateCondition(
   condStr: string,
   tv: VirtualTV,
-  scope: Record<string, number> = {}
+  scope: Record<string, number> = {},
+  ctx?: ExecutionContext
 ): boolean {
   const c = condStr.trim();
+
+  // Null inequality: e.g. broken != null or broken != nil
+  const nullNeqMatch = c.match(/^([a-zA-Z_]\w*)\s*!=\s*(null|nil)$/i);
+  if (nullNeqMatch) {
+    const varName = nullNeqMatch[1];
+    const isNull = Boolean(ctx?.nullScope && ctx.nullScope[varName]);
+    if (isNull) {
+      // Null guard was executed and safely prevented execution
+      tv.triggerSafeGuard();
+      return false;
+    }
+    return true;
+  }
+
+  // Null equality: e.g. broken == null or broken == nil
+  const nullEqMatch = c.match(/^([a-zA-Z_]\w*)\s*==\s*(null|nil)$/i);
+  if (nullEqMatch) {
+    const varName = nullEqMatch[1];
+    return Boolean(ctx?.nullScope && ctx.nullScope[varName]);
+  }
 
   // Negation: !tv.IsOn or !tv.isOn
   if (/^!\s*tv\s*\.\s*(IsOn|isOn)$/i.test(c)) {
@@ -157,13 +188,63 @@ function executeStatement(
     return;
   }
 
-  // 1. Property Assignment: tv.IsOn = true | false | !tv.IsOn
+  // 0.1 Class Instantiation (Bridge Task A): TV myTv = new TV(); or var myTv = new TV(); or myTv := TV{} or myTv := &TV{}
+  const instMatch = s.match(/^(?:(?:TV|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})$/i);
+  if (instMatch) {
+    const varName = instMatch[1];
+    ctx.instanceScope[varName] = true;
+    delete ctx.nullScope[varName];
+    tv.setActiveInstanceName(varName);
+    return;
+  }
+
+  // 0.2 Null pointer declaration (Bridge Task C): TV broken = null; or var broken = null; or var broken *TV = nil or broken := nil
+  const nullDeclMatch = s.match(/^(?:(?:TV|\*TV|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:null|nil|(?:\(\*TV\)\s*\(\s*nil\s*\)))$/i);
+  if (nullDeclMatch) {
+    const varName = nullDeclMatch[1];
+    ctx.nullScope[varName] = true;
+    delete ctx.instanceScope[varName];
+    return;
+  }
+
+  // 0.3 Safe navigation / Elvis operator (Bridge Task C): broken?.PowerOn();
+  const safeCallMatch = s.match(/^([a-zA-Z_]\w*)\s*\?\.\s*(PowerOn|powerOn|TogglePower|togglePower|PowerOff|powerOff|SetChannel|setChannel|SetVolume|setVolume)\s*(?:\(\s*([^)]*)\s*\))?$/i);
+  if (safeCallMatch) {
+    const varName = safeCallMatch[1];
+    if (ctx.nullScope[varName]) {
+      tv.triggerSafeGuard();
+      return;
+    }
+    const method = safeCallMatch[2].toLowerCase();
+    if (method === "poweron") tv.PowerOn();
+    else if (method === "poweroff") tv.PowerOff();
+    else if (method === "togglepower") tv.TogglePower();
+    return;
+  }
+
+  // 0.4 Query method assignment (Bridge Task B): int vol = tv.GetVolume(); or vol := tv.GetVolume()
+  const queryVolMatch = s.match(/^(?:(?:int|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(tv|[a-zA-Z_]\w*)\s*\.\s*(?:GetVolume|getVolume)\s*\(\s*\)$/i);
+  if (queryVolMatch) {
+    const varName = queryVolMatch[1];
+    const target = queryVolMatch[2];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    ctx.numScope[varName] = tv.GetVolume();
+    return;
+  }
+
+  // 1. Property Assignment: tv.IsOn = true | false | !tv.IsOn (or on local instance)
   const propBoolMatch = s.match(
-    /^tv\s*\.\s*(IsOn|isOn)\s*=\s*(true|false|!\s*tv\s*\.\s*(?:IsOn|isOn))$/i
+    /^(tv|[a-zA-Z_]\w*)\s*\.\s*(IsOn|isOn)\s*=\s*(true|false|!\s*(?:tv|[a-zA-Z_]\w*)\s*\.\s*(?:IsOn|isOn))$/i
   );
   if (propBoolMatch) {
-    const rhs = propBoolMatch[2].trim();
-    if (/^!\s*tv\s*\.\s*(?:IsOn|isOn)$/i.test(rhs)) {
+    const target = propBoolMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    const rhs = propBoolMatch[3].trim();
+    if (/^!\s*(?:tv|[a-zA-Z_]\w*)\s*\.\s*(?:IsOn|isOn)$/i.test(rhs)) {
       tv.IsOn = !tv.IsOn;
     } else {
       tv.IsOn = rhs.toLowerCase() === "true";
@@ -171,113 +252,152 @@ function executeStatement(
     return;
   }
 
-  // 2. Increment/Decrement: tv.Channel++ / tv.Channel-- / tv.Volume++ / tv.Volume--
-  if (/^tv\s*\.\s*(Channel|channel)\s*\+\+$/i.test(s) || /^\+\+\s*tv\s*\.\s*(Channel|channel)$/i.test(s)) {
-    tv.Channel = tv.Channel + 1;
-    return;
-  }
-  if (/^tv\s*\.\s*(Channel|channel)\s*--$/i.test(s) || /^--\s*tv\s*\.\s*(Channel|channel)$/i.test(s)) {
-    tv.Channel = tv.Channel - 1;
-    return;
-  }
-  if (/^tv\s*\.\s*(Volume|volume)\s*\+\+$/i.test(s) || /^\+\+\s*tv\s*\.\s*(Volume|volume)$/i.test(s)) {
-    tv.Volume = tv.Volume + 1;
-    return;
-  }
-  if (/^tv\s*\.\s*(Volume|volume)\s*--$/i.test(s) || /^--\s*tv\s*\.\s*(Volume|volume)$/i.test(s)) {
-    tv.Volume = tv.Volume - 1;
+  // 2. Increment/Decrement: tv.Channel++ / tv.Channel-- / tv.Volume++ / tv.Volume-- (or on local instance)
+  const incDecMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(Channel|channel|Volume|volume)\s*(\+\+|--)$/i);
+  if (incDecMatch) {
+    const target = incDecMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    const prop = incDecMatch[2].toLowerCase();
+    const op = incDecMatch[3];
+    if (prop === "channel") {
+      tv.Channel = op === "++" ? tv.Channel + 1 : tv.Channel - 1;
+    } else {
+      tv.Volume = op === "++" ? tv.Volume + 1 : tv.Volume - 1;
+    }
     return;
   }
 
   // 3. Compound Assignment: tv.Channel += <val>, tv.Channel -= <val>
-  const compChMatch = s.match(/^tv\s*\.\s*(Channel|channel)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
+  const compChMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(Channel|channel)\s*(\+=|-=)\s*(.+)$/i);
   if (compChMatch) {
-    const op = compChMatch[2];
-    const val = resolveNumValue(compChMatch[3], ctx.numScope);
+    const target = compChMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    const op = compChMatch[3];
+    const val = resolveNumValue(compChMatch[4], ctx.numScope);
     tv.Channel = op === "+=" ? tv.Channel + val : tv.Channel - val;
     return;
   }
 
-  const compVolMatch = s.match(/^tv\s*\.\s*(Volume|volume)\s*(\+=|-=)\s*([a-zA-Z_]\w*|\d+)$/i);
+  const compVolMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(Volume|volume)\s*(\+=|-=)\s*(.+)$/i);
   if (compVolMatch) {
-    const op = compVolMatch[2];
-    const val = resolveNumValue(compVolMatch[3], ctx.numScope);
+    const target = compVolMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    const op = compVolMatch[3];
+    const val = resolveNumValue(compVolMatch[4], ctx.numScope);
     tv.Volume = op === "+=" ? tv.Volume + val : tv.Volume - val;
     return;
   }
 
   // 4. Arithmetic Assignment: tv.Channel = tv.Channel + 1, tv.Volume = tv.Volume + 5
   const arithChMatch = s.match(
-    /^tv\s*\.\s*(Channel|channel)\s*=\s*tv\s*\.\s*(?:Channel|channel)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
+    /^(tv|[a-zA-Z_]\w*)\s*\.\s*(Channel|channel)\s*=\s*(?:tv|[a-zA-Z_]\w*)\s*\.\s*(?:Channel|channel)\s*([+-])\s*(.+)$/i
   );
   if (arithChMatch) {
-    const op = arithChMatch[2];
-    const val = resolveNumValue(arithChMatch[3], ctx.numScope);
+    const target = arithChMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    const op = arithChMatch[3];
+    const val = resolveNumValue(arithChMatch[4], ctx.numScope);
     tv.Channel = op === "+" ? tv.Channel + val : tv.Channel - val;
     return;
   }
 
   const arithVolMatch = s.match(
-    /^tv\s*\.\s*(Volume|volume)\s*=\s*tv\s*\.\s*(?:Volume|volume)\s*([+-])\s*([a-zA-Z_]\w*|\d+)$/i
+    /^(tv|[a-zA-Z_]\w*)\s*\.\s*(Volume|volume)\s*=\s*(?:tv|[a-zA-Z_]\w*)\s*\.\s*(?:Volume|volume)\s*([+-])\s*(.+)$/i
   );
   if (arithVolMatch) {
-    const op = arithVolMatch[2];
-    const val = resolveNumValue(arithVolMatch[3], ctx.numScope);
+    const target = arithVolMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    const op = arithVolMatch[3];
+    const val = resolveNumValue(arithVolMatch[4], ctx.numScope);
     tv.Volume = op === "+" ? tv.Volume + val : tv.Volume - val;
     return;
   }
 
   // 5. Property Assignment: tv.Channel = <number | scopeVar>
-  const propChMatch = s.match(/^tv\s*\.\s*(Channel|channel)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
+  const propChMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(Channel|channel)\s*=\s*(.+)$/i);
   if (propChMatch) {
-    tv.Channel = resolveNumValue(propChMatch[2], ctx.numScope);
+    const target = propChMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.Channel = resolveNumValue(propChMatch[3], ctx.numScope);
     return;
   }
 
   // 6. Property Assignment: tv.Volume = <number | scopeVar>
-  const propVolMatch = s.match(/^tv\s*\.\s*(Volume|volume)\s*=\s*([a-zA-Z_]\w*|\d+)$/i);
+  const propVolMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(Volume|volume)\s*=\s*(.+)$/i);
   if (propVolMatch) {
-    tv.Volume = resolveNumValue(propVolMatch[2], ctx.numScope);
+    const target = propVolMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.Volume = resolveNumValue(propVolMatch[3], ctx.numScope);
     return;
   }
 
   // 6.5. Property Assignment: tv.Osd = "CALC_MODE" / tv.OSD = "CALC_MODE"
-  const propOsdMatch = s.match(/^tv\s*\.\s*(Osd|OSD|osd)\s*=\s*["']([^"']*)["']$/i);
+  const propOsdMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(Osd|OSD|osd)\s*=\s*["']([^"']*)["']$/i);
   if (propOsdMatch) {
-    tv.Osd = propOsdMatch[2];
+    const target = propOsdMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.Osd = propOsdMatch[3];
     return;
   }
 
-  // 7. Method calls: tv.PowerOn(), tv.PowerOff(), tv.TogglePower()
-  if (/^tv\s*\.\s*(PowerOn|powerOn)\s*\(\s*\)$/i.test(s)) {
-    tv.PowerOn();
-    return;
-  }
-  if (/^tv\s*\.\s*(PowerOff|powerOff)\s*\(\s*\)$/i.test(s)) {
-    tv.PowerOff();
-    return;
-  }
-  if (/^tv\s*\.\s*(TogglePower|togglePower)\s*\(\s*\)$/i.test(s)) {
-    tv.TogglePower();
+  // 7. Method calls: tv.PowerOn(), tv.PowerOff(), tv.TogglePower() (or on local instance)
+  const methodMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(PowerOn|powerOn|PowerOff|powerOff|TogglePower|togglePower)\s*\(\s*\)$/i);
+  if (methodMatch) {
+    const target = methodMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    const m = methodMatch[2].toLowerCase();
+    if (m === "poweron") tv.PowerOn();
+    else if (m === "poweroff") tv.PowerOff();
+    else if (m === "togglepower") tv.TogglePower();
     return;
   }
 
-  // 8. Parameterized methods: tv.SetChannel(ch), tv.SetVolume(vol)
-  const setChMatch = s.match(/^tv\s*\.\s*(SetChannel|setChannel)\s*\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
+  // 8. Parameterized methods: tv.SetChannel(ch), tv.SetVolume(vol) (or on local instance)
+  const setChMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(SetChannel|setChannel)\s*\(\s*(.+)\s*\)$/i);
   if (setChMatch) {
-    tv.SetChannel(resolveNumValue(setChMatch[2], ctx.numScope));
+    const target = setChMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.SetChannel(resolveNumValue(setChMatch[3], ctx.numScope));
     return;
   }
 
-  const setVolMatch = s.match(/^tv\s*\.\s*(SetVolume|setVolume)\s*\(\s*([a-zA-Z_]\w*|\d+)\s*\)$/i);
+  const setVolMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(SetVolume|setVolume)\s*\(\s*(.+)\s*\)$/i);
   if (setVolMatch) {
-    tv.SetVolume(resolveNumValue(setVolMatch[2], ctx.numScope));
+    const target = setVolMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.SetVolume(resolveNumValue(setVolMatch[3], ctx.numScope));
     return;
   }
 
-  const setModeMatch = s.match(/^tv\s*\.\s*(SetMode|setMode)\s*\(\s*["']([^"']*)["']\s*\)$/i);
+  const setModeMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(SetMode|setMode)\s*\(\s*["']([^"']*)["']\s*\)$/i);
   if (setModeMatch) {
-    tv.SetMode(setModeMatch[2]);
+    const target = setModeMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.SetMode(setModeMatch[3]);
     return;
   }
 
@@ -707,7 +827,7 @@ function executeBlock(
           }
         }
 
-        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
+        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope, ctx);
         if (condResult) {
           executeBlock(thenBlock, tv, ctx);
         } else if (elseBlock !== null) {
@@ -921,7 +1041,7 @@ async function executeBlockAsync(
           }
         }
 
-        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope);
+        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope, ctx);
         if (condResult) {
           await executeBlockAsync(thenBlock, tv, ctx, options);
         } else if (elseBlock !== null) {
@@ -1007,6 +1127,8 @@ export async function interpretScriptAsync(
     functions: {},
     registeredServices: {},
     commandRegistry: {},
+    instanceScope: {},
+    nullScope: {},
   };
 
   try {
@@ -1033,6 +1155,8 @@ export function interpretScript(rawCode: string, tv: VirtualTV): ParseResult {
     functions: {},
     registeredServices: {},
     commandRegistry: {},
+    instanceScope: {},
+    nullScope: {},
   };
 
   try {

@@ -162,6 +162,82 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     },
   },
 
+  // ── TV Module — Bridge Tasks: OOP Foundations ─────────────────────────────
+  "task-class-instance": {
+    taskId: "task-class-instance",
+    whyThisCode: {
+      csharp:
+        "Клас `TV` — це лише креслення на папері. Оператор `new TV()` виділяє фізичну пам'ять у Купі (Heap) і зводить за цим кресленням реальний об'єкт. Змінна `myTv` на стеку отримує посилання (адресу пам'яті) цього об'єкта, через яке ми викликаємо метод `myTv.PowerOn();`.",
+      go:
+        "Структура `TV` описує форму даних. Вираз `TV{}` або `&TV{}` створює живий екземпляр у пам'яті. Змінна `myTv` отримує доступ до екземпляра, дозволяючи викликати метод `myTv.PowerOn()`.",
+    },
+    primitiveMemoryNote: {
+      csharp:
+        "⚡ СТЕК ТА КУПА (Stack vs Heap):\n• Змінна `myTv` розміщується на Стеку (Stack) і займає лише 8 байтів — вона тримає виключно 64-бітну адресу (вказівник).\n• Сам об'єкт телевізора зі своїми полями (`isOn`, `channel`, `volume`) створюється в керованій Купі (Managed Heap).\n• Без оператора `new` креслення не оживе: спроба викликати `TV.PowerOn()` призведе до помилки, адже клас без екземпляра не має реального екрана та тюнера.",
+      go:
+        "⚡ ПАМ'ЯТЬ В GO:\n• `TV{}` ініціалізує поля структури нульовими значеннями за замовчуванням.\n• Якщо розмір структури відомий і вона не втікає за межі функції, компілятор Go розмістить її на стеку. Інакше (Escape Analysis) — виділить пам'ять у купі.",
+    },
+    architectureMap: {
+      contractFile: "src/devices/ITvDevice.cs",
+      implementationFile: "src/devices/VirtualTv.cs",
+      clientFile: "src/Program.cs",
+      canvasNodeName: "VirtualTV Instance",
+      canvasWiring: "Створення окремого екземпляра телевізора у пам'яті ізолює його стан від інших пристроїв.",
+      architectureHint:
+        "Клас задає структуру поведінки, але кожен створений екземпляр має свій власний незалежний стан живлення та каналу.",
+    },
+  },
+
+  "task-method-return": {
+    taskId: "task-method-return",
+    whyThisCode: {
+      csharp:
+        "Методи бувають двох видів: Команди (змінюють стан без повернення, `void`) та Запити (читають стан і повертають значення). Метод `tv.GetVolume()` є Запитом: він повертає число `int`. Ми перехоплюємо це число у змінну `int vol` на стеку, а потім передаємо обчислене значення `vol + 10` у команду-мутатор `tv.SetVolume()`.",
+      go:
+        "Запит `tv.GetVolume()` повертає поточний стан гучності у змінну `vol`. Наступна команда `tv.SetVolume(vol + 10)` застосовує нове значення з арифметичним приростом.",
+    },
+    primitiveMemoryNote: {
+      csharp:
+        "⚡ ПЕРЕДАЧА ДАНИХ ЧЕРЕЗ СТЕК:\n• Коли метод повертає `int`, значення кладеться в регістр процесора (EAX/RAX) або на вершину стека.\n• Рядок `int vol = tv.GetVolume();` забирає це значення й резервує 4 байти в поточному фреймі стека.\n• Вираз `vol + 10` обчислюється арифметико-логічним пристроєм (ALU) процесора без зміни самого телевізора, доки ми явно не викличемо `SetVolume()`.",
+      go:
+        "⚡ ПОВЕРНЕННЯ З ФУНКЦІЇ:\n• Значення повернення копіюється в стек виклику.\n• `vol + 10` створює тимчасове чисельне значення, яке передається аргументом у метод `SetVolume`.",
+    },
+    architectureMap: {
+      contractFile: "src/audio/IAudioState.cs",
+      implementationFile: "src/audio/AudioEngine.cs",
+      clientFile: "src/controllers/VolumeModifier.cs",
+      canvasNodeName: "Audio State Pipeline",
+      canvasWiring: "Шина зчитування стану GetVolume передає сигнал в обчислювальний вузол перед записом нового рівня.",
+      architectureHint:
+        "CQS (Command-Query Separation): метод, що повертає значення, не повинен мати побічних ефектів, а метод-мутатор не повинен повертати дані.",
+    },
+  },
+
+  "task-null-reference": {
+    taskId: "task-null-reference",
+    whyThisCode: {
+      csharp:
+        "Ключове слово `null` означає, що посилання веде в нікуди (адреса 0x0). Якщо звернутися через крапку до порожнього посилання (`broken.PowerOn()`), програма впаде з фатальною аварією `NullReferenceException`. Конструкція `if (broken != null)` (або safe navigation `broken?.PowerOn()`) — це захисний бар'єр (Guard), який рятує додаток від аварії.",
+      go:
+        "`nil` — це нульовий вказівник. Звернення до методу через `nil` призведе до паніки рантайму `runtime error: invalid memory address or nil pointer dereference`. Перевірка `if broken != nil` захищає сервер від аварійного завершення.",
+    },
+    primitiveMemoryNote: {
+      csharp:
+        "⚡ АНАТОМІЯ КРАХУ (0x00000000):\n• Змінна `TV broken = null;` створює на стеку вказівник із нульовою адресою `0x00000000`.\n• Спроба прочитати пам'ять за адресою 0x0 блокується операційною системою (Memory Protection Fault), і середовище .NET негайно викидає виняток `NullReferenceException`.\n• Перевірка `if (broken != null)` не чіпає купу — процесор за один такт порівнює регістр з нулем. Якщо там 0 — блок коду безпечно оминається.",
+      go:
+        "⚡ NIL POINTER DEREFERENCE:\n• Вказівник `*TV = nil` не вказує на жоден виділений блок пам'яті.\n• Перевірка `broken != nil` запобігає паніці процесу, гарантуючи безперебійність роботи сервісу.",
+    },
+    architectureMap: {
+      contractFile: "src/safety/INullGuard.cs",
+      implementationFile: "src/safety/SafeInvoker.cs",
+      clientFile: "src/controllers/RemoteController.cs",
+      canvasNodeName: "NullGuard Barrier",
+      canvasWiring: "Захисний вузол валідації посилання стоїть перед апаратним контролером, блокуючи виклики до нульових адрес.",
+      architectureHint:
+        "Defensive Programming: захисні перевірки (Guard Clauses) на межах шарів архітектури роблять систему стійкою до некоректних вхідних даних.",
+    },
+  },
+
   "task-function-encapsulation": {
     taskId: "task-function-encapsulation",
     whyThisCode: {

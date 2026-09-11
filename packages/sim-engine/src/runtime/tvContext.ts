@@ -12,6 +12,8 @@ export class VirtualTV {
   private _osdMessage?: string;
   private _isArchitectureWired: boolean;
   private _label?: string;
+  private _isSafeGuardActive: boolean = false;
+  private _activeInstanceName?: string;
   private _logs: RuntimeLogEntry[] = [];
   private _mutationsCount = 0;
 
@@ -22,6 +24,8 @@ export class VirtualTV {
     this._osdMessage = initial.osdMessage;
     this._isArchitectureWired = initial.isArchitectureWired ?? true;
     this._label = initial.label;
+    this._isSafeGuardActive = initial.isSafeGuardActive ?? false;
+    this._activeInstanceName = initial.activeInstanceName;
   }
 
   // ── Property: IsOn ──────────────────────────────────────────
@@ -165,6 +169,36 @@ export class VirtualTV {
     this.SetVolume(vol);
   }
 
+  public GetVolume(): number {
+    return this.Volume;
+  }
+
+  public getVolume(): number {
+    return this.GetVolume();
+  }
+
+  public triggerSafeGuard(): void {
+    this._isSafeGuardActive = true;
+    this._mutationsCount++;
+    this._logs.push({
+      type: "info",
+      message: "SAFE_GUARD_ACTIVE: Null check prevented NullReferenceException crash",
+    });
+    this._osdMessage = "SAFE_GUARD_ACTIVE";
+  }
+
+  public isSafeGuardActive(): boolean {
+    return this._isSafeGuardActive;
+  }
+
+  public setActiveInstanceName(name: string): void {
+    this._activeInstanceName = name;
+  }
+
+  public getActiveInstanceName(): string | undefined {
+    return this._activeInstanceName;
+  }
+
   public SetMode(mode: string): void {
     this.Osd = mode;
   }
@@ -220,6 +254,8 @@ export class VirtualTV {
       osdMessage: this._osdMessage,
       isArchitectureWired: this._isArchitectureWired,
       label: this._label,
+      isSafeGuardActive: this._isSafeGuardActive,
+      activeInstanceName: this._activeInstanceName,
     };
   }
 

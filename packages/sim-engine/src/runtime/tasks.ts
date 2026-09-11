@@ -32,6 +32,20 @@ export const CODING_TASKS: CodingTask[] = [
       go: "tv.___()",
     },
     sprintTimeLimit: 20,
+    transferVariant: {
+      prompt: {
+        ua: "Увімкніть живлення телевізора та одразу перемкніть його на 5-й канал: tv.SetChannel(5);",
+        en: "Turn on the TV power and immediately switch it to channel 5: tv.SetChannel(5);",
+        da: "Tænd for fjernsynet og skift straks til kanal 5: tv.SetChannel(5);",
+      },
+      hint: {
+        ua: "C#: tv.PowerOn(); tv.SetChannel(5); | Go: tv.PowerOn() tv.SetChannel(5)",
+        en: "C#: tv.PowerOn(); tv.SetChannel(5); | Go: tv.PowerOn() tv.SetChannel(5)",
+        da: "C#: tv.PowerOn(); tv.SetChannel(5); | Go: tv.PowerOn() tv.SetChannel(5)",
+      },
+      targetSnippetExample: "tv.PowerOn();\ntv.SetChannel(5);",
+      validate: (_before, after) => after.isOn && after.channel === 5,
+    },
     validate: (_before, after, result) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -67,6 +81,24 @@ export const CODING_TASKS: CodingTask[] = [
       go: 'tv.SetChannel(___)\ntv.SetLabel("___")',
     },
     sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: 'Налаштуйте канал 4 цифрою без лапок та назву "CINEMA" текстом у подвійних лапках.',
+        en: 'Configure channel 4 as an integer (no quotes) and label "CINEMA" as string in double quotes.',
+        da: 'Konfigurer kanal 4 som heltal (uden anførselstegn) og navnet "CINEMA" i dobbelte anførselstegn.',
+      },
+      hint: {
+        ua: 'C#: tv.SetChannel(4); tv.SetLabel("CINEMA"); | Go: tv.SetChannel(4) tv.SetLabel("CINEMA")',
+        en: 'C#: tv.SetChannel(4); tv.SetLabel("CINEMA"); | Go: tv.SetChannel(4) tv.SetLabel("CINEMA")',
+        da: 'C#: tv.SetChannel(4); tv.SetLabel("CINEMA"); | Go: tv.SetChannel(4) tv.SetLabel("CINEMA")',
+      },
+      targetSnippetExample: 'tv.SetChannel(4);\ntv.SetLabel("CINEMA");',
+      validate: (_before, after, code) => {
+        const hasChannel = after.channel === 4;
+        const hasLabel = after.label === "CINEMA" || after.osdMessage === "CINEMA" || (code && /SetLabel\s*\(\s*"CINEMA"\s*\)/i.test(code));
+        return Boolean(hasChannel && hasLabel);
+      },
+    },
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -107,6 +139,20 @@ export const CODING_TASKS: CodingTask[] = [
       go: "tv.___()\ntv.___(2)",
     },
     sprintTimeLimit: 20,
+    transferVariant: {
+      prompt: {
+        ua: "Увімкніть телевізор першою командою та послідовно налаштуйте 3-й канал другою командою.",
+        en: "Turn on the TV first and sequentially tune to channel 3 second.",
+        da: "Tænd for fjernsynet først og skift sekventielt til kanal 3 bagefter.",
+      },
+      hint: {
+        ua: "C#: tv.PowerOn(); tv.SetChannel(3); | Go: tv.PowerOn() tv.SetChannel(3)",
+        en: "C#: tv.PowerOn(); tv.SetChannel(3); | Go: tv.PowerOn() tv.SetChannel(3)",
+        da: "C#: tv.PowerOn(); tv.SetChannel(3); | Go: tv.PowerOn() tv.SetChannel(3)",
+      },
+      targetSnippetExample: "tv.PowerOn();\ntv.SetChannel(3);",
+      validate: (_before, after) => after.isOn && after.channel === 3,
+    },
     validate: (_before, after, result) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -142,6 +188,20 @@ export const CODING_TASKS: CodingTask[] = [
       go: "tv.___ = ___",
     },
     sprintTimeLimit: 20,
+    transferVariant: {
+      prompt: {
+        ua: "Вимкніть живлення телевізора через зміну властивості tv.IsOn = false;",
+        en: "Turn off the TV power by setting property tv.IsOn = false;",
+        da: "Sluk for tv-strømmen ved at indstille egenskaben tv.IsOn = false;",
+      },
+      hint: {
+        ua: "C#: tv.IsOn = false; | Go: tv.IsOn = false",
+        en: "C#: tv.IsOn = false; | Go: tv.IsOn = false",
+        da: "C#: tv.IsOn = false; | Go: tv.IsOn = false",
+      },
+      targetSnippetExample: "tv.IsOn = false;",
+      validate: (_before, after) => !after.isOn,
+    },
     validate: (_before, after, result) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -205,6 +265,20 @@ if tv.IsOn {
 }`,
     },
     sprintTimeLimit: 30,
+    transferVariant: {
+      prompt: {
+        ua: "Якщо телевізор увімкнений, встановіть гучність на 40, інакше увімкніть його (tv.IsOn = true;)",
+        en: "If TV is on, set volume to 40, otherwise turn it on (tv.IsOn = true;)",
+        da: "Hvis tv'et er tændt, sæt lydstyrken til 40, ellers tænd det (tv.IsOn = true;)",
+      },
+      hint: {
+        ua: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
+        en: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
+        da: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
+      },
+      targetSnippetExample: "if (tv.IsOn) {\n    tv.Volume = 40;\n} else {\n    tv.IsOn = true;\n}",
+      validate: (_before, after, code) => (after.volume === 40 || after.isOn) && /if\s*\(?tv\.IsOn/i.test(code),
+    },
     validate: (before, after, result) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -244,6 +318,21 @@ tv.Channel++
       go: "tv.___++",
     },
     sprintTimeLimit: 20,
+    transferVariant: {
+      prompt: {
+        ua: "Зменшіть номер поточного каналу на 1 за допомогою декременту: tv.Channel-- (або tv.Channel -= 1)",
+        en: "Decrease current channel by 1 using decrement: tv.Channel-- (or tv.Channel -= 1)",
+        da: "Reducer den aktuelle kanal med 1 ved brug af dekrementering: tv.Channel-- (eller tv.Channel -= 1)",
+      },
+      hint: {
+        ua: "C#: tv.Channel--; | Go: tv.Channel--",
+        en: "C#: tv.Channel--; | Go: tv.Channel--",
+        da: "C#: tv.Channel--; | Go: tv.Channel--",
+      },
+      targetSnippetExample: "tv.Channel--;",
+      validate: (before, after, code) =>
+        Boolean(/(?:Channel\s*--|Channel\s*-=\s*1)/i.test(code) && (after.channel === before.channel - 1 || after.channel < before.channel)),
+    },
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -303,6 +392,25 @@ if tv.Channel > 4 {
 }`,
     },
     sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: "Якщо гучність більша за 80 — обмежте її значенням 80: if (tv.Volume > 80) { tv.Volume = 80; }",
+        en: "If volume is greater than 80, cap it at 80: if (tv.Volume > 80) { tv.Volume = 80; }",
+        da: "Hvis lydstyrken er over 80, begræns den til 80: if (tv.Volume > 80) { tv.Volume = 80; }",
+      },
+      hint: {
+        ua: "if (tv.Volume > 80) { tv.Volume = 80; }",
+        en: "if (tv.Volume > 80) { tv.Volume = 80; }",
+        da: "if (tv.Volume > 80) { tv.Volume = 80; }",
+      },
+      targetSnippetExample: "if (tv.Volume > 80) {\n    tv.Volume = 80;\n}",
+      validate: (_before, _after, code) => {
+        if (!/if\s*\(?tv\.Volume\s*>\s*80/i.test(code)) return false;
+        const testOver = executeTvScript(code, { isOn: true, channel: 1, volume: 95 });
+        const testNormal = executeTvScript(code, { isOn: true, channel: 1, volume: 50 });
+        return Boolean(testOver.success && testOver.newState.volume === 80 && testNormal.success && testNormal.newState.volume === 50);
+      },
+    },
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -368,6 +476,20 @@ for i := 1; i <= 4; i++ {
 }`,
     },
     sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: "Напишіть цикл від 1 до 3, який по черзі перемикає канал: for (int i = 1; i <= 3; i++) { tv.Channel = i; }",
+        en: "Write a loop from 1 to 3 that sequentially tunes channels: for (int i = 1; i <= 3; i++) { tv.Channel = i; }",
+        da: "Skriv en løkke fra 1 til 3, der sekventielt skifter kanal: for (int i = 1; i <= 3; i++) { tv.Channel = i; }",
+      },
+      hint: {
+        ua: "C#: for (int i = 1; i <= 3; i++) { tv.Channel = i; } | Go: for i := 1; i <= 3; i++ { tv.Channel = i }",
+        en: "C#: for (int i = 1; i <= 3; i++) { tv.Channel = i; } | Go: for i := 1; i <= 3; i++ { tv.Channel = i }",
+        da: "C#: for (int i = 1; i <= 3; i++) { tv.Channel = i; } | Go: for i := 1; i <= 3; i++ { tv.Channel = i }",
+      },
+      targetSnippetExample: "for (int i = 1; i <= 3; i++) {\n    tv.Channel = i;\n}",
+      validate: (_before, after, code) => Boolean(/for\s/i.test(code) && (after.channel === 3 || /<=\s*3|<\s*4/i.test(code))),
+    },
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -383,9 +505,215 @@ for i := 1; i <= 4; i++ {
     },
   },
   {
+    id: "task-class-instance",
+    tier: 1,
+    order: 9,
+    titleKey: "playground.taskBridgeATitle",
+    conceptKey: "playground.taskBridgeAConcept",
+    descKey: "playground.taskBridgeADesc",
+    hintKey: "playground.taskBridgeAHint",
+    successKey: "playground.taskBridgeASuccess",
+    simpleExplanationKey: "playground.taskBridgeASimple",
+    engineeringKey: "playground.taskBridgeAEngineering",
+    careerImpactKey: "playground.taskBridgeACareer",
+    initialCode: {
+      csharp: `// Створіть екземпляр телевізора за кресленням класу TV та увімкніть його
+TV myTv = new TV();
+myTv.PowerOn();
+`,
+      go: `// Створіть екземпляр телевізора за кресленням структури TV та увімкніть його
+myTv := TV{}
+myTv.PowerOn()
+`,
+    },
+    targetCode: {
+      csharp: `TV myTv = new TV();
+myTv.PowerOn();`,
+      go: `myTv := TV{}
+myTv.PowerOn()`,
+    },
+    clozeTemplate: {
+      csharp: `TV myTv = ___ TV();
+myTv.___();`,
+      go: `myTv := TV{}
+myTv.___()`,
+    },
+    sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: "Створіть екземпляр телевізора з назвою livingRoomTv і перемкніть його на 3-й канал: livingRoomTv.SetChannel(3);",
+        en: "Create a TV instance named livingRoomTv and tune it to channel 3: livingRoomTv.SetChannel(3);",
+        da: "Opret en TV-forekomst ved navn livingRoomTv og skift til kanal 3: livingRoomTv.SetChannel(3);",
+      },
+      hint: {
+        ua: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
+        en: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
+        da: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
+      },
+      targetSnippetExample: "TV livingRoomTv = new TV();\nlivingRoomTv.SetChannel(3);",
+      validate: (_before, after, code) => {
+        const hasName = /livingRoomTv/i.test(code);
+        const hasInst = /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code);
+        return Boolean(hasName && hasInst && after.channel === 3);
+      },
+    },
+    validate: (_before, after, result, code) => {
+      if (!result.success) return { passed: false, messageKey: "playground.errorSyntax" };
+      const hasInst = Boolean(code && /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code));
+      const hasCall = Boolean(code && /(?:myTv|[a-zA-Z_]\w*)\.PowerOn\s*\(\s*\)/i.test(code));
+      if (after.isOn && hasInst && hasCall) {
+        return { passed: true, messageKey: "playground.taskBridgeASuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskBridgeAHint" };
+    },
+  },
+  {
+    id: "task-method-return",
+    tier: 1,
+    order: 10,
+    titleKey: "playground.taskBridgeBTitle",
+    conceptKey: "playground.taskBridgeBConcept",
+    descKey: "playground.taskBridgeBDesc",
+    hintKey: "playground.taskBridgeBHint",
+    successKey: "playground.taskBridgeBSuccess",
+    simpleExplanationKey: "playground.taskBridgeBSimple",
+    engineeringKey: "playground.taskBridgeBEngineering",
+    careerImpactKey: "playground.taskBridgeBCareer",
+    initialCode: {
+      csharp: `// Зчитайте поточну гучність телевізора і додайте 10 одиниць
+int vol = tv.GetVolume();
+tv.SetVolume(vol + 10);
+`,
+      go: `// Зчитайте поточну гучність телевізора і додайте 10 одиниць
+vol := tv.GetVolume()
+tv.SetVolume(vol + 10)
+`,
+    },
+    targetCode: {
+      csharp: `int vol = tv.GetVolume();
+tv.SetVolume(vol + 10);`,
+      go: `vol := tv.GetVolume()
+tv.SetVolume(vol + 10)`,
+    },
+    clozeTemplate: {
+      csharp: `int vol = tv.___();
+tv.SetVolume(___ + 10);`,
+      go: `vol := tv.___()
+tv.SetVolume(___ + 10)`,
+    },
+    sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: "Зчитайте гучність у змінну currentVol і зменшіть її на 15 одиниць: tv.SetVolume(currentVol - 15);",
+        en: "Read volume into variable currentVol and reduce it by 15: tv.SetVolume(currentVol - 15);",
+        da: "Aflæs lydstyrken i variablen currentVol og reducer den med 15: tv.SetVolume(currentVol - 15);",
+      },
+      hint: {
+        ua: "C#: int currentVol = tv.GetVolume(); tv.SetVolume(currentVol - 15); | Go: currentVol := tv.GetVolume(); tv.SetVolume(currentVol - 15)",
+        en: "C#: int currentVol = tv.GetVolume(); tv.SetVolume(currentVol - 15); | Go: currentVol := tv.GetVolume(); tv.SetVolume(currentVol - 15)",
+        da: "C#: int currentVol = tv.GetVolume(); tv.SetVolume(currentVol - 15); | Go: currentVol := tv.GetVolume(); tv.SetVolume(currentVol - 15)",
+      },
+      targetSnippetExample: "int currentVol = tv.GetVolume();\ntv.SetVolume(currentVol - 15);",
+      validate: (before, after, code) => {
+        const hasGet = /GetVolume\s*\(\s*\)/i.test(code);
+        const hasVar = /currentVol/i.test(code);
+        return Boolean(hasGet && hasVar && after.volume === Math.max(0, before.volume - 15));
+      },
+    },
+    validate: (before, after, result, code) => {
+      if (!result.success) return { passed: false, messageKey: "playground.errorSyntax" };
+      const hasGet = Boolean(code && /GetVolume\s*\(\s*\)/i.test(code));
+      const hasSet = Boolean(code && /SetVolume\s*\(\s*(?:vol|currentVol|[a-zA-Z_]\w*)\s*\+\s*10\s*\)/i.test(code));
+      if (hasGet && hasSet && after.volume === before.volume + 10) {
+        return { passed: true, messageKey: "playground.taskBridgeBSuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskBridgeBHint" };
+    },
+  },
+  {
+    id: "task-null-reference",
+    tier: 1,
+    order: 11,
+    titleKey: "playground.taskBridgeCTitle",
+    conceptKey: "playground.taskBridgeCConcept",
+    descKey: "playground.taskBridgeCDesc",
+    hintKey: "playground.taskBridgeCHint",
+    successKey: "playground.taskBridgeCSuccess",
+    simpleExplanationKey: "playground.taskBridgeCSimple",
+    engineeringKey: "playground.taskBridgeCEngineering",
+    careerImpactKey: "playground.taskBridgeCCareer",
+    initialCode: {
+      csharp: `// Захистіть порожнє посилання перевіркою if (broken != null), щоб уникнути падіння
+TV broken = null;
+
+if (broken != null) {
+    broken.PowerOn();
+}
+`,
+      go: `// Захистіть порожній вказівник перевіркою if broken != nil, щоб уникнути паніки
+var broken *TV = nil
+
+if broken != nil {
+    broken.PowerOn()
+}
+`,
+    },
+    targetCode: {
+      csharp: `TV broken = null;
+if (broken != null) {
+    broken.PowerOn();
+}`,
+      go: `var broken *TV = nil
+if broken != nil {
+    broken.PowerOn()
+}`,
+    },
+    clozeTemplate: {
+      csharp: `TV broken = null;
+if (broken != ___) {
+    broken.___();
+}`,
+      go: `var broken *TV = nil
+if broken != ___ {
+    broken.___()
+}`,
+    },
+    sprintTimeLimit: 30,
+    transferVariant: {
+      prompt: {
+        ua: "Оголосіть порожнє посилання remote = null / nil та безпечно викличте remote.PowerOn() за допомогою if (remote != null) або safe call remote?.PowerOn();",
+        en: "Declare null reference remote = null / nil and safely invoke remote.PowerOn() via if (remote != null) or safe call remote?.PowerOn();",
+        da: "Erklær null reference remote = null / nil og kald sikkert remote.PowerOn() via if (remote != null) eller remote?.PowerOn();",
+      },
+      hint: {
+        ua: "C#: TV remote = null; if (remote != null) { remote.PowerOn(); } (або TV remote = null; remote?.PowerOn();)",
+        en: "C#: TV remote = null; if (remote != null) { remote.PowerOn(); } (or TV remote = null; remote?.PowerOn();)",
+        da: "C#: TV remote = null; if (remote != null) { remote.PowerOn(); } (eller TV remote = null; remote?.PowerOn();)",
+      },
+      targetSnippetExample: "TV remote = null;\nif (remote != null) {\n    remote.PowerOn();\n}",
+      validate: (_before, after, code) => {
+        const hasRemote = /remote/i.test(code);
+        const hasNull = /(?:null|nil)/i.test(code);
+        const hasGuard = /(?:!=\s*(?:null|nil)|\?\.\s*PowerOn)/i.test(code);
+        return Boolean(hasRemote && hasNull && hasGuard && after.isSafeGuardActive);
+      },
+    },
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      const hasNull = Boolean(code && /(?:null|nil)/i.test(code));
+      const hasGuard = Boolean(code && /(?:!=\s*(?:null|nil)|\?\.\s*PowerOn)/i.test(code));
+      if (hasNull && hasGuard && after.isSafeGuardActive) {
+        return { passed: true, messageKey: "playground.taskBridgeCSuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskBridgeCHint" };
+    },
+  },
+  {
     id: "task-function-encapsulation",
     tier: 2,
-    order: 9,
+    order: 12,
     titleKey: "playground.task6Title",
     conceptKey: "playground.task6Concept",
     descKey: "playground.task6Desc",
@@ -435,6 +763,20 @@ ___();`,
 ___()`,
     },
     sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: "Оголосіть функцію MaxVolume() { tv.Volume = 100; } і викличте її: MaxVolume();",
+        en: "Declare function MaxVolume() { tv.Volume = 100; } and invoke it: MaxVolume();",
+        da: "Erklær funktionen MaxVolume() { tv.Volume = 100; } og kald den: MaxVolume();",
+      },
+      hint: {
+        ua: "C#: void MaxVolume() { tv.Volume = 100; } MaxVolume(); | Go: func MaxVolume() { tv.Volume = 100 } MaxVolume()",
+        en: "C#: void MaxVolume() { tv.Volume = 100; } MaxVolume(); | Go: func MaxVolume() { tv.Volume = 100 } MaxVolume()",
+        da: "C#: void MaxVolume() { tv.Volume = 100; } MaxVolume(); | Go: func MaxVolume() { tv.Volume = 100 } MaxVolume()",
+      },
+      targetSnippetExample: "void MaxVolume() {\n    tv.Volume = 100;\n}\n\nMaxVolume();",
+      validate: (_before, after, code) => Boolean(/MaxVolume\s*\(\s*\)/i.test(code) && after.volume === 100),
+    },
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -454,7 +796,7 @@ ___()`,
   {
     id: "task-antipattern-god-object",
     tier: 2,
-    order: 10,
+    order: 13,
     titleKey: "playground.task7Title",
     conceptKey: "playground.task7Concept",
     descKey: "playground.task7Desc",
@@ -546,6 +888,20 @@ case "___":
 }`,
     },
     sprintTimeLimit: 40,
+    transferVariant: {
+      prompt: {
+        ua: "Додайте у switch обробку кнопки 'INFO', яка встановлює режим: case 'INFO': tv.SetMode('INFO_MODE'); break;",
+        en: "Add 'INFO' button handling in switch setting mode: case 'INFO': tv.SetMode('INFO_MODE'); break;",
+        da: "Tilføj 'INFO' tast-håndtering i switch som sætter tilstand: case 'INFO': tv.SetMode('INFO_MODE'); break;",
+      },
+      hint: {
+        ua: "case \"INFO\": tv.SetMode(\"INFO_MODE\"); break;",
+        en: "case \"INFO\": tv.SetMode(\"INFO_MODE\"); break;",
+        da: "case \"INFO\": tv.SetMode(\"INFO_MODE\"); break;",
+      },
+      targetSnippetExample: 'case "INFO":\n    tv.SetMode("INFO_MODE");\n    break;',
+      validate: (_before, after, code) => Boolean(/case\s*["']INFO["']/i.test(code) && (after.osdMessage === "INFO_MODE" || /INFO_MODE/i.test(code))),
+    },
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -563,7 +919,7 @@ case "___":
   {
     id: "task-interface-polymorphism",
     tier: 2,
-    order: 11,
+    order: 14,
     titleKey: "playground.task8Title",
     conceptKey: "playground.task8Concept",
     descKey: "playground.task8Desc",
@@ -597,6 +953,20 @@ command.___();`,
 command.___()`,
     },
     sprintTimeLimit: 30,
+    transferVariant: {
+      prompt: {
+        ua: "Створіть команду InfoCommand та виконайте її через інтерфейс: IRemoteCommand cmd = new InfoCommand(); cmd.Execute(); (або cmd := InfoCommand{}; cmd.Execute())",
+        en: "Create InfoCommand and execute it via interface: IRemoteCommand cmd = new InfoCommand(); cmd.Execute(); (or cmd := InfoCommand{}; cmd.Execute())",
+        da: "Opret InfoCommand og udfør den via interface: IRemoteCommand cmd = new InfoCommand(); cmd.Execute(); (eller cmd := InfoCommand{}; cmd.Execute())",
+      },
+      hint: {
+        ua: "C#: IRemoteCommand cmd = new InfoCommand(); cmd.Execute(); | Go: cmd := InfoCommand{}; cmd.Execute()",
+        en: "C#: IRemoteCommand cmd = new InfoCommand(); cmd.Execute(); | Go: cmd := InfoCommand{}; cmd.Execute()",
+        da: "C#: IRemoteCommand cmd = new InfoCommand(); cmd.Execute(); | Go: cmd := InfoCommand{}; cmd.Execute()",
+      },
+      targetSnippetExample: "IRemoteCommand cmd = new InfoCommand();\ncmd.Execute();",
+      validate: (_before, after, code) => Boolean(/cmd\.Execute\s*\(\s*\)/i.test(code) && (after.osdMessage === "INFO_MODE" || /InfoCommand/i.test(code))),
+    },
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -614,7 +984,7 @@ command.___()`,
   {
     id: "task-di-container",
     tier: 2,
-    order: 12,
+    order: 15,
     titleKey: "playground.task9Title",
     conceptKey: "playground.task9Concept",
     descKey: "playground.task9Desc",
@@ -640,6 +1010,24 @@ container.Register("calc", NewCalcCommand())
       go: 'container.Register("___", ___())',
     },
     sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: "Зареєструйте InfoCommand у контейнері: services.AddTransient<IRemoteCommand, InfoCommand>(); (або container.Register('info', NewInfoCommand()))",
+        en: "Register InfoCommand in container: services.AddTransient<IRemoteCommand, InfoCommand>(); (or container.Register('info', NewInfoCommand()))",
+        da: "Registrer InfoCommand i containeren: services.AddTransient<IRemoteCommand, InfoCommand>(); (eller container.Register('info', NewInfoCommand()))",
+      },
+      hint: {
+        ua: 'C#: services.AddTransient<IRemoteCommand, InfoCommand>(); | Go: container.Register("info", NewInfoCommand())',
+        en: 'C#: services.AddTransient<IRemoteCommand, InfoCommand>(); | Go: container.Register("info", NewInfoCommand())',
+        da: 'C#: services.AddTransient<IRemoteCommand, InfoCommand>(); | Go: container.Register("info", NewInfoCommand())',
+      },
+      targetSnippetExample: "services.AddTransient<IRemoteCommand, InfoCommand>();",
+      validate: (_before, after, code) => {
+        const isCs = /services\.(?:AddTransient|AddSingleton|AddScoped)\s*<\s*IRemoteCommand\s*,\s*InfoCommand\s*>\s*\(\s*\)/i.test(code);
+        const isGo = /container\.Register\s*\(\s*["']info["']\s*,\s*(?:NewInfoCommand\(\)|InfoCommand\{\})\s*\)/i.test(code);
+        return Boolean((isCs || isGo) && (after.osdMessage === "INFO_MODE" || after.osdMessage === "CALC_MODE"));
+      },
+    },
     validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
@@ -663,7 +1051,7 @@ container.Register("calc", NewCalcCommand())
   {
     id: "task-command-registry",
     tier: 2,
-    order: 13,
+    order: 16,
     titleKey: "playground.task10Title",
     conceptKey: "playground.task10Concept",
     descKey: "playground.task10Desc",
@@ -711,6 +1099,21 @@ registry["CALC"] = ___
 registry[___].Execute()`,
     },
     sprintTimeLimit: 45,
+    transferVariant: {
+      prompt: {
+        ua: "Зареєструйте кнопку 'INFO' в реєстрі та виконайте її: registry['INFO'] = new InfoCommand(); registry[button].Execute();",
+        en: "Register 'INFO' button in registry and execute it: registry['INFO'] = new InfoCommand(); registry[button].Execute();",
+        da: "Registrer 'INFO' tast i registret og udfør den: registry['INFO'] = new InfoCommand(); registry[button].Execute();",
+      },
+      hint: {
+        ua: 'C#: registry["INFO"] = new InfoCommand(); registry[button].Execute(); | Go: registry["INFO"] = InfoCommand{}; registry[button].Execute()',
+        en: 'C#: registry["INFO"] = new InfoCommand(); registry[button].Execute(); | Go: registry["INFO"] = InfoCommand{}; registry[button].Execute()',
+        da: 'C#: registry["INFO"] = new InfoCommand(); registry[button].Execute(); | Go: registry["INFO"] = InfoCommand{}; registry[button].Execute()',
+      },
+      targetSnippetExample: 'registry["INFO"] = new InfoCommand();\nregistry[button].Execute();',
+      validate: (_before, _after, code) =>
+        Boolean(/registry\s*\[\s*["']INFO["']\s*\]/i.test(code) && /registry\s*\[\s*button\s*\]\s*\.\s*Execute\s*\(\s*\)/i.test(code)),
+    },
     validate: (before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
