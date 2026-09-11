@@ -22,6 +22,8 @@ import {
   X,
   Sparkles,
   HelpCircle,
+  Terminal,
+  Wrench,
 } from "lucide-react";
 import {
   FINTECH_TASKS,
@@ -35,6 +37,7 @@ import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 import { GuidedStepBar } from "./GuidedStepBar";
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
+import { ProjectExplorerBar } from "./ProjectExplorerBar";
 
 export const CodeGymRunner: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -142,6 +145,9 @@ export const CodeGymRunner: React.FC = () => {
     const nextTask = FINTECH_TASKS.find((t) => t.id === taskId);
     if (nextTask) {
       resetPosState(nextTask.initialState);
+      if (nextTask.isBugfixTask) {
+        audioFx.playAlarmSound();
+      }
     }
   };
 
@@ -157,7 +163,11 @@ export const CodeGymRunner: React.FC = () => {
     setShowTransferHint(false);
 
     if (activeRound === 1) {
-      setTypedCode("");
+      if (currentTask.isBugfixTask) {
+        setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
+      } else {
+        setTypedCode("");
+      }
     } else if (activeRound === 2) {
       setTypedCode(clozeTemplate);
     } else if (activeRound === 3) {
@@ -165,7 +175,7 @@ export const CodeGymRunner: React.FC = () => {
     } else if (activeRound === 4) {
       setTypedCode("");
     }
-  }, [activeRound, codeLang, clozeTemplate, currentTask.id, sprintTimeLimit]);
+  }, [activeRound, codeLang, clozeTemplate, currentTask, sprintTimeLimit]);
 
   // ── Round 1: Trace typing mechanics ──────────────────────────
   const handleTraceChange = useCallback(
@@ -175,6 +185,12 @@ export const CodeGymRunner: React.FC = () => {
         roundStartTimeRef.current = Date.now();
       }
       playThrottledKeyClick();
+
+      if (currentTask.isBugfixTask) {
+        setHasError(false);
+        setFeedback(null);
+        return;
+      }
 
       // Verify character by character against target
       let mismatch = false;
@@ -405,6 +421,55 @@ export const CodeGymRunner: React.FC = () => {
     t,
   ]);
 
+  // ── Reverse Debugging: Repair validation ──────────────────────────────
+  const handleVerifyBugfix = useCallback(async () => {
+    if (!typedCode.trim()) {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback(t("codegym.fillBlanksPrompt", "Введіть код для виправлення дефекту!"));
+      return;
+    }
+
+    const before: VirtualPosState = { ...posState };
+    const result = await executePosScriptAsync(typedCode, before);
+    applyPosExecution(result.newState);
+
+    const validation = currentTask.validate(before, result.newState, result, typedCode);
+    if (validation.passed) {
+      setHasError(false);
+      setRoundCompleted(true);
+      setRoundStats({ wpm: 0, accuracy: 100 });
+      audioFx.playSuccessFanfare();
+      setTaskMastery(currentTask.id, 1);
+      completeCodingTask(currentTask.id);
+      addXp(30);
+      setFeedback(
+        validation.messageKey
+          ? t(validation.messageKey)
+          : "✅ Дефект успішно усунено! Розрахунки відповідають банківському регламенту."
+      );
+    } else {
+      setHasError(true);
+      audioFx.playAlarmSound();
+      setFeedback(
+        result.error
+          ? result.error
+          : validation.messageKey
+          ? t(validation.messageKey)
+          : t(currentTask.hintKey)
+      );
+    }
+  }, [
+    typedCode,
+    posState,
+    currentTask,
+    applyPosExecution,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    t,
+  ]);
+
   // Trace character progress
   const traceCharsMatched = useMemo(() => {
     let count = 0;
@@ -428,6 +493,8 @@ export const CodeGymRunner: React.FC = () => {
         return codeLang === "go" ? "payment_gateway.go" : "PaymentContract.cs";
       case "task-pos-dependency-injection":
         return codeLang === "go" ? "container.go" : "Program.cs";
+      case "task-pos-double-deduction-bug":
+        return codeLang === "go" ? "reconciliation.go" : "ReconciliationAudit.cs";
       default:
         return codeLang === "go" ? "guard.go" : "TransactionGuard.cs";
     }
@@ -454,6 +521,11 @@ export const CodeGymRunner: React.FC = () => {
           return;
         }
 
+        if (currentTask.isBugfixTask && activeRound === 1) {
+          handleVerifyBugfix();
+          return;
+        }
+
         if (activeRound === 2) {
           handleVerifyCloze();
         } else if (activeRound === 3) {
@@ -472,7 +544,11 @@ export const CodeGymRunner: React.FC = () => {
       if (e.key === "Escape") {
         e.preventDefault();
         audioFx.playRelayClick();
-        setTypedCode(activeRound === 2 ? clozeTemplate : "");
+        if (currentTask.isBugfixTask && activeRound === 1) {
+          setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
+        } else {
+          setTypedCode(activeRound === 2 ? clozeTemplate : "");
+        }
         setHasError(false);
         setFeedback(null);
         setRoundCompleted(false);
@@ -494,6 +570,9 @@ export const CodeGymRunner: React.FC = () => {
     clozeTemplate,
     sprintTimeLimit,
     nextTask,
+    currentTask,
+    codeLang,
+    handleVerifyBugfix,
     handleVerifyCloze,
     handleRunSprint,
     handleRunTransfer,
@@ -504,8 +583,8 @@ export const CodeGymRunner: React.FC = () => {
     <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
       {/* ── Top Header: Task Selector, Task Title, Round Tabs & Mastery Stars ── */}
       <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-paper-border shadow-paper-sm space-y-3">
-        {/* Task Navigation Bar (Tasks 1..6) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 border-b border-paper-border/70 pb-3">
+        {/* Task Navigation Bar (Tasks 1..7) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 border-b border-paper-border/70 pb-3">
           {FINTECH_TASKS.map((task, idx) => {
             const isCurrent = task.id === currentTask.id;
             const taskStars = taskMasteryStars[task.id] || 0;
@@ -727,6 +806,13 @@ export const CodeGymRunner: React.FC = () => {
         </div>
       </div>
 
+      {/* ── Project Explorer Bar: Real file structure & Main entrypoint ── */}
+      <ProjectExplorerBar
+        currentCode={typedCode || targetCode}
+        codeLang={codeLang}
+        isFintech={true}
+      />
+
       {/* ── Editor Container ── */}
       <div className="w-full rounded-2xl overflow-hidden border border-[#2B2D33] shadow-lg bg-[#1E1E22]">
         {/* Editor Top Bar */}
@@ -841,10 +927,74 @@ export const CodeGymRunner: React.FC = () => {
           </div>
         )}
 
+        {/* Reverse Debugging: Hardware Defect & Diagnostics Panel */}
+        {currentTask.isBugfixTask && (
+          <div className="px-4 py-3 bg-[#1A1215] border-b border-red-900/40 text-ink-light space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                    roundCompleted
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                      : "bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse"
+                  }`}
+                >
+                  {roundCompleted ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
+                  {roundCompleted
+                    ? t("playground.repairStatusOperational", "СПРАВНИЙ")
+                    : t("playground.repairStatusFault", "НЕСПРАВНИЙ")}
+                </span>
+                <span className="text-[11px] font-mono text-amber-300 font-bold">
+                  {t("playground.debugBannerTitle", "РЕЖИМ РЕМОНТУ ТА ДІАГНОСТИКИ (REVERSE DEBUGGING)")}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
+                  setRoundCompleted(false);
+                  setHasError(false);
+                  setFeedback(null);
+                }}
+                className="text-[11px] font-mono text-gray-400 hover:text-white underline cursor-pointer flex items-center gap-1"
+                title={t("playground.resetToBroken", "Скинути до дефекту")}
+              >
+                <RotateCcw size={12} />
+                <span>{t("playground.resetToBroken", "Скинути до дефекту")}</span>
+              </button>
+            </div>
+
+            <p className="text-xs font-mono text-red-200/90 leading-relaxed font-semibold">
+              {currentTask.defectDescription?.[
+                (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
+              ] ||
+                currentTask.defectDescription?.ua ||
+                t(currentTask.descKey)}
+            </p>
+
+            {/* Diagnostic Console Logs */}
+            {currentTask.diagnosticLogs && currentTask.diagnosticLogs.length > 0 && (
+              <div className="p-2.5 rounded-lg bg-black/60 border border-red-500/30 text-[11px] font-mono space-y-1">
+                <div className="text-[10px] text-red-400 font-bold flex items-center gap-1.5 mb-1">
+                  <Terminal size={12} />
+                  <span>{t("playground.diagnosticConsole", "Журнал діагностики рантайму")}:</span>
+                </div>
+                {currentTask.diagnosticLogs.map((log, idx) => (
+                  <div key={idx} className="text-red-300/85 leading-tight">
+                    {log}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Interactive Editor Surface */}
         <div className="relative font-mono text-xs" ref={editorContainerCallbackRef}>
-          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay — gutter-aligned */}
-          {activeRound === 1 && (
+          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay — gutter-aligned (disabled for bugfix tasks) */}
+          {activeRound === 1 && !currentTask.isBugfixTask && (
             <div
               className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none whitespace-pre text-gray-600 opacity-60"
               style={{
@@ -941,6 +1091,16 @@ export const CodeGymRunner: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
+            {currentTask.isBugfixTask && activeRound === 1 && !roundCompleted && (
+              <button
+                onClick={handleVerifyBugfix}
+                className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
+              >
+                <Wrench size={13} />
+                <span>{t("reverseDebug.verifyBtn", "🔧 Перевірити ремонт")}</span>
+              </button>
+            )}
+
             {activeRound === 2 && !roundCompleted && (
               <button
                 onClick={handleVerifyCloze}
@@ -1024,7 +1184,11 @@ export const CodeGymRunner: React.FC = () => {
             <button
               onClick={() => {
                 audioFx.playRelayClick();
-                setTypedCode(activeRound === 2 ? clozeTemplate : "");
+                if (currentTask.isBugfixTask && activeRound === 1) {
+                  setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
+                } else {
+                  setTypedCode(activeRound === 2 ? clozeTemplate : "");
+                }
                 setHasError(false);
                 setFeedback(null);
                 setRoundCompleted(false);

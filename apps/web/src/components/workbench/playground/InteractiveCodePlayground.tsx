@@ -23,6 +23,8 @@ import {
   X,
   Sparkles,
   HelpCircle,
+  Terminal,
+  Wrench,
 } from "lucide-react";
 import {
   CODING_TASKS,
@@ -36,6 +38,7 @@ import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 import { GuidedStepBar } from "./GuidedStepBar";
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
+import { ProjectExplorerBar } from "./ProjectExplorerBar";
 
 export interface InteractiveCodePlaygroundProps {
   onOpenArchitectureStudio?: () => void;
@@ -191,6 +194,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     if (taskId === "task-function-encapsulation" && volume === 0) {
       applyCodeExecution({ volume: 50 });
     }
+    if (task.isBugfixTask) {
+      audioFx.playAlarmSound();
+    }
   };
 
   // Switch tier and auto-select its first available task
@@ -241,7 +247,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     setShowTransferHint(false);
 
     if (activeRound === 1) {
-      setTypedCode("");
+      if (currentTask.isBugfixTask) {
+        setTypedCode(currentTask.initialBrokenCode?.[codeLang] || currentTask.initialCode?.[codeLang] || "");
+      } else {
+        setTypedCode("");
+      }
     } else if (activeRound === 2) {
       setTypedCode(clozeTemplate);
     } else if (activeRound === 3) {
@@ -249,7 +259,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     } else if (activeRound === 4) {
       setTypedCode("");
     }
-  }, [activeRound, codeLang, clozeTemplate, currentTask.id, sprintLimit]);
+  }, [activeRound, codeLang, clozeTemplate, currentTask, sprintLimit]);
 
   // ── Round 1: Trace typing mechanics ──────────────────────────
   const handleTraceChange = useCallback(
@@ -259,6 +269,12 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         roundStartTimeRef.current = Date.now();
       }
       playThrottledKeyClick();
+
+      if (currentTask.isBugfixTask) {
+        setHasError(false);
+        setFeedback(null);
+        return;
+      }
 
       // Verify character by character against target
       let mismatch = false;
@@ -635,6 +651,85 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     t,
   ]);
 
+  // ── Reverse Debugging: Repair validation ──────────────────────────────
+  const handleVerifyBugfix = useCallback(async () => {
+    if (!typedCode.trim()) {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback(t("codegym.fillBlanksPrompt", "Введіть код для виправлення дефекту!"));
+      return;
+    }
+
+    const beforeState: VirtualTvState = {
+      isOn: power,
+      channel,
+      volume,
+      isArchitectureWired: isArchitecturePowerWired,
+      brightness: 50,
+      isFuseBlown: false,
+    };
+
+    const result = await executeTvScriptAsync(
+      typedCode,
+      beforeState,
+      (snapshot) => {
+        applyCodeExecution({
+          power: snapshot.isOn,
+          channel: snapshot.channel,
+          volume: snapshot.volume,
+          osdMessage: snapshot.osdMessage,
+          label: snapshot.label,
+        });
+      },
+      200
+    );
+
+    const validation = currentTask.validate(beforeState, result.newState, result, typedCode);
+    if (validation.passed) {
+      applyCodeExecution({
+        power: result.newState.isOn,
+        channel: result.newState.channel,
+        volume: result.newState.volume,
+        osdMessage: result.newState.osdMessage,
+        label: result.newState.label,
+      });
+      setHasError(false);
+      setRoundCompleted(true);
+      setRoundStats({ wpm: 0, accuracy: 100 });
+      audioFx.playSuccessFanfare();
+      setTaskMastery(currentTask.id, 1);
+      completeCodingTask(currentTask.id);
+      addXp(30);
+      setFeedback(
+        validation.messageKey
+          ? t(validation.messageKey)
+          : "✅ Дефект успішно усунено! Прилад працює у штатному режимі (OPERATIONAL)."
+      );
+    } else {
+      setHasError(true);
+      audioFx.playAlarmSound();
+      setFeedback(
+        result.error
+          ? result.error
+          : validation.messageKey
+          ? t(validation.messageKey)
+          : t(currentTask.hintKey)
+      );
+    }
+  }, [
+    typedCode,
+    power,
+    channel,
+    volume,
+    isArchitecturePowerWired,
+    currentTask,
+    applyCodeExecution,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    t,
+  ]);
+
   // Trace character progress
   const traceCharsMatched = useMemo(() => {
     let count = 0;
@@ -666,11 +761,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     );
   }, [taskMasteryStars, completedCodingTasks]);
 
-  // Keyboard Shortcuts (Ctrl+Enter / Cmd+Enter, Esc)
+  // ── Tactile Hotkeys: Ctrl+Enter to submit, Esc to reset ─────────
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Enter / Cmd+Enter
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      // Ctrl+Enter or Cmd+Enter to advance
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         if (roundCompleted) {
           if (activeRound < 4) {
@@ -683,7 +778,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           return;
         }
 
-        if (activeRound === 2) {
+        if (currentTask.isBugfixTask && activeRound === 1) {
+          handleVerifyBugfix();
+        } else if (activeRound === 2) {
           handleVerifyCloze();
         } else if (activeRound === 3) {
           if (!isTimerRunning) {
@@ -701,7 +798,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       if (e.key === "Escape") {
         e.preventDefault();
         audioFx.playRelayClick();
-        setTypedCode(activeRound === 2 ? clozeTemplate : "");
+        if (currentTask.isBugfixTask && activeRound === 1) {
+          setTypedCode(currentTask.initialBrokenCode?.[codeLang] || currentTask.initialCode?.[codeLang] || "");
+        } else {
+          setTypedCode(activeRound === 2 ? clozeTemplate : "");
+        }
         setHasError(false);
         setFeedback(null);
         setRoundCompleted(false);
@@ -1011,6 +1112,13 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         </div>
       </div>
 
+      {/* ── Project Explorer Bar: Real file structure & Main entrypoint ── */}
+      <ProjectExplorerBar
+        currentCode={typedCode || targetCode}
+        codeLang={codeLang}
+        isFintech={false}
+      />
+
       {/* ── Editor Canvas: CodeMirror with Ghost Stencil or Code ── */}
       <div className="rounded-2xl border-2 border-[#2B2D33] bg-[#1E2024] overflow-hidden shadow-paper-lg flex flex-col">
         {/* Editor Title Bar */}
@@ -1121,10 +1229,74 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           </div>
         )}
 
+        {/* Reverse Debugging: Hardware Defect & Diagnostics Panel */}
+        {currentTask.isBugfixTask && (
+          <div className="px-4 py-3 bg-[#1A1215] border-b border-red-900/40 text-ink-light space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                    roundCompleted
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                      : "bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse"
+                  }`}
+                >
+                  {roundCompleted ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
+                  {roundCompleted
+                    ? t("playground.repairStatusOperational", "СПРАВНИЙ")
+                    : t("playground.repairStatusFault", "НЕСПРАВНИЙ")}
+                </span>
+                <span className="text-[11px] font-mono text-amber-300 font-bold">
+                  {t("playground.debugBannerTitle", "РЕЖИМ РЕМОНТУ ТА ДІАГНОСТИКИ (REVERSE DEBUGGING)")}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setTypedCode(currentTask.initialBrokenCode?.[codeLang] || currentTask.initialCode?.[codeLang] || "");
+                  setRoundCompleted(false);
+                  setHasError(false);
+                  setFeedback(null);
+                }}
+                className="text-[11px] font-mono text-gray-400 hover:text-white underline cursor-pointer flex items-center gap-1"
+                title={t("playground.resetToBroken", "Скинути до дефекту")}
+              >
+                <RotateCcw size={12} />
+                <span>{t("playground.resetToBroken", "Скинути до дефекту")}</span>
+              </button>
+            </div>
+
+            <p className="text-xs font-mono text-red-200/90 leading-relaxed font-semibold">
+              {currentTask.defectDescription?.[
+                (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
+              ] ||
+                currentTask.defectDescription?.ua ||
+                t(currentTask.descKey)}
+            </p>
+
+            {/* Diagnostic Console Logs */}
+            {currentTask.diagnosticLogs && currentTask.diagnosticLogs.length > 0 && (
+              <div className="p-2.5 rounded-lg bg-black/60 border border-red-500/30 text-[11px] font-mono space-y-1">
+                <div className="text-[10px] text-red-400 font-bold flex items-center gap-1.5 mb-1">
+                  <Terminal size={12} />
+                  <span>{t("playground.diagnosticConsole", "Журнал діагностики рантайму")}:</span>
+                </div>
+                {currentTask.diagnosticLogs.map((log, idx) => (
+                  <div key={idx} className="text-red-300/85 leading-tight">
+                    {log}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Interactive Editor Surface */}
         <div className="relative font-mono text-xs" ref={editorContainerRef}>
-          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay */}
-          {activeRound === 1 && (
+          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay (disabled for bugfix tasks) */}
+          {activeRound === 1 && !currentTask.isBugfixTask && (
             <div
               className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none whitespace-pre text-gray-600 opacity-60"
               style={{
@@ -1222,6 +1394,16 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
+            {currentTask.isBugfixTask && activeRound === 1 && !roundCompleted && (
+              <button
+                onClick={handleVerifyBugfix}
+                className="px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
+              >
+                <Wrench size={13} />
+                <span>{t("playground.verifyFixBtn", "Перевірити ремонт")}</span>
+              </button>
+            )}
+
             {activeRound === 2 && !roundCompleted && (
               <button
                 onClick={handleVerifyCloze}
@@ -1305,7 +1487,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
             <button
               onClick={() => {
                 audioFx.playRelayClick();
-                setTypedCode(activeRound === 2 ? clozeTemplate : "");
+                if (currentTask.isBugfixTask && activeRound === 1) {
+                  setTypedCode(currentTask.initialBrokenCode?.[codeLang] || currentTask.initialCode?.[codeLang] || "");
+                } else {
+                  setTypedCode(activeRound === 2 ? clozeTemplate : "");
+                }
                 setHasError(false);
                 setFeedback(null);
                 setRoundCompleted(false);
