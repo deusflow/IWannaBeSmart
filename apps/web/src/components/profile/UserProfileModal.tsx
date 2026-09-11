@@ -1,6 +1,6 @@
 /**
  * @file apps/web/src/components/profile/UserProfileModal.tsx
- * @description High-tech Engineer Profile modal with Callsign/Avatar customization, Learning Analytics, and Achievements.
+ * @description Blueprint Engineer Profile modal with Callsign/Avatar customization, Learning Analytics, and Achievements.
  */
 
 import React, { useState, useMemo } from "react";
@@ -72,10 +72,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
   // Rank title computation
   const rank = useMemo(() => {
-    if (xp >= 600) return { title: t("profile.rankLead", "Головний системний архітектор"), level: "Level 4", color: "text-purple-400 border-purple-500/30 bg-purple-500/10" };
-    if (xp >= 300) return { title: t("profile.rankSenior", "Провідний архітектор мікросервісів"), level: "Level 3", color: "text-blue-400 border-blue-500/30 bg-blue-500/10" };
-    if (xp >= 100) return { title: t("profile.rankMid", "Системний інженер верстака"), level: "Level 2", color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" };
-    return { title: t("profile.rankJunior", "Молодший інженер-дослідник"), level: "Level 1", color: "text-amber-400 border-amber-500/30 bg-amber-500/10" };
+    if (xp >= 600) return { title: t("profile.rankLead", "Головний системний архітектор"), level: "Level 4", color: "text-purple-800 border-purple-600/30 bg-purple-500/15" };
+    if (xp >= 300) return { title: t("profile.rankSenior", "Провідний архітектор мікросервісів"), level: "Level 3", color: "text-blue-800 border-blue-600/30 bg-blue-500/15" };
+    if (xp >= 100) return { title: t("profile.rankMid", "Системний інженер верстака"), level: "Level 2", color: "text-emerald-800 border-emerald-600/30 bg-emerald-500/15" };
+    return { title: t("profile.rankJunior", "Молодший інженер-дослідник"), level: "Level 1", color: "text-amber-800 border-amber-600/30 bg-amber-500/15" };
   }, [xp, t]);
 
   // Telemetry: strengths & growth areas computation
@@ -83,7 +83,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const starValues = Object.values(taskMasteryStars);
     const starSum = starValues.reduce((acc, s) => acc + (s || 0), 0);
 
-    // Filter fintech tasks into strengths (>= 3 stars) vs growth areas (< 2 stars or unattempted)
+    // Filter fintech tasks into strengths (>= 2 stars) vs growth areas (< 2 stars or unattempted)
     const strongList: Array<{ id: string; title: string; stars: number; station: string }> = [];
     const growthList: Array<{ id: string; title: string; stars: number; stationId: string }> = [];
 
@@ -102,7 +102,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       strengths: strongList,
       growthAreas: growthList,
       totalMasteryStars: Math.max(starSum, profile?.total_stars || 0),
-      maxWpmRecord: 72, // Peak benchmark from session
+      maxWpmRecord: 72, // Benchmark record
     };
   }, [taskMasteryStars, profile?.total_stars, t]);
 
@@ -138,79 +138,73 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 select-none">
-      <div
-        className="relative w-full max-w-2xl max-h-[92vh] rounded-3xl bg-[#12141A]/95 backdrop-blur-xl text-gray-100 border border-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.85)] flex flex-col overflow-hidden font-sans animate-in zoom-in-95 duration-200"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 60%)",
-        }}
-      >
-        {/* Subtle engineering grid background */}
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-25" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] rounded-3xl bg-[#FAF8F2] text-[#1A1D20] border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col overflow-hidden font-sans animate-in zoom-in-95 duration-200">
+        {/* Subtle engineering vellum grid background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(26,29,32,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(26,29,32,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
 
         {/* ── Modal Header ── */}
-        <div className="relative z-10 flex items-center justify-between px-6 py-4.5 border-b border-white/[0.08] bg-white/[0.02]">
+        <div className="relative z-10 flex items-center justify-between px-6 py-4.5 border-b border-[#1A1D20]/15 bg-[#EFE9DC]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-              <ShieldCheck size={20} />
+            <div className="w-10 h-10 rounded-2xl bg-accent-blue/15 border-2 border-accent-blue/30 text-accent-blue flex items-center justify-center shadow-xs shrink-0">
+              <ShieldCheck size={20} strokeWidth={2.2} />
             </div>
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-blue-400 font-bold">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-accent-blue font-bold">
                 ENGINEERING CREDENTIALS
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-display font-extrabold text-[#1A1D20] tracking-tight">
                 {t("profile.modalTitle", "Профіль та аналітика інженера")}
               </h2>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#1A1D20]/5 hover:bg-[#1A1D20]/15 border border-[#1A1D20]/20 flex items-center justify-center text-[#1A1D20] transition-all cursor-pointer"
             title={t("common.close", "Закрити")}
           >
-            <X size={16} />
+            <X size={16} strokeWidth={2.4} />
           </button>
         </div>
 
         {/* ── Navigation Tabs ── */}
-        <div className="relative z-10 px-6 pt-3 border-b border-white/[0.06] bg-black/20 flex gap-2">
+        <div className="relative z-10 px-6 pt-2 border-b border-[#1A1D20]/15 bg-[#E6DEC9] flex gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("identity")}
-            className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-display font-bold transition-all cursor-pointer ${
               activeTab === "identity"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+                ? "border-[#1E3A8A] text-[#1E3A8A] font-extrabold"
+                : "border-transparent text-[#1A1D20]/60 hover:text-[#1A1D20]"
             }`}
           >
-            <User size={14} />
+            <User size={14} strokeWidth={2.2} />
             <span>{t("profile.tabIdentity", "Профіль")}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("analytics")}
-            className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-display font-bold transition-all cursor-pointer ${
               activeTab === "analytics"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+                ? "border-[#1E3A8A] text-[#1E3A8A] font-extrabold"
+                : "border-transparent text-[#1A1D20]/60 hover:text-[#1A1D20]"
             }`}
           >
-            <TrendingUp size={14} />
+            <TrendingUp size={14} strokeWidth={2.2} />
             <span>{t("profile.tabAnalytics", "Аналітика")}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("achievements")}
-            className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-display font-bold transition-all cursor-pointer ${
               activeTab === "achievements"
-                ? "border-blue-500 text-white"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+                ? "border-[#1E3A8A] text-[#1E3A8A] font-extrabold"
+                : "border-transparent text-[#1A1D20]/60 hover:text-[#1A1D20]"
             }`}
           >
-            <Award size={14} />
+            <Award size={14} strokeWidth={2.2} />
             <span>{t("profile.tabAchievements", "Досягнення")}</span>
           </button>
         </div>
@@ -221,20 +215,19 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           {activeTab === "identity" && (
             <form onSubmit={handleSaveProfile} className="space-y-6">
               {/* Profile Card Header with Live Avatar Preview */}
-              <div className="p-4.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 border-2 border-white/20 shadow-lg flex items-center justify-center shrink-0">
+              <div className="p-4.5 rounded-2xl bg-[#EBE5D8] border-2 border-[#1A1D20]/15 flex items-center gap-4 shadow-paper-xs">
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-white border-2 border-[#1A1D20]/25 shadow-xs flex items-center justify-center shrink-0">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
                       alt={callsign}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        // fallback to placeholder on broken link
                         (e.target as HTMLImageElement).src = PRESET_AVATARS[0].url;
                       }}
                     />
                   ) : (
-                    <span className="text-xl font-mono font-black text-white">
+                    <span className="text-xl font-mono font-black text-[#1A1D20]">
                       {(callsign || "E").slice(0, 2).toUpperCase()}
                     </span>
                   )}
@@ -242,17 +235,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-extrabold text-white truncate">
+                    <span className="text-base font-display font-extrabold text-[#1A1D20] truncate">
                       {callsign || profile?.callsign || "Engineer"}
                     </span>
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${rank.color}`}>
                       {rank.level}
                     </span>
                   </div>
-                  <div className="text-xs text-gray-400 mt-0.5 font-mono">
+                  <div className="text-xs text-[#1A1D20]/75 mt-0.5 font-mono font-bold">
                     {rank.title}
                   </div>
-                  <div className="text-[11px] text-gray-400 font-mono truncate mt-0.5">
+                  <div className="text-[11px] text-[#1A1D20]/50 font-mono truncate mt-0.5">
                     {user?.email || "Offline / Guest session"}
                   </div>
                 </div>
@@ -260,25 +253,25 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
               {/* Callsign Input Field */}
               <div>
-                <label className="block text-[11px] font-mono uppercase text-gray-400 font-bold mb-1.5">
+                <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/75 font-bold mb-1.5">
                   {t("profile.callsignLabel", "Позивний інженера (Callsign)")}
                 </label>
                 <div className="relative flex items-center">
-                  <User size={15} className="absolute left-3.5 text-gray-400 pointer-events-none" />
+                  <User size={15} className="absolute left-3.5 text-[#1A1D20]/40 pointer-events-none" />
                   <input
                     type="text"
                     value={callsign}
                     onChange={(e) => setCallsign(e.target.value)}
                     placeholder={t("profile.callsignPlaceholder", "Введіть ваш позивний")}
                     required
-                    className="w-full bg-white/[0.04] border border-white/[0.12] hover:border-white/20 focus:border-blue-500 focus:bg-white/[0.07] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono transition-all"
+                    className="w-full bg-white border-2 border-[#1A1D20]/20 hover:border-[#1A1D20]/40 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 font-mono transition-all outline-none shadow-xs"
                   />
                 </div>
               </div>
 
               {/* Preset Avatars Selection */}
               <div>
-                <label className="block text-[11px] font-mono uppercase text-gray-400 font-bold mb-2">
+                <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/75 font-bold mb-2">
                   {t("profile.avatarPresetLabel", "Швидкі аватари")}
                 </label>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
@@ -289,10 +282,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         key={preset.id}
                         type="button"
                         onClick={() => setAvatarUrl(preset.url)}
-                        className={`group relative p-1 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-1 ${
+                        className={`group relative p-1 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center gap-1 ${
                           isSelected
-                            ? "bg-blue-600/20 border-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)] ring-2 ring-blue-500/40"
-                            : "bg-white/[0.03] border-white/[0.08] hover:border-white/25 hover:bg-white/[0.06]"
+                            ? "bg-accent-blue/15 border-accent-blue shadow-paper-xs ring-2 ring-accent-blue/30"
+                            : "bg-white border-[#1A1D20]/15 hover:border-[#1A1D20]/40 hover:bg-[#FAF8F2]"
                         }`}
                         title={preset.label}
                       >
@@ -301,11 +294,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                           alt={preset.label}
                           className="w-8 h-8 rounded-lg object-cover"
                         />
-                        <span className="text-[9px] font-mono text-gray-400 truncate w-full text-center">
+                        <span className="text-[9px] font-mono text-[#1A1D20]/70 truncate w-full text-center font-bold">
                           {preset.label}
                         </span>
                         {isSelected && (
-                          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[8px]">
+                          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-accent-blue flex items-center justify-center text-white text-[8px] font-bold">
                             ✓
                           </div>
                         )}
@@ -318,14 +311,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               {/* Custom Avatar URL input */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-[11px] font-mono uppercase text-gray-400 font-bold">
+                  <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/75 font-bold">
                     {t("profile.avatarCustomUrlLabel", "Або вкажіть URL власного зображення")}
                   </label>
                   {googleAvatar && (
                     <button
                       type="button"
                       onClick={handleResetToGoogle}
-                      className="text-[10px] font-mono text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-[10px] font-mono font-bold text-accent-blue hover:text-accent-blue-hover hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <RotateCcw size={10} />
                       <span>{t("profile.useGoogleAvatar", "Скинути до аватара Google")}</span>
@@ -333,21 +326,21 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   )}
                 </div>
                 <div className="relative flex items-center">
-                  <ImageIcon size={15} className="absolute left-3.5 text-gray-400 pointer-events-none" />
+                  <ImageIcon size={15} className="absolute left-3.5 text-[#1A1D20]/40 pointer-events-none" />
                   <input
                     type="url"
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
                     placeholder={t("profile.avatarCustomPlaceholder", "https://example.com/my-avatar.png")}
-                    className="w-full bg-white/[0.04] border border-white/[0.12] hover:border-white/20 focus:border-blue-500 focus:bg-white/[0.07] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono transition-all"
+                    className="w-full bg-white border-2 border-[#1A1D20]/20 hover:border-[#1A1D20]/40 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 font-mono transition-all outline-none shadow-xs"
                   />
                 </div>
               </div>
 
               {/* Save Status Banner */}
               {savedNotice && (
-                <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
-                  <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+                <div className="p-3 rounded-xl bg-emerald-50 border-2 border-emerald-400 text-emerald-900 text-xs flex items-center gap-2 animate-in fade-in font-display font-bold">
+                  <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
                   <span>{t("profile.savedSuccess", "Профіль успішно оновлено!")}</span>
                 </div>
               )}
@@ -356,7 +349,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.99] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-xl bg-[#1E3A8A] hover:bg-[#172554] active:scale-[0.99] text-white font-display font-extrabold text-xs uppercase tracking-wider shadow-paper border border-[#1E3A8A] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSaving ? (
                   <>
@@ -365,7 +358,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <Check size={16} />
+                    <Check size={16} strokeWidth={2.4} />
                     <span>{t("profile.saveChanges", "Зберегти зміни")}</span>
                   </>
                 )}
@@ -378,43 +371,43 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <div className="space-y-6">
               {/* Telemetry Metric Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-amber-400 font-bold">
-                    <Zap size={13} />
+                <div className="p-3.5 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 shadow-paper-xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-amber-800 font-bold">
+                    <Zap size={13} className="text-amber-700" />
                     <span>{t("profile.bestWpmLabel", "Рекордна швидкість")}</span>
                   </div>
-                  <div className="mt-1 font-display font-black text-xl text-white flex items-baseline gap-1">
+                  <div className="mt-1 font-display font-black text-xl text-[#1A1D20] flex items-baseline gap-1">
                     <span>{maxWpmRecord}</span>
-                    <span className="text-xs font-mono text-gray-400 font-normal">WPM</span>
+                    <span className="text-xs font-mono text-[#1A1D20]/60 font-normal">WPM</span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-blue-400 font-bold">
-                    <Sparkles size={13} />
+                <div className="p-3.5 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 shadow-paper-xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-blue-900 font-bold">
+                    <Sparkles size={13} className="text-accent-blue" />
                     <span>{t("profile.masteredStarsLabel", "Освоєно зірок")}</span>
                   </div>
-                  <div className="mt-1 font-display font-black text-xl text-white">
+                  <div className="mt-1 font-display font-black text-xl text-[#1A1D20]">
                     ★ {totalMasteryStars} / 57
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-emerald-400 font-bold">
-                    <CheckCircle2 size={13} />
+                <div className="p-3.5 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 shadow-paper-xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-emerald-800 font-bold">
+                    <CheckCircle2 size={13} className="text-emerald-700" />
                     <span>{t("profile.accuracyLabel", "Точність синтаксису")}</span>
                   </div>
-                  <div className="mt-1 font-display font-black text-xl text-white">
+                  <div className="mt-1 font-display font-black text-xl text-[#1A1D20]">
                     98.4%
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-purple-400 font-bold">
-                    <Award size={13} />
+                <div className="p-3.5 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 shadow-paper-xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-purple-900 font-bold">
+                    <Award size={13} className="text-purple-700" />
                     <span>Досвід (XP)</span>
                   </div>
-                  <div className="mt-1 font-display font-black text-xl text-white">
+                  <div className="mt-1 font-display font-black text-xl text-[#1A1D20]">
                     {xp} XP
                   </div>
                 </div>
@@ -423,14 +416,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               {/* SECTION: Strengths (What went well) */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-800 flex items-center justify-center">
                     <CheckCircle2 size={14} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                    <h4 className="text-xs font-bold text-[#1A1D20] uppercase tracking-wider font-mono">
                       {t("profile.strengthsTitle", "Сильні сторони (Що виходить відмінно)")}
                     </h4>
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-[11px] text-[#1A1D20]/70">
                       {t("profile.strengthsSubtitle", "Освоєні навички та високі показники телеметрії")}
                     </p>
                   </div>
@@ -441,23 +434,22 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     strengths.map((item) => (
                       <div
                         key={item.id}
-                        className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/20 flex items-center justify-between gap-3 text-xs"
+                        className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-600/30 flex items-center justify-between gap-3 text-xs"
                       >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                          <span className="font-semibold text-gray-200 truncate">{item.title}</span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-emerald-800 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-600/30">
                             {item.station}
                           </span>
+                          <span className="font-display font-bold text-[#1A1D20]">{item.title}</span>
                         </div>
-                        <div className="font-mono font-bold text-amber-400 shrink-0">
-                          ★ {item.stars}/3
+                        <div className="flex items-center gap-1 text-amber-600 font-mono font-bold">
+                          {"★".repeat(item.stars)}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="p-3 text-xs text-gray-400 font-mono italic">
-                      Виконайте перші завдання для калібрування сильних сторін.
+                    <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/15 text-[#1A1D20]/70 text-xs font-mono">
+                      Виконайте кілька завдань на 2 або 3 зірки, щоб зафіксувати свої сильні сторони.
                     </div>
                   )}
                 </div>
@@ -466,14 +458,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               {/* SECTION: Growth Areas (What needs improvement) */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-800 flex items-center justify-center">
                     <AlertTriangle size={14} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                    <h4 className="text-xs font-bold text-[#1A1D20] uppercase tracking-wider font-mono">
                       {t("profile.growthAreasTitle", "Точки зростання (Над чим попрацювати)")}
                     </h4>
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-[11px] text-[#1A1D20]/70">
                       {t("profile.growthAreasSubtitle", "Завдання, які потребують повторення або покращення темпу")}
                     </p>
                   </div>
@@ -484,20 +476,18 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     growthAreas.map((item) => (
                       <div
                         key={item.id}
-                        className="p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 flex items-center justify-between gap-3 text-xs"
+                        className="p-3 rounded-xl bg-amber-500/10 border border-amber-600/30 flex items-center justify-between gap-3 text-xs"
                       >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
-                          <span className="font-semibold text-gray-200 truncate">{item.title}</span>
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                            ★ {item.stars}/3
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-amber-900 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-600/30">
+                            {item.stars === 0 ? "UNATTEMPTED" : `${item.stars} ★`}
                           </span>
+                          <span className="font-display font-bold text-[#1A1D20]">{item.title}</span>
                         </div>
-
                         <button
                           type="button"
                           onClick={() => handleJumpToTask(item.stationId)}
-                          className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[11px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0"
+                          className="px-2.5 py-1 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 text-amber-900 border border-amber-600/40 text-[11px] font-display font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 shadow-2xs"
                         >
                           <span>{t("profile.practiceTaskBtn", "Практикувати")}</span>
                           <ArrowRight size={11} />
@@ -505,7 +495,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       </div>
                     ))
                   ) : (
-                    <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-emerald-300 text-xs font-mono">
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-600/30 text-emerald-900 text-xs font-mono">
                       {t("profile.noGrowthAreas", "Всі відкриті завдання виконано на високому рівні! Відмінна робота.")}
                     </div>
                   )}
@@ -517,66 +507,66 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           {/* ══════════════ TAB 3: ACHIEVEMENTS & CERTIFICATES ══════════════ */}
           {activeTab === "achievements" && (
             <div className="space-y-4">
-              <div className="text-xs text-gray-400 font-mono">
+              <div className="text-xs text-[#1A1D20]/70 font-mono font-bold">
                 {t("profile.achievementsSubtitle", "Сертифікати та досягнення у вирішенні завдань")}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Badge 1: Speed Demon */}
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-800 flex items-center justify-center shrink-0">
                     <Zap size={18} />
                   </div>
                   <div>
-                    <div className="font-bold text-xs text-white">
+                    <div className="font-display font-extrabold text-xs text-[#1A1D20]">
                       {t("profile.badgeSpeedDemon", "Спринтер алгоритмів")}
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">
+                    <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
                       {t("profile.badgeSpeedDemonDesc", "Досягнуто швидкість понад 60 слів/хв у Code Gym")}
                     </div>
                   </div>
                 </div>
 
                 {/* Badge 2: Architecture Master */}
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
+                <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
+                  <div className="w-9 h-9 rounded-xl bg-accent-blue/15 border border-accent-blue/30 text-accent-blue flex items-center justify-center shrink-0">
                     <Layers size={18} />
                   </div>
                   <div>
-                    <div className="font-bold text-xs text-white">
+                    <div className="font-display font-extrabold text-xs text-[#1A1D20]">
                       {t("profile.badgeArchitectureMaster", "Майстер архітектури")}
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">
+                    <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
                       {t("profile.badgeArchitectureMasterDesc", "Успішно зібрано DI контейнер та з'єднано шину викликів")}
                     </div>
                   </div>
                 </div>
 
                 {/* Badge 3: Fintech Shield */}
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-600/40 text-emerald-800 flex items-center justify-center shrink-0">
                     <CreditCard size={18} />
                   </div>
                   <div>
-                    <div className="font-bold text-xs text-white">
+                    <div className="font-display font-extrabold text-xs text-[#1A1D20]">
                       {t("profile.badgeFintechShield", "Вартовий транзакцій")}
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">
+                    <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
                       {t("profile.badgeFintechShieldDesc", "Захищено банківський POS-термінал від збоїв та блокувань")}
                     </div>
                   </div>
                 </div>
 
                 {/* Badge 4: Pattern Collector */}
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-400 flex items-center justify-center shrink-0">
+                <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
+                  <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-600/40 text-purple-800 flex items-center justify-center shrink-0">
                     <Award size={18} />
                   </div>
                   <div>
-                    <div className="font-bold text-xs text-white">
+                    <div className="font-display font-extrabold text-xs text-[#1A1D20]">
                       {t("profile.badgePatternCollector", "Колекціонер патернів")}
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">
+                    <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
                       {t("profile.badgePatternCollectorDesc", "Освоєно понад 5 ключових патернів проєктування")}
                     </div>
                   </div>
@@ -585,36 +575,36 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
               {/* Station Certificates Showcase */}
               <div className="pt-2 space-y-2">
-                <div className="text-[11px] font-mono uppercase font-bold text-gray-400">
+                <div className="text-[11px] font-mono uppercase font-bold text-[#1A1D20]/70">
                   Доступні сертифікати інженера
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/20 flex items-center justify-between shadow-paper-xs">
                     <div className="flex items-center gap-2.5">
-                      <Tv size={16} className="text-blue-400" />
+                      <Tv size={16} className="text-accent-blue" />
                       <div>
-                        <div className="text-xs font-bold text-white">
+                        <div className="text-xs font-display font-extrabold text-[#1A1D20]">
                           {t("profile.badgeCertStation1", "Сертифікат Станції 01")}
                         </div>
-                        <div className="text-[10px] text-gray-400 font-mono">13 / 13 завдань</div>
+                        <div className="text-[10px] text-[#1A1D20]/60 font-mono">13 / 13 завдань</div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
                       ЗДОБУТО
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
+                  <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/20 flex items-center justify-between shadow-paper-xs">
                     <div className="flex items-center gap-2.5">
-                      <CreditCard size={16} className="text-emerald-400" />
+                      <CreditCard size={16} className="text-emerald-700" />
                       <div>
-                        <div className="text-xs font-bold text-white">
+                        <div className="text-xs font-display font-extrabold text-[#1A1D20]">
                           {t("profile.badgeCertStation2", "Сертифікат Станції 02")}
                         </div>
-                        <div className="text-[10px] text-gray-400 font-mono">Fintech Code Gym</div>
+                        <div className="text-[10px] text-[#1A1D20]/60 font-mono">Fintech Code Gym</div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
                       ЗДОБУТО
                     </span>
                   </div>
