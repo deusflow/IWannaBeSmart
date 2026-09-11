@@ -41,6 +41,7 @@ export const CodeGymRunner: React.FC = () => {
     resetPosState,
     taskMasteryStars,
     setTaskMastery,
+    completeCodingTask,
     addXp,
     setPosVictoryModalOpen,
   } = useWorkbenchStore();
@@ -142,7 +143,7 @@ export const CodeGymRunner: React.FC = () => {
 
   // ── Round 1: Trace typing mechanics ──────────────────────────
   const handleTraceChange = useCallback(
-    (input: string) => {
+    async (input: string) => {
       setTypedCode(input);
 
       // Verify character by character against target
@@ -159,7 +160,7 @@ export const CodeGymRunner: React.FC = () => {
       if (mismatch) {
         setHasError(true);
         audioFx.playErrorBuzz();
-        setFeedback("Символ не відповідає трафарету. Використовуйте Backspace.");
+        setFeedback(t("codegym.mismatchPrompt", "Символ не відповідає трафарету. Використовуйте Backspace."));
       } else {
         setHasError(false);
         setFeedback(null);
@@ -174,11 +175,17 @@ export const CodeGymRunner: React.FC = () => {
             audioFx.playAlarmSound();
           }
           setTaskMastery(currentTask.id, 1);
+          completeCodingTask(currentTask.id);
           addXp(15);
+
+          // Physical POS device reflection
+          const before: VirtualPosState = { ...posState };
+          const result = await executePosScriptAsync(input, before);
+          applyPosExecution(result.newState);
         }
       }
     },
-    [targetCode, currentTask.id, setTaskMastery, addXp]
+    [targetCode, currentTask.id, posState, setTaskMastery, completeCodingTask, addXp, applyPosExecution, t]
   );
 
   // ── Round 2: Cloze verification ──────────────────────────────
@@ -187,7 +194,7 @@ export const CodeGymRunner: React.FC = () => {
     if (isUnfilled) {
       setHasError(true);
       audioFx.playErrorBuzz();
-      setFeedback("Заповніть усі прогалини (___) перед перевіркою!");
+      setFeedback(t("codegym.fillBlanksPrompt", "Заповніть усі прогалини (___) перед перевіркою!"));
       return;
     }
 
@@ -207,6 +214,7 @@ export const CodeGymRunner: React.FC = () => {
         audioFx.playAlarmSound();
       }
       setTaskMastery(currentTask.id, 2);
+      completeCodingTask(currentTask.id);
       addXp(20);
       setFeedback(t(currentTask.successKey));
     } else {
@@ -214,7 +222,7 @@ export const CodeGymRunner: React.FC = () => {
       audioFx.playErrorBuzz();
       setFeedback(t(validation.messageKey || currentTask.hintKey));
     }
-  }, [typedCode, posState, currentTask, applyPosExecution, setTaskMastery, addXp, t]);
+  }, [typedCode, posState, currentTask, applyPosExecution, setTaskMastery, completeCodingTask, addXp, t]);
 
   // ── Round 3: Sprint timer logic ──────────────────────────────
   useEffect(() => {
@@ -268,10 +276,15 @@ export const CodeGymRunner: React.FC = () => {
         audioFx.playAlarmSound();
       }
       setTaskMastery(currentTask.id, 3);
+      completeCodingTask(currentTask.id);
       addXp(50);
       setFeedback(t("codegym.masteryComplete"));
 
-      if (currentTask.id === "task-pos-dependency-injection") {
+      // Check if all fintech tasks are now completed
+      const allCompleted = FINTECH_TASKS.every((task) =>
+        task.id === currentTask.id ? true : (taskMasteryStars[task.id] || 0) >= 1
+      );
+      if (allCompleted) {
         setPosVictoryModalOpen(true);
       }
     } else {
@@ -279,7 +292,7 @@ export const CodeGymRunner: React.FC = () => {
       audioFx.playErrorBuzz();
       setFeedback(t(validation.messageKey || currentTask.hintKey));
     }
-  }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, setTaskMastery, addXp, setPosVictoryModalOpen, t]);
+  }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, setTaskMastery, completeCodingTask, addXp, taskMasteryStars, setPosVictoryModalOpen, t]);
 
   // Trace character progress
   const traceCharsMatched = useMemo(() => {
@@ -400,10 +413,10 @@ export const CodeGymRunner: React.FC = () => {
                   setPosVictoryModalOpen(true);
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-display font-extrabold text-xs shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95"
-                title="Отримати сертифікат модуля"
+                title={t("codegym.certificateTooltip", "Отримати сертифікат модуля")}
               >
                 <Trophy size={14} className="text-stone-900" />
-                <span>Сертифікат</span>
+                <span>{t("codegym.certificateBtn", "Сертифікат")}</span>
               </button>
             )}
 
@@ -644,7 +657,7 @@ export const CodeGymRunner: React.FC = () => {
                 className="px-4 py-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
               >
                 <Play size={13} />
-                <span>Перевірити прогалини</span>
+                <span>{t("codegym.verifyBlanksBtn", "Перевірити прогалини")}</span>
               </button>
             )}
 
@@ -656,7 +669,7 @@ export const CodeGymRunner: React.FC = () => {
                     className="px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
                   >
                     <Play size={13} />
-                    <span>{`Почати спринт (${sprintTimeLimit}с)`}</span>
+                    <span>{`${t("codegym.startSprintBtn", "Почати спринт")} (${sprintTimeLimit}с)`}</span>
                   </button>
                 )}
 

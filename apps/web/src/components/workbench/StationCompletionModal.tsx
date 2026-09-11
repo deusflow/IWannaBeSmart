@@ -23,6 +23,24 @@ interface SkillItem {
 
 const SKILL_MATRIX: SkillItem[] = [
   {
+    id: "method-invocation",
+    nameKey: "victoryModal.skills.methodInvocation",
+    codeExample: "tv.PowerOn();",
+    categoryKey: "victoryModal.categories.fundamentals",
+  },
+  {
+    id: "type-signatures",
+    nameKey: "victoryModal.skills.typeSignatures",
+    codeExample: 'tv.SetChannel(1); tv.SetLabel("NEWS");',
+    categoryKey: "victoryModal.categories.fundamentals",
+  },
+  {
+    id: "sequential-flow",
+    nameKey: "victoryModal.skills.sequentialFlow",
+    codeExample: "tv.PowerOn(); tv.SetChannel(1);",
+    categoryKey: "victoryModal.categories.fundamentals",
+  },
+  {
     id: "state-mutation",
     nameKey: "victoryModal.skills.stateMutation",
     codeExample: "tv.IsOn = true; tv.Channel++;",
@@ -115,16 +133,19 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
 ═══════════════════════════════════════════════════════
 
 Загальний досвід: ${xp} XP
-Виконано: 13/13 завдань (3 Ранги)
-Освоєні архітектурні патерни (8/8):
-  1. [✓] State & Mutation (tv.IsOn, tv.Channel)
-  2. [✓] Control Flow & Guard Clauses (if/else, boundary checks)
-  3. [✓] Asynchronous Execution & Loops (for scanning, async/await)
-  4. [✓] Encapsulation & Functions (void Mute() / func Mute())
-  5. [✓] Anti-pattern Diagnosis (God Switch / OCP Violation)
-  6. [✓] Polymorphism & Contracts (IRemoteCommand.Execute())
-  7. [✓] Inversion of Control & DI Container (services.AddTransient)
-  8. [✓] Command Registry & Extensibility (registry[button].Execute())
+Виконано: 13/13 завдань (3 Ранги: Основи, Логіка, Архітектура)
+Освоєні архітектурні патерни (11/11):
+  1. [✓] Method Invocation & Direct Calling (tv.PowerOn())
+  2. [✓] Type Contracts & Signatures (int vs string)
+  3. [✓] Sequential Execution Flow (Power → Channel → Volume)
+  4. [✓] State & Mutation (tv.IsOn, tv.Channel)
+  5. [✓] Control Flow & Guard Clauses (if/else, boundary checks)
+  6. [✓] Asynchronous Execution & Loops (for scanning, async/await)
+  7. [✓] Encapsulation & Functions (void Mute() / func Mute())
+  8. [✓] Anti-pattern Diagnosis (God Switch / OCP Violation)
+  9. [✓] Polymorphism & Contracts (IRemoteCommand.Execute())
+  10. [✓] Inversion of Control & DI Container (services.AddTransient)
+  11. [✓] Command Registry & Extensibility (registry[button].Execute())
 
 Статус: CERTIFIED ARCHITECT GRADE I
 ═══════════════════════════════════════════════════════`;

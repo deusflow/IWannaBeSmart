@@ -40,6 +40,12 @@ const FINTECH_SKILLS: SkillItem[] = [
     category: "Security & Guarding",
   },
   {
+    id: "fee-calculation",
+    nameKey: "fintechVictoryModal.skills.feeCalculation",
+    codeExample: "totalAmount = amount + fee; balance -= totalAmount;",
+    category: "State Mutation & Fee Calculation",
+  },
+  {
     id: "pin-lockout",
     nameKey: "fintechVictoryModal.skills.pinLockout",
     codeExample: 'if (failedAttempts >= 3) { isLocked = true; status = "BLOCKED"; }',
@@ -108,12 +114,13 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
 ═══════════════════════════════════════════════════════
 
 Загальний досвід: ${xp} XP
-Освоєні комерційні архітектурні патерни:
+Освоєні комерційні архітектурні патерни (6/6):
   1. [✓] Guard Clauses & Balance Protection
-  2. [✓] State Locking & Anti-Bruteforce PIN Counter
-  3. [✓] Batch Settlement Loops (Length / len)
-  4. [✓] Gateway Interface Decoupling (IPaymentGateway.Charge)
-  5. [✓] Provider Injection & IoC Container (services.AddScoped)
+  2. [✓] Fee Calculation & Balance Mutation
+  3. [✓] State Locking & Anti-Bruteforce PIN Counter
+  4. [✓] Batch Settlement Loops (Length / len)
+  5. [✓] Gateway Interface Decoupling (IPaymentGateway.Charge)
+  6. [✓] Provider Injection & IoC Container (services.AddScoped)
 
 Кваліфікація: CERTIFIED FINTECH PROCESSOR ARCHITECT GRADE I
 ═══════════════════════════════════════════════════════`;

@@ -1,6 +1,6 @@
 /**
  * @file scratch/verify_theory_data.ts
- * @description Validates theory curriculum coverage across all 16 tasks for UA, EN, and DA locales
+ * @description Validates theory curriculum coverage across all 19 tasks (13 TV + 6 POS) for UA, EN, and DA locales
  */
 
 import { theoryUa, theoryEn, theoryDa } from "../packages/i18n/src";
@@ -75,4 +75,4 @@ for (const loc of LOCALES) {
   }
 }
 
-console.log("\n🎉 ALL 16 TASKS HAVE COMPLETE SYNTAX ANATOMY & THEORY IN UA, EN, DA (100% COVERAGE)!");
+console.log(`\n🎉 ALL ${REQUIRED_TASKS.length} TASKS HAVE COMPLETE SYNTAX ANATOMY & THEORY IN UA, EN, DA (100% COVERAGE)!`);
