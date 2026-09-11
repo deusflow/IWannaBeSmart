@@ -39,16 +39,18 @@ export const WorkshopHubScreen: React.FC = () => {
   const isTvEligibleForCert = CODING_TASKS.every(
     (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
   );
-  const isTvCompleted = isTvFullyMastered || Object.keys(completedCodingTasks).length >= CODING_TASKS.length;
+  const isTvCompleted = isTvFullyMastered || isTvEligibleForCert;
 
   // POS module stats (6 tasks * 3 stars = 18 max stars)
   const totalPosStars = useMemo(() => {
     return FINTECH_TASKS.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
   }, [taskMasteryStars]);
   const isPosFullyMastered = totalPosStars >= 18;
-  const isPosEligibleForCert = FINTECH_TASKS.every((task) => (taskMasteryStars[task.id] || 0) >= 1);
+  const isPosEligibleForCert = FINTECH_TASKS.every(
+    (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+  );
 
-  // Total stars across platform (TV 30 ★ + POS 18 ★ = 48 ★)
+  // Total stars across platform (TV 39 ★ + POS 18 ★ = 57 ★)
   const totalStars = totalTvStars + totalPosStars;
   const maxPlatformStars = CODING_TASKS.length * 3 + FINTECH_TASKS.length * 3;
 

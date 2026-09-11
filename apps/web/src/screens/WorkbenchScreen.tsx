@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { tvLevel01 } from "@iw/sim-engine";
+import { tvLevel01, CODING_TASKS, FINTECH_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
 import { TVBlueprintDevice } from "../components/workbench/TVBlueprintDevice";
@@ -61,6 +61,7 @@ export const WorkbenchScreen: React.FC = () => {
     xp,
     mentorPhase,
     completedCodingTasks,
+    taskMasteryStars,
     isStationVictoryModalOpen,
     setStationVictoryModalOpen,
     isPosVictoryModalOpen,
@@ -79,7 +80,23 @@ export const WorkbenchScreen: React.FC = () => {
     }
   };
 
-  const isCompletedAllTasks = Object.keys(completedCodingTasks).length >= 10;
+  const completedTvCount = CODING_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isTvCompleted = completedTvCount >= CODING_TASKS.length;
+
+  const completedPosCount = FINTECH_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isPosCompleted = completedPosCount >= FINTECH_TASKS.length;
+
+  const isCurrentStationCompleted =
+    currentStationId === "pos" ? isPosCompleted : isTvCompleted;
+  const currentStationProgressText =
+    currentStationId === "pos"
+      ? `${completedPosCount}/${FINTECH_TASKS.length} ✓`
+      : `${completedTvCount}/${CODING_TASKS.length} ✓`;
+
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
 
   return (
@@ -169,15 +186,26 @@ export const WorkbenchScreen: React.FC = () => {
             {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
           </button>
 
-          {/* Station Mastery Trophy (Re-opens Victory Modal if all 10 tasks passed) */}
-          {isCompletedAllTasks && (
+          {/* Station Mastery Trophy (Re-opens Victory Modal if all station tasks passed) */}
+          {isCurrentStationCompleted && (
             <button
-              onClick={() => setStationVictoryModalOpen(true)}
+              onClick={() => {
+                audioFx.playSuccessFanfare();
+                if (currentStationId === "pos") {
+                  setPosVictoryModalOpen(true);
+                } else {
+                  setStationVictoryModalOpen(true);
+                }
+              }}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-600/40 text-amber-800 hover:bg-amber-500/25 font-balsamiq font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95"
-              title={t("victoryModal.title")}
+              title={
+                currentStationId === "pos"
+                  ? t("fintechVictoryModal.title", "Фінтех POS-термінал: Завершено")
+                  : t("victoryModal.title", "Телевізійна станція: Завершено")
+              }
             >
               <Trophy size={14} className="text-amber-600" />
-              <span className="hidden sm:inline font-mono">10/10 ✓</span>
+              <span className="hidden sm:inline font-mono">{currentStationProgressText}</span>
             </button>
           )}
 

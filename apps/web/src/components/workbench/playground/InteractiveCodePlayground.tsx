@@ -275,6 +275,7 @@ export const InteractiveCodePlayground: React.FC = () => {
                 channel: snap.channel,
                 volume: snap.volume,
                 osdMessage: snap.osdMessage,
+                label: snap.label,
               });
             },
             150
@@ -285,6 +286,7 @@ export const InteractiveCodePlayground: React.FC = () => {
               channel: res.newState.channel,
               volume: res.newState.volume,
               osdMessage: res.newState.osdMessage,
+              label: res.newState.label,
             });
             if (res.newState.isArchitectureWired) {
               setArchitecturePowerWired(true);
@@ -334,6 +336,7 @@ export const InteractiveCodePlayground: React.FC = () => {
           channel: snapshot.channel,
           volume: snapshot.volume,
           osdMessage: snapshot.osdMessage,
+          label: snapshot.label,
         });
       },
       200
@@ -345,6 +348,7 @@ export const InteractiveCodePlayground: React.FC = () => {
         channel: result.newState.channel,
         volume: result.newState.volume,
         osdMessage: result.newState.osdMessage,
+        label: result.newState.label,
       });
       if (result.newState.isArchitectureWired) {
         setArchitecturePowerWired(true);
@@ -438,6 +442,7 @@ export const InteractiveCodePlayground: React.FC = () => {
           channel: snapshot.channel,
           volume: snapshot.volume,
           osdMessage: snapshot.osdMessage,
+          label: snapshot.label,
         });
       },
       150
@@ -449,6 +454,7 @@ export const InteractiveCodePlayground: React.FC = () => {
         channel: result.newState.channel,
         volume: result.newState.volume,
         osdMessage: result.newState.osdMessage,
+        label: result.newState.label,
       });
       if (result.newState.isArchitectureWired) {
         setArchitecturePowerWired(true);

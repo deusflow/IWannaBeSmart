@@ -340,7 +340,7 @@ export const defaultResources = {
         task10Engineering: "Command Registry / Dispatch Table (Open-Closed Principle).\\nDictionary<string, IRemoteCommand> = O(1) lookup через Hash Table.\\nregistry[button].Execute() — dynamic dispatch без switch/case. OCP compliant.",
       },
       victoryModal: {
-        stampBadge: "СТАНЦІЮ ЗАВЕРШЕНО • ВСІ 10 ЗАВДАНЬ ВИКОНАНО",
+        stampBadge: "СТАНЦІЮ ЗАВЕРШЕНО • ВСІ 13 ЗАВДАНЬ ВИКОНАНО",
         title: "МОДУЛЬ 1: ТЕЛЕВІЗІЙНА СТАНЦІЯ",
         subtitle: "Ви успішно пройшли шлях від процедурного коду до архітектури інтерфейсів, контейнера залежностей та реєстру команд!",
         totalXpLabel: "Загальний баланс досвіду",
@@ -805,7 +805,7 @@ export const defaultResources = {
         task10Engineering: "Command Registry / Dispatch Table (Open-Closed Principle).\\nDictionary<string, IRemoteCommand> = O(1) lookup via Hash Table.\\nregistry[button].Execute() — dynamic dispatch without switch/case. OCP compliant.",
       },
       victoryModal: {
-        stampBadge: "STATION COMPLETED • ALL 10 TASKS PASSED",
+        stampBadge: "STATION COMPLETED • ALL 13 TASKS PASSED",
         title: "MODULE 1: TELEVISION STATION",
         subtitle: "You've successfully advanced from procedural code to interface architecture, dependency injection, and command registries!",
         totalXpLabel: "Total Earned Experience",
@@ -1270,7 +1270,7 @@ export const defaultResources = {
         task10Engineering: "Command Registry / Dispatch Table (Open-Closed Principle).\\nDictionary<string, IRemoteCommand> = O(1) opslag via Hash Table.\\nregistry[button].Execute() — dynamisk afsendelse uden switch/case. OCP-kompatibelt.",
       },
       victoryModal: {
-        stampBadge: "STATION GENNEMFØRT • ALLE 10 OPGAVER BESTÅET",
+        stampBadge: "STATION GENNEMFØRT • ALLE 13 OPGAVER BESTÅET",
         title: "MODUL 1: TELEVISIONSSTATION",
         subtitle: "Du er avanceret fra procedurekode til grænsefladearkitektur, dependency injection og kommandoregistre!",
         totalXpLabel: "Samlet optjent erfaring",

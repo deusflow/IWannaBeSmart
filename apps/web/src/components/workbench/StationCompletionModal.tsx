@@ -115,6 +115,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
 ═══════════════════════════════════════════════════════
 
 Загальний досвід: ${xp} XP
+Виконано: 13/13 завдань (3 Ранги)
 Освоєні архітектурні патерни (8/8):
   1. [✓] State & Mutation (tv.IsOn, tv.Channel)
   2. [✓] Control Flow & Guard Clauses (if/else, boundary checks)
@@ -151,7 +152,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
         <div className="text-center space-y-3 pt-2">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600/15 border-2 border-emerald-700/40 text-emerald-800 font-mono font-extrabold text-xs uppercase tracking-widest shadow-xs">
             <Sparkles size={14} className="animate-spin" />
-            <span>{t("victoryModal.stampBadge", "СТАНЦІЮ ЗАВЕРШЕНО • ВСІ 10 ЗАВДАНЬ ВИКОНАНО")}</span>
+            <span>{t("victoryModal.stampBadge", "СТАНЦІЮ ЗАВЕРШЕНО • ВСІ 13 ЗАВДАНЬ ВИКОНАНО")}</span>
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#1A1D20] tracking-tight">

@@ -138,7 +138,7 @@ export const CodeGymRunner: React.FC = () => {
     } else if (activeRound === 3) {
       setTypedCode("");
     }
-  }, [activeRound, codeLang, clozeTemplate, currentTask.id]);
+  }, [activeRound, codeLang, clozeTemplate, currentTask.id, sprintTimeLimit]);
 
   // ── Round 1: Trace typing mechanics ──────────────────────────
   const handleTraceChange = useCallback(

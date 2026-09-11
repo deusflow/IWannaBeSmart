@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock } from "lucide-react";
 
 interface StationOption {
@@ -6,49 +7,10 @@ interface StationOption {
   code: string;
   title: string;
   subtitle: string;
-  status: "Доступно" | "Незабаром";
+  status: string;
   icon: React.ReactNode;
   isAvailable: boolean;
 }
-
-const STATION_OPTIONS: StationOption[] = [
-  {
-    id: "tv",
-    code: "Модуль 1",
-    title: "Телевізор",
-    subtitle: "Апаратний сигнал та архітектурні патерни C# / Go",
-    status: "Доступно",
-    icon: <Tv size={16} strokeWidth={2} />,
-    isAvailable: true,
-  },
-  {
-    id: "pos",
-    code: "Модуль 2",
-    title: "Фінтех POS-термінал",
-    subtitle: "Code Gym: Захист балансу, Guard Clauses та 3-Star Mastery",
-    status: "Доступно",
-    icon: <CreditCard size={16} strokeWidth={2} />,
-    isAvailable: true,
-  },
-  {
-    id: "garage",
-    code: "Модуль 3",
-    title: "Гаражні ворота",
-    subtitle: "Ультразвуковий датчик та кінцеві автомати",
-    status: "Незабаром",
-    icon: <Warehouse size={16} strokeWidth={2} />,
-    isAvailable: false,
-  },
-  {
-    id: "pc",
-    code: "Модуль 4",
-    title: "Робоча станція",
-    subtitle: "Регістри CPU, пам'ять та ОС",
-    status: "Незабаром",
-    icon: <Cpu size={16} strokeWidth={2} />,
-    isAvailable: false,
-  },
-];
 
 interface BlueprintStationSwitcherProps {
   currentStationId: string;
@@ -59,11 +21,66 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
   currentStationId,
   onSelectStation,
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const stationOptions: StationOption[] = useMemo(
+    () => [
+      {
+        id: "tv",
+        code: t("hub.stations.tv.code", "Модуль 1"),
+        title: t("hub.stations.tv.title", "Телевізор"),
+        subtitle: t(
+          "hub.stations.tv.subtitle",
+          "Апаратний сигнал та архітектурні патерни C# / Go"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <Tv size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "pos",
+        code: t("hub.stations.pos.code", "Модуль 2"),
+        title: t("hub.stations.pos.title", "Фінтех POS-термінал"),
+        subtitle: t(
+          "hub.stations.pos.subtitle",
+          "Code Gym: Захист балансу, Guard Clauses та 3-Star Mastery"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <CreditCard size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "garage",
+        code: t("hub.stations.iot.code", "Модуль 3"),
+        title: t("hub.stations.iot.title", "Гаражні ворота"),
+        subtitle: t(
+          "hub.stations.iot.subtitle",
+          "Ультразвуковий датчик та кінцеві автомати"
+        ),
+        status: t("hub.stationLocked", "Незабаром"),
+        icon: <Warehouse size={16} strokeWidth={2} />,
+        isAvailable: false,
+      },
+      {
+        id: "pc",
+        code: t("hub.stations.pc.code", "Модуль 4"),
+        title: t("hub.stations.pc.title", "Робоча станція"),
+        subtitle: t(
+          "hub.stations.pc.subtitle",
+          "Регістри CPU, пам'ять та ОС"
+        ),
+        status: t("hub.stationLocked", "Незабаром"),
+        icon: <Cpu size={16} strokeWidth={2} />,
+        isAvailable: false,
+      },
+    ],
+    [t]
+  );
+
   const activeOption =
-    STATION_OPTIONS.find((s) => s.id === currentStationId) || STATION_OPTIONS[0];
+    stationOptions.find((s) => s.id === currentStationId) || stationOptions[0];
 
   // Close on Escape or click outside
   useEffect(() => {
@@ -126,12 +143,12 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         }`}
       >
         <div className="px-3 py-1.5 border-b border-paper-border/70 flex items-center justify-between text-[11px] font-display text-ink-subtle">
-          <span>Вибір світу</span>
-          <span>Каталог станцій</span>
+          <span>{t("hub.worldSelect", "Вибір світу")}</span>
+          <span>{t("hub.stationCatalog", "Каталог станцій")}</span>
         </div>
 
         <div className="py-1 space-y-1">
-          {STATION_OPTIONS.map((station) => {
+          {stationOptions.map((station) => {
             const isSelected = station.id === currentStationId;
             return (
               <button
