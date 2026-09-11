@@ -79,7 +79,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
         d={edgePath}
         fill="none"
         strokeOpacity={0}
-        strokeWidth={24}
+        strokeWidth={28}
         className="cursor-pointer"
       />
 
@@ -90,7 +90,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
         markerEnd={markerEnd}
         style={{
           stroke: wireColor,
-          strokeWidth: isPulsing ? 3 : isWithoutDi ? 2.5 : 2,
+          strokeWidth: isPulsing ? 3.5 : isWithoutDi ? 2.5 : 2.2,
           strokeDasharray: isWithoutDi ? "5 4" : undefined,
           filter: isPulsing
             ? "drop-shadow(0 0 10px rgba(245, 158, 11, 0.9))"
@@ -120,7 +120,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
             }}
           />
           <circle
-            r={isPulsing ? 4 : 3}
+            r={isPulsing ? 4.5 : 3.5}
             fill={isPulsing ? "#FDE68A" : isPowerWire ? "#86EFAC" : "#93C5FD"}
             filter="drop-shadow(0 0 4px #fff)"
           >
@@ -144,37 +144,37 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
           className="nodrag nopan"
         >
           {isPulsing ? (
-            <div className="px-2 py-0.5 rounded-full bg-amber-500 text-stone-950 font-mono font-bold text-[9px] flex items-center gap-1 shadow-[0_0_12px_rgba(245,158,11,0.8)] animate-pulse">
+            <div className="px-2.5 py-1 rounded-full bg-amber-500 text-stone-950 font-mono font-bold text-[10px] flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.8)] animate-pulse">
               <span>⚡</span>
               <span>{edgeData.pulseLabel || "Execute()"}</span>
             </div>
           ) : isWithoutDi ? (
-            <div className="px-2 py-0.5 rounded-full bg-red-950/90 text-red-200 border border-red-500/60 font-mono text-[9px] font-bold flex items-center gap-1 shadow-sm">
-              <span className="text-red-400">✕</span>
+            <div className="px-2.5 py-1 rounded-full bg-red-950/90 text-red-200 border border-red-500/60 font-mono text-[10px] font-semibold flex items-center gap-1.5 shadow-sm">
+              <span className="text-red-400 font-bold">✕</span>
               <span>new PowerCommand()</span>
               <button
                 onClick={handleDelete}
                 title={t("architecture.disconnect", "Від'єднати")}
-                className="ml-1 p-0.5 rounded-full hover:bg-white/20 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-500/30 text-gray-400 hover:text-white transition-colors cursor-pointer ml-1"
               >
-                <X size={8} strokeWidth={2.5} />
+                <X size={10} strokeWidth={2.5} />
               </button>
             </div>
           ) : isError ? (
-            <div className="px-2 py-0.5 rounded-full bg-red-950/90 text-red-200 border border-red-500/60 font-mono text-[9px] font-bold flex items-center gap-1">
-              <AlertCircle size={9} className="text-red-400" />
+            <div className="px-2.5 py-1 rounded-full bg-red-950/90 text-red-200 border border-red-500/60 font-mono text-[10px] font-semibold flex items-center gap-1.5">
+              <AlertCircle size={11} className="text-red-400" />
               <span>{t("architecture.typeError", "Помилка типів")}</span>
             </div>
           ) : (
-            <div className="px-2 py-0.5 rounded-full bg-[#18191D]/90 border border-emerald-500/40 text-emerald-300 font-mono text-[9px] flex items-center gap-1.5 transition-all duration-150 hover:border-emerald-400 shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+            <div className="px-2.5 py-1 rounded-full bg-[#16171B]/95 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] flex items-center gap-2 transition-all duration-150 hover:border-emerald-400 shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
               <span className="font-semibold">{edgeData.commandName || "DI"}</span>
               <button
                 onClick={handleDelete}
                 title={t("architecture.disconnect", "Від'єднати")}
-                className="ml-0.5 p-0.5 rounded-full hover:bg-white/20 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-white/20 text-stone-400 hover:text-white transition-colors cursor-pointer"
               >
-                <X size={8} strokeWidth={2.5} />
+                <X size={9} strokeWidth={2.5} />
               </button>
             </div>
           )}

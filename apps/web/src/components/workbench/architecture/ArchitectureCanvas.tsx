@@ -149,7 +149,7 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
       id: "node-class-power-command",
       type: "architectureNode",
       position: { x: 60, y: 60 },
-      width: 280,
+      width: 290,
       data: {
         fileId: pc.id, name: pc.name, path: pc.path,
         entityType: pc.entityType, role: pc.role,
@@ -160,8 +160,8 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-class-volume-up-command",
       type: "architectureNode",
-      position: { x: 60, y: 290 },
-      width: 280,
+      position: { x: 60, y: 300 },
+      width: 290,
       data: {
         fileId: vol.id, name: vol.name, path: vol.path,
         entityType: vol.entityType, role: vol.role,
@@ -172,8 +172,8 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-class-tv-controller",
       type: "architectureNode",
-      position: { x: 440, y: 110 },
-      width: 280,
+      position: { x: 450, y: 110 },
+      width: 290,
       data: {
         fileId: tv.id, name: tv.name, path: tv.path,
         entityType: tv.entityType, role: tv.role,
@@ -482,7 +482,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         id: nodeId,
         type: "architectureNode",
         position: targetPos,
-        width: 280,
+        width: 290,
         data: {
           fileId: file.id, name: file.name, path: file.path,
           entityType: file.entityType, role: file.role,
@@ -677,9 +677,9 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     if (isVolumeWired) {
       addNodeByFileId("class-power-command", { x: 60, y: 60 });
     } else {
-      addNodeByFileId("class-volume-up-command", { x: 60, y: 290 });
+      addNodeByFileId("class-volume-up-command", { x: 60, y: 300 });
     }
-    addNodeByFileId("class-tv-controller", { x: 440, y: 110 });
+    addNodeByFileId("class-tv-controller", { x: 450, y: 110 });
 
     const newEdge: Edge<ArchitectureEdgeData> = {
       id: `ae-hotswap-${targetSource}`,
@@ -860,7 +860,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     const tvNode = getNode("node-class-tv-controller");
     if (tvNode) {
       setCenter(
-        tvNode.position.x + (tvNode.width ?? 280) / 2,
+        tvNode.position.x + (tvNode.width ?? 290) / 2,
         tvNode.position.y + (tvNode.measured?.height ?? 200) / 2,
         { zoom: 1.1, duration: 350 }
       );
@@ -902,7 +902,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       const cmdNode = getNode(targetCmdNodeId);
       if (cmdNode) {
         setCenter(
-          cmdNode.position.x + (cmdNode.width ?? 280) / 2,
+          cmdNode.position.x + (cmdNode.width ?? 290) / 2,
           cmdNode.position.y + (cmdNode.measured?.height ?? 200) / 2,
           { zoom: 1.1, duration: 350 }
         );
