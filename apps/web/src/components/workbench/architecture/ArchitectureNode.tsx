@@ -92,7 +92,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
   return (
     <div
       className={`
-        w-[276px] rounded-xl select-none
+        w-[310px] rounded-xl select-none
         bg-[#2B2D33] border transition-all duration-200
         shadow-[0_8px_24px_rgba(0,0,0,0.6)]
         ${
@@ -140,6 +140,26 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
           <span className="font-mono text-[8.5px] text-gray-500 block truncate">
             {nodeData.path}
           </span>
+          {nodeData.implementsInterface ? (
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-[7.5px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/35 flex items-center gap-1">
+                <span>⬡</span>
+                <span>implements {nodeData.implementsInterface}</span>
+              </span>
+            </div>
+          ) : nodeData.entityType === "interface" ? (
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-[7.5px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-purple-600/30 text-purple-200 border border-purple-400/40">
+                Контракт-Розетка (Contract)
+              </span>
+            </div>
+          ) : nodeData.entityType === "controller" ? (
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-[7.5px] font-mono font-bold uppercase px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/35">
+                Споживач (Consumer з DI-слотами)
+              </span>
+            </div>
+          ) : null}
         </div>
 
         {/* Entity type badge */}
@@ -167,11 +187,8 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
       <div className="p-3 grid grid-cols-2 gap-3">
         {/* Left: Inputs (DI Sockets) */}
         <div className="space-y-1.5">
-          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-purple-400/80 flex items-center gap-1">
-            <span>⏚ {t("architecture.inputsDI")}</span>
-            <span className="text-[7px] px-1 py-px rounded bg-purple-950/70 border border-purple-500/30 text-purple-300">
-              SOCKET
-            </span>
+          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-purple-400/90 flex items-center gap-1">
+            <span>📥 {t("architecture.inputsDI", "КОНСТРУКТОР (DI SLOTS)")}</span>
           </div>
           {hasInputs ? (
             nodeData.inputs.map((inp) => {
@@ -225,11 +242,8 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
         {/* Right: Outputs (Command Plugs) */}
         <div className="space-y-1.5 text-right">
-          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-emerald-400/80 flex items-center justify-end gap-1">
-            <span className="text-[7px] px-1 py-px rounded bg-emerald-950/70 border border-emerald-500/30 text-emerald-300">
-              PLUG
-            </span>
-            <span>{t("architecture.methodsOutputs")} ⎋</span>
+          <div className="text-[8px] font-mono font-bold uppercase tracking-wider text-emerald-400/90 flex items-center justify-end gap-1">
+            <span>{t("architecture.methodsOutputs", "РЕАЛІЗАЦІЯ МЕТОДІВ")} 📤</span>
           </div>
           {hasOutputs ? (
             nodeData.outputs.map((out) => {

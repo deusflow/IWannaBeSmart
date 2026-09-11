@@ -13,6 +13,7 @@ export interface ArchitectureEdgeData extends Record<string, unknown> {
   isError?: boolean;
   isPulsing?: boolean;
   pulseLabel?: string;
+  diMode?: "WITH_DI" | "WITHOUT_DI";
   onDelete?: (edgeId: string) => void;
 }
 
@@ -32,6 +33,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
   const isPowerWire = !!edgeData.isValidPowerWire;
   const isError = !!edgeData.isError;
   const isPulsing = !!edgeData.isPulsing;
+  const isWithoutDi = edgeData.diMode === "WITHOUT_DI";
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -51,6 +53,8 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
   };
 
   const wireColor = isError
+    ? "#EF4444"
+    : isWithoutDi
     ? "#EF4444"
     : isPulsing
     ? "#F59E0B"
@@ -85,9 +89,12 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
         markerEnd={markerEnd}
         style={{
           stroke: wireColor,
-          strokeWidth: isPulsing ? 3.5 : 2.5,
+          strokeWidth: isPulsing ? 3.5 : isWithoutDi ? 3 : 2.5,
+          strokeDasharray: isWithoutDi ? "6 4" : undefined,
           filter: isPulsing
             ? "drop-shadow(0 0 12px rgba(245, 158, 11, 0.95))"
+            : isWithoutDi
+            ? "drop-shadow(0 0 10px rgba(239, 68, 68, 0.85))"
             : isPowerWire
             ? "drop-shadow(0 0 8px rgba(34, 197, 94, 0.75))"
             : isError
@@ -98,7 +105,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
       />
 
       {/* Animated Photon / Electric Charge Pulse along the wire */}
-      {(isPowerWire || isPulsing) && !isError && (
+      {(isPowerWire || isPulsing) && !isError && !isWithoutDi && (
         <>
           <path
             d={edgePath}
@@ -146,6 +153,8 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
             className={`group px-2.5 py-1 rounded-full border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.6)] backdrop-blur-xs transition-all duration-150 ${
               isError
                 ? "bg-red-950/90 text-red-200 border-red-500/60 hover:border-red-400"
+                : isWithoutDi
+                ? "bg-red-950/95 text-red-200 border-red-500/80 shadow-[0_0_12px_rgba(239,68,68,0.6)]"
                 : isPulsing
                 ? "bg-amber-950/90 text-amber-200 border-amber-500/80 shadow-[0_0_12px_rgba(245,158,11,0.8)] animate-pulse"
                 : isPowerWire
@@ -160,6 +169,13 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
                 </div>
                 <span>Помилка типів</span>
               </>
+            ) : isWithoutDi ? (
+              <>
+                <div className="h-3.5 w-3.5 rounded-full bg-red-500 text-white flex items-center justify-center text-[9px] font-black">
+                  ✕
+                </div>
+                <span className="text-red-300 font-mono tracking-tight">[ ❌ Жорстко: new PowerCommand() ]</span>
+              </>
             ) : isPulsing ? (
               <>
                 <div className="h-3.5 w-3.5 rounded-full bg-amber-500 text-stone-900 flex items-center justify-center text-[9px] font-black">
@@ -172,7 +188,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
                 <div className="h-3.5 w-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
                   <Check size={10} strokeWidth={3} />
                 </div>
-                <span>{t("architecture.activeWire")}</span>
+                <span className="text-emerald-200 font-mono tracking-tight">[ ✅ DI: IRemoteCommand ➔ ctor ]</span>
               </>
             ) : (
               <span>{t("architecture.connection")}</span>

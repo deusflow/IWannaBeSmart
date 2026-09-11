@@ -29,6 +29,8 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
     isHintActive,
     triggerHint,
     resetLevelForPractice,
+    completeLevel,
+    isArchitecturePowerWired: isPowerWired,
     power,
   } = useWorkbenchStore();
 
@@ -198,7 +200,20 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
 
             {mentorPhase === "PRACTICE" && (
               <>
-                {isHintActive ? (
+                {isPowerWired ? (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span className="text-emerald-300 font-bold flex items-center gap-1.5 shrink-0">
+                      <Sparkles size={14} className="text-amber-400" />
+                      {t("mentor.activeRecallTitle")}:
+                    </span>
+                    <span className="text-gray-300 shrink-0">
+                      {t("mentor.activeRecallPrompt")}
+                    </span>
+                    <code className="px-2 py-0.5 rounded bg-black/60 border border-emerald-500/40 text-emerald-400 font-mono text-[11px]">
+                      services.AddTransient&lt;IRemoteCommand, PowerCommand&gt;();
+                    </code>
+                  </div>
+                ) : isHintActive ? (
                   <span className="text-amber-300 font-medium flex items-center gap-1.5">
                     <Sparkles size={14} className="shrink-0 animate-spin" />
                     {t("mentor.hintActiveMsg")}
@@ -240,7 +255,17 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
             </button>
           )}
 
-          {mentorPhase === "PRACTICE" && (
+          {mentorPhase === "PRACTICE" && isPowerWired && (
+            <button
+              onClick={completeLevel}
+              className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-sans font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-950/50 transition-all cursor-pointer animate-pulse"
+            >
+              <span>{t("mentor.confirmDiRegistrationBtn")}</span>
+              <ArrowRight size={13} />
+            </button>
+          )}
+
+          {mentorPhase === "PRACTICE" && !isPowerWired && (
             <button
               onClick={triggerHint}
               disabled={isHintActive}

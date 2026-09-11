@@ -149,22 +149,24 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
       id: "node-class-power-command",
       type: "architectureNode",
       position: { x: 60, y: 100 },
-      width: 276,
+      width: 310,
       data: {
         fileId: pc.id, name: pc.name, path: pc.path,
         entityType: pc.entityType, role: pc.role,
         inputs: pc.inputs, outputs: pc.outputs,
+        implementsInterface: pc.implementsInterface,
       },
     },
     {
       id: "node-class-tv-controller",
       type: "architectureNode",
-      position: { x: 440, y: 80 },
-      width: 276,
+      position: { x: 460, y: 80 },
+      width: 310,
       data: {
         fileId: tv.id, name: tv.name, path: tv.path,
         entityType: tv.entityType, role: tv.role,
         inputs: tv.inputs, outputs: tv.outputs,
+        implementsInterface: tv.implementsInterface,
       },
     },
   ];
@@ -186,7 +188,6 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     setArchEdges,
     mentorPhase,
     setMentorPhase,
-    completeLevel,
   } = useWorkbenchStore();
   const { screenToFlowPosition, fitView, setCenter, getNode } = useReactFlow();
 
@@ -200,9 +201,24 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<ArchitectureEdgeData>>(initialEdges);
   const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>([]);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [diMode, setDiMode] = useState<"WITH_DI" | "WITHOUT_DI">("WITH_DI");
+  const [currentTraceStep, setCurrentTraceStep] = useState<number>(0);
   const flashTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   // Debounce ref for store sync
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleToggleDiMode = useCallback((mode: "WITH_DI" | "WITHOUT_DI") => {
+    setDiMode(mode);
+    setEdges((eds) =>
+      eds.map((e) => ({
+        ...e,
+        data: {
+          ...e.data,
+          diMode: mode,
+        },
+      }))
+    );
+  }, [setEdges]);
 
   // Sync completion modal with store
   useEffect(() => {
@@ -399,11 +415,12 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         id: nodeId,
         type: "architectureNode",
         position: targetPos,
-        width: 276,
+        width: 310,
         data: {
           fileId: file.id, name: file.name, path: file.path,
           entityType: file.entityType, role: file.role,
           inputs: file.inputs, outputs: file.outputs,
+          implementsInterface: file.implementsInterface,
         },
       };
 
@@ -485,7 +502,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         ...params,
         id: `ae-${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`,
         type: "architectureEdge",
-        data: { isValidPowerWire: isPowerWire, onDelete: handleDeleteEdge },
+        data: { isValidPowerWire: isPowerWire, diMode, onDelete: handleDeleteEdge },
       };
 
       setEdges((eds) => addEdge(newEdge, eds));
@@ -503,15 +520,13 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
             codeContext: `// Constructor Injection:\npublic class TVController {\n    private readonly IRemoteCommand _cmd;\n    public TVController(IRemoteCommand cmd) {\n        _cmd = cmd; // ← Handled by mentor!\n    }\n    public void Dispatch() => _cmd.Execute();\n}`,
           });
         } else if (mentorPhase === "PRACTICE") {
-          completeLevel();
-          setIsCompletionModalOpen(true);
           addLog({
             type: "success",
             subsystem: "IoC",
             operation: "REGISTER",
-            message: "Transient<IRemoteCommand, PowerCommand> wired to TVController",
+            message: "Контракт IRemoteCommand підключено до TVController!",
             targetNodeId: params.target ?? undefined,
-            details: "Container resolution verified. Contract satisfied.",
+            details: "Підтвердіть реєстрацію services.AddTransient<IRemoteCommand, PowerCommand>() на панелі ментора нижче.",
             codeContext: "services.AddTransient<IRemoteCommand, PowerCommand>();\nservices.AddSingleton<TVController>();",
           });
         } else {
@@ -536,13 +551,13 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         });
       }
     },
-    [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, completeLevel]
+    [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, diMode]
   );
 
   // ── Auto-Wire ────────────────────────────────
   const handleAutoWire = useCallback(() => {
     addNodeByFileId("class-power-command", { x: 60, y: 100 });
-    addNodeByFileId("class-tv-controller", { x: 440, y: 80 });
+    addNodeByFileId("class-tv-controller", { x: 460, y: 80 });
 
     const autoEdge: Edge<ArchitectureEdgeData> = {
       id: "ae-auto-power",
@@ -551,7 +566,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       target: "node-class-tv-controller",
       targetHandle: "in-command-handler",
       type: "architectureEdge",
-      data: { isValidPowerWire: true, onDelete: handleDeleteEdge },
+      data: { isValidPowerWire: true, diMode, onDelete: handleDeleteEdge },
     };
 
     setEdges((eds) => {
@@ -572,7 +587,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       details: "Auto-Wire executed: Constructor injection binding verified",
       codeContext: "services.AddTransient<IRemoteCommand, PowerCommand>();",
     });
-  }, [addNodeByFileId, handleDeleteEdge, setEdges, addLog]);
+  }, [addNodeByFileId, handleDeleteEdge, setEdges, addLog, diMode]);
 
   // ── Reset ────────────────────────────────────
   const handleReset = useCallback(() => {
@@ -640,6 +655,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     }
 
     setIsTracing(true);
+    setCurrentTraceStep(1);
     traceTimers.current.forEach((t) => clearTimeout(t));
     traceTimers.current = [];
 
@@ -657,7 +673,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     const tvNode = getNode("node-class-tv-controller");
     if (tvNode) {
       setCenter(
-        tvNode.position.x + (tvNode.width ?? 276) / 2,
+        tvNode.position.x + (tvNode.width ?? 310) / 2,
         tvNode.position.y + (tvNode.measured?.height ?? 200) / 2,
         { zoom: 1.1, duration: 350 }
       );
@@ -673,6 +689,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
     // Stage 2 (t = 450ms): Signal travels along DI edge
     const t1 = setTimeout(() => {
+      setCurrentTraceStep(2);
       setEdges((eds) =>
         eds.map((e) =>
           e.source.includes("power-command") && e.target.includes("tv-controller")
@@ -693,10 +710,11 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
     // Stage 3 (t = 950ms): VTable resolution on PowerCommand
     const t2 = setTimeout(() => {
+      setCurrentTraceStep(3);
       const pcNode = getNode("node-class-power-command");
       if (pcNode) {
         setCenter(
-          pcNode.position.x + (pcNode.width ?? 276) / 2,
+          pcNode.position.x + (pcNode.width ?? 310) / 2,
           pcNode.position.y + (pcNode.measured?.height ?? 200) / 2,
           { zoom: 1.1, duration: 350 }
         );
@@ -722,6 +740,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
     // Stage 4 (t = 1500ms): Hardware relay fires & state toggled
     const t3 = setTimeout(() => {
+      setCurrentTraceStep(4);
       const currentPower = useWorkbenchStore.getState().power;
       useWorkbenchStore.getState().togglePower();
       const nextPower = !currentPower;
@@ -741,6 +760,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
     // Stage 5 (t = 2400ms): Clear pulse highlights & reset tracing state
     const t4 = setTimeout(() => {
+      setCurrentTraceStep(0);
       setNodes((nds) =>
         nds.map((n) => ({
           ...n,
@@ -827,6 +847,32 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
         {/* Toolbar */}
         <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+          {/* DI Mode Switcher */}
+          <div className="flex items-center bg-[#18191D] p-0.5 rounded-lg border border-white/10 shrink-0">
+            <button
+              onClick={() => handleToggleDiMode("WITHOUT_DI")}
+              className={`px-2 py-1 rounded-md text-[10.5px] font-mono font-bold transition-all cursor-pointer ${
+                diMode === "WITHOUT_DI"
+                  ? "bg-red-600/30 border border-red-500/70 text-red-300 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
+              title="Показати жорстку зв'язаність (new PowerCommand)"
+            >
+              ❌ БЕЗ DI
+            </button>
+            <button
+              onClick={() => handleToggleDiMode("WITH_DI")}
+              className={`px-2 py-1 rounded-md text-[10.5px] font-mono font-bold transition-all cursor-pointer ${
+                diMode === "WITH_DI"
+                  ? "bg-emerald-600/30 border border-emerald-500/70 text-emerald-300 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
+              title="Показати Dependency Injection (контракт IRemoteCommand у ctor)"
+            >
+              ✅ З DI
+            </button>
+          </div>
+
           <button
             onClick={triggerCallFlowTrace}
             disabled={isTracing}
@@ -866,6 +912,26 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         </div>
       </div>
 
+      {/* Educational Banner for Tight Coupling vs Dependency Injection */}
+      {diMode === "WITHOUT_DI" && (
+        <div className="px-4 py-2 bg-red-950/40 border-b border-red-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 select-none shrink-0 text-[11px] font-sans text-red-200 animate-fadeIn">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="px-1.5 py-0.5 rounded bg-red-500/30 border border-red-500/50 font-mono text-[9px] font-black text-red-200 shrink-0">
+              АНТИПАТЕРН
+            </span>
+            <span className="truncate sm:whitespace-normal">
+              <strong>Жорстка зв'язаність:</strong> TVController сам створює <code className="bg-black/50 px-1 py-0.5 rounded text-amber-300 font-mono text-[10px]">new PowerCommand()</code>. Неможливо замінити команду без переписування коду телевізора.
+            </span>
+          </div>
+          <button
+            onClick={() => handleToggleDiMode("WITH_DI")}
+            className="px-2.5 py-1 rounded bg-red-600 hover:bg-red-500 text-white font-mono text-[10px] font-bold shrink-0 cursor-pointer shadow-xs transition-colors self-end sm:self-auto"
+          >
+            Перейти на Dependency Injection →
+          </button>
+        </div>
+      )}
+
       {/* ── Body: sidebar + canvas ── */}
       <div className="flex-1 flex flex-row w-full min-h-0 relative overflow-hidden">
         <ProjectExplorer onAddNode={addNodeByFileId} activeFileIds={activeFileIds} />
@@ -878,6 +944,65 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
           onDrop={onDrop}
         >
           <div className="flex-1 relative min-h-0 w-full h-full">
+            {/* Live Call-Flow Step Trace HUD */}
+            {(isTracing || currentTraceStep > 0) && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-[#16171B]/95 border border-amber-500/60 rounded-xl px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center gap-2 select-none pointer-events-none animate-fadeIn max-w-[95%] overflow-x-auto">
+                <div className="flex items-center gap-1.5 pr-2 border-r border-amber-500/30 shrink-0">
+                  <Zap size={13} className="text-amber-400 animate-spin" />
+                  <span className="font-mono text-[10px] font-bold text-amber-300 uppercase tracking-wider">
+                    Ланцюг виклику
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[9.5px] font-mono shrink-0">
+                  <div
+                    className={`px-2 py-0.5 rounded border transition-all duration-200 ${
+                      currentTraceStep === 1
+                        ? "bg-amber-500/30 border-amber-400 text-white font-bold scale-105 shadow-[0_0_10px_rgba(245,158,11,0.6)]"
+                        : currentTraceStep > 1
+                        ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
+                        : "bg-white/5 border-white/10 text-gray-500"
+                    }`}
+                  >
+                    1. Пульт ДК (IR)
+                  </div>
+                  <span className="text-gray-500">➔</span>
+                  <div
+                    className={`px-2 py-0.5 rounded border transition-all duration-200 ${
+                      currentTraceStep === 2
+                        ? "bg-amber-500/30 border-amber-400 text-white font-bold scale-105 shadow-[0_0_10px_rgba(245,158,11,0.6)]"
+                        : currentTraceStep > 2
+                        ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
+                        : "bg-white/5 border-white/10 text-gray-500"
+                    }`}
+                  >
+                    2. TVController.Dispatch()
+                  </div>
+                  <span className="text-gray-500">➔</span>
+                  <div
+                    className={`px-2 py-0.5 rounded border transition-all duration-200 ${
+                      currentTraceStep === 3
+                        ? "bg-amber-500/30 border-amber-400 text-white font-bold scale-105 shadow-[0_0_10px_rgba(245,158,11,0.6)]"
+                        : currentTraceStep > 3
+                        ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
+                        : "bg-white/5 border-white/10 text-gray-500"
+                    }`}
+                  >
+                    3. Контракт IRemoteCommand
+                  </div>
+                  <span className="text-gray-500">➔</span>
+                  <div
+                    className={`px-2 py-0.5 rounded border transition-all duration-200 ${
+                      currentTraceStep === 4
+                        ? "bg-amber-500/30 border-amber-400 text-white font-bold scale-105 shadow-[0_0_10px_rgba(245,158,11,0.6)]"
+                        : "bg-white/5 border-white/10 text-gray-500"
+                    }`}
+                  >
+                    4. PowerCommand.Execute() ➔ Реле ТВ
+                  </div>
+                </div>
+              </div>
+            )}
+
             <ReactFlow
               nodes={nodes}
               edges={edges}

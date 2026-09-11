@@ -36,6 +36,7 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   path: string;
   entityType: EntityType;
   role: string;
+  implementsInterface?: string;
   inputs: PortDefinition[];
   outputs: PortDefinition[];
   /** Temporary 1s flash when camera focuses an already-placed node */

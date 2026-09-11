@@ -79,10 +79,10 @@ export const PROJECT_FILES: ProjectFile[] = [
     outputs: [
       {
         id: "out-execute",
-        name: "Execute",
+        name: "IRemoteCommand.Execute()",
         portType: "IRemoteCommand",
-        typeAnnotation: "IRemoteCommand",
-        description: "Тригер виконання команди живлення",
+        typeAnnotation: "implements IRemoteCommand",
+        description: "Реалізація контракту IRemoteCommand, готова до підключення в конструктор",
         color: "#10B981",
       },
     ],
@@ -108,10 +108,10 @@ export const PROJECT_FILES: ProjectFile[] = [
     outputs: [
       {
         id: "out-execute",
-        name: "Execute",
+        name: "IRemoteCommand.Execute()",
         portType: "IRemoteCommand",
-        typeAnnotation: "IRemoteCommand",
-        description: "Тригер виконання команди гучності",
+        typeAnnotation: "implements IRemoteCommand",
+        description: "Реалізація контракту IRemoteCommand, готова до підключення в конструктор",
         color: "#10B981",
       },
     ],
@@ -137,10 +137,10 @@ export const PROJECT_FILES: ProjectFile[] = [
     outputs: [
       {
         id: "out-execute",
-        name: "Execute",
+        name: "IRemoteCommand.Execute()",
         portType: "IRemoteCommand",
-        typeAnnotation: "IRemoteCommand",
-        description: "Тригер виконання зміни каналу",
+        typeAnnotation: "implements IRemoteCommand",
+        description: "Реалізація контракту IRemoteCommand, готова до підключення в конструктор",
         color: "#10B981",
       },
     ],
@@ -157,10 +157,10 @@ export const PROJECT_FILES: ProjectFile[] = [
     inputs: [
       {
         id: "in-command-handler",
-        name: "CommandHandler",
+        name: "ctor(IRemoteCommand command)",
         portType: "IRemoteCommand",
-        typeAnnotation: "IRemoteCommand (DI)",
-        description: "Вхідний порт для підключення обробника команди",
+        typeAnnotation: "DI Constructor Slot",
+        description: "Слот конструктора: TVController очікує, що DI передасть будь-який об'єкт контракту IRemoteCommand",
         color: "#F59E0B",
       },
       {
