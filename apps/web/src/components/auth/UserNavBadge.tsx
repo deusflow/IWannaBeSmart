@@ -1,11 +1,11 @@
 /**
  * @file apps/web/src/components/auth/UserNavBadge.tsx
- * @description Blueprint paper-styled navigation badge showing guest login status or active engineer profile with stars and cloud sync.
+ * @description High-tech navigation badge showing guest login status or active engineer profile with stars and cloud sync.
  */
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { User, LogOut, ChevronDown, ShieldCheck } from "lucide-react";
+import { User, LogOut, ChevronDown, ShieldCheck, Sparkles } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { AuthModal } from "./AuthModal";
@@ -57,15 +57,15 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           id="btn-auth-guest-login"
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/50 text-ink font-balsamiq font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 group"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-blue-500/40 text-ink text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 group select-none"
           title={t("auth.guestTooltip", "Увійти в акаунт інженера або зберегти прогрес у хмарі")}
         >
-          <div className="w-5 h-5 rounded-lg bg-[#1A1D20]/10 group-hover:bg-accent-blue/15 text-[#1A1D20] group-hover:text-accent-blue flex items-center justify-center transition-colors">
+          <div className="w-5 h-5 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center transition-colors group-hover:bg-blue-500/20">
             <User size={13} />
           </div>
-          <span className="font-mono text-[11px] text-ink-muted group-hover:text-ink font-semibold">
+          <span className="font-mono text-[11px] text-ink-muted group-hover:text-ink">
             {t("auth.guestPrefix", "👤 Гість:")}{" "}
-            <span className="text-accent-blue font-bold underline decoration-dotted">
+            <span className="text-blue-600 dark:text-blue-400 font-bold underline decoration-dotted">
               {t("auth.guestLoginAction", "Увійти")}
             </span>
           </span>
@@ -76,7 +76,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           id="btn-user-profile-menu"
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/40 shadow-paper-sm transition-all cursor-pointer active:scale-[0.98]"
+          className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-blue-500/40 shadow-paper-sm transition-all cursor-pointer active:scale-[0.98] select-none"
           title={`${callsign} (${user.email})`}
         >
           {/* Avatar or Initials circle */}
@@ -84,10 +84,10 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
             <img
               src={profile.avatar_url}
               alt={callsign}
-              className="w-5 h-5 rounded-full object-cover border border-accent-blue/40"
+              className="w-5 h-5 rounded-full object-cover border border-blue-500/40"
             />
           ) : (
-            <div className="w-5 h-5 rounded-full bg-accent-blue/15 border border-accent-blue/40 text-accent-blue flex items-center justify-center text-[9px] font-mono font-extrabold">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-[9px] font-mono font-extrabold shadow-xs">
               {initials}
             </div>
           )}
@@ -97,15 +97,15 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
             <span className="font-bold text-ink truncate max-w-[90px] sm:max-w-[120px]">
               {callsign}
             </span>
-            <div className="flex items-center gap-0.5 text-amber-800 font-bold text-[11px] bg-amber-500/15 px-1.5 py-0.5 rounded-md border border-amber-500/30">
+            <div className="flex items-center gap-0.5 text-amber-600 dark:text-amber-400 font-bold text-[11px] bg-amber-500/10 px-1.5 py-0.5 rounded-md border border-amber-500/25">
               <span className="text-[10px]">★</span>
               <span>{totalStars}/57</span>
             </div>
           </div>
 
           {/* Online Sync Pill (Green dot) */}
-          <div className="hidden md:flex items-center gap-1 text-[9px] font-mono font-bold text-emerald-800 bg-emerald-500/15 px-1.5 py-0.5 rounded-full border border-emerald-500/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+          <div className="hidden md:flex items-center gap-1 text-[9px] font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/25">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>{t("auth.syncBadge", "SYNC")}</span>
           </div>
 
@@ -118,37 +118,40 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
         </button>
       )}
 
-      {/* ── Dropdown Menu for Authenticated User (Blueprint paper style) ── */}
+      {/* ── Dropdown Menu for Authenticated User (High-tech Dark Slate Card) ── */}
       {isMenuOpen && user && (
-        <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-[#FAF7F2] text-[#1A1D20] border-2 border-[#1A1D20]/20 shadow-paper-lg py-2 z-50 animate-in fade-in zoom-in-95 duration-150 font-balsamiq">
+        <div className="absolute right-0 top-full mt-2 w-68 rounded-2xl bg-[#14161B]/95 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.65)] py-2 z-50 animate-in fade-in zoom-in-95 duration-150 font-sans text-gray-200 select-none">
           {/* User Details Header */}
-          <div className="px-4 py-2.5 border-b border-[#1A1D20]/10 bg-[#FAF7F2]">
+          <div className="px-4 py-2.5 border-b border-white/[0.08]">
             <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-accent-blue shrink-0" />
-              <div className="text-[10px] font-mono uppercase tracking-wider text-accent-blue font-extrabold">
+              <ShieldCheck size={16} className="text-blue-400 shrink-0" />
+              <div className="text-[10px] font-mono uppercase tracking-wider text-blue-400 font-bold">
                 {t("auth.accreditation", "Акредитація інженера")}
               </div>
             </div>
-            <div className="font-display font-extrabold text-sm text-[#1A1D20] mt-1">
+            <div className="font-extrabold text-sm text-white mt-1">
               {callsign}
             </div>
-            <div className="font-mono text-[11px] text-[#1A1D20]/60 truncate">
+            <div className="font-mono text-[11px] text-gray-400 truncate">
               {user.email}
             </div>
           </div>
 
           {/* Sync & Stats row */}
-          <div className="px-4 py-2 text-xs space-y-1.5 bg-[#EBE5DA] border-b border-[#1A1D20]/10 font-mono">
+          <div className="px-4 py-2.5 text-xs space-y-1.5 bg-black/30 border-b border-white/[0.06] font-mono">
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-[#1A1D20]/70">{t("auth.cloudSync", "Хмарна синхронізація:")}</span>
-              <span className="text-emerald-800 font-bold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              <span className="text-gray-400">{t("auth.cloudSync", "Хмарна синхронізація:")}</span>
+              <span className="text-emerald-400 font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 {t("auth.online", "ONLINE")}
               </span>
             </div>
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-[#1A1D20]/70">{t("auth.masteryStars", "Зірки майстерності:")}</span>
-              <span className="text-amber-800 font-bold">★ {totalStars} / 57</span>
+              <span className="text-gray-400">{t("auth.masteryStars", "Зірки майстерності:")}</span>
+              <span className="text-amber-400 font-bold flex items-center gap-1">
+                <Sparkles size={11} />
+                <span>★ {totalStars} / 57</span>
+              </span>
             </div>
           </div>
 
@@ -160,9 +163,9 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
                 setIsMenuOpen(false);
                 signOut();
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-balsamiq font-bold text-accent-break hover:bg-accent-break-light hover:text-red-900 border border-transparent hover:border-accent-break/20 transition-all cursor-pointer"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-red-200 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
             >
-              <LogOut size={14} className="text-accent-break" />
+              <LogOut size={14} className="text-red-400" />
               <span>{t("auth.signOut", "Вийти з акаунту")}</span>
             </button>
           </div>

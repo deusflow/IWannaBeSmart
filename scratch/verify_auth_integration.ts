@@ -326,12 +326,14 @@ async function main() {
   assert(i18nContent.includes("titleSignIn: \"Engineer Authorization\""), "i18n contains EN auth translations");
   assert(i18nContent.includes("titleSignIn: \"Ingeniørautorisation\""), "i18n contains DA auth translations");
 
-  assert(authModalContent.includes("bg-[#FAF7F2]"), "AuthModal uses warm cotton paper surface (#FAF7F2)");
-  assert(authModalContent.includes("bg-accent-blue"), "AuthModal uses blueprint navy accent-blue button");
-  assert(!authModalContent.includes("bg-[#1E1E22]"), "AuthModal no longer uses dark cyberpunk theme");
+  assert(authModalContent.includes("bg-[#12141A]/95") || authModalContent.includes("backdrop-blur-xl"), "AuthModal uses modern frosted glassmorphism (#12141A/95)");
+  assert(authModalContent.includes("from-blue-600"), "AuthModal uses high-tech sapphire gradient button");
+  assert(authModalContent.includes("t(\"auth.titleSignIn\""), "AuthModal uses multilingual i18n for titleSignIn");
+  assert(authModalContent.includes("t(\"auth.googleSignIn\""), "AuthModal uses multilingual i18n for googleSignIn");
 
-  assert(userNavBadgeContent.includes("bg-[#FAF7F2]"), "UserNavBadge dropdown uses warm cotton paper surface (#FAF7F2)");
-  assert(!userNavBadgeContent.includes("bg-[#1E1E22]"), "UserNavBadge dropdown no longer uses dark cyberpunk theme");
+  assert(userNavBadgeContent.includes("bg-[#14161B]/95") || userNavBadgeContent.includes("backdrop-blur-xl"), "UserNavBadge dropdown uses modern dark glassmorphism");
+  assert(userNavBadgeContent.includes("t(\"auth.accreditation\""), "UserNavBadge uses multilingual i18n for accreditation");
+  assert(userNavBadgeContent.includes("t(\"auth.guestPrefix\""), "UserNavBadge uses multilingual i18n for guestPrefix");
 
   console.log("\n=================================================");
   console.log(`🎉 ALL ${passCount}/${testCount} VERIFICATION CHECKS PASSED!`);

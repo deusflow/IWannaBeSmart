@@ -1,11 +1,11 @@
 /**
  * @file apps/web/src/components/auth/AuthModal.tsx
- * @description Blueprint paper-styled authentication modal with Google OAuth, Email/Password, and guest mode.
+ * @description High-tech engineering authentication modal with Google OAuth, Email/Password, and guest mode.
  */
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Mail, Lock, User, AlertCircle, LogIn, UserPlus, Cpu } from "lucide-react";
+import { X, Mail, Lock, User, AlertCircle, LogIn, UserPlus, Cpu, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
 interface AuthModalProps {
@@ -34,6 +34,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [callsign, setCallsign] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
   // Sync mode with initialMode
@@ -102,21 +103,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const activeError = localError || error;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200 select-none">
       <div
-        className="w-full max-w-md rounded-3xl bg-[#FAF7F2] text-[#1A1D20] border-2 border-[#1A1D20]/25 shadow-paper-lg overflow-hidden flex flex-col font-balsamiq animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-md rounded-3xl bg-[#12141A]/95 backdrop-blur-xl text-gray-100 border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-200"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.18) 0%, transparent 65%)",
+        }}
       >
-        {/* Modal Top Header (Blueprint paper header) */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1A1D20]/15 bg-[#EBE5DA]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-accent-blue/10 border border-accent-blue/30 text-accent-blue flex items-center justify-center shadow-paper-xs">
-              <Cpu size={18} />
+        {/* Subtle engineering grid background overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-30" />
+
+        {/* Modal Top Header */}
+        <div className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-white/[0.08] bg-white/[0.02]">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)] shrink-0">
+              <Cpu size={20} />
             </div>
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-accent-blue font-extrabold">
-                {t("auth.badge", "ІНЖЕНЕРНА ТЕЛЕМЕТРІЯ")}
+              <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-blue-400">
+                <ShieldCheck size={12} />
+                <span>{t("auth.badge", "ІНЖЕНЕРНА ТЕЛЕМЕТРІЯ")}</span>
               </div>
-              <h3 className="text-sm font-display font-extrabold text-[#1A1D20] tracking-tight">
+              <h3 className="text-base font-bold text-white tracking-tight mt-0.5">
                 {mode === "signIn"
                   ? t("auth.titleSignIn", "Авторизація інженера")
                   : t("auth.titleSignUp", "Реєстрація профілю")}
@@ -125,40 +134,40 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl bg-[#1A1D20]/5 hover:bg-[#1A1D20]/15 text-[#1A1D20]/70 hover:text-[#1A1D20] transition-all cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all cursor-pointer"
             title={t("common.close", "Закрити")}
             aria-label={t("common.close", "Закрити")}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-4">
+        <div className="relative z-10 p-6 space-y-5">
           {/* Mode Switcher Tabs */}
-          <div className="grid grid-cols-2 gap-1 p-1 bg-[#E6DFCE] rounded-2xl border border-[#1A1D20]/15">
+          <div className="grid grid-cols-2 p-1 bg-black/40 rounded-2xl border border-white/[0.08]">
             <button
               type="button"
               onClick={() => setMode("signIn")}
-              className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-balsamiq font-bold transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 mode === "signIn"
-                  ? "bg-[#FAF7F2] text-[#1A1D20] shadow-paper-xs border border-[#1A1D20]/15"
-                  : "text-[#1A1D20]/60 hover:text-[#1A1D20]"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.35)]"
+                  : "text-gray-400 hover:text-gray-200"
               }`}
             >
-              <LogIn size={14} className={mode === "signIn" ? "text-accent-blue" : ""} />
+              <LogIn size={14} />
               <span>{t("auth.tabSignIn", "Вхід")}</span>
             </button>
             <button
               type="button"
               onClick={() => setMode("signUp")}
-              className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-balsamiq font-bold transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 mode === "signUp"
-                  ? "bg-[#FAF7F2] text-[#1A1D20] shadow-paper-xs border border-[#1A1D20]/15"
-                  : "text-[#1A1D20]/60 hover:text-[#1A1D20]"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.35)]"
+                  : "text-gray-400 hover:text-gray-200"
               }`}
             >
-              <UserPlus size={14} className={mode === "signUp" ? "text-accent-blue" : ""} />
+              <UserPlus size={14} />
               <span>{t("auth.tabSignUp", "Реєстрація")}</span>
             </button>
           </div>
@@ -168,7 +177,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl bg-white hover:bg-[#F4F0E8] active:scale-[0.99] text-[#1A1D20] font-balsamiq font-bold text-xs border border-[#1A1D20]/20 shadow-paper-xs transition-all cursor-pointer disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white hover:bg-gray-100 active:scale-[0.99] text-gray-900 font-semibold text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path
@@ -193,78 +202,86 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           {/* Divider */}
           <div className="relative flex items-center justify-center my-1">
-            <div className="w-full border-t border-[#1A1D20]/15" />
-            <span className="bg-[#FAF7F2] px-3 text-[10px] font-mono uppercase text-[#1A1D20]/50 tracking-wider font-bold">
+            <div className="w-full border-t border-white/[0.08]" />
+            <span className="bg-[#12141A] px-3 text-[10px] font-mono uppercase text-gray-500 tracking-wider font-semibold">
               {t("auth.orEmail", "або електронна пошта")}
             </span>
           </div>
 
           {/* Error Message */}
           {activeError && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-300 text-red-800 text-xs flex items-start gap-2.5 shadow-paper-xs animate-in fade-in duration-200">
-              <AlertCircle size={16} className="text-red-600 shrink-0 mt-0.5" />
-              <div className="leading-snug font-mono">{activeError}</div>
+            <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-start gap-2.5 shadow-sm font-mono animate-in fade-in duration-200">
+              <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+              <div className="leading-snug">{activeError}</div>
             </div>
           )}
 
           {/* Email/Password Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             {mode === "signUp" && (
               <div>
-                <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/70 font-bold mb-1">
+                <label className="block text-[11px] font-mono uppercase text-gray-400 font-bold mb-1.5">
                   {t("auth.callsignLabel", "Позивний інженера (Callsign)")}
                 </label>
                 <div className="relative flex items-center">
-                  <User size={14} className="absolute left-3 text-[#1A1D20]/40 pointer-events-none" />
+                  <User size={15} className="absolute left-3.5 text-gray-400 pointer-events-none" />
                   <input
                     type="text"
                     value={callsign}
                     onChange={(e) => setCallsign(e.target.value)}
                     placeholder={t("auth.callsignPlaceholder", "Наприклад: Ghost-01")}
-                    className="w-full bg-white border border-[#1A1D20]/20 rounded-xl pl-9 pr-3 py-2 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 font-mono shadow-paper-xs transition-all"
+                    className="w-full bg-white/[0.04] border border-white/[0.12] hover:border-white/20 focus:border-blue-500 focus:bg-white/[0.07] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono transition-all"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/70 font-bold mb-1">
+              <label className="block text-[11px] font-mono uppercase text-gray-400 font-bold mb-1.5">
                 {t("auth.emailLabel", "Email")}
               </label>
               <div className="relative flex items-center">
-                <Mail size={14} className="absolute left-3 text-[#1A1D20]/40 pointer-events-none" />
+                <Mail size={15} className="absolute left-3.5 text-gray-400 pointer-events-none" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="engineer@corp.com"
                   required
-                  className="w-full bg-white border border-[#1A1D20]/20 rounded-xl pl-9 pr-3 py-2 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 font-mono shadow-paper-xs transition-all"
+                  className="w-full bg-white/[0.04] border border-white/[0.12] hover:border-white/20 focus:border-blue-500 focus:bg-white/[0.07] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/70 font-bold mb-1">
+              <label className="block text-[11px] font-mono uppercase text-gray-400 font-bold mb-1.5">
                 {t("auth.passwordLabel", "Пароль (мінімум 6 символів)")}
               </label>
               <div className="relative flex items-center">
-                <Lock size={14} className="absolute left-3 text-[#1A1D20]/40 pointer-events-none" />
+                <Lock size={15} className="absolute left-3.5 text-gray-400 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full bg-white border border-[#1A1D20]/20 rounded-xl pl-9 pr-3 py-2 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 font-mono shadow-paper-xs transition-all"
+                  className="w-full bg-white/[0.04] border border-white/[0.12] hover:border-white/20 focus:border-blue-500 focus:bg-white/[0.07] rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-mono transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 py-2.5 px-4 rounded-xl bg-accent-blue hover:bg-accent-blue-hover active:scale-[0.99] text-white font-balsamiq font-bold text-xs uppercase tracking-wider shadow-paper transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.99] text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(59,130,246,0.35)] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -280,15 +297,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </form>
         </div>
 
-        {/* Modal Footer: Guest mode option */}
-        <div className="px-6 py-3.5 bg-[#EBE5DA] border-t border-[#1A1D20]/15 flex items-center justify-between text-xs">
-          <span className="text-[11px] font-mono text-[#1A1D20]/60">
-            {t("auth.offlineNotice", "Offline-first: прогрес зберігається у браузері")}
+        {/* Modal Footer */}
+        <div className="relative z-10 px-6 py-4 bg-black/40 border-t border-white/[0.06] flex items-center justify-between text-xs">
+          <span className="text-[11px] font-mono text-gray-400 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{t("auth.offlineNotice", "Offline-first: прогрес зберігається у браузері")}</span>
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="text-[11px] font-mono font-bold text-accent-blue hover:text-accent-blue-hover hover:underline cursor-pointer"
+            className="text-[11px] font-mono font-bold text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
           >
             {t("auth.continueAsGuest", "Продовжити як гість →")}
           </button>
