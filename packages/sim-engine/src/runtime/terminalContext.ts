@@ -446,10 +446,10 @@ export function executePosScript(
     // C#: services.AddScoped<IPaymentGateway, DankortGateway>();
     // Go: container.Register("payment_gateway", NewDankortGateway())
     const csharpDiMatch = normalized.match(
-      /services\s*\.\s*AddScoped\s*<\s*IPaymentGateway\s*,\s*([a-zA-Z_]\w*)\s*>\s*\(\s*\)/i
+      /services\s*\.\s*(?:AddScoped|AddSingleton|AddTransient)\s*<\s*IPaymentGateway\s*,\s*([a-zA-Z_]\w*)\s*>\s*\(\s*\)/i
     );
     const goDiMatch = normalized.match(
-      /container\s*\.\s*Register\s*\(\s*["']payment_gateway["']\s*,\s*New([a-zA-Z_]\w*)\s*\(\s*\)\s*\)/i
+      /container\s*\.\s*(?:Register|RegisterSingleton)\s*\(\s*["']payment_gateway["']\s*,\s*New([a-zA-Z_]\w*)\s*\(\s*\)\s*\)/i
     );
     if (csharpDiMatch || goDiMatch) {
       const gatewayName = csharpDiMatch ? csharpDiMatch[1] : goDiMatch![1];
@@ -641,8 +641,10 @@ export function executePosScript(
           pos.failedAttempts++;
         }
 
-        if (/if\s*\(?\s*failedAttempts\s*>=\s*3\s*\)?/i.test(normalized)) {
-          if (pos.failedAttempts >= 3) {
+        const limitMatch = normalized.match(/if\s*\(?\s*failedAttempts\s*>=\s*([0-9]+)\s*\)?/i);
+        if (limitMatch) {
+          const threshold = parseInt(limitMatch[1], 10);
+          if (pos.failedAttempts >= threshold) {
             if (/isLocked\s*=\s*true/i.test(normalized)) {
               pos.isLocked = true;
             }
@@ -651,7 +653,7 @@ export function executePosScript(
             }
             logs.push({
               type: "security",
-              message: "ТЕРМІНАЛ ЗАБЛОКОВАНО: перевищено ліміт 3 спроб введення PIN!",
+              message: `ТЕРМІНАЛ ЗАБЛОКОВАНО: перевищено ліміт ${threshold} спроб введення PIN!`,
             });
           }
         }
@@ -666,8 +668,17 @@ export function executePosScript(
 
     // ── Task 2: State Mutation & Fee Calculation ──────────────
     // totalAmount = amount + fee; balance -= totalAmount; status = "APPROVED";
-    const totalAmountAssign = /totalAmount\s*=\s*(amount\s*\+\s*fee|fee\s*\+\s*amount)/i;
+    const feeNumericMatch = normalized.match(/(?:decimal|float|int|var)?\s*fee\s*(?:=|:=)\s*([0-9]+(?:\.[0-9]+)?)/i);
+    const feeFormulaMatch = normalized.match(/(?:decimal|float|int|var)?\s*fee\s*(?:=|:=)\s*amount\s*\*\s*([0-9]+(?:\.[0-9]+)?)/i);
+    if (feeFormulaMatch) {
+      pos.fee = Math.round(pos.amount * parseFloat(feeFormulaMatch[1]) * 100) / 100;
+    } else if (feeNumericMatch) {
+      pos.fee = parseFloat(feeNumericMatch[1]);
+    }
+
+    const totalAmountAssign = /(?:decimal|float|int|var)?\s*totalAmount\s*(?:=|:=)\s*(amount\s*\+\s*fee|fee\s*\+\s*amount)/i;
     const balanceDeduct = /balance\s*-=\s*totalAmount|balance\s*=\s*balance\s*-\s*totalAmount/i;
+    const feeDirectDeduct = /balance\s*-=\s*fee|balance\s*=\s*balance\s*-\s*fee/i;
 
     let feeExecuted = false;
     if (totalAmountAssign.test(normalized)) {
@@ -676,6 +687,15 @@ export function executePosScript(
       logs.push({
         type: "mutation",
         message: `totalAmount = $${pos.totalAmount.toFixed(2)} (Сума: $${pos.amount.toFixed(2)} + Комісія: $${pos.fee.toFixed(2)})`,
+      });
+    }
+
+    if (feeDirectDeduct.test(normalized)) {
+      pos.balance = Math.max(0, pos.balance - pos.fee);
+      feeExecuted = true;
+      logs.push({
+        type: "mutation",
+        message: `balance -= fee: списано комісію $${pos.fee.toFixed(2)}, проміжний залишок $${pos.balance.toFixed(2)}`,
       });
     }
 

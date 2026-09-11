@@ -39,7 +39,7 @@ export function stripComments(rawCode: string): string {
 /**
  * Resolve numeric literal, binary arithmetic expression, or local variable from scope
  */
-function resolveNumValue(expr: string, scope: Record<string, number>): number {
+function resolveNumValue(expr: string, scope: Record<string, number>, tv?: VirtualTV): number {
   const trimmed = expr.trim();
   if (/^-?\d+$/.test(trimmed)) {
     return parseInt(trimmed, 10);
@@ -47,12 +47,19 @@ function resolveNumValue(expr: string, scope: Record<string, number>): number {
   if (trimmed in scope) {
     return scope[trimmed];
   }
+  if (tv) {
+    if (/^tv\s*\.\s*(Channel|channel)$/i.test(trimmed)) return tv.Channel;
+    if (/^tv\s*\.\s*(Volume|volume)$/i.test(trimmed)) return tv.Volume;
+    if (/^tv\s*\.\s*(Brightness|brightness)$/i.test(trimmed)) return tv.Brightness;
+    if (/^tv\s*\.\s*(GetVolume|getVolume)\s*\(\s*\)$/i.test(trimmed)) return tv.GetVolume();
+    if (/^tv\s*\.\s*(GetBrightness|getBrightness)\s*\(\s*\)$/i.test(trimmed)) return tv.GetBrightness();
+  }
   // Check binary expressions: e.g. vol + 10, vol - 15, 5 + 3
   const binMatch = trimmed.match(/^([a-zA-Z_]\w*|-?\d+)\s*([+-])\s*([a-zA-Z_]\w*|-?\d+)$/);
   if (binMatch) {
-    const left = resolveNumValue(binMatch[1], scope);
+    const left = resolveNumValue(binMatch[1], scope, tv);
     const op = binMatch[2];
-    const right = resolveNumValue(binMatch[3], scope);
+    const right = resolveNumValue(binMatch[3], scope, tv);
     return op === "+" ? left + right : left - right;
   }
   throw new Error(`Невідома змінна чи число: «${trimmed}»`);
@@ -113,15 +120,20 @@ function evaluateCondition(
     return tv.IsOn !== notExpected;
   }
 
-  // Number comparison for Channel or Volume (e.g. tv.Channel > 4, tv.Volume <= 100)
+  // Number comparison for Channel, Volume, or Brightness (e.g. tv.Channel > 4, tv.Volume <= 100, tv.Brightness <= 100)
   const numMatch = c.match(
-    /^tv\s*\.\s*(Channel|Volume|channel|volume)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
+    /^tv\s*\.\s*(Channel|Volume|Brightness|channel|volume|brightness)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
   );
   if (numMatch) {
+    const propName = numMatch[1].toLowerCase();
     const prop =
-      numMatch[1].toLowerCase() === "channel" ? tv.Channel : tv.Volume;
+      propName === "channel"
+        ? tv.Channel
+        : propName === "volume"
+        ? tv.Volume
+        : tv.Brightness;
     const op = numMatch[2];
-    const val = resolveNumValue(numMatch[3], scope);
+    const val = resolveNumValue(numMatch[3], scope, tv);
     switch (op) {
       case "==":
         return prop === val;
@@ -140,13 +152,18 @@ function evaluateCondition(
 
   // Inverted comparison: e.g. 4 < tv.Channel
   const invNumMatch = c.match(
-    /^([a-zA-Z_]\w*|-?\d+)\s*(==|!=|>|<|>=|<=)\s*tv\s*\.\s*(Channel|Volume|channel|volume)$/i
+    /^([a-zA-Z_]\w*|-?\d+)\s*(==|!=|>|<|>=|<=)\s*tv\s*\.\s*(Channel|Volume|Brightness|channel|volume|brightness)$/i
   );
   if (invNumMatch) {
-    const val = resolveNumValue(invNumMatch[1], scope);
+    const val = resolveNumValue(invNumMatch[1], scope, tv);
     const op = invNumMatch[2];
+    const propName = invNumMatch[3].toLowerCase();
     const prop =
-      invNumMatch[3].toLowerCase() === "channel" ? tv.Channel : tv.Volume;
+      propName === "channel"
+        ? tv.Channel
+        : propName === "volume"
+        ? tv.Volume
+        : tv.Brightness;
     switch (op) {
       case "==":
         return val === prop;
@@ -160,6 +177,30 @@ function evaluateCondition(
         return val >= prop;
       case "<=":
         return val <= prop;
+    }
+  }
+
+  // Generic variable / expression comparison: e.g. requestedBrightness <= 100, ch <= 5
+  const genNumMatch = c.match(
+    /^([a-zA-Z_]\w*|-?\d+)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
+  );
+  if (genNumMatch) {
+    const leftVal = resolveNumValue(genNumMatch[1], scope, tv);
+    const op = genNumMatch[2];
+    const rightVal = resolveNumValue(genNumMatch[3], scope, tv);
+    switch (op) {
+      case "==":
+        return leftVal === rightVal;
+      case "!=":
+        return leftVal !== rightVal;
+      case ">":
+        return leftVal > rightVal;
+      case "<":
+        return leftVal < rightVal;
+      case ">=":
+        return leftVal >= rightVal;
+      case "<=":
+        return leftVal <= rightVal;
     }
   }
 
@@ -232,6 +273,18 @@ function executeStatement(
     }
     ctx.numScope[varName] = tv.GetVolume();
     return;
+  }
+
+  // 0.45 General numeric variable assignment: int requestedBrightness = 101; or requestedBrightness = 100;
+  const numVarMatch = s.match(/^(?:(?:int|double|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(.+)$/i);
+  if (numVarMatch && !/^new\s+/i.test(numVarMatch[2]) && !/["']/.test(numVarMatch[2]) && !/\b(?:true|false)\b/i.test(numVarMatch[2])) {
+    try {
+      const val = resolveNumValue(numVarMatch[2], ctx.numScope, tv);
+      ctx.numScope[numVarMatch[1]] = val;
+      return;
+    } catch {
+      // not a simple numeric assignment, pass to next handlers
+    }
   }
 
   // 1. Property Assignment: tv.IsOn = true | false | !tv.IsOn (or on local instance)
@@ -387,7 +440,28 @@ function executeStatement(
     if (ctx.nullScope[target]) {
       throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
     }
-    tv.SetVolume(resolveNumValue(setVolMatch[3], ctx.numScope));
+    tv.SetVolume(resolveNumValue(setVolMatch[3], ctx.numScope, tv));
+    return;
+  }
+
+  const setBrightMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(SetBrightness|setBrightness)\s*\(\s*(.+)\s*\)$/i);
+  if (setBrightMatch) {
+    const target = setBrightMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.SetBrightness(resolveNumValue(setBrightMatch[3], ctx.numScope, tv));
+    return;
+  }
+
+  // Property Assignment: tv.Brightness = <val>
+  const propBrightMatch = s.match(/^(tv|[a-zA-Z_]\w*)\s*\.\s*(Brightness|brightness)\s*=\s*(.+)$/i);
+  if (propBrightMatch) {
+    const target = propBrightMatch[1];
+    if (ctx.nullScope[target]) {
+      throw new Error(`NullReferenceException: Object reference not set to an instance of an object. Variable '${target}' is null!`);
+    }
+    tv.Brightness = resolveNumValue(propBrightMatch[3], ctx.numScope, tv);
     return;
   }
 
@@ -795,7 +869,7 @@ function executeBlock(
 
         if (iterCount >= MAX_LOOP_ITERATIONS) {
           throw new Error(
-            `Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Перевірте умову виходу з циклу.`
+            `InfiniteLoopException: Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Watchdog Timer спрацював. Перевірте крок та умову виходу з циклу.`
           );
         }
 
@@ -1010,7 +1084,7 @@ async function executeBlockAsync(
 
         if (iterCount >= MAX_LOOP_ITERATIONS) {
           throw new Error(
-            `Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Перевірте умову виходу з циклу.`
+            `InfiniteLoopException: Перевищено ліміт ітерацій циклу (${MAX_LOOP_ITERATIONS}). Watchdog Timer спрацював. Перевірте крок та умову виходу з циклу.`
           );
         }
 

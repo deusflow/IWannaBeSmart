@@ -20,6 +20,8 @@ import {
   Trophy,
   Zap,
   X,
+  Sparkles,
+  HelpCircle,
 } from "lucide-react";
 import {
   FINTECH_TASKS,
@@ -35,7 +37,7 @@ import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
 
 export const CodeGymRunner: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     posState,
     applyPosExecution,
@@ -54,7 +56,8 @@ export const CodeGymRunner: React.FC = () => {
   );
 
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
-  const [activeRound, setActiveRound] = useState<1 | 2 | 3>(1);
+  const [activeRound, setActiveRound] = useState<1 | 2 | 3 | 4>(1);
+  const [showTransferHint, setShowTransferHint] = useState<boolean>(false);
 
   // Target code for current language & task
   const targetCode = currentTask.targetCode[codeLang];
@@ -135,6 +138,7 @@ export const CodeGymRunner: React.FC = () => {
     setActiveRound(1);
     setShowTheory(false);
     setShowTooltip(false);
+    setShowTransferHint(false);
     const nextTask = FINTECH_TASKS.find((t) => t.id === taskId);
     if (nextTask) {
       resetPosState(nextTask.initialState);
@@ -150,12 +154,15 @@ export const CodeGymRunner: React.FC = () => {
     setTimeLeft(sprintTimeLimit);
     setRoundStats(null);
     roundStartTimeRef.current = null;
+    setShowTransferHint(false);
 
     if (activeRound === 1) {
       setTypedCode("");
     } else if (activeRound === 2) {
       setTypedCode(clozeTemplate);
     } else if (activeRound === 3) {
+      setTypedCode("");
+    } else if (activeRound === 4) {
       setTypedCode("");
     }
   }, [activeRound, codeLang, clozeTemplate, currentTask.id, sprintTimeLimit]);
@@ -325,6 +332,79 @@ export const CodeGymRunner: React.FC = () => {
     }
   }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, setTaskMastery, completeCodingTask, addXp, taskMasteryStars, setPosVictoryModalOpen, t]);
 
+  // ── Round 4: Transfer (Conceptual Variation) ──────────────────────────
+  const handleRunTransfer = useCallback(async () => {
+    if (!typedCode.trim()) {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback(t("codegym.fillBlanksPrompt", "Введіть код для виконання завдання!"));
+      return;
+    }
+
+    const before: VirtualPosState = { ...posState };
+    const result = await executePosScriptAsync(typedCode, before);
+    applyPosExecution(result.newState);
+
+    const currentLangKey = (i18n.language?.startsWith("da")
+      ? "da"
+      : i18n.language?.startsWith("en")
+      ? "en"
+      : "ua") as "ua" | "en" | "da";
+
+    let passed = false;
+    if (currentTask.transferVariant) {
+      passed = result.success && currentTask.transferVariant.validate(before, result.newState, typedCode, result);
+    } else {
+      const validation = currentTask.validate(before, result.newState, result, typedCode);
+      passed = validation.passed;
+    }
+
+    if (passed) {
+      setHasError(false);
+      setRoundCompleted(true);
+      setRoundStats({ wpm: 0, accuracy: 100 });
+      audioFx.playSuccessFanfare();
+      if (currentTask.id === "task-pos-batch-settlement") {
+        audioFx.playPrinterSound();
+      } else if (currentTask.id === "task-pos-pin-lockout") {
+        audioFx.playAlarmSound();
+      }
+      setTaskMastery(currentTask.id, 4);
+      completeCodingTask(currentTask.id);
+      addXp(75);
+      setFeedback(t("codegym.transferComplete", "Чудово! Варіацію перевірено, 4-ту зірку майстра зараховано!"));
+
+      // Check if all fintech tasks are now completed
+      const allCompleted = FINTECH_TASKS.every((task) =>
+        task.id === currentTask.id ? true : (taskMasteryStars[task.id] || 0) >= 1
+      );
+      if (allCompleted) {
+        setPosVictoryModalOpen(true);
+      }
+    } else {
+      setHasError(true);
+      audioFx.playErrorBuzz();
+      setFeedback(
+        result.error
+          ? result.error
+          : currentTask.transferVariant?.hint[currentLangKey] ||
+            t("codegym.transferFailed", "Умова варіації не виконана. Перевірте значення параметрів або стан пристрою.")
+      );
+    }
+  }, [
+    typedCode,
+    posState,
+    currentTask,
+    applyPosExecution,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    taskMasteryStars,
+    setPosVictoryModalOpen,
+    i18n.language,
+    t,
+  ]);
+
   // Trace character progress
   const traceCharsMatched = useMemo(() => {
     let count = 0;
@@ -364,9 +444,9 @@ export const CodeGymRunner: React.FC = () => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
         if (roundCompleted) {
-          if (activeRound < 3) {
+          if (activeRound < 4) {
             audioFx.playRelayClick();
-            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3);
+            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
           } else if (nextTask) {
             audioFx.playRelayClick();
             handleSelectTask(nextTask.id);
@@ -382,6 +462,8 @@ export const CodeGymRunner: React.FC = () => {
           } else {
             handleRunSprint();
           }
+        } else if (activeRound === 4) {
+          handleRunTransfer();
         }
         return;
       }
@@ -414,6 +496,7 @@ export const CodeGymRunner: React.FC = () => {
     nextTask,
     handleVerifyCloze,
     handleRunSprint,
+    handleRunTransfer,
     handleSelectTask,
   ]);
 
@@ -441,10 +524,16 @@ export const CodeGymRunner: React.FC = () => {
                     Завдання {idx + 1}
                   </span>
                   <span className="flex items-center gap-0.5 text-xs">
-                    {[1, 2, 3].map((s) => (
+                    {[1, 2, 3, 4].map((s) => (
                       <span
                         key={s}
-                        className={taskStars >= s ? "text-amber-400" : "text-gray-300 opacity-40"}
+                        className={
+                          taskStars >= s
+                            ? s === 4
+                              ? "text-cyan-400"
+                              : "text-amber-400"
+                            : "text-gray-300 opacity-40"
+                        }
                       >
                         ★
                       </span>
@@ -474,7 +563,7 @@ export const CodeGymRunner: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 border border-amber-600/30">
-                  Code Gym • 3-Star Mastery
+                  Code Gym • 4-Star Mastery
                 </span>
                 <span className="text-xs font-mono font-bold text-ink-muted">
                   {t(currentTask.conceptKey)}
@@ -515,16 +604,24 @@ export const CodeGymRunner: React.FC = () => {
               <span className="text-xs font-display font-bold text-ink-muted mr-1">
                 {t("codegym.starsLabel")}:
               </span>
-              {[1, 2, 3].map((starIdx) => (
-                <Star
+              {[1, 2, 3, 4].map((starIdx) => (
+                <span
                   key={starIdx}
-                  size={18}
-                  className={`transition-all duration-300 ${
-                    starsEarned >= starIdx
-                      ? "text-amber-500 fill-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110"
-                      : "text-gray-300"
-                  }`}
-                />
+                  title={starIdx === 4 ? "4-Star Master Star (Transfer)" : `Star ${starIdx}`}
+                  className="inline-flex items-center"
+                >
+                  <Star
+                    key={starIdx}
+                    size={18}
+                    className={`transition-all duration-300 ${
+                      starsEarned >= starIdx
+                        ? starIdx === 4
+                          ? "text-cyan-400 fill-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] scale-115"
+                          : "text-amber-500 fill-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </span>
               ))}
             </div>
           </div>
@@ -584,12 +681,13 @@ export const CodeGymRunner: React.FC = () => {
           />
         )}
 
-        {/* 3-Round Mode Selector Tabs */}
-        <div className="grid grid-cols-3 gap-2 pt-1">
+        {/* 4-Round Mode Selector Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
           {[
             { round: 1, label: t("codegym.round1Badge"), desc: "Сліпий трафарет" },
             { round: 2, label: t("codegym.round2Badge"), desc: "Прогалини (Cloze)" },
-            { round: 3, label: t("codegym.round3Badge"), desc: "Спринт (15с)" },
+            { round: 3, label: t("codegym.round3Badge"), desc: `Спринт (${sprintTimeLimit}с)` },
+            { round: 4, label: t("codegym.round4Badge"), desc: t("codegym.round4DescShort", "Варіація") },
           ].map(({ round, label, desc }) => {
             const isActive = activeRound === round;
             const isUnlocked = round === 1 || starsEarned >= round - 1;
@@ -600,7 +698,7 @@ export const CodeGymRunner: React.FC = () => {
                 disabled={!isUnlocked}
                 onClick={() => {
                   audioFx.playRelayClick();
-                  setActiveRound(round as 1 | 2 | 3);
+                  setActiveRound(round as 1 | 2 | 3 | 4);
                 }}
                 className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
                   isActive
@@ -615,7 +713,9 @@ export const CodeGymRunner: React.FC = () => {
                     {label}
                   </span>
                   {starsEarned >= round && (
-                    <span className="text-amber-400 text-xs">⭐</span>
+                    <span className={round === 4 ? "text-cyan-400 text-xs" : "text-amber-400 text-xs"}>
+                      {round === 4 ? "💎" : "⭐"}
+                    </span>
                   )}
                 </div>
                 <div className={`text-[10px] truncate mt-0.5 ${isActive ? "text-gray-300" : "text-ink-muted"}`}>
@@ -690,8 +790,56 @@ export const CodeGymRunner: React.FC = () => {
                 <span>{timeLeft}s</span>
               </div>
             )}
+
+            {activeRound === 4 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-bold">
+                <Sparkles size={13} />
+                <span>Варіація</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Round 4: Transfer Mission Prompt Banner */}
+        {activeRound === 4 && (
+          <div className="px-4 py-3 bg-[#161B22] border-b border-[#2B2D33] text-ink-light space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold uppercase tracking-wider">
+                  {t("codegym.transferCardTitle", "Місія варіації (Transfer Task)")}
+                </span>
+                <span className="text-[11px] font-mono text-gray-400">
+                  ★ 4-та зірка майстра
+                </span>
+              </div>
+              {currentTask.transferVariant?.hint && (
+                <button
+                  type="button"
+                  onClick={() => setShowTransferHint((prev) => !prev)}
+                  className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer flex items-center gap-1"
+                >
+                  <HelpCircle size={12} />
+                  <span>{showTransferHint ? t("codegym.hideHint", "Сховати підказку") : t("codegym.showHint", "Підказка")}</span>
+                </button>
+              )}
+            </div>
+            <p className="text-xs font-mono text-gray-200 leading-relaxed font-semibold">
+              {currentTask.transferVariant?.prompt[
+                (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
+              ] ||
+                currentTask.transferVariant?.prompt.ua ||
+                t(currentTask.descKey)}
+            </p>
+            {showTransferHint && currentTask.transferVariant?.hint && (
+              <div className="p-2.5 rounded-lg bg-[#0D1117] border border-cyan-500/30 text-[11px] font-mono text-cyan-200 animate-in fade-in duration-200">
+                <span className="text-cyan-400 font-bold">Hint: </span>
+                {currentTask.transferVariant.hint[
+                  (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
+                ] || currentTask.transferVariant.hint.ua}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Interactive Editor Surface */}
         <div className="relative font-mono text-xs" ref={editorContainerCallbackRef}>
@@ -777,7 +925,9 @@ export const CodeGymRunner: React.FC = () => {
                     ? t("codegym.round1Desc")
                     : activeRound === 2
                     ? t("codegym.round2Desc")
-                    : t("codegym.round3Desc"))}
+                    : activeRound === 3
+                    ? t("codegym.round3Desc")
+                    : t("codegym.round4Desc", "Створіть варіацію самостійно без підказок трафарету."))}
               </span>
             </div>
             {hasError && (activeRound === 1 || activeRound === 3) && (
@@ -825,12 +975,22 @@ export const CodeGymRunner: React.FC = () => {
               </>
             )}
 
+            {activeRound === 4 && !roundCompleted && (
+              <button
+                onClick={handleRunTransfer}
+                className="px-4 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
+              >
+                <Sparkles size={13} />
+                <span>{t("codegym.verifyTransferBtn", "Перевірити варіацію")}</span>
+              </button>
+            )}
+
             {/* Next Round Button after Win */}
-            {roundCompleted && activeRound < 3 && (
+            {roundCompleted && activeRound < 4 && (
               <button
                 onClick={() => {
                   audioFx.playRelayClick();
-                  setActiveRound((prev) => (prev + 1) as 1 | 2 | 3);
+                  setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
                 }}
                 className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
               >
@@ -839,11 +999,11 @@ export const CodeGymRunner: React.FC = () => {
               </button>
             )}
 
-            {roundCompleted && activeRound === 3 && (
+            {roundCompleted && activeRound === 4 && (
               <div className="flex items-center gap-2">
-                <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-xs flex items-center gap-1.5">
+                <div className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-400/50 text-amber-200 font-mono font-bold text-xs flex items-center gap-1.5 shadow-sm">
                   <Trophy size={14} className="text-amber-400" />
-                  <span>3-Star Mastered!</span>
+                  <span>4-Star Platinum Master!</span>
                 </div>
                 {nextTask && (
                   <button

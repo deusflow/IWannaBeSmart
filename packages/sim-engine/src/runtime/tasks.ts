@@ -1128,4 +1128,239 @@ registry[___].Execute()`,
       return { passed: false, messageKey: "playground.task10Failed" };
     },
   },
+  {
+    id: "task-debug-runaway-loop",
+    tier: 0,
+    order: 11,
+    titleKey: "playground.taskDebugRunawayTitle",
+    conceptKey: "playground.taskDebugRunawayConcept",
+    descKey: "playground.taskDebugRunawayDesc",
+    hintKey: "playground.taskDebugRunawayHint",
+    successKey: "playground.taskDebugRunawaySuccess",
+    simpleExplanationKey: "playground.taskDebugRunawaySimple",
+    engineeringKey: "playground.taskDebugRunawayEngineering",
+    careerImpactKey: "playground.taskDebugRunawayCareer",
+    isBugfixTask: true,
+    initialBrokenCode: {
+      csharp: `// ⚠️ ДЕФЕКТ: Спеціаліст сервісного центру повідомив, що тюнер зависає при скануванні.
+// Рантайм повертає помилку InfiniteLoopException від Watchdog Timer.
+// Знайдіть та виправте крок циклу, щоб тюнер просканував канали від 1 до 5.
+
+tv.PowerOn();
+for (int ch = 1; ch <= 5; ch--)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `// ⚠️ ДЕФЕКТ: Тюнер зависає під час автоматичного пошуку каналів.
+// Знайдіть та виправте логічну помилку в кроці циклу.
+
+tv.PowerOn()
+for ch := 1; ch <= 5; ch-- {
+    tv.SetChannel(ch)
+}`,
+    },
+    initialCode: {
+      csharp: `// ⚠️ ДЕФЕКТ: Спеціаліст сервісного центру повідомив, що тюнер зависає при скануванні.
+// Рантайм повертає помилку InfiniteLoopException від Watchdog Timer.
+// Знайдіть та виправте крок циклу, щоб тюнер просканував канали від 1 до 5.
+
+tv.PowerOn();
+for (int ch = 1; ch <= 5; ch--)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `// ⚠️ ДЕФЕКТ: Тюнер зависає під час автоматичного пошуку каналів.
+// Знайдіть та виправте логічну помилку в кроці циклу.
+
+tv.PowerOn()
+for ch := 1; ch <= 5; ch-- {
+    tv.SetChannel(ch)
+}`,
+    },
+    targetCode: {
+      csharp: `tv.PowerOn();
+for (int ch = 1; ch <= 5; ch++)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `tv.PowerOn()
+for ch := 1; ch <= 5; ch++ {
+    tv.SetChannel(ch)
+}`,
+    },
+    clozeTemplate: {
+      csharp: `tv.PowerOn();
+for (int ch = 1; ch <= 5; ___)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `tv.PowerOn()
+for ch := 1; ch <= 5; ___ {
+    tv.SetChannel(ch)
+}`,
+    },
+    sprintTimeLimit: 30,
+    defectDescription: {
+      ua: "Тюнер зависає під час автоматичного сканування каналів через декремент 'ch--' замість інкременту 'ch++'. Змінна прямує до від'ємних чисел, умова ch <= 5 ніколи не стає false, тому спрацьовує Watchdog Timer.",
+      en: "Tuner hangs indefinitely during automated scanning due to decrement 'ch--' instead of increment 'ch++'. Variable decreases toward negative infinity, condition ch <= 5 is never false, triggering Watchdog Timer.",
+      da: "Tuner fryser under automatisk scanning pga. dekrement 'ch--' i stedet for inkrement 'ch++'. Variablen bevæger sig mod negative tal, betingelsen ch <= 5 er altid sand, hvilket udløser Watchdog Timeren.",
+    },
+    diagnosticLogs: [
+      "[FAULT] Watchdog: Core thread unresponsive for >500ms",
+      "[FAULT] InfiniteLoopException: Iteration limit 50 reached in tuner loop",
+      "[DIAGNOSTIC] Variable ch is decreasing (1, 0, -1...) -> (ch <= 5) invariant never breaks",
+      "[STATUS] TV Hardware Freeze: REPAIR REQUIRED",
+    ],
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      const hasDecreasingLoop = Boolean(code && /ch\s*--/i.test(code));
+      if (hasDecreasingLoop) {
+        return { passed: false, messageKey: "playground.taskDebugRunawayHint" };
+      }
+      if (after.isOn && after.channel === 5) {
+        return { passed: true, messageKey: "playground.taskDebugRunawaySuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskDebugRunawayHint" };
+    },
+    transferVariant: {
+      prompt: {
+        ua: "Виправте сканування діапазону з 10 до 15 каналу за допомогою інкременту ch++.",
+        en: "Fix channel range scan from 10 to 15 using increment ch++.",
+        da: "Ret kanalscanning fra 10 til 15 med inkrement ch++.",
+      },
+      hint: {
+        ua: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
+        en: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
+        da: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
+      },
+      targetSnippetExample: "tv.PowerOn();\nfor (int ch = 10; ch <= 15; ch++)\n{\n    tv.SetChannel(ch);\n}",
+      validate: (_before, after) => after.isOn && after.channel === 15,
+    },
+  },
+  {
+    id: "task-debug-off-by-one-overflow",
+    tier: 0,
+    order: 12,
+    titleKey: "playground.taskDebugOverloadTitle",
+    conceptKey: "playground.taskDebugOverloadConcept",
+    descKey: "playground.taskDebugOverloadDesc",
+    hintKey: "playground.taskDebugOverloadHint",
+    successKey: "playground.taskDebugOverloadSuccess",
+    simpleExplanationKey: "playground.taskDebugOverloadSimple",
+    engineeringKey: "playground.taskDebugOverloadEngineering",
+    careerImpactKey: "playground.taskDebugOverloadCareer",
+    isBugfixTask: true,
+    initialBrokenCode: {
+      csharp: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт випромінювача: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100), щоб захистити катодну трубку від перевантаження.
+
+tv.PowerOn();
+int requestedBrightness = 101;
+
+// ЗАХИСТ ВІДСУТНІЙ — запобіжник перегорає:
+tv.SetBrightness(requestedBrightness);`,
+      go: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100).
+
+tv.PowerOn()
+requestedBrightness := 101
+
+// ЗАХИСТ ВІДСУТНІЙ:
+tv.SetBrightness(requestedBrightness)`,
+    },
+    initialCode: {
+      csharp: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт випромінювача: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100), щоб захистити катодну трубку від перевантаження.
+
+tv.PowerOn();
+int requestedBrightness = 101;
+
+// ЗАХИСТ ВІДСУТНІЙ — запобіжник перегорає:
+tv.SetBrightness(requestedBrightness);`,
+      go: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100).
+
+tv.PowerOn()
+requestedBrightness := 101
+
+// ЗАХИСТ ВІДСУТНІЙ:
+tv.SetBrightness(requestedBrightness)`,
+    },
+    targetCode: {
+      csharp: `tv.PowerOn();
+int requestedBrightness = 101;
+if (requestedBrightness <= 100)
+{
+    tv.SetBrightness(requestedBrightness);
+}`,
+      go: `tv.PowerOn()
+requestedBrightness := 101
+if requestedBrightness <= 100 {
+    tv.SetBrightness(requestedBrightness)
+}`,
+    },
+    clozeTemplate: {
+      csharp: `tv.PowerOn();
+int requestedBrightness = 101;
+if (___ <= 100)
+{
+    tv.SetBrightness(requestedBrightness);
+}`,
+      go: `tv.PowerOn()
+requestedBrightness := 101
+if ___ <= 100 {
+    tv.SetBrightness(requestedBrightness)
+}`,
+    },
+    sprintTimeLimit: 35,
+    defectDescription: {
+      ua: "Пряме встановлення яскравості понад 100% без перевірки меж (Boundary Check) спалює фізичний запобіжник катодної трубки (CATHODE_RAY_OVERLOAD). Необхідна захисна умова (Guard Clause).",
+      en: "Setting brightness above 100% without boundary validation blows the cathode safety fuse (CATHODE_RAY_OVERLOAD). A guard clause is required.",
+      da: "Indstilling af lysstyrke over 100% uden grænsekontrol sprænger katoderørets sikring (CATHODE_RAY_OVERLOAD). En sikkerhedsbetingelse er påkrævet.",
+    },
+    diagnosticLogs: [
+      "[HARDWARE ALARM] Overvoltage detected on cathode ray driver!",
+      "[FUSE TRIPPED] Critical hardware overload: requested 101% exceeds 100% limit",
+      "[ERROR] CATHODE_RAY_OVERLOAD: Safety fuse blown. Display disabled.",
+      "[STATUS] Device in FAULT state. Boundary check required before SetBrightness().",
+    ],
+    validate: (_before, after, result, code) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (after.isFuseBlown) {
+        return { passed: false, messageKey: "playground.taskDebugOverloadFailed" };
+      }
+      const hasGuard = Boolean(
+        code &&
+          /if\s*\(?[^)]*(?:requestedBrightness|101|tv\.Brightness)[^)]*(?:<=|<|==)[^)]*\)?/i.test(
+            code
+          )
+      );
+      if (after.isOn && !after.isFuseBlown && hasGuard) {
+        return { passed: true, messageKey: "playground.taskDebugOverloadSuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskDebugOverloadHint" };
+    },
+    transferVariant: {
+      prompt: {
+        ua: "Перевірте безпечну яскравість 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        en: "Verify safe brightness 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        da: "Bekræft sikker lysstyrke 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+      },
+      hint: {
+        ua: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        en: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        da: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+      },
+      targetSnippetExample: "tv.PowerOn();\nint requestedBrightness = 80;\nif (requestedBrightness <= 100)\n{\n    tv.SetBrightness(requestedBrightness);\n}",
+      validate: (_before, after) => after.isOn && !after.isFuseBlown && after.brightness === 80,
+    },
+  },
 ];

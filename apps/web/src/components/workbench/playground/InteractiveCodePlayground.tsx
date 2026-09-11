@@ -887,16 +887,23 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
               <span className="text-xs font-display font-bold text-ink-muted mr-1">
                 {t("codegym.starsLabel", "Майстерність")}:
               </span>
-              {[1, 2, 3].map((starIdx) => (
-                <Star
+              {[1, 2, 3, 4].map((starIdx) => (
+                <span
                   key={starIdx}
-                  size={18}
-                  className={`transition-all duration-300 ${
-                    starsEarned >= starIdx
-                      ? "text-amber-500 fill-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110"
-                      : "text-gray-300"
-                  }`}
-                />
+                  title={starIdx === 4 ? "4-Star Master Star (Transfer)" : `Star ${starIdx}`}
+                  className="inline-flex items-center"
+                >
+                  <Star
+                    size={18}
+                    className={`transition-all duration-300 ${
+                      starsEarned >= starIdx
+                        ? starIdx === 4
+                          ? "text-cyan-400 fill-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] scale-115"
+                          : "text-amber-500 fill-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </span>
               ))}
             </div>
           </div>
@@ -958,12 +965,13 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           />
         )}
 
-        {/* 3-Round Mode Selector Tabs */}
-        <div className="grid grid-cols-3 gap-2 pt-1">
+        {/* 4-Round Mode Selector Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
           {[
             { round: 1, label: t("codegym.round1Badge", "Раунд 1"), desc: t("codegym.round1DescShort", "Сліпий трафарет") },
             { round: 2, label: t("codegym.round2Badge", "Раунд 2"), desc: t("codegym.round2DescShort", "Прогалини (Cloze)") },
             { round: 3, label: t("codegym.round3Badge", "Раунд 3"), desc: `${t("codegym.round3DescShort", "Спринт")} (${sprintLimit}с)` },
+            { round: 4, label: t("codegym.round4Badge", "Раунд 4"), desc: t("codegym.round4DescShort", "Варіація") },
           ].map(({ round, label, desc }) => {
             const isActive = activeRound === round;
             const isUnlocked = round === 1 || starsEarned >= round - 1;
@@ -974,7 +982,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
                 disabled={!isUnlocked}
                 onClick={() => {
                   audioFx.playRelayClick();
-                  setActiveRound(round as 1 | 2 | 3);
+                  setActiveRound(round as 1 | 2 | 3 | 4);
                 }}
                 className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
                   isActive
@@ -989,7 +997,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
                     {label}
                   </span>
                   {starsEarned >= round && (
-                    <span className="text-amber-400 text-xs">⭐</span>
+                    <span className={round === 4 ? "text-cyan-400 text-xs drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "text-amber-400 text-xs"}>
+                      {round === 4 ? "💎" : "⭐"}
+                    </span>
                   )}
                 </div>
                 <div className={`text-[10px] truncate mt-0.5 ${isActive ? "text-gray-300" : "text-ink-muted"}`}>
@@ -1060,8 +1070,56 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
                 <span>{timeLeft}s</span>
               </div>
             )}
+
+            {activeRound === 4 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-bold">
+                <Sparkles size={13} />
+                <span>Варіація</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Round 4: Transfer Mission Prompt Banner */}
+        {activeRound === 4 && (
+          <div className="px-4 py-3 bg-[#161B22] border-b border-[#2B2D33] text-ink-light space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold uppercase tracking-wider">
+                  {t("codegym.transferCardTitle", "Місія варіації (Transfer Task)")}
+                </span>
+                <span className="text-[11px] font-mono text-gray-400">
+                  ★ 4-та зірка майстра
+                </span>
+              </div>
+              {currentTask.transferVariant?.hint && (
+                <button
+                  type="button"
+                  onClick={() => setShowTransferHint((prev) => !prev)}
+                  className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer flex items-center gap-1"
+                >
+                  <HelpCircle size={12} />
+                  <span>{showTransferHint ? t("codegym.hideHint", "Сховати підказку") : t("codegym.showHint", "Підказка")}</span>
+                </button>
+              )}
+            </div>
+            <p className="text-xs font-mono text-gray-200 leading-relaxed font-semibold">
+              {currentTask.transferVariant?.prompt[
+                (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
+              ] ||
+                currentTask.transferVariant?.prompt.ua ||
+                t(currentTask.descKey)}
+            </p>
+            {showTransferHint && currentTask.transferVariant?.hint && (
+              <div className="p-2.5 rounded-lg bg-[#0D1117] border border-cyan-500/30 text-[11px] font-mono text-cyan-200 animate-in fade-in duration-200">
+                <span className="text-cyan-400 font-bold">Hint: </span>
+                {currentTask.transferVariant.hint[
+                  (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
+                ] || currentTask.transferVariant.hint.ua}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Interactive Editor Surface */}
         <div className="relative font-mono text-xs" ref={editorContainerRef}>
@@ -1147,7 +1205,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
                     ? t("codegym.round1Desc", "Надрукуйте код символ у символ поверх трафарету.")
                     : activeRound === 2
                     ? t("codegym.round2Desc", "Заповніть ключові прогалини (___)!")
-                    : t("codegym.round3Desc", "Відтворіть конструкцію з пам'яті за обмежений час!"))}
+                    : activeRound === 3
+                    ? t("codegym.round3Desc", "Відтворіть конструкцію з пам'яті за обмежений час!")
+                    : t("codegym.round4Desc", "Застосуйте інженерну концепцію у новому завданні без трафарету!"))}
               </span>
             </div>
             {/* Precise token-level error pointer */}
@@ -1196,12 +1256,22 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
               </>
             )}
 
+            {activeRound === 4 && !roundCompleted && (
+              <button
+                onClick={handleRunTransfer}
+                className="px-4 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
+              >
+                <Sparkles size={13} />
+                <span>{t("codegym.verifyTransferBtn", "Перевірити варіацію")}</span>
+              </button>
+            )}
+
             {/* Next Round Button after Win */}
-            {roundCompleted && activeRound < 3 && (
+            {roundCompleted && activeRound < 4 && (
               <button
                 onClick={() => {
                   audioFx.playRelayClick();
-                  setActiveRound((prev) => (prev + 1) as 1 | 2 | 3);
+                  setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
                 }}
                 className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
               >
@@ -1210,11 +1280,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
               </button>
             )}
 
-            {roundCompleted && activeRound === 3 && (
+            {roundCompleted && activeRound === 4 && (
               <div className="flex items-center gap-2">
-                <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-xs flex items-center gap-1.5">
+                <div className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-400/50 text-amber-200 font-mono font-bold text-xs flex items-center gap-1.5 shadow-sm">
                   <Trophy size={14} className="text-amber-400" />
-                  <span>3-Star Mastered!</span>
+                  <span>4-Star Platinum Master!</span>
                 </div>
                 {nextTask && isNextTaskUnlocked && (
                   <button

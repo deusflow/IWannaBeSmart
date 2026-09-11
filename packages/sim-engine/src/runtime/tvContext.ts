@@ -14,6 +14,9 @@ export class VirtualTV {
   private _label?: string;
   private _isSafeGuardActive: boolean = false;
   private _activeInstanceName?: string;
+  private _brightness: number = 50;
+  private _isFuseBlown: boolean = false;
+  private _isDefective: boolean = false;
   private _logs: RuntimeLogEntry[] = [];
   private _mutationsCount = 0;
 
@@ -26,6 +29,9 @@ export class VirtualTV {
     this._label = initial.label;
     this._isSafeGuardActive = initial.isSafeGuardActive ?? false;
     this._activeInstanceName = initial.activeInstanceName;
+    this._brightness = initial.brightness ?? 50;
+    this._isFuseBlown = initial.isFuseBlown ?? false;
+    this._isDefective = initial.isDefective ?? false;
   }
 
   // ── Property: IsOn ──────────────────────────────────────────
@@ -245,6 +251,67 @@ export class VirtualTV {
     this._isArchitectureWired = val;
   }
 
+  // ── Property: Brightness & Overload Fuse ────────────────────
+  get Brightness(): number {
+    return this._brightness;
+  }
+  set Brightness(val: number) {
+    const num = Math.floor(Number(val));
+    if (num > 100) {
+      this._isFuseBlown = true;
+      this._isDefective = true;
+      this._mutationsCount++;
+      this._logs.push({
+        type: "error",
+        message: `FUSE_BLOWN: Запит яскравості ${num}% перевищує поріг 100%! Спрацював аварійний запобіжник кінескопа.`,
+      });
+      throw new Error("CATHODE_RAY_OVERLOAD: Яскравість > 100% вибила запобіжник кінескопа!");
+    }
+    if (this._brightness !== num) {
+      this._brightness = Math.max(0, num);
+      this._mutationsCount++;
+      this._logs.push({
+        type: "mutation",
+        message: `tv.Brightness = ${this._brightness}%`,
+      });
+      this._osdMessage = `BRIGHTNESS ${this._brightness}%`;
+    }
+  }
+
+  get brightness(): number {
+    return this.Brightness;
+  }
+  set brightness(val: number) {
+    this.Brightness = val;
+  }
+
+  public SetBrightness(b: number): void {
+    this.Brightness = b;
+  }
+
+  public setBrightness(b: number): void {
+    this.SetBrightness(b);
+  }
+
+  public GetBrightness(): number {
+    return this.Brightness;
+  }
+
+  public getBrightness(): number {
+    return this.GetBrightness();
+  }
+
+  get isFuseBlown(): boolean {
+    return this._isFuseBlown;
+  }
+
+  get isDefective(): boolean {
+    return this._isDefective;
+  }
+  set isDefective(val: boolean) {
+    this._isDefective = val;
+  }
+
   // ── Diagnostics & Snapshot ─────────────────────────────────
   public getSnapshot(): VirtualTvState {
     return {
@@ -256,6 +323,9 @@ export class VirtualTV {
       label: this._label,
       isSafeGuardActive: this._isSafeGuardActive,
       activeInstanceName: this._activeInstanceName,
+      brightness: this._brightness,
+      isFuseBlown: this._isFuseBlown,
+      isDefective: this._isDefective,
     };
   }
 

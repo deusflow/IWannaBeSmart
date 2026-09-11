@@ -290,6 +290,37 @@ export const theoryUa: TheoryDictionary = {
       notes: "Dependency Injection робить систему тестованою: для модульних тестів замість реального банку підставляється MockGateway з фейковими грошима.",
       diff: "У C# реєстрація відбувається через типізовані Generics <TInterface, TImpl>. У Go реєстрація здійснюється за рядковим ключем та екземпляром.",
     },
+    "task-debug-runaway-loop": {
+      concept: "Діагностика нескінченного циклу: помилка декременту (ch--) замість інкременту (ch++). Умова виходу ніколи не досягається, що призводить до зависання процесора та спрацювання апаратного Watchdog.",
+      tokens: [
+        { token: "for", role: "Loop Statement", explanation: "Керуюча конструкція циклу з лічильником." },
+        { token: "int ch = 1", role: "Loop Initialization", explanation: "Початковий стан лічильника каналів (починаємо з 1)." },
+        { token: "ch <= 5", role: "Loop Invariant Condition", explanation: "Умова продовження: цикл виконується, доки номер каналу не перевищує 5." },
+        { token: "ch++", role: "Corrected Step Operation", explanation: "Інкремент збільшує лічильник каналів на 1 щоітерації, наближаючи завершення циклу." },
+      ],
+      notes: "Якщо замість ch++ написати ch--, лічильник буде спадати (1, 0, -1, -2...), умова ch <= 5 ніколи не стане false, і програма зависне назавжди.",
+      diff: "У C#: for (int ch = 1; ch <= 5; ch++). У Go: for ch := 1; ch <= 5; ch++.",
+    },
+    "task-debug-off-by-one-overflow": {
+      concept: "Діагностика фізичного перевантаження CRT (Off-by-One / Boundary Violation). Значення яскравості 101% перевищує фізичний ліміт 100% і спалює запобіжник. Потрібен Guard Clause.",
+      tokens: [
+        { token: "if", role: "Defensive Guard", explanation: "Захисна умова, що перевіряє безпечність вхідних даних перед передачею в апаратний драйвер." },
+        { token: "requestedBrightness <= 100", role: "Boundary Check", explanation: "Перевірка фізичного інваріанта: яскравість не повинна перевищувати 100%." },
+        { token: "tv.SetBrightness()", role: "Safe Invocation", explanation: "Виклик налаштування виконується лише тоді, коли значення гарантовано безпечне." },
+      ],
+      notes: "Off-by-One та відсутність перевірки меж є головною причиною аппаратних відмов та переповнення буферів у системному програмуванні.",
+      diff: "У C#: if (requestedBrightness <= 100) { tv.SetBrightness(...); }. У Go: if requestedBrightness <= 100 { tv.SetBrightness(...) }.",
+    },
+    "task-pos-double-deduction-bug": {
+      concept: "Діагностика подвійної мутації (Double Deduction / Broken Invariant). Комісія fee списується окремо і водночас включена у totalAmount, що призводить до подвійного списання з рахунку клієнта.",
+      tokens: [
+        { token: "totalAmount = amount + fee", role: "Composite Amount", explanation: "Агрегація загальної суми транзакції з урахуванням обов'язкової комісії." },
+        { token: "balance -= totalAmount", role: "Atomic Mutation", explanation: "Єдине коректне списання повної суми з рахунку." },
+        { token: "// balance -= fee", role: "Redundant Mutation", explanation: "Зайвий рядок, який спричиняв повторне списання комісії. Повинен бути видалений." },
+      ],
+      notes: "Кожна транзакція в банку має бути строго ідемпотентною або списувати кошти строго через єдину агреговану проводку (Single-source mutation).",
+      diff: "У C#: decimal totalAmount = amount + fee; balance -= totalAmount;. У Go: totalAmount := amount + fee \\n balance -= totalAmount.",
+    },
   },
 };
 
@@ -556,6 +587,37 @@ export const theoryEn: TheoryDictionary = {
       notes: "Dependency Injection enables automated testing: unit tests can substitute a MockGateway with fake funds seamlessly.",
       diff: "C# leverages generic type parameters <TInterface, TImpl>. Go registers dependencies with string keys or factory methods.",
     },
+    "task-debug-runaway-loop": {
+      concept: "Reverse debugging of an infinite loop: counter decrement (ch--) instead of increment (ch++). Termination condition is never met, stalling the thread and tripping the hardware Watchdog.",
+      tokens: [
+        { token: "for", role: "Loop Statement", explanation: "Iteration control structure." },
+        { token: "int ch = 1", role: "Loop Initialization", explanation: "Initial counter value starting at channel 1." },
+        { token: "ch <= 5", role: "Loop Invariant Condition", explanation: "Continuation condition checking whether channel <= 5." },
+        { token: "ch++", role: "Corrected Step Operation", explanation: "Increment step advancing channel toward loop exit." },
+      ],
+      notes: "Decreasing the counter with ch-- causes values to plummet to negative infinity, never breaking ch <= 5 and crashing via Watchdog timeout.",
+      diff: "In C#: for (int ch = 1; ch <= 5; ch++). In Go: for ch := 1; ch <= 5; ch++.",
+    },
+    "task-debug-off-by-one-overflow": {
+      concept: "Diagnostics of hardware CRT overload (Boundary Violation). 101% exceeds physical limit of 100% and trips fuse. Guard Clause required.",
+      tokens: [
+        { token: "if", role: "Defensive Guard", explanation: "Protective condition ensuring input safety before hardware driver invocation." },
+        { token: "requestedBrightness <= 100", role: "Boundary Check", explanation: "Invariant validation ensuring requested value does not exceed hardware ceiling 100%." },
+        { token: "tv.SetBrightness()", role: "Safe Invocation", explanation: "Driver method invoked strictly within validated parameters." },
+      ],
+      notes: "Unchecked boundaries are the primary source of buffer overflows and hardware failures in systems engineering.",
+      diff: "C#: if (requestedBrightness <= 100) { ... }. Go: if requestedBrightness <= 100 { ... }.",
+    },
+    "task-pos-double-deduction-bug": {
+      concept: "Diagnostics of double state mutation (Double Deduction). Fee is deducted separately while already aggregated in totalAmount, overcharging customer account.",
+      tokens: [
+        { token: "totalAmount = amount + fee", role: "Composite Amount", explanation: "Aggregation of total charge including service fee." },
+        { token: "balance -= totalAmount", role: "Atomic Mutation", explanation: "Single authoritative account deduction." },
+        { token: "// balance -= fee", role: "Redundant Mutation", explanation: "Duplicated mutation that must be removed." },
+      ],
+      notes: "Financial ledger operations must maintain strict single-source state updates to prevent reconciliation mismatches.",
+      diff: "C#: decimal totalAmount = amount + fee; balance -= totalAmount;. Go: totalAmount := amount + fee \\n balance -= totalAmount.",
+    },
   },
 };
 
@@ -821,6 +883,37 @@ export const theoryDa: TheoryDictionary = {
       ],
       notes: "Dependency Injection muliggør enhedstest: man kan erstatte Dankort med en MockGateway med testpenge.",
       diff: "C# anvender generiske typer <TInterface, TImpl>, mens Go registrerer med strenge eller fabrikker.",
+    },
+    "task-debug-runaway-loop": {
+      concept: "Fejlfinding af uendelig løkke: tæller-dekrement (ch--) i stedet for inkrement (ch++). Afslutningsbetingelsen nås aldrig, hvilket udløser hardware Watchdog.",
+      tokens: [
+        { token: "for", role: "Loop Statement", explanation: "Løkkekonstruktion med tæller." },
+        { token: "int ch = 1", role: "Loop Initialization", explanation: "Startværdi for kanaltælleren." },
+        { token: "ch <= 5", role: "Loop Invariant Condition", explanation: "Fortsættelsesbetingelse der tjekker ch <= 5." },
+        { token: "ch++", role: "Corrected Step Operation", explanation: "Inkrement der øger kanalen mod afslutning." },
+      ],
+      notes: "ch-- får værdien til at falde uendeligt mod negative tal, hvilket låser tråden og udløser Watchdog timer.",
+      diff: "I C#: for (int ch = 1; ch <= 5; ch++). I Go: for ch := 1; ch <= 5; ch++.",
+    },
+    "task-debug-off-by-one-overflow": {
+      concept: "Fejlfinding af katoderørs-overbelastning (grænseoverskridelse). 101% overskrider grænsen på 100% og sprænger sikringen. Kræver Guard Clause.",
+      tokens: [
+        { token: "if", role: "Defensive Guard", explanation: "Sikkerhedsbetingelse før hardwareaktivering." },
+        { token: "requestedBrightness <= 100", role: "Boundary Check", explanation: "Grænsekontrol der sikrer at værdien ikke overstiger 100%." },
+        { token: "tv.SetBrightness()", role: "Safe Invocation", explanation: "Sikkert hardwarekald." },
+      ],
+      notes: "Manglende grænsekontrol forårsager alvorlige hardwarenedbrud.",
+      diff: "C#: if (requestedBrightness <= 100) { ... }. Go: if requestedBrightness <= 100 { ... }.",
+    },
+    "task-pos-double-deduction-bug": {
+      concept: "Fejlfinding af dobbelt fradrag (Double Deduction). Gebyret trækkes to gange, hvilket skaber kasseuoverensstemmelse.",
+      tokens: [
+        { token: "totalAmount = amount + fee", role: "Composite Amount", explanation: "Beregning af totalbeløb inklusiv gebyr." },
+        { token: "balance -= totalAmount", role: "Atomic Mutation", explanation: "Enkelt og autoritativt kontotræk." },
+        { token: "// balance -= fee", role: "Redundant Mutation", explanation: "Overflødig linje der fjernes." },
+      ],
+      notes: "Finansielle transaktioner skal have ét autoritativt træk.",
+      diff: "C#: decimal totalAmount = amount + fee; balance -= totalAmount;. Go: totalAmount := amount + fee \\n balance -= totalAmount.",
     },
   },
 };

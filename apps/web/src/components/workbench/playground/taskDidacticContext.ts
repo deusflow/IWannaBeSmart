@@ -447,6 +447,77 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
         "AddScoped створює екземпляр шлюзу один раз на сесію розрахунку, гарантуючи ізольованість фінансових транзакцій.",
     },
   },
+
+  "task-debug-runaway-loop": {
+    taskId: "task-debug-runaway-loop",
+    whyThisCode: {
+      csharp:
+        "Діагностика нескінченного циклу (Infinite Loop): Замість декременту `ch--` необхідно використовувати інкремент `ch++`. Умова виходу `ch <= 5` вимагає зростання лічильника каналів. При декременті значення прямує до від'ємних чисел і цикл ніколи не завершується, викликаючи спрацювання апаратного Watchdog Timer.",
+      go:
+        "Виправлення кроку циклу: `for ch := 1; ch <= 5; ch++` замість `ch--`. При `ch--` інваріант циклу ніколи не стає хибним, що блокує горутину назавжди.",
+    },
+    primitiveMemoryNote: {
+      csharp:
+        "Змінна циклу `int ch` виділяється у Stack Frame поточного методу (4 байти). Спрацювання Watchdog Timer запобігає перегріву та 100% утилізації процесорного ядра.",
+      go:
+        "Змінна `ch` розміщується на стеку горутини. Безперервний цикл без точок перемикання (cooperative yield) призводить до монополізації процесорного потоку (thread starvation).",
+    },
+    architectureMap: {
+      clientFile: "src/Tuner/FrequencyScanner.cs",
+      canvasNodeName: "Tuner Watchdog & PLL Circuit",
+      canvasWiring: "Контур сканування частот під'єднаний до модуля апаратного сторожового таймера.",
+      architectureHint:
+        "У комерційній розробці критично тестувати термінальні умови циклів (termination conditions), щоб не допускати блокування основного потоку інтерфейсу.",
+    },
+  },
+
+  "task-debug-off-by-one-overflow": {
+    taskId: "task-debug-off-by-one-overflow",
+    whyThisCode: {
+      csharp:
+        "Захисна умова (Defensive Guard): Перед передачею значення у драйвер `tv.SetBrightness(requestedBrightness)` необхідно виконати перевірку `if (requestedBrightness <= 100)`. Запит 101% виходить за межі фізичної шкали [0..100] і призводить до спрацювання аварійного захисту (CATHODE_RAY_OVERLOAD).",
+      go:
+        "Перевірка діапазону (Boundary Check): `if requestedBrightness <= 100 { tv.SetBrightness(requestedBrightness) }`. Прямий запис невалідного числа в регістр спалює апаратний запобіжник.",
+    },
+    primitiveMemoryNote: {
+      csharp:
+        "Число `101` — це 32-бітний int. Незважаючи на те, що тип int вміщує числа до 2 мільярдів, фізичний апаратний інтерфейс випромінювача обмежений 8-бітним ЦАП (максимум 100 одиниць яскравості).",
+      go:
+        "Межі типів даних (Type Bounds) не тотожні фізичним межам пристрою (Hardware Invariants). Defensive programming вимагає валідації вхідних параметрів на рівні драйвера.",
+    },
+    architectureMap: {
+      clientFile: "src/Drivers/CathodeRayTubeDriver.cs",
+      canvasNodeName: "CRT High Voltage Safety Relay",
+      canvasWiring: "Шина керування високою напругою кінескопа захищена термозапобіжником.",
+      architectureHint:
+        "Помилки валідації меж (Off-by-One та Missing Guards) є причиною 70% системних збоїв у вбудованих та авіаційних системах.",
+    },
+  },
+
+  "task-pos-double-deduction-bug": {
+    taskId: "task-pos-double-deduction-bug",
+    whyThisCode: {
+      csharp:
+        "Усунення подвійної мутації стану (Double Mutation Bug): Рядок `balance -= fee;` є надлишковим і шкідливим, оскільки сума `totalAmount` вже була розрахована як `amount + fee`. Його видалення гарантує атомарне списання повної суми рівно один раз (`balance -= totalAmount;`).",
+      go:
+        "Ідемпотентність та єдине джерело істини: Видаляємо дубльоване списання `balance -= fee`. Баланс рахунку повинен мутувати лише один раз за транзакцію.",
+    },
+    primitiveMemoryNote: {
+      csharp:
+        "Поле `balance` представляє залишок на рахунку. Послідовне виконання двох операцій віднімання призводить до розбіжності фінансового балансу (Ledger Drift) на суму $10.00.",
+      go:
+        "Фінансові проводки повинні бути атомарними. Подвійне дебетування стану одного об'єкта порушує бухгалтерську рівновагу.",
+    },
+    architectureMap: {
+      contractFile: "src/Accounting/ILedgerService.cs",
+      implementationFile: "src/Accounting/LedgerService.cs",
+      clientFile: "src/Pos/CashierSession.cs",
+      canvasNodeName: "POS Ledger & Reconciliation Core",
+      canvasWiring: "Транзакційне ядро зводить баланс журналу розрахунків.",
+      architectureHint:
+        "У фінансових та банківських системах будь-яка мутація балансу має супроводжуватися перевіркою інваріантів у єдиній транзакційній точці (Single Point of Mutation).",
+    },
+  },
 };
 
 /**

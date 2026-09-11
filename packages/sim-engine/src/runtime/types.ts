@@ -12,6 +12,9 @@ export interface VirtualTvState {
   label?: string;
   isSafeGuardActive?: boolean;
   activeInstanceName?: string;
+  brightness?: number;
+  isFuseBlown?: boolean;
+  isDefective?: boolean;
 }
 
 export type RuntimeLogType = "info" | "mutation" | "error" | "success";
@@ -68,6 +71,13 @@ export interface CodingTask {
   };
   sprintTimeLimit?: number;
   transferVariant?: TransferVariant;
+  isBugfixTask?: boolean;
+  initialBrokenCode?: {
+    csharp: string;
+    go: string;
+  };
+  defectDescription?: Record<"ua" | "en" | "da", string>;
+  diagnosticLogs?: string[];
   validate: (
     before: VirtualTvState,
     after: VirtualTvState,
