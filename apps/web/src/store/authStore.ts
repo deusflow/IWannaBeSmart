@@ -237,10 +237,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .eq("id", userId)
         .single();
 
+      const user = get().user;
+      const metaAvatar =
+        user?.user_metadata?.avatar_url ||
+        user?.user_metadata?.picture ||
+        null;
+      const metaCallsign =
+        user?.user_metadata?.callsign ||
+        user?.user_metadata?.full_name ||
+        user?.user_metadata?.name ||
+        user?.email?.split("@")[0] ||
+        "Engineer";
+
       if (error) {
-        console.warn("[Auth] Could not fetch profile:", error.message);
+        console.warn("[Auth] Could not fetch profile from cloud:", error.message);
+        // Fallback to local / user metadata
+        const fallbackProfile: Profile = {
+          id: userId,
+          email: user?.email || null,
+          callsign: metaCallsign,
+          avatar_url: metaAvatar,
+          total_stars: 0,
+          updated_at: new Date().toISOString(),
+        };
+        set({ profile: fallbackProfile });
       } else if (data) {
-        set({ profile: data as Profile });
+        const profileRecord = data as Profile;
+        // If database profile has no avatar or callsign, augment with Google OAuth metadata
+        if (!profileRecord.avatar_url && metaAvatar) {
+          profileRecord.avatar_url = metaAvatar;
+        }
+        if (!profileRecord.callsign && metaCallsign) {
+          profileRecord.callsign = metaCallsign;
+        }
+        set({ profile: profileRecord });
       }
     } catch (err) {
       console.warn("[Auth] Fetch profile exception:", err);
@@ -251,32 +281,56 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   updateProfile: async (updates: Partial<Profile>) => {
     const user = get().user;
-    if (!isSupabaseConfigured || !user) {
-      return { error: new Error("Not authenticated or offline mode") };
+    const currentProfile = get().profile;
+
+    const payload = {
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+
+    // 1. Optimistically update local state immediately
+    const nextProfile: Profile = currentProfile
+      ? { ...currentProfile, ...payload }
+      : {
+          id: user?.id || "guest",
+          email: user?.email || null,
+          callsign: updates.callsign || "Engineer",
+          avatar_url: updates.avatar_url || null,
+          total_stars: 0,
+          ...payload,
+        };
+
+    set({ profile: nextProfile });
+
+    // Cache locally for offline resilience
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("iw_cached_profile", JSON.stringify(nextProfile));
+      } catch {
+        // Safe catch
+      }
     }
 
-    try {
-      const payload = {
-        ...updates,
-        updated_at: new Date().toISOString(),
-      };
+    // 2. If authenticated and Supabase is configured, sync to cloud
+    if (isSupabaseConfigured && user) {
+      try {
+        const { error } = await supabase
+          .from("profiles")
+          .update(payload)
+          .eq("id", user.id);
 
-      const { error } = await supabase
-        .from("profiles")
-        .update(payload)
-        .eq("id", user.id);
-
-      if (error) throw error;
-
-      set((state) => ({
-        profile: state.profile ? { ...state.profile, ...payload } : null,
-      }));
-
-      return { error: null };
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
-      return { error };
+        if (error) {
+          console.warn("[Auth] Cloud profile update failed, kept local:", error.message);
+          return { error };
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.warn("[Auth] Cloud profile update exception:", error);
+        return { error };
+      }
     }
+
+    return { error: null };
   },
 
   clearError: () => set({ error: null }),

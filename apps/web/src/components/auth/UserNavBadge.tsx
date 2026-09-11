@@ -9,6 +9,7 @@ import { User, LogOut, ChevronDown, ShieldCheck, Sparkles } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { AuthModal } from "./AuthModal";
+import { UserProfileModal } from "../profile/UserProfileModal";
 
 interface UserNavBadgeProps {
   className?: string;
@@ -20,6 +21,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
   const { taskMasteryStars } = useWorkbenchStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +48,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
   }, [isMenuOpen]);
 
   // Derived user display info
-  const callsign = profile?.callsign || user?.user_metadata?.callsign || user?.email?.split("@")[0] || "Engineer";
+  const callsign = profile?.callsign || user?.user_metadata?.callsign || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Engineer";
   const initials = callsign.slice(0, 2).toUpperCase();
 
   return (
@@ -156,7 +158,20 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           </div>
 
           {/* Actions */}
-          <div className="p-1.5">
+          <div className="p-1.5 space-y-1">
+            <button
+              id="btn-open-user-profile"
+              type="button"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsProfileModalOpen(true);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-blue-400 hover:text-white hover:bg-blue-600/20 border border-transparent hover:border-blue-500/30 transition-all cursor-pointer"
+            >
+              <User size={14} className="text-blue-400" />
+              <span>{t("profile.openProfileBtn", "Мій профіль та аналітика")}</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -174,6 +189,12 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
 
       {/* ── Auth Modal instance ── */}
       <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      {/* ── User Profile & Analytics Modal instance ── */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
     </div>
   );
 };
