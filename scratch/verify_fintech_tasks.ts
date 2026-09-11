@@ -231,6 +231,6 @@ assert(lockedRes.success === false, "Locked terminal rejects execution");
 assert(lockedRes.error === "TERMINAL IS LOCKED", "Locked terminal returns TERMINAL IS LOCKED error");
 
 // 9. Regression check: Module 1 (TV)
-assert(CODING_TASKS.length === 10, "Module 1 TV tasks are intact (10 tasks)");
+assert(CODING_TASKS.length === 13, "Module 1 TV tasks are intact (13 tasks)");
 
 console.log("\n🎉 ALL 6 FINTECH POS ENGINE TESTS & SECURITY CONSTRAINTS PASSED 100%!");

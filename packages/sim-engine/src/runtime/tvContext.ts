@@ -11,6 +11,7 @@ export class VirtualTV {
   private _volume: number;
   private _osdMessage?: string;
   private _isArchitectureWired: boolean;
+  private _label?: string;
   private _logs: RuntimeLogEntry[] = [];
   private _mutationsCount = 0;
 
@@ -20,6 +21,7 @@ export class VirtualTV {
     this._volume = initial.volume;
     this._osdMessage = initial.osdMessage;
     this._isArchitectureWired = initial.isArchitectureWired ?? true;
+    this._label = initial.label;
   }
 
   // ── Property: IsOn ──────────────────────────────────────────
@@ -171,6 +173,36 @@ export class VirtualTV {
     this.SetMode(mode);
   }
 
+  public SetLabel(val: string): void {
+    if (this._label !== val) {
+      this._label = val;
+      this._mutationsCount++;
+      this._logs.push({
+        type: "mutation",
+        message: `tv.SetLabel("${val}")`,
+      });
+      this._osdMessage = val;
+    }
+  }
+
+  public setLabel(val: string): void {
+    this.SetLabel(val);
+  }
+
+  get Label(): string | undefined {
+    return this._label;
+  }
+  set Label(val: string | undefined) {
+    this.SetLabel(val ?? "");
+  }
+
+  get label(): string | undefined {
+    return this._label;
+  }
+  set label(val: string | undefined) {
+    this.SetLabel(val ?? "");
+  }
+
   public isArchWired(): boolean {
     return this._isArchitectureWired;
   }
@@ -187,6 +219,7 @@ export class VirtualTV {
       volume: this._volume,
       osdMessage: this._osdMessage,
       isArchitectureWired: this._isArchitectureWired,
+      label: this._label,
     };
   }
 

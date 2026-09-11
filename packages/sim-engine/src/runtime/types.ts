@@ -9,6 +9,7 @@ export interface VirtualTvState {
   volume: number;
   osdMessage?: string;
   isArchitectureWired?: boolean;
+  label?: string;
 }
 
 export type RuntimeLogType = "info" | "mutation" | "error" | "success";

@@ -9,10 +9,10 @@ function assert(condition: boolean, msg: string) {
 
 console.log("=== VERIFYING TV CODE GYM (3-STAR MASTERY) TASKS & ENGINE ===");
 
-assert(CODING_TASKS.length === 10, `Expected 10 TV tasks, got ${CODING_TASKS.length}`);
+assert(CODING_TASKS.length === 13, `Expected 13 TV tasks, got ${CODING_TASKS.length}`);
 
 for (const task of CODING_TASKS) {
-  console.log(`\n--- Testing Task ${task.order}: ${task.id} ---`);
+  console.log(`\n--- Testing Task ${task.order}: ${task.id} (Tier ${task.tier ?? 0}) ---`);
 
   // 1. Structure assertions
   assert(Boolean(task.targetCode?.csharp), `Task ${task.id} missing targetCode.csharp`);
@@ -26,8 +26,13 @@ for (const task of CODING_TASKS) {
 
   // 2. Test C# execution & validation with targetCode
   const beforeStateCs: VirtualTvState = {
-    isOn: task.id === "task-1-assignment" ? false : true,
-    channel: task.id === "task-boundary-guard" ? 5 : 1,
+    isOn:
+      task.id === "task-0-1-power-on" ||
+      task.id === "task-0-3-sequential" ||
+      task.id === "task-1-assignment"
+        ? false
+        : true,
+    channel: task.id === "task-boundary-guard" ? 5 : task.id === "task-0-2-types" ? 3 : 1,
     volume: task.id === "task-function-encapsulation" ? 50 : 20,
     isArchitectureWired: true,
   };
@@ -40,8 +45,13 @@ for (const task of CODING_TASKS) {
 
   // 3. Test Go execution & validation with targetCode
   const beforeStateGo: VirtualTvState = {
-    isOn: task.id === "task-1-assignment" ? false : true,
-    channel: task.id === "task-boundary-guard" ? 5 : 1,
+    isOn:
+      task.id === "task-0-1-power-on" ||
+      task.id === "task-0-3-sequential" ||
+      task.id === "task-1-assignment"
+        ? false
+        : true,
+    channel: task.id === "task-boundary-guard" ? 5 : task.id === "task-0-2-types" ? 3 : 1,
     volume: task.id === "task-function-encapsulation" ? 50 : 20,
     isArchitectureWired: true,
   };
@@ -87,9 +97,9 @@ assert(
 console.log("✓ Task 10 correctly throws NullReferenceException when hardware wire is broken");
 
 // 5. Test Workbench Store mastery calculations
-console.log("\n--- Testing Workbench Store Mastery Stars (30 ★ for TV) ---");
+console.log("\n--- Testing Workbench Store Mastery Stars (39 ★ for TV) ---");
 const store = useWorkbenchStore.getState();
-store.setTaskMastery("task-1-assignment", 1);
+store.setTaskMastery("task-0-1-power-on", 3);
 store.setTaskMastery("task-1-assignment", 3);
 assert(useWorkbenchStore.getState().taskMasteryStars["task-1-assignment"] === 3, "Mastery stars should equal 3");
 
@@ -98,7 +108,7 @@ const totalTvStars = CODING_TASKS.reduce(
   (sum, task) => sum + (useWorkbenchStore.getState().taskMasteryStars[task.id] || 0),
   0
 );
-assert(totalTvStars >= 3, `Expected at least 3 TV stars, got ${totalTvStars}`);
-console.log(`✓ Store mastery stars verified (current TV stars: ${totalTvStars}/30 ★)`);
+assert(totalTvStars >= 6, `Expected at least 6 TV stars, got ${totalTvStars}`);
+console.log(`✓ Store mastery stars verified (current TV stars: ${totalTvStars}/39 ★)`);
 
-console.log("\n🎉 ALL 10 TV TASKS & 3-STAR CODE GYM VERIFICATIONS PASSED 100%!");
+console.log("\n🎉 ALL 13 TV TASKS & 3-STAR CODE GYM VERIFICATIONS PASSED 100%!");

@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   Trophy,
   Zap,
+  Lock,
 } from "lucide-react";
 import {
   CODING_TASKS,
@@ -52,8 +53,8 @@ export const InteractiveCodePlayground: React.FC = () => {
 
   const tierMeta = {
     0: { label: "РАНГ 0: СТАРТ", maxStars: 9, unlockAt: 0 },
-    1: { label: "РАНГ 1: ЛОГІКА", maxStars: 18, unlockAt: 6 },
-    2: { label: "РАНГ 2: АРХІТЕКТУРА", maxStars: 15, unlockAt: 18 },
+    1: { label: "РАНГ 1: ЛОГІКА", maxStars: 15, unlockAt: 6 },
+    2: { label: "РАНГ 2: АРХІТЕКТУРА", maxStars: 15, unlockAt: 10 },
   } as const;
   const tierKeys = [0, 1, 2] as const;
 
@@ -82,7 +83,7 @@ export const InteractiveCodePlayground: React.FC = () => {
     (tier: 0 | 1 | 2) => {
       if (tier === 0) return true;
       if (tier === 1) return tierStarTotals[0] >= 6;
-      return tierStarTotals[1] >= 18;
+      return tierStarTotals[1] >= 10;
     },
     [tierStarTotals]
   );
@@ -93,7 +94,11 @@ export const InteractiveCodePlayground: React.FC = () => {
   // Target code for current language & task
   const targetCode = currentTask.targetCode[codeLang];
   const clozeTemplate = currentTask.clozeTemplate[codeLang];
-  const sprintLimit = Math.max(25, Math.ceil(targetCode.length / 3.2));
+  // Comfortable timer for beginner: minimum 20s strictly guaranteed (protects short 14-char syntax like tv.PowerOn();)
+  const sprintLimit = Math.max(
+    20,
+    currentTask.sprintTimeLimit ?? Math.ceil(targetCode.length / 3.5)
+  );
 
   // Editor content per round
   const [typedCode, setTypedCode] = useState<string>("");
@@ -109,6 +114,14 @@ export const InteractiveCodePlayground: React.FC = () => {
 
   // Mastery stars for this task
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
+
+  // Next task calculation for seamless progression
+  const currentTaskIndex = CODING_TASKS.findIndex((t) => t.id === currentTask.id);
+  const nextTask =
+    currentTaskIndex >= 0 && currentTaskIndex < CODING_TASKS.length - 1
+      ? CODING_TASKS[currentTaskIndex + 1]
+      : null;
+  const isNextTaskUnlocked = nextTask ? isTierUnlocked((nextTask.tier ?? 0) as 0 | 1 | 2) : false;
 
   // Guide Spotlight — pulses the targeted device node
   useGuideSpotlight(currentTask.id);
@@ -156,6 +169,35 @@ export const InteractiveCodePlayground: React.FC = () => {
       applyCodeExecution({ channel: 5 });
     }
     if (taskId === "task-function-encapsulation" && volume === 0) {
+      applyCodeExecution({ volume: 50 });
+    }
+  };
+
+  // Switch tier and auto-select its first available task
+  const handleSelectTier = (tier: 0 | 1 | 2) => {
+    if (!isTierUnlocked(tier)) return;
+    const firstTask = CODING_TASKS.find((task) => (task.tier ?? 0) === tier);
+    if (!firstTask) return;
+    audioFx.playRelayClick();
+    setSelectedTier(tier);
+    setSelectedTaskId(firstTask.id);
+    setActiveRound(1);
+    setShowTheory(false);
+    setShowTooltip(false);
+    setShowGuide(true);
+    setTypedCode("");
+    setRoundCompleted(false);
+    setFeedback(null);
+    setHasError(false);
+    setIsTimerRunning(false);
+    setTimeLeft(
+      Math.max(20, firstTask.sprintTimeLimit ?? Math.ceil(firstTask.targetCode[codeLang].length / 3.5))
+    );
+
+    if (firstTask.id === "task-boundary-guard" && channel <= 4) {
+      applyCodeExecution({ channel: 5 });
+    }
+    if (firstTask.id === "task-function-encapsulation" && volume === 0) {
       applyCodeExecution({ volume: 50 });
     }
   };
@@ -501,38 +543,54 @@ export const InteractiveCodePlayground: React.FC = () => {
               <button
                 key={tier}
                 disabled={!isUnlocked}
-                onClick={() => {
-                  if (!isUnlocked) return;
-                  const firstTask = CODING_TASKS.filter((task) => (task.tier ?? 0) === tier)[0];
-                  if (firstTask) {
-                    setSelectedTier(tier);
-                    setSelectedTaskId(firstTask.id);
-                    setActiveRound(1);
-                    setShowGuide(true);
-                  }
-                }}
+                onClick={() => handleSelectTier(tier)}
                 className={`p-2 rounded-xl border text-left transition-all ${
                   isCurrent
                     ? "bg-[#1E2024] border-[#1E2024] text-white shadow-sm"
                     : isUnlocked
-                    ? "bg-paper/70 hover:bg-paper border-paper-border text-ink hover:border-accent-blue/40"
-                    : "bg-paper/40 border-paper-border/50 text-ink-muted/50 cursor-not-allowed opacity-60"
+                    ? "bg-paper/70 hover:bg-paper border-paper-border text-ink hover:border-accent-blue/40 cursor-pointer"
+                    : "bg-paper/40 border-paper-border/50 text-ink-muted/50 cursor-not-allowed opacity-75"
                 }`}
-                title={`${tierMeta[tier].label} (${currentTierStars}/${maxStars} ★)`}
+                title={
+                  !isUnlocked
+                    ? tier === 1
+                      ? "Заблоковано: потрібно щонайменше 6 ★ у Ранзі 0"
+                      : "Заблоковано: завершіть Ранг 1 (потрібно щонайменше 10 ★)"
+                    : `${tierMeta[tier].label} (${currentTierStars}/${maxStars} ★)`
+                }
               >
-                <div className="font-mono text-[10px] font-extrabold uppercase tracking-wide">
-                  {tierMeta[tier].label} ({currentTierStars}/{maxStars} ★)
+                <div className="flex items-center justify-between gap-1">
+                  <div className="font-mono text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1 min-w-0">
+                    {!isUnlocked && <Lock size={11} className="text-ink-muted/70 shrink-0" />}
+                    <span className="truncate">{tierMeta[tier].label}</span>
+                  </div>
+                  <span
+                    className={`font-mono text-[10px] font-bold shrink-0 ${
+                      isCurrent ? "text-amber-400" : "text-ink-muted"
+                    }`}
+                  >
+                    {currentTierStars}/{maxStars} ★
+                  </span>
                 </div>
-                <div className="mt-1 flex items-center gap-1 text-[9px]">
-                  {Array.from({ length: 3 }).map((_, starIdx) => (
-                    <span
-                      key={starIdx}
-                      className={currentTierStars >= (starIdx + 1) ? "text-amber-400" : "text-gray-300 opacity-40"}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
+                {!isUnlocked ? (
+                  <div className="mt-1 text-[9px] font-mono text-amber-900/80 font-semibold truncate">
+                    {tier === 1 ? "🔒 Потрібно 6 ★ у Ранзі 0" : "🔒 Пройдіть Ранг 1 (≥10 ★)"}
+                  </div>
+                ) : (
+                  <div className="mt-1 flex items-center gap-1 text-[9px]">
+                    {Array.from({ length: 3 }).map((_, starIdx) => {
+                      const threshold = Math.round(((starIdx + 1) * maxStars) / 3);
+                      return (
+                        <span
+                          key={starIdx}
+                          className={currentTierStars >= threshold ? "text-amber-400" : "text-gray-300 opacity-40"}
+                        >
+                          ★
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
               </button>
             );
           })}
@@ -898,9 +956,23 @@ export const InteractiveCodePlayground: React.FC = () => {
             )}
 
             {roundCompleted && activeRound === 3 && (
-              <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-xs flex items-center gap-1.5">
-                <Trophy size={14} className="text-amber-400" />
-                <span>3-Star Mastered!</span>
+              <div className="flex items-center gap-2">
+                <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-xs flex items-center gap-1.5">
+                  <Trophy size={14} className="text-amber-400" />
+                  <span>3-Star Mastered!</span>
+                </div>
+                {nextTask && isNextTaskUnlocked && (
+                  <button
+                    onClick={() => {
+                      audioFx.playRelayClick();
+                      handleSelectTask(nextTask.id);
+                    }}
+                    className="px-4 py-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
+                  >
+                    <span>{t("codegym.nextTaskBtn", "Наступне завдання →")}</span>
+                    <ArrowRight size={13} />
+                  </button>
+                )}
               </div>
             )}
 

@@ -6,6 +6,9 @@
 import { theoryUa, theoryEn, theoryDa } from "../packages/i18n/src";
 
 const REQUIRED_TASKS = [
+  "task-0-1-power-on",
+  "task-0-2-types",
+  "task-0-3-sequential",
   "task-1-assignment",
   "task-2-branching",
   "task-variable-mutation",

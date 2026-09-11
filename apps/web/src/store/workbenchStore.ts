@@ -166,6 +166,7 @@ export interface WorkbenchActions {
     channel?: number;
     volume?: number;
     osdMessage?: string;
+    label?: string;
   }) => void;
 
   // Core physical pipeline dispatcher
@@ -800,11 +801,16 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
         const nextPower = updates.power !== undefined ? updates.power : state.power;
         const nextChannel = updates.channel !== undefined ? updates.channel : state.channel;
         const nextVolume = updates.volume !== undefined ? updates.volume : state.volume;
+        const nextChannelNames = updates.label
+          ? { ...state.channelNames, [nextChannel]: updates.label }
+          : state.channelNames;
         const isDisplayBroken = state.isEdgeBroken("edge-mcu-display");
 
         let osd = updates.osdMessage;
         if (!osd) {
-          if (nextPower !== state.power) {
+          if (updates.label) {
+            osd = updates.label;
+          } else if (nextPower !== state.power) {
             osd = nextPower ? "POWER ON" : "STANDBY";
           } else if (nextChannel !== state.channel) {
             osd = `CH ${nextChannel}`;
@@ -856,6 +862,7 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
           channel: nextChannel,
           volume: nextVolume,
           osdMessage: osd,
+          channelNames: nextChannelNames,
           isArchitecturePowerWired: isPowerWired,
           archEdges: nextArchEdges,
           screenReactionPulse: nextPower,

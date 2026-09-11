@@ -281,6 +281,28 @@ function executeStatement(
     return;
   }
 
+  // 8.5 Method: tv.SetLabel("NEWS") or tv.SetLabel(labelVar)
+  const setLabelMatch = s.match(
+    /^tv\s*\.\s*(SetLabel|setLabel)\s*\(\s*(?:["']([^"']*)["']|([a-zA-Z_]\w*))\s*\)$/i
+  );
+  if (setLabelMatch) {
+    const literalVal = setLabelMatch[2];
+    const varVal = setLabelMatch[3];
+    const label = literalVal !== undefined ? literalVal : (ctx.strScope[varVal] ?? varVal);
+    tv.SetLabel(label);
+    return;
+  }
+
+  // 8.6 Property Assignment: tv.Label = "NEWS"
+  const propLabelMatch = s.match(/^tv\s*\.\s*(Label|label)\s*=\s*(?:["']([^"']*)["']|([a-zA-Z_]\w*))$/i);
+  if (propLabelMatch) {
+    const literalVal = propLabelMatch[2];
+    const varVal = propLabelMatch[3];
+    const label = literalVal !== undefined ? literalVal : (ctx.strScope[varVal] ?? varVal);
+    tv.SetLabel(label);
+    return;
+  }
+
   // 9. String variable assignment: string button = "CALC" / button := "CALC"
   const strVarMatch = s.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*["']([^"']*)["']$/i);
   if (strVarMatch) {

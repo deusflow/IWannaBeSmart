@@ -55,28 +55,28 @@ export const CODING_TASKS: CodingTask[] = [
     engineeringKey: "playground.task02Engineering",
     careerImpactKey: "playground.task02Career",
     initialCode: {
-      csharp: "// Типи даних: число vs текст\nint channel = 1;\nstring label = \"NEWS\";\n",
-      go: "// Типи даних: число vs текст\nchannel := 1\nlabel := \"NEWS\"\n",
+      csharp: '// Встановіть канал 1 цифрою та назву "NEWS" текстом\ntv.SetChannel(1);\ntv.SetLabel("NEWS");\n',
+      go: '// Встановіть канал 1 цифрою та назву "NEWS" текстом\ntv.SetChannel(1)\ntv.SetLabel("NEWS")\n',
     },
     targetCode: {
-      csharp: 'int channel = 1; string label = "NEWS";',
-      go: 'channel := 1; label := "NEWS"',
+      csharp: 'tv.SetChannel(1);\ntv.SetLabel("NEWS");',
+      go: 'tv.SetChannel(1)\ntv.SetLabel("NEWS")',
     },
     clozeTemplate: {
-      csharp: '___ channel = ___; ___ label = "___";',
-      go: '___ := ___; ___ := "___"',
+      csharp: 'tv.SetChannel(___);\ntv.SetLabel("___");',
+      go: 'tv.SetChannel(___)\ntv.SetLabel("___")',
     },
-    sprintTimeLimit: 20,
-    validate: (_before, _after, result, code) => {
+    sprintTimeLimit: 25,
+    validate: (_before, after, result, code) => {
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
-      if (!code) {
-        return { passed: false, messageKey: "playground.task02Hint" };
-      }
-      const matchesCSharp = /int\s+channel\s*=\s*1\s*;\s*string\s+label\s*=\s*"NEWS"\s*;?/i.test(code);
-      const matchesGo = /channel\s*:=\s*1\s*;?\s*label\s*:=\s*"NEWS"\s*;?/i.test(code);
-      if (matchesCSharp || matchesGo) {
+      const hasChannel = after.channel === 1;
+      const hasLabel =
+        after.label === "NEWS" ||
+        after.osdMessage === "NEWS" ||
+        (code && /SetLabel\s*\(\s*"NEWS"\s*\)/i.test(code));
+      if (hasChannel && hasLabel) {
         return { passed: true, messageKey: "playground.task02Success" };
       }
       return { passed: false, messageKey: "playground.task02Hint" };

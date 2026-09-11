@@ -30,15 +30,16 @@ export const WorkshopHubScreen: React.FC = () => {
     setPosVictoryModalOpen,
   } = useWorkbenchStore();
 
-  // TV module stats (10 tasks * 3 stars = 30 max stars)
+  // TV module stats (13 tasks * 3 stars = 39 max stars)
+  const maxTvStars = CODING_TASKS.length * 3;
   const totalTvStars = useMemo(() => {
     return CODING_TASKS.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
   }, [taskMasteryStars]);
-  const isTvFullyMastered = totalTvStars >= 30;
+  const isTvFullyMastered = totalTvStars >= maxTvStars;
   const isTvEligibleForCert = CODING_TASKS.every(
     (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
   );
-  const isTvCompleted = isTvFullyMastered || Object.keys(completedCodingTasks).length >= 10;
+  const isTvCompleted = isTvFullyMastered || Object.keys(completedCodingTasks).length >= CODING_TASKS.length;
 
   // POS module stats (6 tasks * 3 stars = 18 max stars)
   const totalPosStars = useMemo(() => {
@@ -218,10 +219,10 @@ export const WorkshopHubScreen: React.FC = () => {
                 }`}
               >
                 {isTvFullyMastered
-                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (30/30 ★)`
+                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${maxTvStars}/${maxTvStars} ★)`
                   : isTvCompleted
-                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${totalTvStars}/30 ★)`
-                  : `${t("hub.stationAvailable", "ДОСТУПНО")} (${totalTvStars}/30 ★)`}
+                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${totalTvStars}/${maxTvStars} ★)`
+                  : `${t("hub.stationAvailable", "ДОСТУПНО")} (${totalTvStars}/${maxTvStars} ★)`}
               </span>
             </div>
 
@@ -272,8 +273,8 @@ export const WorkshopHubScreen: React.FC = () => {
 
             {/* Specs & Task Progress */}
             <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
-              <span>{t("hub.stations.tv.specs", "10 завдань • CRT TV • C# / Go")}</span>
-              <span className="font-bold">{totalTvStars}/30 ★</span>
+              <span>{t("hub.stations.tv.specs", "13 завдань • Smart TV • C# / Go")}</span>
+              <span className="font-bold">{totalTvStars}/{maxTvStars} ★</span>
             </div>
           </div>
 
