@@ -13,6 +13,8 @@ import { create } from "zustand";
 import type { Node, Edge } from "@xyflow/react";
 import { CODING_TASKS, type VirtualPosState } from "@iw/sim-engine";
 import { audioFx } from "../utils/audioFx";
+import { supabase, isSupabaseConfigured } from "../lib/supabaseClient";
+import { useAuthStore } from "./authStore";
 
 /**
  * Physical animation & transmission timings (Item 56)
@@ -102,6 +104,7 @@ export interface MentorSlice {
   taskMasteryStars: Record<string, number>;
   setTaskMastery: (taskId: string, stars: number) => void;
   getTaskMastery: (taskId: string) => number;
+  syncCloudProgress: (userId: string) => Promise<void>;
   currentStationId: string;
   setCurrentStationId: (id: string) => void;
   currentView: "HUB" | "STATION";
@@ -647,8 +650,137 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
       } catch {
         // Safe catch
       }
+
+      // Offline-First cloud sync with onConflict if authenticated
+      if (isSupabaseConfigured) {
+        try {
+          const userId = useAuthStore.getState().user?.id;
+          if (userId) {
+            supabase
+              .from("user_progress")
+              .upsert(
+                {
+                  user_id: userId,
+                  station_id: get().currentStationId || "tv",
+                  task_id: taskId,
+                  tier: 0,
+                  stars: nextStars,
+                  completed_at: new Date().toISOString(),
+                },
+                { onConflict: "user_id,station_id,task_id" }
+              )
+              .then(
+                ({ error }) => {
+                  if (error) {
+                    console.warn("[Workbench] Upsert user_progress warning:", error.message);
+                  }
+                },
+                (err: unknown) => {
+                  console.warn("[Workbench] Cloud sync network issue (offline):", err);
+                }
+              );
+          }
+        } catch {
+          // Safe catch for offline/stub mode
+        }
+      }
     },
     getTaskMastery: (taskId: string) => get().taskMasteryStars[taskId] || 0,
+
+    syncCloudProgress: async (userId: string) => {
+      if (!isSupabaseConfigured || !userId) return;
+
+      try {
+        const { data, error } = await supabase
+          .from("user_progress")
+          .select("*")
+          .eq("user_id", userId);
+
+        if (error) {
+          console.warn("[Workbench] Failed to fetch cloud progress:", error.message);
+          return;
+        }
+
+        const localMap = { ...get().taskMasteryStars };
+        const toUpload: Array<{
+          user_id: string;
+          station_id: string;
+          task_id: string;
+          tier: number;
+          stars: number;
+          completed_at: string;
+        }> = [];
+
+        // 1. Merge cloud rows into local with Math.max
+        if (data && Array.isArray(data)) {
+          for (const row of data as Array<{
+            task_id: string;
+            stars: number;
+            station_id: string;
+            tier: number;
+          }>) {
+            const localStars = localMap[row.task_id] || 0;
+            const finalStars = Math.max(localStars, row.stars);
+            localMap[row.task_id] = finalStars;
+
+            // If local had higher stars, queue upload
+            if (localStars > row.stars) {
+              toUpload.push({
+                user_id: userId,
+                station_id: row.station_id || get().currentStationId || "tv",
+                task_id: row.task_id,
+                tier: row.tier || 0,
+                stars: localStars,
+                completed_at: new Date().toISOString(),
+              });
+            }
+          }
+        }
+
+        // 2. Queue local stars not yet in cloud
+        const cloudTaskIds = new Set(
+          (data || []).map((r: { task_id: string }) => r.task_id)
+        );
+        for (const [taskId, stars] of Object.entries(localMap)) {
+          if (!cloudTaskIds.has(taskId) && stars > 0) {
+            toUpload.push({
+              user_id: userId,
+              station_id: get().currentStationId || "tv",
+              task_id: taskId,
+              tier: 0,
+              stars,
+              completed_at: new Date().toISOString(),
+            });
+          }
+        }
+
+        // Update local state and localStorage
+        set({ taskMasteryStars: localMap });
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("iw_mastery_stars", JSON.stringify(localMap));
+          }
+        } catch {
+          // Safe catch
+        }
+
+        // 3. Upsert queue to Supabase with onConflict
+        if (toUpload.length > 0) {
+          const { error: upsertErr } = await supabase
+            .from("user_progress")
+            .upsert(toUpload, { onConflict: "user_id,station_id,task_id" });
+
+          if (upsertErr) {
+            console.warn(
+              "[Workbench] syncCloudProgress upsert warning:",
+              upsertErr.message
+            );
+          }
+        }
+      } catch (err) {
+        console.warn("[Workbench] syncCloudProgress exception:", err);
+      }
+    },
 
     currentStationId: "tv",
     setCurrentStationId: (id: string) => set({ currentStationId: id }),
