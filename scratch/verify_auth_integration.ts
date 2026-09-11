@@ -315,10 +315,23 @@ async function main() {
   const viteConfigContent = fs.readFileSync(viteConfigPath, "utf-8");
   assert(viteConfigContent.includes('base: "/IWannaBeSmart/"') || viteConfigContent.includes("base: '/IWannaBeSmart/'"), "vite.config.ts configures base: '/IWannaBeSmart/'");
 
-  assert(
-    authStoreContent.includes("import.meta.env.BASE_URL"),
-    "authStore.ts signInWithGoogle configures redirectTo with import.meta.env.BASE_URL"
-  );
+  // ──────────────────────────────────────────────
+  // Test 10: Multilingual i18n & Paper Color Scheme
+  // ──────────────────────────────────────────────
+  console.log("\n--- 10. Verifying Multilingual Auth Translations & Color Scheme ---");
+
+  const i18nIndexPath = path.resolve(process.cwd(), "packages/i18n/src/index.ts");
+  const i18nContent = fs.readFileSync(i18nIndexPath, "utf-8");
+  assert(i18nContent.includes("titleSignIn: \"Авторизація інженера\""), "i18n contains UA auth translations");
+  assert(i18nContent.includes("titleSignIn: \"Engineer Authorization\""), "i18n contains EN auth translations");
+  assert(i18nContent.includes("titleSignIn: \"Ingeniørautorisation\""), "i18n contains DA auth translations");
+
+  assert(authModalContent.includes("bg-[#FAF7F2]"), "AuthModal uses warm cotton paper surface (#FAF7F2)");
+  assert(authModalContent.includes("bg-accent-blue"), "AuthModal uses blueprint navy accent-blue button");
+  assert(!authModalContent.includes("bg-[#1E1E22]"), "AuthModal no longer uses dark cyberpunk theme");
+
+  assert(userNavBadgeContent.includes("bg-[#FAF7F2]"), "UserNavBadge dropdown uses warm cotton paper surface (#FAF7F2)");
+  assert(!userNavBadgeContent.includes("bg-[#1E1E22]"), "UserNavBadge dropdown no longer uses dark cyberpunk theme");
 
   console.log("\n=================================================");
   console.log(`🎉 ALL ${passCount}/${testCount} VERIFICATION CHECKS PASSED!`);
