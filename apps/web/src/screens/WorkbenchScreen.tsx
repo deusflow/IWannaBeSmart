@@ -8,6 +8,7 @@ import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDe
 import { EngineeringDrawer } from "../components/workbench/EngineeringDrawer";
 import { ArchitectureCanvas } from "../components/workbench/architecture/ArchitectureCanvas";
 import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
+import { UserNavBadge } from "../components/auth/UserNavBadge";
 import { POSBlueprintDevice } from "../components/workbench/POSBlueprintDevice";
 import { CodeGymRunner } from "../components/workbench/playground/CodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
@@ -208,6 +209,8 @@ export const WorkbenchScreen: React.FC = () => {
               <span className="hidden sm:inline font-mono">{currentStationProgressText}</span>
             </button>
           )}
+
+          <UserNavBadge />
 
           <LanguageSwitcher />
 

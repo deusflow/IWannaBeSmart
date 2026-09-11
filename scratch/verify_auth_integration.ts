@@ -243,6 +243,83 @@ async function main() {
     "workbenchStore.ts implements syncCloudProgress()"
   );
 
+  // ──────────────────────────────────────────────
+  // Test 6: Auth UI Header Components (AuthModal & UserNavBadge)
+  // ──────────────────────────────────────────────
+  console.log("\n--- 6. Verifying Auth Header Components & Screen Integration ---");
+
+  const authModalPath = path.resolve(process.cwd(), "apps/web/src/components/auth/AuthModal.tsx");
+  assert(fs.existsSync(authModalPath), `AuthModal.tsx exists at ${authModalPath}`);
+  const authModalContent = fs.readFileSync(authModalPath, "utf-8");
+  assert(authModalContent.includes("signInWithGoogle"), "AuthModal contains Google OAuth trigger");
+  assert(authModalContent.includes("signInWithEmail") && authModalContent.includes("signUpWithEmail"), "AuthModal contains Email/Password triggers");
+  assert(authModalContent.includes("Продовжити як гість") || authModalContent.includes("гість"), "AuthModal provides guest continuation button");
+
+  const userNavBadgePath = path.resolve(process.cwd(), "apps/web/src/components/auth/UserNavBadge.tsx");
+  assert(fs.existsSync(userNavBadgePath), `UserNavBadge.tsx exists at ${userNavBadgePath}`);
+  const userNavBadgeContent = fs.readFileSync(userNavBadgePath, "utf-8");
+  assert(userNavBadgeContent.includes("btn-auth-guest-login"), "UserNavBadge renders guest login trigger");
+  assert(userNavBadgeContent.includes("btn-user-profile-menu"), "UserNavBadge renders profile dropdown menu");
+  assert(userNavBadgeContent.includes("57"), "UserNavBadge displays total stars out of 57");
+  assert(userNavBadgeContent.includes("SYNC"), "UserNavBadge contains ONLINE SYNC indicator");
+
+  const workbenchScreenPath = path.resolve(process.cwd(), "apps/web/src/screens/WorkbenchScreen.tsx");
+  const workbenchScreenContent = fs.readFileSync(workbenchScreenPath, "utf-8");
+  assert(workbenchScreenContent.includes("<UserNavBadge"), "WorkbenchScreen mounts UserNavBadge in header");
+
+  const workshopHubScreenPath = path.resolve(process.cwd(), "apps/web/src/components/workbench/WorkshopHubScreen.tsx");
+  const workshopHubScreenContent = fs.readFileSync(workshopHubScreenPath, "utf-8");
+  assert(workshopHubScreenContent.includes("<UserNavBadge"), "WorkshopHubScreen mounts UserNavBadge in header");
+
+  // ──────────────────────────────────────────────
+  // Test 7: WPM Telemetry Transmission
+  // ──────────────────────────────────────────────
+  console.log("\n--- 7. Verifying WPM Telemetry Transmission ---");
+
+  const codeGymPath = path.resolve(process.cwd(), "apps/web/src/components/workbench/playground/CodeGymRunner.tsx");
+  const codeGymContent = fs.readFileSync(codeGymPath, "utf-8");
+  assert(codeGymContent.includes("saveTaskProgress"), "CodeGymRunner imports and utilizes saveTaskProgress");
+  assert(codeGymContent.includes("calculatedWpm"), "CodeGymRunner calculates WPM");
+  assert(
+    codeGymContent.includes("saveTaskProgress(currentTask.id, 3, calculatedWpm)"),
+    "CodeGymRunner passes calculatedWpm on sprint round completion"
+  );
+  assert(
+    workbenchStoreContent.includes("best_wpm") && workbenchStoreContent.includes("payload.best_wpm = bestWpm"),
+    "workbenchStore passes best_wpm into user_progress upsert payload"
+  );
+
+  // ──────────────────────────────────────────────
+  // Test 8: Stars Aggregation Trigger SQL Migration
+  // ──────────────────────────────────────────────
+  console.log("\n--- 8. Verifying Stars Aggregation Trigger Migration ---");
+
+  const triggerMigrationPath = path.resolve(process.cwd(), "supabase/migrations/20260911_stars_aggregation_trigger.sql");
+  assert(fs.existsSync(triggerMigrationPath), `Trigger migration exists at ${triggerMigrationPath}`);
+  const triggerSqlContent = fs.readFileSync(triggerMigrationPath, "utf-8");
+  assert(triggerSqlContent.includes("function public.update_user_total_stars()"), "SQL creates update_user_total_stars() function");
+  assert(triggerSqlContent.includes("coalesce(sum(stars), 0)"), "SQL calculates sum of stars from user_progress");
+  assert(triggerSqlContent.includes("update public.profiles"), "SQL updates profiles.total_stars");
+  assert(triggerSqlContent.includes("create trigger on_user_progress_stars_changed"), "SQL binds on_user_progress_stars_changed trigger");
+  assert(
+    triggerSqlContent.includes("after insert or update of stars or delete"),
+    "SQL trigger listens on after insert or update of stars or delete"
+  );
+
+  // ──────────────────────────────────────────────
+  // Test 9: GitHub Pages Base Path & OAuth Redirect
+  // ──────────────────────────────────────────────
+  console.log("\n--- 9. Verifying GitHub Pages Base Path & OAuth Redirect ---");
+
+  const viteConfigPath = path.resolve(process.cwd(), "apps/web/vite.config.ts");
+  const viteConfigContent = fs.readFileSync(viteConfigPath, "utf-8");
+  assert(viteConfigContent.includes('base: "/IWannaBeSmart/"') || viteConfigContent.includes("base: '/IWannaBeSmart/'"), "vite.config.ts configures base: '/IWannaBeSmart/'");
+
+  assert(
+    authStoreContent.includes("import.meta.env.BASE_URL"),
+    "authStore.ts signInWithGoogle configures redirectTo with import.meta.env.BASE_URL"
+  );
+
   console.log("\n=================================================");
   console.log(`🎉 ALL ${passCount}/${testCount} VERIFICATION CHECKS PASSED!`);
   console.log("=================================================");

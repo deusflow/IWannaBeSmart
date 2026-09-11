@@ -19,6 +19,7 @@ import {
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
 import { FINTECH_TASKS, CODING_TASKS } from "@iw/sim-engine";
+import { UserNavBadge } from "../auth/UserNavBadge";
 
 export const WorkshopHubScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -147,6 +148,7 @@ export const WorkshopHubScreen: React.FC = () => {
 
         {/* Global XP & Stars Quick Counter */}
         <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
+          <UserNavBadge />
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/25 shadow-paper-xs">
             <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800">
               <Award size={16} />

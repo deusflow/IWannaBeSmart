@@ -119,10 +119,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         throw new Error("Supabase is not configured. Running in offline/guest mode.");
       }
 
+      const redirectUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}${import.meta.env.BASE_URL || "/"}`
+          : undefined;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+          redirectTo: redirectUrl,
         },
       });
 

@@ -102,7 +102,8 @@ export interface MentorSlice {
   completeLevel: () => void;
   // Code Gym Mastery Stars & Fintech Station
   taskMasteryStars: Record<string, number>;
-  setTaskMastery: (taskId: string, stars: number) => void;
+  setTaskMastery: (taskId: string, stars: number, bestWpm?: number) => void;
+  saveTaskProgress: (taskId: string, stars: number, bestWpm?: number) => void;
   getTaskMastery: (taskId: string) => number;
   syncCloudProgress: (userId: string) => Promise<void>;
   currentStationId: string;
@@ -638,7 +639,7 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
         return {};
       }
     })(),
-    setTaskMastery: (taskId: string, stars: number) => {
+    setTaskMastery: (taskId: string, stars: number, bestWpm?: number) => {
       const current = get().taskMasteryStars[taskId] || 0;
       const nextStars = Math.max(current, stars);
       const nextMap = { ...get().taskMasteryStars, [taskId]: nextStars };
@@ -656,19 +657,30 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
         try {
           const userId = useAuthStore.getState().user?.id;
           if (userId) {
+            const payload: {
+              user_id: string;
+              station_id: string;
+              task_id: string;
+              tier: number;
+              stars: number;
+              best_wpm?: number;
+              completed_at: string;
+            } = {
+              user_id: userId,
+              station_id: get().currentStationId || "tv",
+              task_id: taskId,
+              tier: 0,
+              stars: nextStars,
+              completed_at: new Date().toISOString(),
+            };
+
+            if (typeof bestWpm === "number" && bestWpm > 0) {
+              payload.best_wpm = bestWpm;
+            }
+
             supabase
               .from("user_progress")
-              .upsert(
-                {
-                  user_id: userId,
-                  station_id: get().currentStationId || "tv",
-                  task_id: taskId,
-                  tier: 0,
-                  stars: nextStars,
-                  completed_at: new Date().toISOString(),
-                },
-                { onConflict: "user_id,station_id,task_id" }
-              )
+              .upsert(payload, { onConflict: "user_id,station_id,task_id" })
               .then(
                 ({ error }) => {
                   if (error) {
@@ -684,6 +696,9 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
           // Safe catch for offline/stub mode
         }
       }
+    },
+    saveTaskProgress: (taskId: string, stars: number, bestWpm?: number) => {
+      get().setTaskMastery(taskId, stars, bestWpm);
     },
     getTaskMastery: (taskId: string) => get().taskMasteryStars[taskId] || 0,
 

@@ -47,6 +47,7 @@ export const CodeGymRunner: React.FC = () => {
     resetPosState,
     taskMasteryStars,
     setTaskMastery,
+    saveTaskProgress,
     completeCodingTask,
     addXp,
     setPosVictoryModalOpen,
@@ -223,7 +224,7 @@ export const CodeGymRunner: React.FC = () => {
           } else if (currentTask.id === "task-pos-pin-lockout") {
             audioFx.playAlarmSound();
           }
-          setTaskMastery(currentTask.id, 1);
+          saveTaskProgress(currentTask.id, 1, calculatedWpm);
           completeCodingTask(currentTask.id);
           addXp(15);
 
@@ -234,7 +235,7 @@ export const CodeGymRunner: React.FC = () => {
         }
       }
     },
-    [targetCode, currentTask.id, posState, setTaskMastery, completeCodingTask, addXp, applyPosExecution, playThrottledKeyClick, t]
+    [targetCode, currentTask.id, posState, saveTaskProgress, completeCodingTask, addXp, applyPosExecution, playThrottledKeyClick, t]
   );
 
   // ── Round 2: Cloze verification ──────────────────────────────
@@ -329,7 +330,7 @@ export const CodeGymRunner: React.FC = () => {
       } else if (currentTask.id === "task-pos-pin-lockout") {
         audioFx.playAlarmSound();
       }
-      setTaskMastery(currentTask.id, 3);
+      saveTaskProgress(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
       addXp(50);
       setFeedback(t("codegym.masteryComplete"));
@@ -346,7 +347,7 @@ export const CodeGymRunner: React.FC = () => {
       audioFx.playErrorBuzz();
       setFeedback(t(validation.messageKey || currentTask.hintKey));
     }
-  }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, setTaskMastery, completeCodingTask, addXp, taskMasteryStars, setPosVictoryModalOpen, t]);
+  }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, saveTaskProgress, completeCodingTask, addXp, taskMasteryStars, setPosVictoryModalOpen, t]);
 
   // ── Round 4: Transfer (Conceptual Variation) ──────────────────────────
   const handleRunTransfer = useCallback(async () => {
