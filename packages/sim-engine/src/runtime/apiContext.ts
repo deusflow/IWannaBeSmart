@@ -106,6 +106,7 @@ export const INITIAL_API_STATE: VirtualApiState = {
   isCableBroken: false,
   validBearerTokens: ["forge-token-secure-99"],
   devices: [
+    { id: "42", name: "Cyberpunk Terminal 42", status: "ONLINE", ip: "192.168.1.142" },
     { id: "tv-01", name: "Living Room TV Chassis", status: "ONLINE", ip: "192.168.1.101" },
     { id: "pos-01", name: "Countertop POS Terminal", status: "BUSY", ip: "192.168.1.102" },
     { id: "gate-01", name: "Garage Motor Gate", status: "OFFLINE", ip: "192.168.1.103" },
@@ -305,7 +306,7 @@ export class VirtualApiServer {
 
     // Task 4: Protected route with Bearer Token
     if (req.path === "/api/secure/stats") {
-      const authHeader = req.headers["Authorization"] || req.headers["authorization"];
+      const authHeader = req.headers?.["Authorization"] || req.headers?.["authorization"];
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
         const res: HttpResponse = {
           statusCode: 401,

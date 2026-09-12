@@ -204,5 +204,59 @@ describe("WorkbenchStore Slices", () => {
       expect(res.statusCode).toBe(504);
       expect(getStore().lastApiResponse?.statusCode).toBe(504);
     });
+
+    it("should support station navigation and victory modal state for API station", () => {
+      getStore().setCurrentStationId("api");
+      expect(getStore().currentStationId).toBe("api");
+
+      getStore().setApiVictoryModalOpen(true);
+      expect(getStore().isApiVictoryModalOpen).toBe(true);
+
+      getStore().setApiVictoryModalOpen(false);
+      expect(getStore().isApiVictoryModalOpen).toBe(false);
+    });
+
+    it("should enforce 401 Unauthorized for secure route without token, and 200 OK with Bearer token", async () => {
+      getStore().resetApiState();
+      getStore().setClientDraftMethod("GET");
+      getStore().setClientDraftPath("/api/secure/stats");
+      getStore().setClientDraftHeaders({});
+
+      const unauthorizedRes = await getStore().sendClientRequest();
+      expect(unauthorizedRes.statusCode).toBe(401);
+
+      getStore().setClientDraftHeaders({
+        Authorization: "Bearer forge-token-secure-99",
+      });
+      const authorizedRes = await getStore().sendClientRequest();
+      expect(authorizedRes.statusCode).toBe(200);
+    });
+
+    it("should return 201 Created for valid POST /api/orders and 400 Bad Request for invalid body", async () => {
+      getStore().resetApiState();
+      getStore().setClientDraftMethod("POST");
+      getStore().setClientDraftPath("/api/orders");
+      getStore().setClientDraftBody(JSON.stringify({ item: "QuantumCore", quantity: 2 }));
+
+      const successRes = await getStore().sendClientRequest();
+      expect(successRes.statusCode).toBe(201);
+
+      getStore().setClientDraftBody(JSON.stringify({ item: "", quantity: 0 }));
+      const badRes = await getStore().sendClientRequest();
+      expect(badRes.statusCode).toBe(400);
+    });
+
+    it("should return 200 OK for known device and 404 Not Found for unknown device", async () => {
+      getStore().resetApiState();
+      getStore().setClientDraftMethod("GET");
+      getStore().setClientDraftPath("/api/devices/42");
+
+      const foundRes = await getStore().sendClientRequest();
+      expect(foundRes.statusCode).toBe(200);
+
+      getStore().setClientDraftPath("/api/devices/nonexistent-device-999");
+      const notFoundRes = await getStore().sendClientRequest();
+      expect(notFoundRes.statusCode).toBe(404);
+    });
   });
 });
