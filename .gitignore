@@ -40,3 +40,6 @@ lerna-debug.log*
 .turbo
 .eslintcache
 *.tsbuildinfo
+
+# Internal educational roadmap & architecture specs
+docs/ROADMAP_ARCHITECTURE.md
