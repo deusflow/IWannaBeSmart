@@ -30,37 +30,37 @@ const SUBSYSTEM_CONFIG: Record<
     bg: "bg-purple-950/80",
     text: "text-purple-300",
     border: "border-purple-500/50",
-    label: "[IoC]",
+    label: "[DI]",
   },
   VTABLE: {
     bg: "bg-blue-950/80",
     text: "text-blue-300",
     border: "border-blue-500/50",
-    label: "[VTABLE]",
+    label: "[КОНТРАКТ]",
   },
   BUS: {
     bg: "bg-amber-950/80",
     text: "text-amber-300",
     border: "border-amber-500/50",
-    label: "[BUS]",
+    label: "[СИГНАЛ]",
   },
   HARDWARE: {
     bg: "bg-emerald-950/80",
     text: "text-emerald-300",
     border: "border-emerald-500/50",
-    label: "[HARDWARE]",
+    label: "[ЗАЛІЗО]",
   },
   FAULT: {
     bg: "bg-red-950/80",
     text: "text-red-300",
     border: "border-red-500/60 animate-pulse",
-    label: "[FAULT]",
+    label: "[ПОМИЛКА]",
   },
   GRAPH: {
     bg: "bg-gray-800/80",
     text: "text-gray-400",
     border: "border-gray-600/40",
-    label: "[GRAPH]",
+    label: "[АРХІТЕКТУРА]",
   },
 };
 
@@ -113,7 +113,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
   onFocusNode,
 }) => {
   const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
   const [activeTab, setActiveTab] = useState<"log" | "theory" | "code">("log");
   const [filterSubsystem, setFilterSubsystem] = useState<SubsystemTag | "ALL">("ALL");

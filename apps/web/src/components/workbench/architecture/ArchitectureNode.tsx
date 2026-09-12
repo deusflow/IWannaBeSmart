@@ -81,6 +81,14 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
         }
       `}
     >
+      {/* ── Journey Station Badge ── */}
+      {nodeData.journeyBadge && (
+        <div className="absolute -top-3.5 left-3 z-30 px-2.5 py-0.5 rounded-full bg-purple-600 text-white font-mono text-[9px] font-bold shadow-[0_0_16px_rgba(168,85,247,0.9)] border border-purple-300/80 flex items-center gap-1.5 animate-pulse">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+          <span>{nodeData.journeyBadge}</span>
+        </div>
+      )}
+
       {/* ── Header: Class name + Interface Contract chip + Close [x] ── */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-white/[0.06] bg-white/[0.02]">
         <div className="flex items-center gap-2 min-w-0">

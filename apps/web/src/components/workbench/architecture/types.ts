@@ -61,6 +61,7 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   isJourneyActive?: boolean;
   isJourneyStepTarget?: boolean;
   isJourneyDimmed?: boolean;
+  journeyBadge?: string;
   onInspectInterface?: (interfaceName: string) => void;
   onInspectDi?: () => void;
 }

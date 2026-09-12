@@ -148,43 +148,72 @@ const lid = () => `log-${++_lid}-${Date.now()}`;
 //  Initial nodes (Level 1)
 // ────────────────────────────────────────────────
 const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
+  const iface = PROJECT_FILES.find((f) => f.id === "interface-remote-command")!;
   const pc = PROJECT_FILES.find((f) => f.id === "class-power-command")!;
   const vol = PROJECT_FILES.find((f) => f.id === "class-volume-up-command")!;
   const tv = PROJECT_FILES.find((f) => f.id === "class-tv-controller")!;
   return [
     {
-      id: "node-class-power-command",
+      id: "node-interface-remote-command",
       type: "architectureNode",
-      position: { x: 60, y: 60 },
+      position: { x: 30, y: 150 },
       width: 290,
       data: {
-        fileId: pc.id, name: pc.name, path: pc.path,
-        entityType: pc.entityType, role: pc.role,
-        inputs: pc.inputs, outputs: pc.outputs,
+        fileId: iface.id,
+        name: iface.name,
+        path: iface.path,
+        entityType: iface.entityType,
+        role: iface.role,
+        inputs: iface.inputs,
+        outputs: iface.outputs,
+        implementsInterface: iface.implementsInterface,
+      },
+    },
+    {
+      id: "node-class-power-command",
+      type: "architectureNode",
+      position: { x: 390, y: 50 },
+      width: 290,
+      data: {
+        fileId: pc.id,
+        name: pc.name,
+        path: pc.path,
+        entityType: pc.entityType,
+        role: pc.role,
+        inputs: pc.inputs,
+        outputs: pc.outputs,
         implementsInterface: pc.implementsInterface,
       },
     },
     {
       id: "node-class-volume-up-command",
       type: "architectureNode",
-      position: { x: 60, y: 300 },
+      position: { x: 390, y: 350 },
       width: 290,
       data: {
-        fileId: vol.id, name: vol.name, path: vol.path,
-        entityType: vol.entityType, role: vol.role,
-        inputs: vol.inputs, outputs: vol.outputs,
+        fileId: vol.id,
+        name: vol.name,
+        path: vol.path,
+        entityType: vol.entityType,
+        role: vol.role,
+        inputs: vol.inputs,
+        outputs: vol.outputs,
         implementsInterface: vol.implementsInterface,
       },
     },
     {
       id: "node-class-tv-controller",
       type: "architectureNode",
-      position: { x: 450, y: 110 },
+      position: { x: 750, y: 140 },
       width: 290,
       data: {
-        fileId: tv.id, name: tv.name, path: tv.path,
-        entityType: tv.entityType, role: tv.role,
-        inputs: tv.inputs, outputs: tv.outputs,
+        fileId: tv.id,
+        name: tv.name,
+        path: tv.path,
+        entityType: tv.entityType,
+        role: tv.role,
+        inputs: tv.inputs,
+        outputs: tv.outputs,
         implementsInterface: tv.implementsInterface,
         injectedDependency: null,
       },
@@ -513,6 +542,20 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   );
 
   // ── Journey Handlers & Tracing ──────────────
+  const handleFitAll = useCallback(() => {
+    const isVol = activeJourney?.activeCommand === "VolumeUpCommand";
+    const targetCmd = isVol ? "node-class-volume-up-command" : "node-class-power-command";
+    fitView({
+      nodes: [
+        { id: "node-interface-remote-command" },
+        { id: targetCmd },
+        { id: "node-class-tv-controller" },
+      ],
+      padding: 0.22,
+      duration: 450,
+    });
+  }, [activeJourney, fitView]);
+
   const handleInspectInterface = useCallback(
     (ifaceId: string) => {
       const initialCmd: "PowerCommand" | "VolumeUpCommand" = isVolumeWired ? "VolumeUpCommand" : "PowerCommand";
@@ -526,28 +569,34 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       // Ensure interface node is present
       const ifaceNode = getNode("node-interface-remote-command");
       if (!ifaceNode) {
-        addNodeByFileId("interface-remote-command", { x: 60, y: -160 });
-        setTimeout(() => {
-          const n = getNode("node-interface-remote-command");
-          if (n) {
-            setCenter(n.position.x + 145, n.position.y + 100, { zoom: 1.15, duration: 400 });
-          }
-        }, 60);
-      } else {
-        setCenter(ifaceNode.position.x + 145, ifaceNode.position.y + 100, { zoom: 1.15, duration: 400 });
+        addNodeByFileId("interface-remote-command", { x: 30, y: 150 });
       }
+
+      // Auto-fit entire 3-node journey pipeline on canvas
+      setTimeout(() => {
+        const targetCmd = initialCmd === "VolumeUpCommand" ? "node-class-volume-up-command" : "node-class-power-command";
+        fitView({
+          nodes: [
+            { id: "node-interface-remote-command" },
+            { id: targetCmd },
+            { id: "node-class-tv-controller" },
+          ],
+          padding: 0.22,
+          duration: 450,
+        });
+      }, 50);
 
       addLog({
         type: "info",
         subsystem: "VTABLE",
         operation: "INSPECT_INTERFACE",
-        message: `⬡ Contract journey started: ${ifaceId || "IRemoteCommand"}`,
+        message: `⬡ Повний шлях контракту: ${ifaceId || "IRemoteCommand"}`,
         targetNodeId: "node-interface-remote-command",
-        details: "Station 1: Exploring interface declaration and polymorphic method signatures",
-        codeContext: `public interface IRemoteCommand {\n    void Execute(); // Базовий контракт\n}`,
+        details: "Оголошення контракту -> Реалізація класом -> Впровадження в TVController -> Виклик",
+        codeContext: `public interface IRemoteCommand {\n    void Execute(); // Загальний контракт для всіх кнопок\n}`,
       });
     },
-    [isVolumeWired, getNode, addNodeByFileId, setCenter, addLog]
+    [isVolumeWired, getNode, addNodeByFileId, fitView, addLog]
   );
 
   const handleInspectDi = useCallback(() => {
@@ -559,21 +608,28 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       activeCommand: initialCmd,
     });
 
-    const tvNode = getNode("node-class-tv-controller");
-    if (tvNode) {
-      setCenter(tvNode.position.x + 145, tvNode.position.y + 100, { zoom: 1.15, duration: 400 });
-    }
+    const targetCmd = initialCmd === "VolumeUpCommand" ? "node-class-volume-up-command" : "node-class-power-command";
+    setTimeout(() => {
+      fitView({
+        nodes: [
+          { id: targetCmd },
+          { id: "node-class-tv-controller" },
+        ],
+        padding: 0.25,
+        duration: 450,
+      });
+    }, 50);
 
     addLog({
       type: "info",
       subsystem: "IoC",
       operation: "INSPECT_DI",
-      message: "⚡ Dependency Injection journey: TVController constructor socket",
+      message: "⚡ Повний шлях Dependency Injection: зовні -> конструктор -> RAM -> Dispatch",
       targetNodeId: "node-class-tv-controller",
-      details: "Station 2: Instance passed via constructor argument and stored in memory slot _cmd",
-      codeContext: `public TVController(IRemoteCommand cmd) {\n    _cmd = cmd; // Dependency Injection slot\n}`,
+      details: "Створення деталі зовні та передача в TVController.ctor(IRemoteCommand cmd)",
+      codeContext: `public TVController(IRemoteCommand cmd) {\n    _cmd = cmd; // Збереження переданого об'єкта в пам'ять\n}`,
     });
-  }, [isVolumeWired, getNode, setCenter, addLog]);
+  }, [isVolumeWired, fitView, addLog]);
 
   const handleChangeJourneyStep = useCallback(
     (step: number, targetNodeId: string) => {
@@ -581,7 +637,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
       let node = getNode(targetNodeId);
       if (!node && targetNodeId === "node-interface-remote-command") {
-        addNodeByFileId("interface-remote-command", { x: 60, y: -160 });
+        addNodeByFileId("interface-remote-command", { x: 30, y: 150 });
         setTimeout(() => {
           const n = getNode("node-interface-remote-command");
           if (n) {
@@ -606,28 +662,35 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       });
 
       const targetId = command === "VolumeUpCommand" ? "node-class-volume-up-command" : "node-class-power-command";
-      const node = getNode(targetId);
-      if (node) {
-        setCenter(node.position.x + 145, node.position.y + 100, { zoom: 1.15, duration: 350 });
-      }
+      setTimeout(() => {
+        fitView({
+          nodes: [
+            { id: "node-interface-remote-command" },
+            { id: targetId },
+            { id: "node-class-tv-controller" },
+          ],
+          padding: 0.22,
+          duration: 450,
+        });
+      }, 50);
 
       addLog({
         type: "info",
         subsystem: "IoC",
         operation: "HOT_SWAP_SELECTION",
-        message: `Switched target implementation to ${command}`,
+        message: `Поліморфне перемикання на ${command}`,
         targetNodeId: targetId,
-        details: `Polymorphic replacement: runtime behavior redirects to ${command}.Execute()`,
+        details: `Контракт IRemoteCommand та TVController не змінено! Змінено лише реалізацію.`,
       });
     },
-    [getNode, setCenter, addLog]
+    [fitView, addLog]
   );
 
   const handleCloseJourney = useCallback(() => {
     setActiveJourney(null);
   }, []);
 
-  // ── Processed nodes & edges for journey highlighting & callbacks ──
+  // ── Processed nodes & edges for journey highlighting, badges & visual path ──
   const processedNodes = useMemo(() => {
     if (!activeJourney) {
       return nodes.map((n) => ({
@@ -637,6 +700,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
           isJourneyActive: false,
           isJourneyStepTarget: false,
           isJourneyDimmed: false,
+          journeyBadge: undefined,
           onInspectInterface: handleInspectInterface,
           onInspectDi: handleInspectDi,
         },
@@ -670,6 +734,16 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     return nodes.map((n) => {
       const isTarget = n.id === targetNodeId;
       const isParticipating = participatingNodeIds.has(n.id);
+
+      let badge: string | undefined = undefined;
+      if (n.id === "node-interface-remote-command") {
+        badge = t("journey.badgeStation1", "📍 1. ЗВІДКИ БЕРЕТЬСЯ (Контракт)");
+      } else if (n.id === activeCmdNodeId) {
+        badge = t("journey.badgeStation2", "📍 2. ХТО РЕАЛІЗУЄ (:IRemoteCommand)");
+      } else if (n.id === "node-class-tv-controller") {
+        badge = t("journey.badgeStation34", "📍 3. ВПРОВАДЖЕННЯ (DI) ➔ 4. ВИКОРИСТАННЯ");
+      }
+
       return {
         ...n,
         data: {
@@ -677,26 +751,74 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
           isJourneyActive: true,
           isJourneyStepTarget: isTarget,
           isJourneyDimmed: !isParticipating,
+          journeyBadge: badge,
           onInspectInterface: handleInspectInterface,
           onInspectDi: handleInspectDi,
         },
       };
     });
-  }, [nodes, activeJourney, handleInspectInterface, handleInspectDi]);
+  }, [nodes, activeJourney, handleInspectInterface, handleInspectDi, t]);
 
   const processedEdges = useMemo(() => {
-    return edges.map((e) => {
-      const isConnectedToTv = e.target === "node-class-tv-controller";
-      const isJourneyCable = activeJourney !== null && isConnectedToTv;
-      return {
+    if (!activeJourney) {
+      return edges.map((e) => ({
         ...e,
         data: {
           ...e.data,
-          isJourneyActive: isJourneyCable,
+          isJourneyActive: false,
           onInspectDi: handleInspectDi,
         },
-      };
-    });
+      }));
+    }
+
+    const { activeCommand } = activeJourney;
+    const isVol = activeCommand === "VolumeUpCommand";
+    const activeCmdNodeId = isVol ? "node-class-volume-up-command" : "node-class-power-command";
+
+    // 1. Visible Contract Edge from IRemoteCommand to active implementing class
+    const contractEdge: Edge<ArchitectureEdgeData> = {
+      id: "journey-edge-contract",
+      type: "architectureEdge",
+      source: "node-interface-remote-command",
+      sourceHandle: "out-execute",
+      target: activeCmdNodeId,
+      targetHandle: "in-contract",
+      data: {
+        isJourneyActive: true,
+        commandName: ":IRemoteCommand (Контракт)",
+        onInspectDi: handleInspectDi,
+      },
+    };
+
+    // 2. Visible Dependency Injection Edge from implementing class to TVController
+    const diEdge: Edge<ArchitectureEdgeData> = {
+      id: "journey-edge-di",
+      type: "architectureEdge",
+      source: activeCmdNodeId,
+      sourceHandle: "out-execute",
+      target: "node-class-tv-controller",
+      targetHandle: "in-command-handler",
+      data: {
+        isJourneyActive: true,
+        isPowerWire: true,
+        commandName: isVol ? "DI: VolumeUpCommand" : "DI: PowerCommand",
+        onInspectDi: handleInspectDi,
+      },
+    };
+
+    // Keep any other edges not conflicting with this journey
+    const otherEdges = edges
+      .filter((e) => !(e.source === activeCmdNodeId && e.target === "node-class-tv-controller"))
+      .map((e) => ({
+        ...e,
+        data: {
+          ...e.data,
+          isJourneyActive: false,
+          onInspectDi: handleInspectDi,
+        },
+      }));
+
+    return [contractEdge, diEdge, ...otherEdges];
   }, [edges, activeJourney, handleInspectDi]);
 
   // ── Drag & Drop ─────────────────────────────
@@ -1467,6 +1589,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
                 onChangeCommand={handleChangeJourneyCommand}
                 onClose={handleCloseJourney}
                 onTriggerTrace={triggerCallFlowTrace}
+                onFitAll={handleFitAll}
                 isTracing={isTracing}
               />
             )}

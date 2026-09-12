@@ -31,6 +31,20 @@ const requiredKeys = [
   "inspectContract",
   "inspectDi",
   "startJourney",
+  "q1",
+  "q2",
+  "q3",
+  "q4",
+  "diQ1",
+  "diQ2",
+  "diQ3",
+  "diQ4",
+  "badgeStation1",
+  "badgeStation2",
+  "badgeStation34",
+  "showAllPath",
+  "minimize",
+  "maximize",
 ];
 
 for (const lang of ["ua", "en", "da"] as const) {

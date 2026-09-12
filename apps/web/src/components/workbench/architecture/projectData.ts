@@ -68,6 +68,14 @@ export const PROJECT_FILES: ProjectFile[] = [
     implementsInterface: "IRemoteCommand",
     inputs: [
       {
+        id: "in-contract",
+        name: ":IRemoteCommand",
+        portType: "IRemoteCommand",
+        typeAnnotation: "contract",
+        description: "Контракт інтерфейсу IRemoteCommand",
+        color: "#A855F7",
+      },
+      {
         id: "in-receiver",
         name: "receiver",
         portType: "ITVReceiver",
@@ -96,6 +104,14 @@ export const PROJECT_FILES: ProjectFile[] = [
     role: "Команда збільшення гучності",
     implementsInterface: "IRemoteCommand",
     inputs: [
+      {
+        id: "in-contract",
+        name: ":IRemoteCommand",
+        portType: "IRemoteCommand",
+        typeAnnotation: "contract",
+        description: "Контракт інтерфейсу IRemoteCommand",
+        color: "#A855F7",
+      },
       {
         id: "in-receiver",
         name: "receiver",

@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Zap, Code2, Sparkles } from "lucide-react";
+import { X, Zap, Code2, Sparkles, Eye, ChevronUp, ChevronDown } from "lucide-react";
 import type { ActiveJourneyState } from "./types";
 
 interface InterfaceJourneyHUDProps {
@@ -9,6 +9,7 @@ interface InterfaceJourneyHUDProps {
   onChangeCommand: (command: "PowerCommand" | "VolumeUpCommand") => void;
   onClose: () => void;
   onTriggerTrace: () => void;
+  onFitAll?: () => void;
   isTracing: boolean;
 }
 
@@ -18,9 +19,11 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
   onChangeCommand,
   onClose,
   onTriggerTrace,
+  onFitAll,
   isTracing,
 }) => {
   const { t } = useTranslation();
+  const [isMinimized, setIsMinimized] = useState(false);
   const isInterfaceMode = journeyState.type === "INTERFACE";
   const isVolume = journeyState.activeCommand === "VolumeUpCommand";
 
@@ -28,6 +31,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
   const interfaceSteps = [
     {
       step: 1,
+      question: t("journey.q1", "Звідки береться"),
       stationTitle: t("journey.ifaceStep1Title", "1. Оголошення"),
       stationSubtitle: "IRemoteCommand.cs",
       nodeId: "node-interface-remote-command",
@@ -39,6 +43,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
     },
     {
       step: 2,
+      question: t("journey.q2", "Хто реалізує"),
       stationTitle: t("journey.ifaceStep2Title", "2. Реалізація"),
       stationSubtitle: isVolume ? "VolumeUpCommand.cs" : "PowerCommand.cs",
       nodeId: isVolume ? "node-class-volume-up-command" : "node-class-power-command",
@@ -51,6 +56,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
     },
     {
       step: 3,
+      question: t("journey.q3", "Куди впроваджується (DI)"),
       stationTitle: t("journey.ifaceStep3Title", "3. Впровадження (DI)"),
       stationSubtitle: "TVController.cs",
       nodeId: "node-class-tv-controller",
@@ -62,6 +68,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
     },
     {
       step: 4,
+      question: t("journey.q4", "Де викликається"),
       stationTitle: t("journey.ifaceStep4Title", "4. Використання"),
       stationSubtitle: "TVController.Dispatch()",
       nodeId: "node-class-tv-controller",
@@ -77,6 +84,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
   const diSteps = [
     {
       step: 1,
+      question: t("journey.diQ1", "Звідки береться"),
       stationTitle: t("journey.diStep1Title", "1. Створення зовні"),
       stationSubtitle: isVolume ? "new VolumeUpCommand()" : "new PowerCommand()",
       nodeId: isVolume ? "node-class-volume-up-command" : "node-class-power-command",
@@ -87,6 +95,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
     },
     {
       step: 2,
+      question: t("journey.diQ2", "Куди передається"),
       stationTitle: t("journey.diStep2Title", "2. Впорскування (DI)"),
       stationSubtitle: "ctor(IRemoteCommand)",
       nodeId: "node-class-tv-controller",
@@ -95,6 +104,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
     },
     {
       step: 3,
+      question: t("journey.diQ3", "Де зберігається"),
       stationTitle: t("journey.diStep3Title", "3. Запис у RAM"),
       stationSubtitle: "TVController._cmd",
       nodeId: "node-class-tv-controller",
@@ -103,6 +113,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
     },
     {
       step: 4,
+      question: t("journey.diQ4", "Де працює"),
       stationTitle: t("journey.diStep4Title", "4. Виклик у роботі"),
       stationSubtitle: "tv.Dispatch()",
       nodeId: "node-class-tv-controller",
@@ -116,9 +127,57 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
   const steps = isInterfaceMode ? interfaceSteps : diSteps;
   const currentStepData = steps.find((s) => s.step === journeyState.activeStep) || steps[0];
 
+  // ── Minimized floating pill ──
+  if (isMinimized) {
+    return (
+      <div className="absolute top-14 left-1/2 -translate-x-1/2 z-40 bg-[#15161A]/95 border border-purple-500/50 rounded-full shadow-[0_12px_32px_rgba(0,0,0,0.8),0_0_20px_rgba(168,85,247,0.3)] backdrop-blur-md px-3 py-1.5 flex items-center gap-3 select-none animate-fadeIn text-gray-200">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-full bg-purple-500/20 border border-purple-500/50 flex items-center justify-center text-purple-300">
+            <Sparkles size={11} />
+          </div>
+          <span className="font-mono font-bold text-[11px] text-white">
+            {isInterfaceMode
+              ? t("journey.interfaceTitle", "⬡ Шлях контракту: IRemoteCommand")
+              : t("journey.diTitle", "⚡ Шлях впровадження залежності (DI)")}
+          </span>
+          <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/25 text-purple-300 border border-purple-500/40 font-bold">
+            {t("journey.stepBadge", { current: journeyState.activeStep, total: 4 })}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 border-l border-white/10 pl-2">
+          {onFitAll && (
+            <button
+              onClick={onFitAll}
+              title={t("journey.showAllPath", "👁 Весь шлях на дошці")}
+              className="p-1 rounded-md hover:bg-white/10 text-purple-300 hover:text-white transition-colors cursor-pointer"
+            >
+              <Eye size={13} />
+            </button>
+          )}
+          <button
+            onClick={() => setIsMinimized(false)}
+            title={t("journey.maximize", "Розгорнути")}
+            className="p-1 rounded-md hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
+          >
+            <ChevronDown size={14} />
+          </button>
+          <button
+            onClick={onClose}
+            title={t("journey.close", "Закрити дослідження")}
+            className="p-1 rounded-md hover:bg-red-500/20 text-gray-400 hover:text-red-300 transition-colors cursor-pointer"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Expanded Roadmap HUD ──
   return (
-    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-40 max-w-4xl w-[96%] bg-[#15161A]/95 border border-purple-500/40 rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.85),0_0_24px_rgba(168,85,247,0.2)] backdrop-blur-md p-3.5 select-none animate-fadeIn text-gray-200">
-      {/* ── Top Bar: Title + Command Switcher + Close Button ── */}
+    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-40 max-w-4xl w-[96%] bg-[#15161A]/95 border border-purple-500/50 rounded-2xl shadow-[0_16px_48px_rgba(0,0,0,0.85),0_0_24px_rgba(168,85,247,0.25)] backdrop-blur-md p-3.5 select-none animate-fadeIn text-gray-200">
+      {/* ── Top Bar: Title + Overview + Command Switcher + Controls ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-white/10">
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-6 h-6 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
@@ -131,7 +190,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
                   ? t("journey.interfaceTitle", "⬡ Шлях контракту: IRemoteCommand")
                   : t("journey.diTitle", "⚡ Шлях впровадження залежності (DI)")}
               </span>
-              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold">
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/25 text-purple-300 border border-purple-500/40 font-bold">
                 {t("journey.stepBadge", { current: journeyState.activeStep, total: 4 })}
               </span>
             </div>
@@ -139,6 +198,18 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+          {/* Fit all nodes button */}
+          {onFitAll && (
+            <button
+              onClick={onFitAll}
+              title={t("journey.showAllPath", "Показати весь шлях на дошці")}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-purple-200 text-[10px] font-mono transition-colors cursor-pointer"
+            >
+              <Eye size={12} className="text-purple-300" />
+              <span>{t("journey.showAllPath", "Весь шлях")}</span>
+            </button>
+          )}
+
           {/* Real-time implementation switcher: Power vs Volume */}
           <div className="flex items-center bg-[#101114] p-0.5 rounded-lg border border-white/10 text-[10px] font-mono">
             <button
@@ -163,17 +234,27 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
             </button>
           </div>
 
+          {/* Minimize / Expand */}
+          <button
+            onClick={() => setIsMinimized(true)}
+            title={t("journey.minimize", "Згорнути")}
+            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+          >
+            <ChevronUp size={14} />
+          </button>
+
+          {/* Close */}
           <button
             onClick={onClose}
             title={t("journey.close", "Закрити дослідження")}
-            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+            className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-500/20 text-gray-400 hover:text-red-300 transition-colors cursor-pointer"
           >
             <X size={14} />
           </button>
         </div>
       </div>
 
-      {/* ── 4 Interactive Stations (Breadcrumb Track) ── */}
+      {/* ── 4 Interactive Stations (Breadcrumb Track answering "Звідки -> Куди -> До куди -> Де викликається") ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 my-2.5">
         {steps.map((st) => {
           const isSelected = st.step === journeyState.activeStep;
@@ -183,23 +264,26 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
               onClick={() => onChangeStep(st.step, st.nodeId)}
               className={`p-2 rounded-xl text-left transition-all cursor-pointer border ${
                 isSelected
-                  ? "bg-purple-600/25 border-purple-400 shadow-[0_0_16px_rgba(168,85,247,0.35)] ring-1 ring-purple-400/50"
+                  ? "bg-purple-600/25 border-purple-400 shadow-[0_0_16px_rgba(168,85,247,0.35)] ring-1 ring-purple-400/60"
                   : "bg-white/[0.03] border-white/[0.07] hover:bg-white/[0.06] hover:border-white/20"
               }`}
             >
+              <div className="text-[9px] font-mono uppercase tracking-wider text-purple-300/80 font-bold mb-0.5">
+                {st.question}
+              </div>
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-[10px] font-mono font-bold ${
-                    isSelected ? "text-purple-300" : "text-gray-400"
+                  className={`text-[10.5px] font-mono font-bold ${
+                    isSelected ? "text-white" : "text-gray-300"
                   }`}
                 >
                   {st.stationTitle}
                 </span>
                 {isSelected && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping" />
                 )}
               </div>
-              <span className="font-mono text-[9px] text-gray-500 block truncate mt-0.5">
+              <span className="font-mono text-[9px] text-gray-400 block truncate mt-0.5">
                 {st.stationSubtitle}
               </span>
             </button>
@@ -213,6 +297,8 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
           <div className="flex items-center gap-1.5 text-[9.5px] font-mono text-purple-300 font-bold mb-1">
             <Code2 size={12} />
             <span>{currentStepData.stationSubtitle}</span>
+            <span className="text-gray-500">—</span>
+            <span className="text-purple-200">{currentStepData.question}</span>
           </div>
           <pre className="font-mono text-[10px] text-emerald-300 bg-black/40 p-2 rounded-lg border border-white/5 overflow-x-auto leading-relaxed">
             {currentStepData.code}
