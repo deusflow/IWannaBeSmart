@@ -12,13 +12,14 @@ import {
   Award,
   CheckCircle2,
   ShieldCheck,
+  Shield,
   Cpu,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
-import { FINTECH_TASKS, CODING_TASKS, API_FORGE_TASKS, GIT_TASKS } from "@iw/sim-engine";
+import { FINTECH_TASKS, CODING_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS } from "@iw/sim-engine";
 import { UserNavBadge } from "../auth/UserNavBadge";
 import { useShallow } from "zustand/react/shallow";
 
@@ -45,6 +46,7 @@ export const WorkshopHubScreen: React.FC = () => {
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
+      setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
     }))
   );
 
@@ -88,13 +90,23 @@ export const WorkshopHubScreen: React.FC = () => {
     (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
   );
 
-  // Total stars across platform (TV 39 ★ + POS 18 ★ + API 18 ★ + Git 18 ★ = 93 ★)
-  const totalStars = totalTvStars + totalPosStars + totalApiStars + totalGitStars;
+  // Cyber Bandit Lab module stats (6 tasks * 3 stars = 18 max stars)
+  const totalBanditStars = useMemo(() => {
+    return BANDIT_TASKS.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
+  }, [taskMasteryStars]);
+  const isBanditFullyMastered = totalBanditStars >= 18;
+  const isBanditEligibleForCert = BANDIT_TASKS.every(
+    (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+  );
+
+  // Total stars across platform (TV 39 ★ + POS 18 ★ + API 18 ★ + Git 18 ★ + Bandit 18 ★ = 111 ★)
+  const totalStars = totalTvStars + totalPosStars + totalApiStars + totalGitStars + totalBanditStars;
   const maxPlatformStars =
     CODING_TASKS.length * 3 +
     FINTECH_TASKS.length * 3 +
     API_FORGE_TASKS.length * 3 +
-    GIT_TASKS.length * 3;
+    GIT_TASKS.length * 3 +
+    BANDIT_TASKS.length * 3;
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (isTvCompleted && isPosEligibleForCert);
@@ -688,6 +700,98 @@ export const WorkshopHubScreen: React.FC = () => {
                 }}
                 className="p-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-600/40 text-purple-800 transition-colors cursor-pointer"
                 title={t("hub.viewGitCertTooltip", "Переглянути сертифікат Git архітектора")}
+              >
+                <Trophy size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── Station 06: Cyber Bandit Lab ── */}
+        <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 hover:border-emerald-600/60 transition-all shadow-paper-sm hover:shadow-paper-md space-y-4">
+          <div className="space-y-3">
+            {/* Badge & Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-600/30 text-emerald-900">
+                {t("hub.stations.bandit.code", "Модуль 6")} • 06
+              </span>
+              <span
+                className={`text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
+                  isBanditFullyMastered
+                    ? "bg-amber-500/15 border-amber-600/30 text-amber-900"
+                    : "bg-emerald-500/15 border-emerald-600/30 text-emerald-900"
+                }`}
+              >
+                {isBanditFullyMastered
+                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (18/18 ★)`
+                  : `${t("hub.stationAvailable", "ДОСТУПНО")} (${totalBanditStars}/18 ★)`}
+              </span>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div>
+              <h3 className="font-display font-bold text-lg text-[#1A1D20]">
+                {t("hub.stations.bandit.title", "Станція 06: Cyber Bandit Lab")}
+              </h3>
+              <p className="text-xs font-balsamiq text-[#1A1D20]/70 mt-0.5 leading-relaxed">
+                {t(
+                  "hub.stations.bandit.subtitle",
+                  "Етичний хакінг, перехоплення пакетів, підміна параметрів, SQL-ін'єкції та Rate Limiting"
+                )}
+              </p>
+            </div>
+
+            {/* Blueprint Illustration: Wire Tap + Shield + Terminal */}
+            <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden">
+              <div className="absolute inset-0 bg-notebook-grid opacity-40 pointer-events-none" />
+              <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+                {/* Hacker Terminal Screen */}
+                <rect x="15" y="20" width="55" height="48" rx="4" stroke="currentColor" strokeWidth="1.8" fill="#05080E" />
+                <rect x="20" y="25" width="45" height="7" rx="1.5" fill="#0D1520" />
+                <circle cx="24" cy="28.5" r="1.5" fill="#EF4444" />
+                <circle cx="29" cy="28.5" r="1.5" fill="#F59E0B" />
+                <circle cx="34" cy="28.5" r="1.5" fill="#10B981" />
+                <text x="21" y="42" fill="#10B981" fontSize="5" fontFamily="monospace" fontWeight="bold">$ cat .secret</text>
+                <text x="21" y="52" fill="#38BDF8" fontSize="4.5" fontFamily="monospace">&gt; bandit&#123;pass&#125;</text>
+                <rect x="52" y="48" width="3" height="6" fill="#10B981" />
+
+                {/* Wire Tap & Packet Interceptor */}
+                <line x1="70" y1="44" x2="115" y2="44" stroke="#059669" strokeWidth="2.5" strokeDasharray="3 2" />
+                <circle cx="92" cy="44" r="9" fill="#059669" stroke="#05080E" strokeWidth="1.5" />
+                <path d="M 88 44 L 92 40 L 96 44 L 92 48 Z" fill="#FAF8F2" />
+
+                {/* Blue Team Shield Guard */}
+                <path d="M 140 18 L 160 25 L 160 48 C 160 62, 140 70, 140 70 C 140 70, 120 62, 120 48 L 120 25 Z" fill="#065F46" stroke="#05080E" strokeWidth="1.8" />
+                <circle cx="140" cy="42" r="5" fill="#FAF8F2" />
+                <rect x="138" y="42" width="4" height="6" fill="#FAF8F2" />
+              </svg>
+            </div>
+
+            {/* Specs & Star Progress */}
+            <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
+              <span>{t("hub.stations.bandit.specs", "6 завдань • Code Gym (3-Star) • C# / Go")}</span>
+              <span className="font-bold text-emerald-800">{totalBanditStars}/18 ★</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-2 flex items-center gap-2">
+            <button
+              onClick={() => handleEnterStation("bandit")}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#1A1D20] hover:bg-black text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+            >
+              <span>{t("hub.enterStation", "Увійти на станцію")}</span>
+              <ArrowRight size={14} />
+            </button>
+
+            {isBanditEligibleForCert && (
+              <button
+                onClick={() => {
+                  audioFx.playSuccessFanfare();
+                  setBanditVictoryModalOpen(true);
+                }}
+                className="p-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-600/40 text-emerald-800 transition-colors cursor-pointer"
+                title={t("hub.viewBanditCertTooltip", "Переглянути сертифікат Cyber Defense архітектора")}
               >
                 <Trophy size={16} />
               </button>

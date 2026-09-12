@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server, GitBranch } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server, GitBranch, Shield } from "lucide-react";
 
 interface StationOption {
   id: string;
@@ -73,6 +73,18 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         ),
         status: t("hub.stationAvailable", "Доступно"),
         icon: <GitBranch size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "bandit",
+        code: t("hub.stations.bandit.code", "Модуль 6"),
+        title: t("hub.stations.bandit.title", "Cyber Bandit Lab"),
+        subtitle: t(
+          "hub.stations.bandit.subtitle",
+          "Етичний хакінг, перехоплення пакетів, підміна параметрів, SQL-ін'єкції та Rate Limiting"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <Shield size={16} strokeWidth={2} />,
         isAvailable: true,
       },
       {

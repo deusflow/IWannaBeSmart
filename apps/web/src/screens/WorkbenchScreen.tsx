@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS } from "@iw/sim-engine";
+import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
@@ -16,10 +16,13 @@ import { ApiForgeBlueprintDevice } from "../components/workbench/ApiForgeBluepri
 import { ApiCodeGymRunner } from "../components/workbench/playground/ApiCodeGymRunner";
 import { GitBlueprintDevice } from "../components/workbench/GitBlueprintDevice";
 import { GitCodeGymRunner } from "../components/workbench/playground/GitCodeGymRunner";
+import { BanditBlueprintDevice } from "../components/workbench/BanditBlueprintDevice";
+import { BanditCodeGymRunner } from "../components/workbench/playground/BanditCodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
 import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
 import { GitStationVictoryModal } from "../components/workbench/GitStationVictoryModal";
+import { BanditStationVictoryModal } from "../components/workbench/BanditStationVictoryModal";
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy, LayoutGrid } from "lucide-react";
@@ -101,6 +104,8 @@ export const WorkbenchScreen: React.FC = () => {
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       isGitVictoryModalOpen: s.isGitVictoryModalOpen,
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
+      isBanditVictoryModalOpen: s.isBanditVictoryModalOpen,
+      setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
       currentStationId: s.currentStationId,
       setCurrentStationId: s.setCurrentStationId,
       currentView: s.currentView,
@@ -136,6 +141,11 @@ export const WorkbenchScreen: React.FC = () => {
   ).length;
   const isGitCompleted = completedGitCount >= GIT_TASKS.length;
 
+  const completedBanditCount = BANDIT_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isBanditCompleted = completedBanditCount >= BANDIT_TASKS.length;
+
   const isCurrentStationCompleted =
     currentStationId === "pos"
       ? isPosCompleted
@@ -143,6 +153,8 @@ export const WorkbenchScreen: React.FC = () => {
       ? isApiCompleted
       : currentStationId === "git"
       ? isGitCompleted
+      : currentStationId === "bandit"
+      ? isBanditCompleted
       : isTvCompleted;
 
   const currentStationProgressText =
@@ -152,6 +164,8 @@ export const WorkbenchScreen: React.FC = () => {
       ? `${completedApiCount}/${API_FORGE_TASKS.length} ✓`
       : currentStationId === "git"
       ? `${completedGitCount}/${GIT_TASKS.length} ✓`
+      : currentStationId === "bandit"
+      ? `${completedBanditCount}/${BANDIT_TASKS.length} ✓`
       : `${completedTvCount}/${CODING_TASKS.length} ✓`;
 
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
@@ -256,6 +270,10 @@ export const WorkbenchScreen: React.FC = () => {
                   setPosVictoryModalOpen(true);
                 } else if (currentStationId === "api") {
                   setApiVictoryModalOpen(true);
+                } else if (currentStationId === "git") {
+                  setGitVictoryModalOpen(true);
+                } else if (currentStationId === "bandit") {
+                  setBanditVictoryModalOpen(true);
                 } else {
                   setStationVictoryModalOpen(true);
                 }
@@ -266,6 +284,10 @@ export const WorkbenchScreen: React.FC = () => {
                   ? t("fintechVictoryModal.title", "Фінтех POS-термінал: Завершено")
                   : currentStationId === "api"
                   ? t("apiForge.victoryModal.title", "API Forge: Завершено")
+                  : currentStationId === "git"
+                  ? t("git.victoryTitle", "Git Time Machine: Завершено")
+                  : currentStationId === "bandit"
+                  ? t("bandit.victory.title", "Cyber Bandit Lab: Завершено")
                   : t("victoryModal.title", "Телевізійна станція: Завершено")
               }
             >
@@ -339,6 +361,20 @@ export const WorkbenchScreen: React.FC = () => {
             {/* Right: Git Code Gym Runner */}
             <div className="flex-1 w-full min-w-0">
               <GitCodeGymRunner />
+            </div>
+          </div>
+        </main>
+      ) : currentStationId === "bandit" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: Bandit Blueprint Device (Terminal, Wire Tap, Blue Team SOC) */}
+            <div className="w-full xl:w-[720px] 2xl:w-[780px] shrink-0 xl:sticky top-2">
+              <BanditBlueprintDevice />
+            </div>
+
+            {/* Right: Bandit Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <BanditCodeGymRunner />
             </div>
           </div>
         </main>
