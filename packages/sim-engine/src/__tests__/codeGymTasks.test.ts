@@ -94,4 +94,32 @@ describe("TV Code Gym (3-Star Mastery) Tasks & Engine", () => {
       expect(result.error).toContain("NullReferenceException");
     });
   });
+
+  describe("Cyber Bandit Lab Code Gym (Station 06)", () => {
+    it("should contain 6 Bandit tasks with valid target codes and cloze templates", async () => {
+      const { BANDIT_TASKS, executeBanditScript } = await import("../index");
+      expect(BANDIT_TASKS.length).toBe(6);
+
+      for (const task of BANDIT_TASKS) {
+        expect(task.targetCode.csharp).toBeTruthy();
+        expect(task.targetCode.go).toBeTruthy();
+        expect(task.clozeTemplate.csharp).toContain("[[");
+        expect(task.clozeTemplate.go).toContain("[[");
+
+        // Validate C#
+        const resCs = executeBanditScript(task.targetCode.csharp, "csharp", task.id);
+        expect(resCs.success, `Task ${task.id} C# failed: ${resCs.output}`).toBe(true);
+
+        const valCs = task.validate(task.initialState, task.initialState, resCs, task.targetCode.csharp);
+        expect(valCs.passed).toBe(true);
+
+        // Validate Go
+        const resGo = executeBanditScript(task.targetCode.go, "go", task.id);
+        expect(resGo.success, `Task ${task.id} Go failed: ${resGo.output}`).toBe(true);
+
+        const valGo = task.validate(task.initialState, task.initialState, resGo, task.targetCode.go);
+        expect(valGo.passed).toBe(true);
+      }
+    });
+  });
 });

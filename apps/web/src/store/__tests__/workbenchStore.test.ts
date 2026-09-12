@@ -311,4 +311,75 @@ describe("WorkbenchStore Slices", () => {
       expect(getStore().isGitVictoryModalOpen).toBe(false);
     });
   });
+
+  describe("banditSlice (Station 06: Cyber Bandit Lab)", () => {
+    it("should execute UNIX commands via bandit terminal and capture flags", () => {
+      getStore().resetBanditStationToLevel(1);
+      const lsRes = getStore().runBanditCommand("ls -la");
+      expect(lsRes.output).toContain(".secret_pass");
+
+      const catRes = getStore().runBanditCommand("cat .secret_pass");
+      expect(catRes.output).toContain("bandit{");
+
+      const submitRes = getStore().submitFlagDirect(catRes.output);
+      expect(submitRes).toBe(true);
+      expect(getStore().banditState.capturedFlags[1]).toBe(catRes.output);
+    });
+
+    it("should tamper transit packets and verify HMAC protection", () => {
+      getStore().resetBanditStationToLevel(3);
+
+      // Tamper without HMAC -> breach
+      getStore().setTamperJson(JSON.stringify({ price: 1 }));
+      const forwardRes = getStore().forwardTransitPacketAction();
+      expect(forwardRes.responseStatus).toBe(200);
+
+      // Now enable HMAC -> blocked with 403
+      getStore().resetBanditStationToLevel(3);
+      getStore().toggleBanditDefenseAction("hmacActive");
+      expect(getStore().banditState.defenseState.hmacActive).toBe(true);
+
+      getStore().setTamperJson(JSON.stringify({ price: 1 }));
+      const blockedRes = getStore().forwardTransitPacketAction();
+      expect(blockedRes.responseStatus).toBe(403);
+      expect(blockedRes.message).toContain("HMAC signature mismatch");
+    });
+
+    it("should test SQL injection and defense toggling", () => {
+      getStore().resetBanditStationToLevel(4);
+
+      // Injection without parameterization
+      const exploitRes = getStore().runSqlQueryAction("' OR 1=1 --");
+      expect(exploitRes.vulnerabilityExploited).toBe(true);
+      expect(exploitRes.returnedUsers.length).toBeGreaterThan(1);
+
+      // Enable parameterized queries
+      getStore().toggleBanditDefenseAction("sqlParametrized");
+      const safeRes = getStore().runSqlQueryAction("' OR 1=1 --");
+      expect(safeRes.vulnerabilityExploited).toBe(false);
+      expect(safeRes.returnedUsers.length).toBe(0);
+    });
+
+    it("should simulate rate limiter token exhaustion", () => {
+      getStore().resetBanditStationToLevel(5);
+      getStore().toggleBanditDefenseAction("rateLimitActive");
+
+      for (let i = 0; i < 5; i++) {
+        const res = getStore().simulateRateLimitAction();
+        expect(res.statusCode).toBe(200);
+      }
+
+      // 6th request triggers 429
+      const throttled = getStore().simulateRateLimitAction();
+      expect(throttled.statusCode).toBe(429);
+      expect(throttled.message).toContain("429 Too Many Requests");
+    });
+
+    it("should toggle Bandit Victory Modal", () => {
+      getStore().setBanditVictoryModalOpen(true);
+      expect(getStore().isBanditVictoryModalOpen).toBe(true);
+      getStore().setBanditVictoryModalOpen(false);
+      expect(getStore().isBanditVictoryModalOpen).toBe(false);
+    });
+  });
 });

@@ -11,6 +11,10 @@ import type {
   HttpResponse,
   GitRepoState,
   GitCommandResult,
+  BanditState,
+  DefenseStatus,
+  SqlInjectionResult,
+  RateLimitResult,
 } from "@iw/sim-engine";
 
 /**
@@ -250,6 +254,28 @@ export interface GitSlice {
   setGitVictoryModalOpen: (open: boolean) => void;
 }
 
+export interface BanditSlice {
+  banditState: BanditState;
+  banditCliInput: string;
+  isBanditVictoryModalOpen: boolean;
+  sqlQueryInput: string;
+  sqlQueryResult: SqlInjectionResult | null;
+  rateLimitStatus: RateLimitResult | null;
+
+  setBanditCliInput: (cmd: string) => void;
+  runBanditCommand: (cmd: string) => { output: string; flagCaptured?: string };
+  submitFlagDirect: (flag: string) => boolean;
+  setTamperJson: (json: string) => void;
+  forwardTransitPacketAction: () => { responseStatus: number; message: string };
+  dropTransitPacketAction: () => void;
+  toggleBanditDefenseAction: (key: keyof DefenseStatus) => void;
+  setSqlQueryInput: (input: string) => void;
+  runSqlQueryAction: (input: string) => SqlInjectionResult;
+  simulateRateLimitAction: () => RateLimitResult;
+  resetBanditStationToLevel: (level: number) => void;
+  setBanditVictoryModalOpen: (open: boolean) => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -260,4 +286,5 @@ export type WorkbenchStore = TVStateSlice &
   CalculatorSlice &
   ApiForgeSlice &
   GitSlice &
+  BanditSlice &
   WorkbenchActions;
