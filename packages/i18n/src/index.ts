@@ -92,6 +92,9 @@ export function initI18n(initialLocale?: SupportedLocale) {
   return i18n;
 }
 
+// Auto-initialize i18n for headless / test / standalone environments
+initI18n();
+
 export { i18n };
 export {
   theoryUa,

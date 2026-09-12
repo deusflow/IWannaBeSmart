@@ -60,7 +60,7 @@ const SUBSYSTEM_CONFIG: Record<
     bg: "bg-gray-800/80",
     text: "text-gray-400",
     border: "border-gray-600/40",
-    label: "[АРХІТЕКТУРА]",
+    label: "[ГРАФ]",
   },
 };
 
@@ -340,7 +340,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                         subStyle.bg
                       } ${subStyle.text} ${subStyle.border}`}
                     >
-                      {subStyle.label}
+                      {t(`terminalTags.${sub.toLowerCase()}`, subStyle.label)}
                     </span>
 
                     {/* Operation (if any): RESOLVE / REGISTER / DISPATCH */}

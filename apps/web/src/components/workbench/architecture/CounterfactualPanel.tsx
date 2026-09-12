@@ -43,37 +43,48 @@ export const CounterfactualPanel: React.FC<CounterfactualPanelProps> = ({
   const getExplanation = () => {
     if (bypassedNodeIds.includes("node-trace-di-reg")) {
       return {
-        title: "Обійдено реєстрацію в DI (Dependency Injection)",
-        effect:
-          "Контролер TVController не отримає об'єкт через конструктор. Спроба викликати Execute() викличе NullReferenceException, і екран телевізора не увімкнеться.",
+        title: t("counterfactual.diRegTitle", "Обійдено реєстрацію в DI (Dependency Injection)"),
+        effect: t(
+          "counterfactual.diRegEffect",
+          "Контролер TVController не отримає об'єкт через конструктор. Спроба викликати Execute() викличе NullReferenceException, і екран телевізора не увімкнеться."
+        ),
       };
     }
     if (bypassedNodeIds.includes("node-trace-decl")) {
       return {
-        title: "Обійдено контракт IRemoteCommand",
-        effect:
-          "Без оголошення інтерфейсу класи команд не мають спільного типу. Архітектура втрачає поліморфізм і взаємозамінність деталей.",
+        title: t("counterfactual.declTitle", "Обійдено контракт IRemoteCommand"),
+        effect: t(
+          "counterfactual.declEffect",
+          "Без оголошення інтерфейсу класи команд не мають спільного типу. Архітектура втрачає поліморфізм і взаємозамінність деталей."
+        ),
       };
     }
     if (bypassedNodeIds.includes("node-trace-impl-power")) {
       return {
-        title: "Обійдено конкретну реалізацію PowerCommand",
-        effect:
-          "Контейнер не знає, який клас створити для виконання дії. Живлення ТВ не може бути змінено.",
+        title: t("counterfactual.implTitle", "Обійдено конкретну реалізацію PowerCommand"),
+        effect: t(
+          "counterfactual.implEffect",
+          "Контейнер не знає, який клас створити для виконання дії. Живлення ТВ не може бути змінено."
+        ),
       };
     }
     if (isBroken) {
       return {
-        title: "Розрив ланцюга виконання",
+        title: t("counterfactual.faultTitle", "Розрив ланцюга виконання"),
         effect:
           graph.brokenReason ||
-          "Один із проміжних вузлів відключено. Сигнал не доходить до кінцевого апаратного блоку.",
+          t(
+            "counterfactual.faultEffect",
+            "Один або кілька архітектурних вузлів вимкнено. Сигнал виконання не досягає кінцевого ефекту."
+          ),
       };
     }
     return {
-      title: "Ланцюг замкнено штатно",
-      effect:
-        "Всі ланки (оголошення → реалізація → реєстрація в DI → конструктор → виклик → екран) активні. Натискання кнопки пульта увімкне телевізор.",
+      title: t("counterfactual.nominalTitle", "Ланцюг замкнено штатно"),
+      effect: t(
+        "counterfactual.nominalEffect",
+        "Всі ланки (оголошення → реалізація → реєстрація в DI → конструктор → виклик → екран) активні. Натискання кнопки пульта увімкне телевізор."
+      ),
     };
   };
 
@@ -140,7 +151,7 @@ export const CounterfactualPanel: React.FC<CounterfactualPanelProps> = ({
           <button
             onClick={() => setIsExpanded((prev) => !prev)}
             className="p-1.5 rounded-lg bg-[#25262B] hover:bg-[#303137] text-gray-400 hover:text-gray-200 border border-white/[0.06] transition-colors cursor-pointer"
-            title={isExpanded ? "Згорнути" : "Розгорнути"}
+            title={isExpanded ? t("common.collapse", "Згорнути") : t("common.expand", "Розгорнути")}
           >
             {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>

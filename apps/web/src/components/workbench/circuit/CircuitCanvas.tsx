@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ReactFlow,
   Background,
@@ -24,6 +25,7 @@ const edgeTypes = {
 };
 
 export const CircuitCanvas: React.FC = () => {
+  const { t } = useTranslation();
   const {
     power,
     circuitEdges,
@@ -70,7 +72,7 @@ export const CircuitCanvas: React.FC = () => {
           nodeType: "psu",
           name: "PSU",
           chipModel: "LM7805",
-          role: "Лінійний стабілізатор +5V",
+          role: t("circuit.psuRole", "Лінійний стабілізатор +5V"),
           nominalVoltage: "5.02 V",
           voltage: "5.02 V",
           hasSignal: true,
@@ -87,7 +89,7 @@ export const CircuitCanvas: React.FC = () => {
           nodeType: "ir",
           name: "IR RX",
           chipModel: "TSOP38238",
-          role: "Демодулятор 38 kHz",
+          role: t("circuit.irRole", "Демодулятор 38 kHz"),
           nominalVoltage: "3.31 V",
           voltage: irHasPower ? (irSignalPulse ? "0.80 V" : "3.31 V") : "0.00 V",
           hasSignal: irHasPower,
@@ -104,7 +106,7 @@ export const CircuitCanvas: React.FC = () => {
           nodeType: "mcu",
           name: "MCU",
           chipModel: "ATmega328P",
-          role: "Центральний процесор",
+          role: t("circuit.mcuRole", "Центральний процесор"),
           nominalVoltage: "5.00 V",
           voltage: mcuHasPower ? "5.00 V" : "0.00 V",
           hasSignal: mcuHasPower,
@@ -121,7 +123,7 @@ export const CircuitCanvas: React.FC = () => {
           nodeType: "eeprom",
           name: "EEPROM",
           chipModel: "24C08",
-          role: "Пам'ять каналів I2C",
+          role: t("circuit.eepromRole", "Пам'ять каналів I2C"),
           nominalVoltage: "5.00 V",
           voltage: eepromHasSignal ? "5.00 V" : "0.00 V",
           hasSignal: eepromHasSignal,
@@ -138,7 +140,7 @@ export const CircuitCanvas: React.FC = () => {
           nodeType: "display",
           name: "Display Driver",
           chipModel: "TDA9351",
-          role: "Контролер матриці/розгортки",
+          role: t("circuit.displayRole", "Контролер матриці/розгортки"),
           nominalVoltage: "12.0 V",
           voltage: displayHasSignal ? "12.0 V" : "0.00 V",
           hasSignal: displayHasSignal,
@@ -155,7 +157,7 @@ export const CircuitCanvas: React.FC = () => {
           nodeType: "audio",
           name: "Audio Amp",
           chipModel: "LM386",
-          role: "Підсилювач звукового тракту",
+          role: t("circuit.audioRole", "Підсилювач звукового тракту"),
           nominalVoltage: "5.00 V",
           voltage: audioHasSignal ? "5.00 V" : "0.00 V",
           hasSignal: audioHasSignal,
@@ -172,7 +174,7 @@ export const CircuitCanvas: React.FC = () => {
           nodeType: "led",
           name: "LED Driver",
           chipModel: "SMD-LED",
-          role: "Індикатор чергового режиму",
+          role: t("circuit.ledRole", "Індикатор чергового режиму"),
           nominalVoltage: "2.10 V",
           voltage: ledHasSignal ? "2.10 V" : "0.00 V",
           hasSignal: ledHasSignal,
@@ -181,6 +183,7 @@ export const CircuitCanvas: React.FC = () => {
       },
     ],
     [
+      t,
       mcuHasPower,
       irHasPower,
       irSignalPulse,
@@ -207,7 +210,7 @@ export const CircuitCanvas: React.FC = () => {
         data: {
           isBroken: circuitEdges["edge-psu-mcu"]?.isBroken ?? false,
           label: "VCC (+5V)",
-          signalType: "Головне живлення процесора",
+          signalType: t("circuit.sigPsuMcu", "Головне живлення процесора"),
         },
       },
       {
@@ -218,7 +221,7 @@ export const CircuitCanvas: React.FC = () => {
         data: {
           isBroken: circuitEdges["edge-psu-ir"]?.isBroken ?? false,
           label: "VCC (+5V)",
-          signalType: "Живлення фотоприймача",
+          signalType: t("circuit.sigPsuIr", "Живлення фотоприймача"),
         },
       },
       {
@@ -229,7 +232,7 @@ export const CircuitCanvas: React.FC = () => {
         data: {
           isBroken: circuitEdges["edge-ir-mcu"]?.isBroken ?? false,
           label: "IR_DATA",
-          signalType: "Переривання INT0",
+          signalType: t("circuit.sigIrMcu", "Переривання INT0"),
         },
       },
       {
@@ -240,7 +243,7 @@ export const CircuitCanvas: React.FC = () => {
         data: {
           isBroken: circuitEdges["edge-mcu-display"]?.isBroken ?? false,
           label: "LVDS / Video",
-          signalType: "Кадрова розгортка",
+          signalType: t("circuit.sigMcuDisplay", "Кадрова розгортка"),
         },
       },
       {
@@ -251,7 +254,7 @@ export const CircuitCanvas: React.FC = () => {
         data: {
           isBroken: circuitEdges["edge-mcu-audio"]?.isBroken ?? false,
           label: "Audio PWM",
-          signalType: "Звуковий тракт",
+          signalType: t("circuit.sigMcuAudio", "Звуковий тракт"),
         },
       },
       {
@@ -262,7 +265,7 @@ export const CircuitCanvas: React.FC = () => {
         data: {
           isBroken: circuitEdges["edge-mcu-led"]?.isBroken ?? false,
           label: "GPIO LED",
-          signalType: "Світлодіод стану",
+          signalType: t("circuit.sigMcuLed", "Світлодіод стану"),
         },
       },
       {
@@ -273,11 +276,11 @@ export const CircuitCanvas: React.FC = () => {
         data: {
           isBroken: circuitEdges["edge-mcu-eeprom"]?.isBroken ?? false,
           label: "I2C Bus",
-          signalType: "SDA / SCL пам'ять",
+          signalType: t("circuit.sigMcuEeprom", "SDA / SCL пам'ять"),
         },
       },
     ],
-    [circuitEdges]
+    [circuitEdges, t]
   );
 
   return (
@@ -291,18 +294,20 @@ export const CircuitCanvas: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-display font-bold text-xs text-ink">
-                Принципова схема шасі (PCB Schematic)
+                {t("circuit.schematicTitle", "Принципова схема шасі (PCB Schematic)")}
               </span>
               <Badge
                 variant={brokenCount > 0 ? "broken" : "ok"}
                 size="sm"
                 className="font-balsamiq text-[10px]"
               >
-                {brokenCount > 0 ? `${brokenCount} обрив(и)` : "Всі ланцюги замкнені"}
+                {brokenCount > 0
+                  ? t("circuit.breakCount", { count: brokenCount, defaultValue: `${brokenCount} обрив(и)` })
+                  : t("circuit.allCircuitsOk", "Всі ланцюги замкнені")}
               </Badge>
             </div>
             <p className="font-balsamiq text-[10px] text-ink-muted">
-              Клікніть на будь-яку доріжку для моделювання фізичного обриву зв&apos;язку
+              {t("circuit.clickHint", "Клікніть на будь-яку доріжку для моделювання фізичного обриву зв'язку")}
             </p>
           </div>
         </div>
@@ -310,11 +315,11 @@ export const CircuitCanvas: React.FC = () => {
         {/* Reset Circuit Button */}
         <button
           onClick={resetCircuit}
-          title="Скинути всі обриви та відновити доріжки до стану OK"
+          title={t("circuit.resetTooltip", "Скинути всі обриви та відновити доріжки до стану OK")}
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-paper border border-paper-border hover:border-accent-blue/40 text-ink text-xs font-balsamiq font-bold transition-all duration-150 cursor-pointer shadow-xs active:scale-95"
         >
           <RotateCcw size={12} className="text-accent-blue" />
-          <span>Скинути схему</span>
+          <span>{t("circuit.resetButton", "Скинути схему")}</span>
         </button>
       </div>
 
