@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import {
   Power,
   Volume2,
@@ -37,7 +38,19 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
     pressVolumeDown,
     pressMuteToggle,
     pressSelectChannel,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      isIrEmitting: s.isIrEmitting,
+      osdMessage: s.osdMessage,
+      pressPower: s.pressPower,
+      pressChannelUp: s.pressChannelUp,
+      pressChannelDown: s.pressChannelDown,
+      pressVolumeUp: s.pressVolumeUp,
+      pressVolumeDown: s.pressVolumeDown,
+      pressMuteToggle: s.pressMuteToggle,
+      pressSelectChannel: s.pressSelectChannel,
+    }))
+  );
 
   const isCalcMode = osdMessage === "CALC_MODE";
   const isHorizontal = orientation === "horizontal";

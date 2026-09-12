@@ -79,7 +79,7 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
   xp,
 }) => {
   const { t } = useTranslation();
-  const { setCurrentStationId } = useWorkbenchStore();
+  const setCurrentStationId = useWorkbenchStore((s) => s.setCurrentStationId);
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isMatrixExpanded, setIsMatrixExpanded] = useState(false);

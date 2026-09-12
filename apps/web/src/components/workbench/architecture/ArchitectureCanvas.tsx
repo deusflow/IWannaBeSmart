@@ -13,6 +13,7 @@ import {
 import "@xyflow/react/dist/style.css";
 
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { ArchitectureNode } from "./ArchitectureNode";
 import { ArchitectureEdge, type ArchitectureEdgeData } from "./ArchitectureEdge";
 import { ArchitectureTreePanel } from "./ArchitectureTreePanel";
@@ -73,7 +74,24 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     resetBypasses,
     setIsTraceBroken,
     setTraceFaultReason,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      setArchitecturePowerWired: s.setArchitecturePowerWired,
+      archNodes: s.archNodes,
+      archEdges: s.archEdges,
+      setArchNodes: s.setArchNodes,
+      setArchEdges: s.setArchEdges,
+      mentorPhase: s.mentorPhase,
+      setMentorPhase: s.setMentorPhase,
+      selectedTraceEntityId: s.selectedTraceEntityId,
+      setSelectedTraceEntityId: s.setSelectedTraceEntityId,
+      bypassedTraceNodes: s.bypassedTraceNodes,
+      toggleTraceBypass: s.toggleTraceBypass,
+      resetBypasses: s.resetBypasses,
+      setIsTraceBroken: s.setIsTraceBroken,
+      setTraceFaultReason: s.setTraceFaultReason,
+    }))
+  );
   const { screenToFlowPosition, fitView, setCenter, getNode } = useReactFlow();
 
   const [canvasMode, setCanvasMode] = useState<"TRACE" | "WIRING">("TRACE");

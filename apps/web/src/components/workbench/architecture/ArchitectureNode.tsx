@@ -4,6 +4,7 @@ import { Handle, Position, type NodeProps, useReactFlow } from "@xyflow/react";
 import type { ArchitectureNodeData, EntityType } from "./types";
 import { FileCode, Box, Cpu, Zap, X, LucideIcon } from "lucide-react";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 
 // ── Entity accent colors (dot + icon) ──
 const ENTITY_ACCENT: Record<
@@ -30,7 +31,13 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
   const Icon = ICON_MAP[nodeData.entityType] || Box;
   const accent = ENTITY_ACCENT[nodeData.entityType] || ENTITY_ACCENT.class;
 
-  const { mentorPhase, guidedStep, isHintActive } = useWorkbenchStore();
+  const { mentorPhase, guidedStep, isHintActive } = useWorkbenchStore(
+    useShallow((s) => ({
+      mentorPhase: s.mentorPhase,
+      guidedStep: s.guidedStep,
+      isHintActive: s.isHintActive,
+    }))
+  );
 
   const isTvController = nodeData.fileId.includes("tv-controller") || id.includes("tv-controller");
   const isPowerCommand = nodeData.fileId.includes("power-command") || id.includes("power-command");

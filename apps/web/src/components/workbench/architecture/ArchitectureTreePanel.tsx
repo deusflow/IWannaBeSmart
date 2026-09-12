@@ -25,6 +25,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 
 export interface ArchitectureTreePanelProps {
   onAddNode?: (fileId: string) => void;
@@ -54,7 +55,12 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
   onSelectEntity,
 }) => {
   const { t } = useTranslation();
-  const { selectedTraceEntityId, setSelectedTraceEntityId } = useWorkbenchStore();
+  const { selectedTraceEntityId, setSelectedTraceEntityId } = useWorkbenchStore(
+    useShallow((s) => ({
+      selectedTraceEntityId: s.selectedTraceEntityId,
+      setSelectedTraceEntityId: s.setSelectedTraceEntityId,
+    }))
+  );
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({

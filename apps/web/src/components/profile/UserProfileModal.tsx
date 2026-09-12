@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { FINTECH_TASKS } from "@iw/sim-engine";
 
 interface UserProfileModalProps {
@@ -57,7 +58,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     taskMasteryStars,
     setCurrentStationId,
     setCurrentView,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      xp: s.xp,
+      taskMasteryStars: s.taskMasteryStars,
+      setCurrentStationId: s.setCurrentStationId,
+      setCurrentView: s.setCurrentView,
+    }))
+  );
 
   const [activeTab, setActiveTab] = useState<"identity" | "analytics" | "achievements">(initialTab);
 

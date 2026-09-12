@@ -13,6 +13,7 @@ import {
   Info,
 } from "lucide-react";
 import { useWorkbenchStore, type MentorPhase } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 
 interface MentorBarProps {
   onGoToTv?: () => void;
@@ -32,7 +33,18 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
     completeLevel,
     isArchitecturePowerWired: isPowerWired,
     power,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      mentorPhase: s.mentorPhase,
+      guidedStep: s.guidedStep,
+      isHintActive: s.isHintActive,
+      triggerHint: s.triggerHint,
+      resetLevelForPractice: s.resetLevelForPractice,
+      completeLevel: s.completeLevel,
+      isArchitecturePowerWired: s.isArchitecturePowerWired,
+      power: s.power,
+    }))
+  );
 
   const toggleExpand = useCallback(() => setIsExpanded((prev) => !prev), []);
   const toggleTheory = useCallback(() => setShowTheory((prev) => !prev), []);

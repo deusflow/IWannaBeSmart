@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { tvLevel01, CODING_TASKS, FINTECH_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
 import { TVBlueprintDevice } from "../components/workbench/TVBlueprintDevice";
 import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDevice";
@@ -71,7 +72,27 @@ export const WorkbenchScreen: React.FC = () => {
     setCurrentStationId,
     currentView,
     setCurrentView,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      power: s.power,
+      channel: s.channel,
+      volume: s.volume,
+      channelNames: s.channelNames,
+      isBeamFlying: s.isBeamFlying,
+      xp: s.xp,
+      mentorPhase: s.mentorPhase,
+      completedCodingTasks: s.completedCodingTasks,
+      taskMasteryStars: s.taskMasteryStars,
+      isStationVictoryModalOpen: s.isStationVictoryModalOpen,
+      setStationVictoryModalOpen: s.setStationVictoryModalOpen,
+      isPosVictoryModalOpen: s.isPosVictoryModalOpen,
+      setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      currentStationId: s.currentStationId,
+      setCurrentStationId: s.setCurrentStationId,
+      currentView: s.currentView,
+      setCurrentView: s.setCurrentView,
+    }))
+  );
 
   const handleToggleSound = () => {
     const nextMuted = audioFx.toggleMute();

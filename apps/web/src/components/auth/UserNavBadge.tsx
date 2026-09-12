@@ -18,7 +18,7 @@ interface UserNavBadgeProps {
 export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) => {
   const { t } = useTranslation();
   const { user, profile, signOut } = useAuthStore();
-  const { taskMasteryStars } = useWorkbenchStore();
+  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);

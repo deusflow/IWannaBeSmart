@@ -19,6 +19,7 @@ import {
   type CodingTask,
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 import { GuidedStepBar } from "./GuidedStepBar";
@@ -49,7 +50,23 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     addXp,
     setStationVictoryModalOpen,
     resetBypasses,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      power: s.power,
+      channel: s.channel,
+      volume: s.volume,
+      isArchitecturePowerWired: s.isArchitecturePowerWired,
+      setArchitecturePowerWired: s.setArchitecturePowerWired,
+      applyCodeExecution: s.applyCodeExecution,
+      completeCodingTask: s.completeCodingTask,
+      completedCodingTasks: s.completedCodingTasks,
+      taskMasteryStars: s.taskMasteryStars,
+      setTaskMastery: s.setTaskMastery,
+      addXp: s.addXp,
+      setStationVictoryModalOpen: s.setStationVictoryModalOpen,
+      resetBypasses: s.resetBypasses,
+    }))
+  );
 
   const tierMeta = useMemo(() => ({
     0: { label: t("codegym.tier0Label", "РАНГ 0: СТАРТ"), maxStars: 12, unlockAt: 0 },

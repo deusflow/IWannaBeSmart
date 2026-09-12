@@ -20,6 +20,7 @@ import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
 import { FINTECH_TASKS, CODING_TASKS } from "@iw/sim-engine";
 import { UserNavBadge } from "../auth/UserNavBadge";
+import { useShallow } from "zustand/react/shallow";
 
 export const WorkshopHubScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -31,7 +32,17 @@ export const WorkshopHubScreen: React.FC = () => {
     setCurrentView,
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      xp: s.xp,
+      completedCodingTasks: s.completedCodingTasks,
+      taskMasteryStars: s.taskMasteryStars,
+      setCurrentStationId: s.setCurrentStationId,
+      setCurrentView: s.setCurrentView,
+      setStationVictoryModalOpen: s.setStationVictoryModalOpen,
+      setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+    }))
+  );
 
   const [isDossierExpanded, setIsDossierExpanded] = useState<boolean>(false);
 

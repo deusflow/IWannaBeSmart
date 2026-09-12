@@ -18,6 +18,7 @@ import {
   Scissors,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { audioFx } from "../../utils/audioFx";
 
 export const POSBlueprintDevice: React.FC = () => {
@@ -32,7 +33,19 @@ export const POSBlueprintDevice: React.FC = () => {
     posTapNfc,
     posInsertChip,
     posEjectCard,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      posState: s.posState,
+      resetPosState: s.resetPosState,
+      applyPosExecution: s.applyPosExecution,
+      posManualPin: s.posManualPin,
+      posIsCardInserted: s.posIsCardInserted,
+      posKeypadInput: s.posKeypadInput,
+      posTapNfc: s.posTapNfc,
+      posInsertChip: s.posInsertChip,
+      posEjectCard: s.posEjectCard,
+    }))
+  );
   const [receiptTorn, setReceiptTorn] = useState<boolean>(false);
 
   const isDeclined = posState.status === "DECLINED";

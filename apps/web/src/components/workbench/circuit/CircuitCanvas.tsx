@@ -9,6 +9,7 @@ import {
 import "@xyflow/react/dist/style.css";
 
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { HardwareNode, type HardwareNodeData } from "./HardwareNode";
 import { CircuitEdge, type CircuitEdgeData } from "./CircuitEdge";
 import { RotateCcw, Cpu } from "lucide-react";
@@ -29,7 +30,15 @@ export const CircuitCanvas: React.FC = () => {
     resetCircuit,
     isEdgeBroken,
     irSignalPulse,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      power: s.power,
+      circuitEdges: s.circuitEdges,
+      resetCircuit: s.resetCircuit,
+      isEdgeBroken: s.isEdgeBroken,
+      irSignalPulse: s.irSignalPulse,
+    }))
+  );
 
   const brokenCount = Object.values(circuitEdges).filter((e) => e.isBroken).length;
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { Power, Volume2, VolumeX, Activity, Radio, ChevronUp, ChevronDown, AlertTriangle } from "lucide-react";
 
 interface TVBlueprintDeviceProps {
@@ -32,7 +33,30 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
     calcSetOperation,
     calcEvaluate,
     calcClear,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      power: s.power,
+      channel: s.channel,
+      channelNames: s.channelNames,
+      volume: s.volume,
+      isMuted: s.isMuted,
+      osdMessage: s.osdMessage,
+      irSignalPulse: s.irSignalPulse,
+      screenReactionPulse: s.screenReactionPulse,
+      chassisTogglePower: s.chassisTogglePower,
+      chassisNextChannel: s.chassisNextChannel,
+      chassisPrevChannel: s.chassisPrevChannel,
+      isEdgeBroken: s.isEdgeBroken,
+      mentorPhase: s.mentorPhase,
+      calcDisplay: s.calcDisplay,
+      calcPrevValue: s.calcPrevValue,
+      calcOperation: s.calcOperation,
+      calcInputDigit: s.calcInputDigit,
+      calcSetOperation: s.calcSetOperation,
+      calcEvaluate: s.calcEvaluate,
+      calcClear: s.calcClear,
+    }))
+  );
 
   const isPsuMcuBroken = isEdgeBroken("edge-psu-mcu");
   const isDisplayBroken = isEdgeBroken("edge-mcu-display");

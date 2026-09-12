@@ -18,4 +18,34 @@ export default defineConfig({
     strictPort: false,
     host: true,
   },
+  build: {
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/zustand/") || id.includes("node_modules/i18next") || id.includes("node_modules/react-i18next")) {
+            return "vendor-react";
+          }
+          if (id.includes("node_modules/@uiw/react-codemirror") || id.includes("node_modules/@codemirror")) {
+            return "vendor-codemirror";
+          }
+          if (id.includes("node_modules/@xyflow")) {
+            return "vendor-xyflow";
+          }
+          if (id.includes("node_modules/@supabase")) {
+            return "vendor-supabase";
+          }
+          if (id.includes("node_modules/lucide-react")) {
+            return "vendor-icons";
+          }
+          if (id.includes("packages/i18n")) {
+            return "i18n-translations";
+          }
+          if (id.includes("packages/sim-engine")) {
+            return "sim-engine-core";
+          }
+        },
+      },
+    },
+  },
 });

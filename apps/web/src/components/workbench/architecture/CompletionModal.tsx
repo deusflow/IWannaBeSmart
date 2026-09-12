@@ -25,7 +25,7 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [langTab, setLangTab] = useState<"csharp" | "go">("csharp");
-  const { xp } = useWorkbenchStore();
+  const xp = useWorkbenchStore((s) => s.xp);
 
   if (!isOpen) return null;
 

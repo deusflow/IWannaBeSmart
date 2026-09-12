@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 
 interface ProjectExplorerProps {
   onAddNode: (fileId: string) => void;
@@ -46,7 +47,13 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   activeFileIds,
 }) => {
   const { t } = useTranslation();
-  const { mentorPhase, guidedStep, setGuidedStep } = useWorkbenchStore();
+  const { mentorPhase, guidedStep, setGuidedStep } = useWorkbenchStore(
+    useShallow((s) => ({
+      mentorPhase: s.mentorPhase,
+      guidedStep: s.guidedStep,
+      setGuidedStep: s.setGuidedStep,
+    }))
+  );
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({

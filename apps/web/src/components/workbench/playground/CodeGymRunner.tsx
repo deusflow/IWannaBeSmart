@@ -17,6 +17,7 @@ import {
   type FintechTask,
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { useShallow } from "zustand/react/shallow";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 import { GuidedStepBar } from "./GuidedStepBar";
@@ -36,7 +37,18 @@ export const CodeGymRunner: React.FC = () => {
     completeCodingTask,
     addXp,
     setPosVictoryModalOpen,
-  } = useWorkbenchStore();
+  } = useWorkbenchStore(
+    useShallow((s) => ({
+      posState: s.posState,
+      applyPosExecution: s.applyPosExecution,
+      resetPosState: s.resetPosState,
+      taskMasteryStars: s.taskMasteryStars,
+      setTaskMastery: s.setTaskMastery,
+      completeCodingTask: s.completeCodingTask,
+      addXp: s.addXp,
+      setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+    }))
+  );
 
   const [selectedTaskId, setSelectedTaskId] = useState<string>(FINTECH_TASKS[0].id);
   const currentTask: FintechTask = useMemo(
