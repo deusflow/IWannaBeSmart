@@ -240,7 +240,7 @@ function executeStatement(
   }
 
   // 0.2 Null pointer declaration (Bridge Task C): TV broken = null; or var broken = null; or var broken *TV = nil or broken := nil
-  const nullDeclMatch = s.match(/^(?:(?:TV|\*TV|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:null|nil|(?:\(\*TV\)\s*\(\s*nil\s*\)))$/i);
+  const nullDeclMatch = s.match(/^(?:(?:TV|\*TV|var)\s+)?([a-zA-Z_]\w*)(?:\s+\*?TV)?\s*(?::=|=)\s*(?:null|nil|(?:\(\*TV\)\s*\(\s*nil\s*\)))$/i);
   if (nullDeclMatch) {
     const varName = nullDeclMatch[1];
     ctx.nullScope[varName] = true;

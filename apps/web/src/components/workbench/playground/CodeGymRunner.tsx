@@ -3,51 +3,36 @@
  * @description 3-Star Code Gym muscle memory engine: Trace -> Cloze -> Sprint for POS Tasks 1..4
  */
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import CodeMirror from "@uiw/react-codemirror";
-import { oneDark } from "@codemirror/theme-one-dark";
-import { cpp } from "@codemirror/lang-cpp";
-import { go } from "@codemirror/lang-go";
 import {
   Star,
-  Play,
-  RotateCcw,
-  ArrowRight,
-  Timer,
-  AlertTriangle,
-  CheckCircle2,
   Trophy,
   Zap,
   X,
-  Sparkles,
-  HelpCircle,
-  Terminal,
-  Wrench,
 } from "lucide-react";
 import {
   FINTECH_TASKS,
   executePosScriptAsync,
-  type VirtualPosState,
   type FintechTask,
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 import { GuidedStepBar } from "./GuidedStepBar";
-import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
 import { ProjectExplorerBar } from "./ProjectExplorerBar";
+import { useCodeGymSession } from "./useCodeGymSession";
+import { CodeGymEditor } from "./CodeGymEditor";
 
 export const CodeGymRunner: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const {
     posState,
     applyPosExecution,
     resetPosState,
     taskMasteryStars,
     setTaskMastery,
-    saveTaskProgress,
     completeCodingTask,
     addXp,
     setPosVictoryModalOpen,
@@ -59,186 +44,101 @@ export const CodeGymRunner: React.FC = () => {
     [selectedTaskId]
   );
 
-  const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
-  const [activeRound, setActiveRound] = useState<1 | 2 | 3 | 4>(1);
-  const [showTransferHint, setShowTransferHint] = useState<boolean>(false);
+  const starsEarned = taskMasteryStars[currentTask.id] || 0;
 
-  // Target code for current language & task
-  const targetCode = currentTask.targetCode[codeLang];
-  const clozeTemplate = currentTask.clozeTemplate[codeLang];
-
-  // Editor content per round
-  const [typedCode, setTypedCode] = useState<string>("");
-  const [roundCompleted, setRoundCompleted] = useState<boolean>(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [hasError, setHasError] = useState<boolean>(false);
-  const [showTooltip, setShowTooltip] = useState<boolean>(false);
-  const [showTheory, setShowTheory] = useState<boolean>(false);
-
-  // Dynamic gutter width for ghost overlay alignment
-  const editorContainerRef = useRef<HTMLDivElement | null>(null);
-  const [gutterWidth, setGutterWidth] = useState<number>(40);
-  const updateGutterWidth = useCallback(() => {
-    const node = editorContainerRef.current;
-    if (!node) return;
-    const gutterEl = node.querySelector(".cm-gutters") as HTMLElement | null;
-    setGutterWidth(gutterEl ? gutterEl.getBoundingClientRect().width : 40);
-  }, []);
-  const editorContainerCallbackRef = useCallback((node: HTMLDivElement | null) => {
-    editorContainerRef.current = node;
-    if (node) {
-      updateGutterWidth();
-      const resizeObserver = new ResizeObserver(() => updateGutterWidth());
-      resizeObserver.observe(node);
-      return () => resizeObserver.disconnect();
-    }
-  }, [updateGutterWidth]);
-
-  // Sprint Timer (Round 3)
-  const sprintTimeLimit = Math.max(25, Math.ceil(targetCode.length / 3.2));
-  const [timeLeft, setTimeLeft] = useState<number>(sprintTimeLimit);
-  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
-
-  // WPM & Typing ergonomics
-  const [roundStats, setRoundStats] = useState<{ wpm: number; accuracy: number } | null>(null);
-  const roundStartTimeRef = useRef<number | null>(null);
-  const lastKeySoundTimeRef = useRef<number>(0);
-
-  const playThrottledKeyClick = useCallback(() => {
-    const now = Date.now();
-    if (now - lastKeySoundTimeRef.current > 35) {
-      audioFx.playKeyClick();
-      lastKeySoundTimeRef.current = now;
-    }
-  }, []);
-
-  // Next task calculation
   const currentTaskIndex = FINTECH_TASKS.findIndex((t) => t.id === currentTask.id);
   const nextTask =
     currentTaskIndex >= 0 && currentTaskIndex < FINTECH_TASKS.length - 1
       ? FINTECH_TASKS[currentTaskIndex + 1]
       : null;
 
-  useEffect(() => {
-    updateGutterWidth();
-  }, [activeRound, codeLang, targetCode, updateGutterWidth]);
-
-  // Mastery stars for this task
-  const starsEarned = taskMasteryStars[currentTask.id] || 0;
-
-  // Guide Spotlight — pulses the targeted POS device node
   useGuideSpotlight(currentTask.id);
 
-  // CodeMirror language extensions
-  const extensions = useMemo(() => {
-    return codeLang === "go" ? [go()] : [cpp()];
-  }, [codeLang]);
-
-  // Handle task switching
-  const handleSelectTask = (taskId: string) => {
-    if (taskId === selectedTaskId) return;
-    audioFx.playRelayClick();
-    setSelectedTaskId(taskId);
-    setActiveRound(1);
-    setShowTheory(false);
-    setShowTooltip(false);
-    setShowTransferHint(false);
-    const nextTask = FINTECH_TASKS.find((t) => t.id === taskId);
-    if (nextTask) {
-      resetPosState(nextTask.initialState);
-      if (nextTask.isBugfixTask) {
-        audioFx.playAlarmSound();
+  // ── Execution Helper ──
+  const runPosExecution = useCallback(
+    async (code: string) => {
+      const res = await executePosScriptAsync(code, posState);
+      if (res.success) {
+        applyPosExecution(res.newState);
       }
-    }
-  };
+      return res;
+    },
+    [posState, applyPosExecution]
+  );
 
-  // Reset or setup editor when round, language, or task changes
-  useEffect(() => {
-    setRoundCompleted(false);
-    setFeedback(null);
-    setHasError(false);
-    setIsTimerRunning(false);
-    setTimeLeft(sprintTimeLimit);
-    setRoundStats(null);
-    roundStartTimeRef.current = null;
-    setShowTransferHint(false);
+  // ── Unified Code Gym Session ──
+  const {
+    codeLang,
+    setCodeLang,
+    activeRound,
+    setActiveRound,
+    typedCode,
+    roundCompleted,
+    setRoundCompleted,
+    feedback,
+    setFeedback,
+    hasError,
+    setHasError,
+    showTooltip,
+    setShowTooltip,
+    showTheory,
+    setShowTheory,
+    showTransferHint,
+    setShowTransferHint,
+    timeLeft,
+    isTimerRunning,
+    roundStats,
+    setRoundStats,
+    roundStartTimeRef,
+    gutterWidth,
+    editorContainerRef,
+    targetCode,
+    clozeTemplate,
+    sprintLimit,
+    traceCharsMatched,
+    handleCodeChange,
+    handleStartSprint,
+    handleResetRound,
+  } = useCodeGymSession({
+    currentTask,
+    onRoundComplete: async (_round, code) => {
+      setTaskMastery(currentTask.id, 1);
+      completeCodingTask(currentTask.id);
+      addXp(15);
+      await runPosExecution(code);
+    },
+  });
 
-    if (activeRound === 1) {
-      if (currentTask.isBugfixTask) {
-        setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
-      } else {
-        setTypedCode("");
-      }
-    } else if (activeRound === 2) {
-      setTypedCode(clozeTemplate);
-    } else if (activeRound === 3) {
-      setTypedCode("");
-    } else if (activeRound === 4) {
-      setTypedCode("");
-    }
-  }, [activeRound, codeLang, clozeTemplate, currentTask, sprintTimeLimit]);
-
-  // ── Round 1: Trace typing mechanics ──────────────────────────
-  const handleTraceChange = useCallback(
-    async (input: string) => {
-      setTypedCode(input);
-      if (!roundStartTimeRef.current) {
-        roundStartTimeRef.current = Date.now();
-      }
-      playThrottledKeyClick();
-
-      if (currentTask.isBugfixTask) {
-        setHasError(false);
-        setFeedback(null);
-        return;
-      }
-
-      // Verify character by character against target
-      let mismatch = false;
-      const minLen = Math.min(input.length, targetCode.length);
-
-      for (let i = 0; i < minLen; i++) {
-        if (input[i] !== targetCode[i]) {
-          mismatch = true;
-          break;
-        }
-      }
-
-      if (mismatch) {
-        setHasError(true);
-        audioFx.playErrorBuzz();
-        setFeedback(t("codegym.mismatchPrompt", "Символ не відповідає трафарету. Використовуйте Backspace."));
-      } else {
-        setHasError(false);
-        setFeedback(null);
-
-        // Check if fully and accurately completed
-        if (input.trim() === targetCode.trim()) {
-          setRoundCompleted(true);
-          const elapsedMinutes = Math.max(0.04, (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000);
-          const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
-          setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
-          audioFx.playSuccessFanfare();
-          if (currentTask.id === "task-pos-batch-settlement") {
-            audioFx.playPrinterSound();
-          } else if (currentTask.id === "task-pos-pin-lockout") {
-            audioFx.playAlarmSound();
-          }
-          saveTaskProgress(currentTask.id, 1, calculatedWpm);
-          completeCodingTask(currentTask.id);
-          addXp(15);
-
-          // Physical POS device reflection
-          const before: VirtualPosState = { ...posState };
-          const result = await executePosScriptAsync(input, before);
-          applyPosExecution(result.newState);
+  const handleSelectTask = useCallback(
+    (taskId: string) => {
+      if (taskId === selectedTaskId) return;
+      audioFx.playRelayClick();
+      setSelectedTaskId(taskId);
+      setActiveRound(1);
+      setShowTheory(false);
+      setShowTooltip(false);
+      setShowTransferHint(false);
+      const nextT = FINTECH_TASKS.find((t) => t.id === taskId);
+      if (nextT) {
+        resetPosState(nextT.initialState);
+        if (nextT.isBugfixTask) {
+          audioFx.playAlarmSound();
         }
       }
     },
-    [targetCode, currentTask.id, posState, saveTaskProgress, completeCodingTask, addXp, applyPosExecution, playThrottledKeyClick, t]
+    [selectedTaskId, resetPosState, setActiveRound, setShowTheory, setShowTooltip, setShowTransferHint]
   );
 
-  // ── Round 2: Cloze verification ──────────────────────────────
+  const fileName = useMemo(
+    () => (codeLang === "go" ? "pos_controller.go" : "POSController.cs"),
+    [codeLang]
+  );
+
+  const allPosTasksCompleted = useMemo(() => {
+    return FINTECH_TASKS.every((task) => (taskMasteryStars[task.id] || 0) >= 1);
+  }, [taskMasteryStars]);
+
+  // ── Verification Handlers ──
   const handleVerifyCloze = useCallback(async () => {
     const isUnfilled = typedCode.includes("___");
     if (isUnfilled) {
@@ -248,22 +148,14 @@ export const CodeGymRunner: React.FC = () => {
       return;
     }
 
-    const before: VirtualPosState = { ...posState };
-    const result = await executePosScriptAsync(typedCode, before);
-    applyPosExecution(result.newState);
-
-    const validation = currentTask.validate(before, result.newState, result, typedCode);
+    const res = await runPosExecution(typedCode);
+    const validation = currentTask.validate(posState, res.newState, res, typedCode);
 
     if (validation.passed) {
       setHasError(false);
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
-      if (currentTask.id === "task-pos-batch-settlement") {
-        audioFx.playPrinterSound();
-      } else if (currentTask.id === "task-pos-pin-lockout") {
-        audioFx.playAlarmSound();
-      }
       setTaskMastery(currentTask.id, 2);
       completeCodingTask(currentTask.id);
       addXp(20);
@@ -271,108 +163,60 @@ export const CodeGymRunner: React.FC = () => {
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
-      setFeedback(t(validation.messageKey || currentTask.hintKey));
+      setFeedback(
+        res.error
+          ? res.error
+          : validation.messageKey
+          ? t(validation.messageKey)
+          : t(currentTask.hintKey)
+      );
     }
-  }, [typedCode, posState, currentTask, applyPosExecution, setTaskMastery, completeCodingTask, addXp, t]);
-
-  // ── Round 3: Sprint timer logic ──────────────────────────────
-  useEffect(() => {
-    if (activeRound !== 3 || !isTimerRunning) return;
-
-    if (timeLeft <= 0) {
-      setIsTimerRunning(false);
-      audioFx.playErrorBuzz();
-      setHasError(true);
-      setFeedback(t("codegym.timeExpired"));
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [activeRound, isTimerRunning, timeLeft, t]);
-
-  const handleStartSprint = () => {
-    setTimeLeft(sprintTimeLimit);
-    setIsTimerRunning(true);
-    setHasError(false);
-    setFeedback(null);
-    setRoundCompleted(false);
-    setTypedCode("");
-  };
+  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
 
   const handleRunSprint = useCallback(async () => {
-    if (timeLeft <= 0) {
+    const isMatch = typedCode.trim() === targetCode.trim();
+    if (!isMatch) {
       setHasError(true);
-      setFeedback(t("codegym.timeExpired"));
+      audioFx.playErrorBuzz();
+      setFeedback(t("codegym.sprintMismatch", "Код не збігається з еталоном. Перевірте кожен символ!"));
       return;
     }
 
-    setIsTimerRunning(false);
-    const before: VirtualPosState = { ...posState };
-    const result = await executePosScriptAsync(typedCode, before);
-    applyPosExecution(result.newState);
-
-    const validation = currentTask.validate(before, result.newState, result, typedCode);
+    const res = await runPosExecution(typedCode);
+    const validation = currentTask.validate(posState, res.newState, res, typedCode);
 
     if (validation.passed) {
       setHasError(false);
       setRoundCompleted(true);
-      const elapsedSec = Math.max(1, sprintTimeLimit - timeLeft);
-      const elapsedMinutes = elapsedSec / 60;
+      const elapsedMinutes = Math.max(0.04, (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000);
       const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
       setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
-      if (currentTask.id === "task-pos-batch-settlement") {
-        audioFx.playPrinterSound();
-      } else if (currentTask.id === "task-pos-pin-lockout") {
-        audioFx.playAlarmSound();
-      }
-      saveTaskProgress(currentTask.id, 3, calculatedWpm);
+      setTaskMastery(currentTask.id, 3);
       completeCodingTask(currentTask.id);
-      addXp(50);
-      setFeedback(t("codegym.masteryComplete"));
-
-      // Check if all fintech tasks are now completed
-      const allCompleted = FINTECH_TASKS.every((task) =>
-        task.id === currentTask.id ? true : (taskMasteryStars[task.id] || 0) >= 1
-      );
-      if (allCompleted) {
-        setPosVictoryModalOpen(true);
-      }
+      addXp(30);
+      setFeedback(t("codegym.round3Complete", "🏆 Спринт пройдено! Ідеальна швидкість та точність."));
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
-      setFeedback(t(validation.messageKey || currentTask.hintKey));
+      setFeedback(
+        res.error
+          ? res.error
+          : validation.messageKey
+          ? t(validation.messageKey)
+          : t(currentTask.hintKey)
+      );
     }
-  }, [timeLeft, posState, typedCode, currentTask, applyPosExecution, saveTaskProgress, completeCodingTask, addXp, taskMasteryStars, setPosVictoryModalOpen, t]);
+  }, [typedCode, targetCode, runPosExecution, currentTask, posState, roundStartTimeRef, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
 
-  // ── Round 4: Transfer (Conceptual Variation) ──────────────────────────
   const handleRunTransfer = useCallback(async () => {
-    if (!typedCode.trim()) {
-      setHasError(true);
-      audioFx.playErrorBuzz();
-      setFeedback(t("codegym.fillBlanksPrompt", "Введіть код для виконання завдання!"));
-      return;
-    }
-
-    const before: VirtualPosState = { ...posState };
-    const result = await executePosScriptAsync(typedCode, before);
-    applyPosExecution(result.newState);
-
-    const currentLangKey = (i18n.language?.startsWith("da")
-      ? "da"
-      : i18n.language?.startsWith("en")
-      ? "en"
-      : "ua") as "ua" | "en" | "da";
+    const res = await runPosExecution(typedCode);
 
     let passed = false;
     if (currentTask.transferVariant) {
-      passed = result.success && currentTask.transferVariant.validate(before, result.newState, typedCode, result);
+      passed = currentTask.transferVariant.validate(posState, res.newState, typedCode, res);
     } else {
-      const validation = currentTask.validate(before, result.newState, result, typedCode);
+      const validation = currentTask.validate(posState, res.newState, res, typedCode);
       passed = validation.passed;
     }
 
@@ -381,61 +225,21 @@ export const CodeGymRunner: React.FC = () => {
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
-      if (currentTask.id === "task-pos-batch-settlement") {
-        audioFx.playPrinterSound();
-      } else if (currentTask.id === "task-pos-pin-lockout") {
-        audioFx.playAlarmSound();
-      }
       setTaskMastery(currentTask.id, 4);
       completeCodingTask(currentTask.id);
-      addXp(75);
-      setFeedback(t("codegym.transferComplete", "Чудово! Варіацію перевірено, 4-ту зірку майстра зараховано!"));
-
-      // Check if all fintech tasks are now completed
-      const allCompleted = FINTECH_TASKS.every((task) =>
-        task.id === currentTask.id ? true : (taskMasteryStars[task.id] || 0) >= 1
-      );
-      if (allCompleted) {
-        setPosVictoryModalOpen(true);
-      }
+      addXp(40);
+      setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
-      setFeedback(
-        result.error
-          ? result.error
-          : currentTask.transferVariant?.hint[currentLangKey] ||
-            t("codegym.transferFailed", "Умова варіації не виконана. Перевірте значення параметрів або стан пристрою.")
-      );
+      setFeedback(res.error || t(currentTask.hintKey));
     }
-  }, [
-    typedCode,
-    posState,
-    currentTask,
-    applyPosExecution,
-    setTaskMastery,
-    completeCodingTask,
-    addXp,
-    taskMasteryStars,
-    setPosVictoryModalOpen,
-    i18n.language,
-    t,
-  ]);
+  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
 
-  // ── Reverse Debugging: Repair validation ──────────────────────────────
   const handleVerifyBugfix = useCallback(async () => {
-    if (!typedCode.trim()) {
-      setHasError(true);
-      audioFx.playErrorBuzz();
-      setFeedback(t("codegym.fillBlanksPrompt", "Введіть код для виправлення дефекту!"));
-      return;
-    }
+    const res = await runPosExecution(typedCode);
+    const validation = currentTask.validate(posState, res.newState, res, typedCode);
 
-    const before: VirtualPosState = { ...posState };
-    const result = await executePosScriptAsync(typedCode, before);
-    applyPosExecution(result.newState);
-
-    const validation = currentTask.validate(before, result.newState, result, typedCode);
     if (validation.passed) {
       setHasError(false);
       setRoundCompleted(true);
@@ -447,69 +251,41 @@ export const CodeGymRunner: React.FC = () => {
       setFeedback(
         validation.messageKey
           ? t(validation.messageKey)
-          : "✅ Дефект успішно усунено! Розрахунки відповідають банківському регламенту."
+          : "✅ Дефект успішно усунено! Прилад працює у штатному режимі (OPERATIONAL)."
       );
     } else {
       setHasError(true);
       audioFx.playAlarmSound();
       setFeedback(
-        result.error
-          ? result.error
+        res.error
+          ? res.error
           : validation.messageKey
           ? t(validation.messageKey)
           : t(currentTask.hintKey)
       );
     }
-  }, [
-    typedCode,
-    posState,
-    currentTask,
-    applyPosExecution,
-    setTaskMastery,
-    completeCodingTask,
-    addXp,
-    t,
-  ]);
+  }, [typedCode, codeLang, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
 
-  // Trace character progress
-  const traceCharsMatched = useMemo(() => {
-    let count = 0;
-    const minLen = Math.min(typedCode.length, targetCode.length);
-    for (let i = 0; i < minLen; i++) {
-      if (typedCode[i] === targetCode[i]) count++;
-      else break;
+  const handleVerify = useCallback(() => {
+    if (currentTask.isBugfixTask && activeRound === 1) {
+      handleVerifyBugfix();
+    } else if (activeRound === 2) {
+      handleVerifyCloze();
+    } else if (activeRound === 3) {
+      if (!isTimerRunning) {
+        handleStartSprint();
+      } else {
+        handleRunSprint();
+      }
+    } else if (activeRound === 4) {
+      handleRunTransfer();
     }
-    return count;
-  }, [typedCode, targetCode]);
+  }, [currentTask.isBugfixTask, activeRound, isTimerRunning, handleVerifyBugfix, handleVerifyCloze, handleStartSprint, handleRunSprint, handleRunTransfer]);
 
-  const fileName = useMemo(() => {
-    switch (currentTask.id) {
-      case "task-pos-fee-calculation":
-        return codeLang === "go" ? "fee.go" : "FeeCalculator.cs";
-      case "task-pos-pin-lockout":
-        return codeLang === "go" ? "pin_lock.go" : "PinSecurityGuard.cs";
-      case "task-pos-batch-settlement":
-        return codeLang === "go" ? "batch.go" : "BatchSettlement.cs";
-      case "task-pos-interface-polymorphism":
-        return codeLang === "go" ? "payment_gateway.go" : "PaymentContract.cs";
-      case "task-pos-dependency-injection":
-        return codeLang === "go" ? "container.go" : "Program.cs";
-      case "task-pos-double-deduction-bug":
-        return codeLang === "go" ? "reconciliation.go" : "ReconciliationAudit.cs";
-      default:
-        return codeLang === "go" ? "guard.go" : "TransactionGuard.cs";
-    }
-  }, [currentTask.id, codeLang]);
-
-  const allFintechCompleted = useMemo(() => {
-    return FINTECH_TASKS.every((task) => (taskMasteryStars[task.id] || 0) >= 1);
-  }, [taskMasteryStars]);
-
-  // Keyboard Shortcuts (Ctrl+Enter / Cmd+Enter, Esc, Tab in Cloze)
+  // Hotkeys: Ctrl+Enter / Esc
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Enter / Cmd+Enter
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         if (roundCompleted) {
           if (activeRound < 4) {
@@ -521,71 +297,26 @@ export const CodeGymRunner: React.FC = () => {
           }
           return;
         }
-
-        if (currentTask.isBugfixTask && activeRound === 1) {
-          handleVerifyBugfix();
-          return;
-        }
-
-        if (activeRound === 2) {
-          handleVerifyCloze();
-        } else if (activeRound === 3) {
-          if (!isTimerRunning) {
-            handleStartSprint();
-          } else {
-            handleRunSprint();
-          }
-        } else if (activeRound === 4) {
-          handleRunTransfer();
-        }
+        handleVerify();
         return;
       }
 
-      // Escape to reset round
       if (e.key === "Escape") {
         e.preventDefault();
-        audioFx.playRelayClick();
-        if (currentTask.isBugfixTask && activeRound === 1) {
-          setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
-        } else {
-          setTypedCode(activeRound === 2 ? clozeTemplate : "");
-        }
-        setHasError(false);
-        setFeedback(null);
-        setRoundCompleted(false);
-        setIsTimerRunning(false);
-        setTimeLeft(sprintTimeLimit);
-        setRoundStats(null);
-        roundStartTimeRef.current = null;
-        return;
+        handleResetRound();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    activeRound,
-    roundCompleted,
-    isTimerRunning,
-    typedCode,
-    clozeTemplate,
-    sprintTimeLimit,
-    nextTask,
-    currentTask,
-    codeLang,
-    handleVerifyBugfix,
-    handleVerifyCloze,
-    handleRunSprint,
-    handleRunTransfer,
-    handleSelectTask,
-  ]);
+  }, [roundCompleted, activeRound, nextTask, handleVerify, handleSelectTask, handleResetRound, setActiveRound]);
 
   return (
     <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
-      {/* ── Top Header: Task Selector, Task Title, Round Tabs & Mastery Stars ── */}
+      {/* ── Top Header: Task Selector, Title & Mastery Stars ── */}
       <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-paper-border shadow-paper-sm space-y-3">
-        {/* Task Navigation Bar (Tasks 1..7) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 border-b border-paper-border/70 pb-3">
+        {/* Task Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {FINTECH_TASKS.map((task, idx) => {
             const isCurrent = task.id === currentTask.id;
             const taskStars = taskMasteryStars[task.id] || 0;
@@ -593,40 +324,29 @@ export const CodeGymRunner: React.FC = () => {
               <button
                 key={task.id}
                 onClick={() => handleSelectTask(task.id)}
-                className={`p-2 rounded-xl text-left border transition-all cursor-pointer ${
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   isCurrent
-                    ? "bg-[#1E2024] border-[#1E2024] text-white shadow-sm"
+                    ? "bg-[#1E2024] border-[#1E2024] text-white shadow-md"
                     : "bg-paper/70 hover:bg-paper border-paper-border text-ink hover:border-accent-blue/40"
                 }`}
               >
-                <div className="flex items-center justify-between text-[10px] font-mono">
-                  <span className={`font-bold uppercase ${isCurrent ? "text-amber-400" : "text-ink-muted"}`}>
-                    Завдання {idx + 1}
+                <div className="flex items-center justify-between">
+                  <span className={`font-mono text-[10px] font-bold uppercase ${isCurrent ? "text-amber-400" : "text-ink-muted"}`}>
+                    #{idx + 1} POS
                   </span>
-                  <span className="flex items-center gap-0.5 text-xs">
-                    {[1, 2, 3, 4].map((s) => (
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3].map((s) => (
                       <span
                         key={s}
-                        className={
-                          taskStars >= s
-                            ? s === 4
-                              ? "text-cyan-400"
-                              : "text-amber-400"
-                            : "text-gray-300 opacity-40"
-                        }
+                        className={taskStars >= s ? "text-amber-400 text-[10px]" : "text-gray-300 opacity-40 text-[10px]"}
                       >
                         ★
                       </span>
                     ))}
-                  </span>
+                  </div>
                 </div>
-                <div
-                  className={`text-[11px] font-display font-bold truncate mt-0.5 ${
-                    isCurrent ? "text-white" : "text-ink"
-                  }`}
-                  title={t(task.titleKey)}
-                >
-                  {t(task.conceptKey)}
+                <div className={`text-xs font-bold truncate mt-1 ${isCurrent ? "text-white" : "text-ink"}`}>
+                  {t(task.titleKey)}
                 </div>
               </button>
             );
@@ -634,26 +354,24 @@ export const CodeGymRunner: React.FC = () => {
         </div>
 
         {/* Task Title & Stars Counter */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Title & Concept Badge */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-700">
+            <div className="w-8 h-8 rounded-xl bg-accent-blue/20 border border-accent-blue/40 flex items-center justify-center text-accent-blue">
               <Zap size={18} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 border border-amber-600/30">
-                  Code Gym • 4-Star Mastery
+                <span className="font-mono text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-accent-blue/20 text-accent-blue border border-accent-blue/30">
+                  Fintech POS Gym
                 </span>
                 <span className="text-xs font-mono font-bold text-ink-muted">
                   {t(currentTask.conceptKey)}
                 </span>
-                {/* Tooltip button in blueprint style */}
                 <button
                   onClick={() => setShowTooltip(!showTooltip)}
                   className="w-5 h-5 rounded-full bg-[#EBE5D8] border border-[#1A1D20]/30 hover:border-[#1A1D20]/60 text-[#1A1D20] text-[11px] font-mono font-extrabold flex items-center justify-center transition-colors cursor-pointer"
-                  title="Простими словами"
-                  aria-label="Простими словами"
+                  title={t("common.simpleExplanation", "Простими словами")}
+                  aria-label={t("common.simpleExplanation", "Простими словами")}
                 >
                   ?
                 </button>
@@ -664,16 +382,15 @@ export const CodeGymRunner: React.FC = () => {
             </div>
           </div>
 
-          {/* Stars Mastery Counter & Trophy / Certificate trigger */}
           <div className="flex items-center gap-2">
-            {allFintechCompleted && (
+            {allPosTasksCompleted && (
               <button
                 onClick={() => {
                   audioFx.playSuccessFanfare();
                   setPosVictoryModalOpen(true);
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-display font-extrabold text-xs shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95"
-                title={t("codegym.certificateTooltip", "Отримати сертифікат модуля")}
+                title={t("codegym.posCertTooltip", "Отримати сертифікат станції POS")}
               >
                 <Trophy size={14} className="text-stone-900" />
                 <span>{t("codegym.certificateBtn", "Сертифікат")}</span>
@@ -682,7 +399,7 @@ export const CodeGymRunner: React.FC = () => {
 
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper border border-paper-border shadow-xs">
               <span className="text-xs font-display font-bold text-ink-muted mr-1">
-                {t("codegym.starsLabel")}:
+                {t("codegym.starsLabel", "Майстерність")}:
               </span>
               {[1, 2, 3, 4].map((starIdx) => (
                 <span
@@ -691,7 +408,6 @@ export const CodeGymRunner: React.FC = () => {
                   className="inline-flex items-center"
                 >
                   <Star
-                    key={starIdx}
                     size={18}
                     className={`transition-all duration-300 ${
                       starsEarned >= starIdx
@@ -707,7 +423,7 @@ export const CodeGymRunner: React.FC = () => {
           </div>
         </div>
 
-        {/* Parchment Tooltip popover with close button */}
+        {/* Parchment Tooltip popover */}
         {showTooltip && (
           <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-balsamiq leading-relaxed shadow-sm animate-in fade-in flex items-start justify-between gap-2">
             <div className="flex-1">
@@ -730,7 +446,7 @@ export const CodeGymRunner: React.FC = () => {
           </div>
         )}
 
-        {/* Blueprint Style Theory & Code Anatomy Card */}
+        {/* Theory & Code Anatomy Card */}
         <div className="pt-0.5">
           <SyntaxAnatomyCard
             taskId={currentTask.id}
@@ -740,13 +456,14 @@ export const CodeGymRunner: React.FC = () => {
           />
         </div>
 
-        {/* ── Guided Step Bar: Arcade-style briefing & 5-layer didactic engine ── */}
+        {/* Guided Step Bar */}
         {currentTask.simpleExplanationKey && (
           <GuidedStepBar
             data={{
               simpleKey: currentTask.simpleExplanationKey,
               engineeringKey: currentTask.engineeringKey || currentTask.simpleExplanationKey,
               taskId: currentTask.id,
+              tier: 1,
               codeLang,
               targetCode: currentTask.targetCode,
             }}
@@ -764,10 +481,10 @@ export const CodeGymRunner: React.FC = () => {
         {/* 4-Round Mode Selector Tabs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
           {[
-            { round: 1, label: t("codegym.round1Badge"), desc: "Сліпий трафарет" },
-            { round: 2, label: t("codegym.round2Badge"), desc: "Прогалини (Cloze)" },
-            { round: 3, label: t("codegym.round3Badge"), desc: `Спринт (${sprintTimeLimit}с)` },
-            { round: 4, label: t("codegym.round4Badge"), desc: t("codegym.round4DescShort", "Варіація") },
+            { round: 1, label: t("codegym.round1Badge", "Раунд 1"), desc: t("codegym.round1DescShort", "Сліпий трафарет") },
+            { round: 2, label: t("codegym.round2Badge", "Раунд 2"), desc: t("codegym.round2DescShort", "Прогалини (Cloze)") },
+            { round: 3, label: t("codegym.round3Badge", "Раунд 3"), desc: `${t("codegym.round3DescShort", "Спринт")} (${sprintLimit}с)` },
+            { round: 4, label: t("codegym.round4Badge", "Раунд 4"), desc: t("codegym.round4DescShort", "Варіація") },
           ].map(({ round, label, desc }) => {
             const isActive = activeRound === round;
             const isUnlocked = round === 1 || starsEarned >= round - 1;
@@ -793,7 +510,7 @@ export const CodeGymRunner: React.FC = () => {
                     {label}
                   </span>
                   {starsEarned >= round && (
-                    <span className={round === 4 ? "text-cyan-400 text-xs" : "text-amber-400 text-xs"}>
+                    <span className={round === 4 ? "text-cyan-400 text-xs drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "text-amber-400 text-xs"}>
                       {round === 4 ? "💎" : "⭐"}
                     </span>
                   )}
@@ -807,403 +524,50 @@ export const CodeGymRunner: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Project Explorer Bar: Real file structure & Main entrypoint ── */}
+      {/* Project Explorer Bar */}
       <ProjectExplorerBar
         currentCode={typedCode || targetCode}
         codeLang={codeLang}
         isFintech={true}
       />
 
-      {/* ── Editor Container ── */}
-      <div className="w-full rounded-2xl overflow-hidden border border-[#2B2D33] shadow-lg bg-[#1E1E22]">
-        {/* Editor Top Bar */}
-        <div className="px-3.5 py-2 bg-[#18191C] border-b border-[#2B2D33] flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
-
-            {/* Language Switcher */}
-            <div className="ml-2 flex items-center gap-1 bg-[#23252B] p-0.5 rounded-lg border border-[#343842]">
-              <button
-                onClick={() => setCodeLang("csharp")}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors ${
-                  codeLang === "csharp"
-                    ? "bg-accent-blue text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                C#
-              </button>
-              <button
-                onClick={() => setCodeLang("go")}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors ${
-                  codeLang === "go"
-                    ? "bg-accent-blue text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                Go
-              </button>
-            </div>
-
-            <span className="text-[11px] font-mono text-gray-400 font-bold ml-1">
-              {fileName}
-            </span>
-          </div>
-
-          {/* Round-specific status display & stats */}
-          <div className="flex items-center gap-2">
-            {roundStats && roundStats.wpm > 0 && (
-              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[10px] font-bold">
-                ⚡ {roundStats.wpm} WPM
-              </span>
-            )}
-            {roundStats && (
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-bold">
-                {roundStats.accuracy}% точність
-              </span>
-            )}
-
-            {activeRound === 1 && (
-              <span className="text-[11px] font-mono text-amber-300 font-bold">
-                Тайпінг: {traceCharsMatched} / {targetCode.length} симв.
-              </span>
-            )}
-
-            {activeRound === 3 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold">
-                <Timer size={13} className={isTimerRunning ? "animate-spin" : ""} />
-                <span>{timeLeft}s</span>
-              </div>
-            )}
-
-            {activeRound === 4 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-bold">
-                <Sparkles size={13} />
-                <span>Варіація</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Round 4: Transfer Mission Prompt Banner */}
-        {activeRound === 4 && (
-          <div className="px-4 py-3 bg-[#161B22] border-b border-[#2B2D33] text-ink-light space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold uppercase tracking-wider">
-                  {t("codegym.transferCardTitle", "Місія варіації (Transfer Task)")}
-                </span>
-                <span className="text-[11px] font-mono text-gray-400">
-                  ★ 4-та зірка майстра
-                </span>
-              </div>
-              {currentTask.transferVariant?.hint && (
-                <button
-                  type="button"
-                  onClick={() => setShowTransferHint((prev) => !prev)}
-                  className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer flex items-center gap-1"
-                >
-                  <HelpCircle size={12} />
-                  <span>{showTransferHint ? t("codegym.hideHint", "Сховати підказку") : t("codegym.showHint", "Підказка")}</span>
-                </button>
-              )}
-            </div>
-            <p className="text-xs font-mono text-gray-200 leading-relaxed font-semibold">
-              {currentTask.transferVariant?.prompt[
-                (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
-              ] ||
-                currentTask.transferVariant?.prompt.ua ||
-                t(currentTask.descKey)}
-            </p>
-            {showTransferHint && currentTask.transferVariant?.hint && (
-              <div className="p-2.5 rounded-lg bg-[#0D1117] border border-cyan-500/30 text-[11px] font-mono text-cyan-200 animate-in fade-in duration-200">
-                <span className="text-cyan-400 font-bold">Hint: </span>
-                {currentTask.transferVariant.hint[
-                  (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
-                ] || currentTask.transferVariant.hint.ua}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Reverse Debugging: Hardware Defect & Diagnostics Panel */}
-        {currentTask.isBugfixTask && (
-          <div className="px-4 py-3 bg-[#1A1215] border-b border-red-900/40 text-ink-light space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-                    roundCompleted
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                      : "bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse"
-                  }`}
-                >
-                  {roundCompleted ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
-                  {roundCompleted
-                    ? t("playground.repairStatusOperational", "СПРАВНИЙ")
-                    : t("playground.repairStatusFault", "НЕСПРАВНИЙ")}
-                </span>
-                <span className="text-[11px] font-mono text-amber-300 font-bold">
-                  {t("playground.debugBannerTitle", "РЕЖИМ РЕМОНТУ ТА ДІАГНОСТИКИ (REVERSE DEBUGGING)")}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  audioFx.playRelayClick();
-                  setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
-                  setRoundCompleted(false);
-                  setHasError(false);
-                  setFeedback(null);
-                }}
-                className="text-[11px] font-mono text-gray-400 hover:text-white underline cursor-pointer flex items-center gap-1"
-                title={t("playground.resetToBroken", "Скинути до дефекту")}
-              >
-                <RotateCcw size={12} />
-                <span>{t("playground.resetToBroken", "Скинути до дефекту")}</span>
-              </button>
-            </div>
-
-            <p className="text-xs font-mono text-red-200/90 leading-relaxed font-semibold">
-              {currentTask.defectDescription?.[
-                (i18n.language?.startsWith("da") ? "da" : i18n.language?.startsWith("en") ? "en" : "ua") as "ua" | "en" | "da"
-              ] ||
-                currentTask.defectDescription?.ua ||
-                t(currentTask.descKey)}
-            </p>
-
-            {/* Diagnostic Console Logs */}
-            {currentTask.diagnosticLogs && currentTask.diagnosticLogs.length > 0 && (
-              <div className="p-2.5 rounded-lg bg-black/60 border border-red-500/30 text-[11px] font-mono space-y-1">
-                <div className="text-[10px] text-red-400 font-bold flex items-center gap-1.5 mb-1">
-                  <Terminal size={12} />
-                  <span>{t("playground.diagnosticConsole", "Журнал діагностики рантайму")}:</span>
-                </div>
-                {currentTask.diagnosticLogs.map((log, idx) => (
-                  <div key={idx} className="text-red-300/85 leading-tight">
-                    {log}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Interactive Editor Surface */}
-        <div className="relative font-mono text-xs" ref={editorContainerCallbackRef}>
-          {/* Round 1 (Trace): Blueprint Ghost Guide Overlay — gutter-aligned (disabled for bugfix tasks) */}
-          {activeRound === 1 && !currentTask.isBugfixTask && (
-            <div
-              className="absolute inset-0 pointer-events-none z-10 overflow-hidden select-none whitespace-pre text-gray-600 opacity-60"
-              style={{
-                paddingLeft: `${gutterWidth + 6}px`,
-                paddingTop: "8px",
-                paddingRight: "12px",
-                paddingBottom: "8px",
-                fontFamily: "inherit",
-                fontSize: "inherit",
-                lineHeight: "1.4",
-              }}
-            >
-              {targetCode}
-            </div>
-          )}
-
-          <CodeMirror
-            value={typedCode}
-            height="180px"
-            theme={oneDark}
-            extensions={extensions}
-            onChange={(val) => {
-              playThrottledKeyClick();
-              if (activeRound === 1) {
-                handleTraceChange(val);
-              } else {
-                setTypedCode(val);
-              }
-            }}
-            basicSetup={{
-              lineNumbers: true,
-              highlightActiveLineGutter: true,
-              highlightSpecialChars: true,
-              foldGutter: false,
-              autocompletion: false, // Strict muscle memory: no autocomplete!
-            }}
-          />
-        </div>
-
-        {/* Tactile Hotkeys Quick Bar */}
-        <div className="px-3.5 py-1 bg-[#141517] border-t border-[#23252B] flex items-center justify-between text-[10px] font-mono text-gray-400">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-[#23252B] border border-[#3A3D46] text-gray-200 font-bold text-[9px]">Ctrl+Enter</kbd>
-              <span>{roundCompleted ? t("codegym.nextRoundBtn", "Наступний крок") : t("common.verify", "Перевірка")}</span>
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-[#23252B] border border-[#3A3D46] text-gray-200 font-bold text-[9px]">Esc</kbd>
-              <span>{t("common.reset", "Скидання")}</span>
-            </span>
-          </div>
-          {activeRound === 2 && (
-            <span className="text-gray-400 hidden sm:inline">
-              Заповніть <code className="text-amber-300 font-bold">___</code> прогалини
-            </span>
-          )}
-        </div>
-
-        {/* Footer & Controls */}
-        <div className="px-4 py-3 bg-[#18191C] border-t border-[#2B2D33] flex items-center justify-between flex-wrap gap-3">
-          {/* Feedback message + PreciseErrorPointer */}
-          <div className="flex-1 min-w-0 space-y-1.5">
-            <div className="flex items-center gap-2">
-              {hasError && <AlertTriangle size={15} className="text-red-400 shrink-0" />}
-              {roundCompleted && <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />}
-              <span
-                className={`text-xs font-mono truncate ${
-                  hasError
-                    ? "text-red-400 font-bold"
-                    : roundCompleted
-                    ? "text-emerald-300 font-bold"
-                    : "text-gray-400"
-                }`}
-              >
-                {feedback ||
-                  (activeRound === 1
-                    ? t("codegym.round1Desc")
-                    : activeRound === 2
-                    ? t("codegym.round2Desc")
-                    : activeRound === 3
-                    ? t("codegym.round3Desc")
-                    : t("codegym.round4Desc", "Створіть варіацію самостійно без підказок трафарету."))}
-              </span>
-            </div>
-            {hasError && (activeRound === 1 || activeRound === 3) && (
-              <PreciseErrorPointer
-                userInput={typedCode}
-                targetCode={targetCode}
-                hasError={hasError}
-              />
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            {currentTask.isBugfixTask && activeRound === 1 && !roundCompleted && (
-              <button
-                onClick={handleVerifyBugfix}
-                className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
-              >
-                <Wrench size={13} />
-                <span>{t("reverseDebug.verifyBtn", "🔧 Перевірити ремонт")}</span>
-              </button>
-            )}
-
-            {activeRound === 2 && !roundCompleted && (
-              <button
-                onClick={handleVerifyCloze}
-                className="px-4 py-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
-              >
-                <Play size={13} />
-                <span>{t("codegym.verifyBlanksBtn", "Перевірити прогалини")}</span>
-              </button>
-            )}
-
-            {activeRound === 3 && (
-              <>
-                {!isTimerRunning && !roundCompleted && (
-                  <button
-                    onClick={handleStartSprint}
-                    className="px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
-                  >
-                    <Play size={13} />
-                    <span>{`${t("codegym.startSprintBtn", "Почати спринт")} (${sprintTimeLimit}с)`}</span>
-                  </button>
-                )}
-
-                {isTimerRunning && (
-                  <button
-                    onClick={handleRunSprint}
-                    className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
-                  >
-                    <CheckCircle2 size={13} />
-                    <span>{t("codegym.runSprintBtn")}</span>
-                  </button>
-                )}
-              </>
-            )}
-
-            {activeRound === 4 && !roundCompleted && (
-              <button
-                onClick={handleRunTransfer}
-                className="px-4 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
-              >
-                <Sparkles size={13} />
-                <span>{t("codegym.verifyTransferBtn", "Перевірити варіацію")}</span>
-              </button>
-            )}
-
-            {/* Next Round Button after Win */}
-            {roundCompleted && activeRound < 4 && (
-              <button
-                onClick={() => {
-                  audioFx.playRelayClick();
-                  setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
-                }}
-                className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
-              >
-                <span>{t("codegym.nextRoundBtn")}</span>
-                <ArrowRight size={13} />
-              </button>
-            )}
-
-            {roundCompleted && activeRound === 4 && (
-              <div className="flex items-center gap-2">
-                <div className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-400/50 text-amber-200 font-mono font-bold text-xs flex items-center gap-1.5 shadow-sm">
-                  <Trophy size={14} className="text-amber-400" />
-                  <span>4-Star Platinum Master!</span>
-                </div>
-                {nextTask && (
-                  <button
-                    onClick={() => {
-                      audioFx.playRelayClick();
-                      handleSelectTask(nextTask.id);
-                    }}
-                    className="px-4 py-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md animate-pulse"
-                  >
-                    <span>{t("codegym.nextTaskBtn", "Наступне завдання →")}</span>
-                    <ArrowRight size={13} />
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* Reset */}
-            <button
-              onClick={() => {
-                audioFx.playRelayClick();
-                if (currentTask.isBugfixTask && activeRound === 1) {
-                  setTypedCode(currentTask.initialBrokenCode?.[codeLang] || "");
-                } else {
-                  setTypedCode(activeRound === 2 ? clozeTemplate : "");
-                }
-                setHasError(false);
-                setFeedback(null);
-                setRoundCompleted(false);
-                setIsTimerRunning(false);
-                setTimeLeft(sprintTimeLimit);
-              }}
-              title="Reset Round"
-              className="p-1.5 rounded-xl bg-[#23252B] hover:bg-[#2F323A] text-gray-400 hover:text-white transition-colors cursor-pointer border border-[#343842]"
-            >
-              <RotateCcw size={14} />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Unified CodeGymEditor Component */}
+      <CodeGymEditor
+        currentTask={currentTask}
+        codeLang={codeLang}
+        onChangeLang={setCodeLang}
+        activeRound={activeRound}
+        fileName={fileName}
+        typedCode={typedCode}
+        onChangeCode={handleCodeChange}
+        targetCode={targetCode}
+        clozeTemplate={clozeTemplate}
+        roundCompleted={roundCompleted}
+        hasError={hasError}
+        feedback={feedback}
+        timeLeft={timeLeft}
+        isTimerRunning={isTimerRunning}
+        roundStats={roundStats}
+        traceCharsMatched={traceCharsMatched}
+        gutterWidth={gutterWidth}
+        editorContainerRef={editorContainerRef}
+        showTransferHint={showTransferHint}
+        onToggleTransferHint={() => setShowTransferHint((prev) => !prev)}
+        onResetRound={handleResetRound}
+        onStartSprint={handleStartSprint}
+        onVerify={handleVerify}
+        onAdvanceRound={() => {
+          audioFx.playRelayClick();
+          setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
+        }}
+        onNextTask={() => {
+          if (nextTask) {
+            audioFx.playRelayClick();
+            handleSelectTask(nextTask.id);
+          }
+        }}
+        nextTaskAvailable={Boolean(nextTask)}
+      />
     </div>
   );
 };

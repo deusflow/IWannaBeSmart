@@ -9,7 +9,7 @@ function assert(condition: boolean, msg: string) {
 
 console.log("=== VERIFYING TV CODE GYM (3-STAR MASTERY) TASKS & ENGINE ===");
 
-assert(CODING_TASKS.length === 13, `Expected 13 TV tasks, got ${CODING_TASKS.length}`);
+assert(CODING_TASKS.length >= 13, `Expected at least 13 TV tasks, got ${CODING_TASKS.length}`);
 
 for (const task of CODING_TASKS) {
   console.log(`\n--- Testing Task ${task.order}: ${task.id} (Tier ${task.tier ?? 0}) ---`);

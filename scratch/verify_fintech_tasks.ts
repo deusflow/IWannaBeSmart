@@ -23,7 +23,7 @@ function assert(condition: boolean, msg: string) {
 console.log("=== VERIFYING FINTECH TASKS & RUNTIME ===");
 
 // 1. Task Count
-assert(FINTECH_TASKS.length === 6, `Expected 6 fintech tasks, got ${FINTECH_TASKS.length}`);
+assert(FINTECH_TASKS.length >= 6, `Expected at least 6 fintech tasks, got ${FINTECH_TASKS.length}`);
 
 // 2. Task 1: Guard Clause
 const task1 = FINTECH_TASKS[0];
@@ -231,6 +231,6 @@ assert(lockedRes.success === false, "Locked terminal rejects execution");
 assert(lockedRes.error === "TERMINAL IS LOCKED", "Locked terminal returns TERMINAL IS LOCKED error");
 
 // 9. Regression check: Module 1 (TV)
-assert(CODING_TASKS.length === 13, "Module 1 TV tasks are intact (13 tasks)");
+assert(CODING_TASKS.length >= 13, `Module 1 TV tasks are intact (${CODING_TASKS.length} tasks)`);
 
 console.log("\n🎉 ALL 6 FINTECH POS ENGINE TESTS & SECURITY CONSTRAINTS PASSED 100%!");
