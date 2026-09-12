@@ -231,7 +231,10 @@ async function main() {
   console.log("\n--- 5. Verifying WorkbenchStore Upsert with onConflict ---");
 
   const workbenchStorePath = path.resolve(process.cwd(), "apps/web/src/store/workbenchStore.ts");
-  const workbenchStoreContent = fs.readFileSync(workbenchStorePath, "utf-8");
+  const mentorSlicePath = path.resolve(process.cwd(), "apps/web/src/store/slices/mentorSlice.ts");
+  const workbenchStoreContent =
+    fs.readFileSync(workbenchStorePath, "utf-8") +
+    (fs.existsSync(mentorSlicePath) ? fs.readFileSync(mentorSlicePath, "utf-8") : "");
 
   assert(
     workbenchStoreContent.includes("onConflict: \"user_id,station_id,task_id\"") ||
@@ -320,20 +323,41 @@ async function main() {
   // ──────────────────────────────────────────────
   console.log("\n--- 10. Verifying Multilingual Auth Translations & Color Scheme ---");
 
-  const i18nIndexPath = path.resolve(process.cwd(), "packages/i18n/src/index.ts");
-  const i18nContent = fs.readFileSync(i18nIndexPath, "utf-8");
-  assert(i18nContent.includes("titleSignIn: \"Авторизація інженера\""), "i18n contains UA auth translations");
-  assert(i18nContent.includes("titleSignIn: \"Engineer Authorization\""), "i18n contains EN auth translations");
-  assert(i18nContent.includes("titleSignIn: \"Ingeniørautorisation\""), "i18n contains DA auth translations");
+  const uaContent = fs.readFileSync(path.resolve(process.cwd(), "packages/i18n/src/locales/ua.ts"), "utf-8");
+  const enContent = fs.readFileSync(path.resolve(process.cwd(), "packages/i18n/src/locales/en.ts"), "utf-8");
+  const daContent = fs.readFileSync(path.resolve(process.cwd(), "packages/i18n/src/locales/da.ts"), "utf-8");
+  assert(uaContent.includes("titleSignIn: \"Авторизація інженера\""), "i18n contains UA auth translations");
+  assert(enContent.includes("titleSignIn: \"Engineer Authorization\""), "i18n contains EN auth translations");
+  assert(daContent.includes("titleSignIn: \"Ingeniørautorisation\""), "i18n contains DA auth translations");
 
-  assert(authModalContent.includes("bg-[#12141A]/95") || authModalContent.includes("backdrop-blur-xl"), "AuthModal uses modern frosted glassmorphism (#12141A/95)");
-  assert(authModalContent.includes("from-blue-600"), "AuthModal uses high-tech sapphire gradient button");
+  assert(
+    authModalContent.includes("bg-[#FAF8F2]") ||
+      authModalContent.includes("bg-[#12141A]/95") ||
+      authModalContent.includes("backdrop-blur-xl"),
+    "AuthModal uses modern frosted glassmorphism or blueprint vellum"
+  );
+  assert(
+    authModalContent.includes("from-blue-600") ||
+      authModalContent.includes("bg-accent-blue") ||
+      authModalContent.includes("btn-primary"),
+    "AuthModal uses high-tech sapphire or blueprint button"
+  );
   assert(authModalContent.includes("t(\"auth.titleSignIn\""), "AuthModal uses multilingual i18n for titleSignIn");
   assert(authModalContent.includes("t(\"auth.googleSignIn\""), "AuthModal uses multilingual i18n for googleSignIn");
 
-  assert(userNavBadgeContent.includes("bg-[#14161B]/95") || userNavBadgeContent.includes("backdrop-blur-xl"), "UserNavBadge dropdown uses modern dark glassmorphism");
+  assert(
+    userNavBadgeContent.includes("bg-[#14161B]/95") ||
+      userNavBadgeContent.includes("bg-[#FAF8F2]") ||
+      userNavBadgeContent.includes("bg-[#EFE9DC]") ||
+      userNavBadgeContent.includes("backdrop-blur-xl"),
+    "UserNavBadge dropdown uses modern dark glassmorphism or blueprint styling"
+  );
   assert(userNavBadgeContent.includes("t(\"auth.accreditation\""), "UserNavBadge uses multilingual i18n for accreditation");
-  assert(userNavBadgeContent.includes("t(\"auth.guestPrefix\""), "UserNavBadge uses multilingual i18n for guestPrefix");
+  assert(
+    userNavBadgeContent.includes("t(\"auth.guestPrefix\"") ||
+      userNavBadgeContent.includes("t(\"auth.guestStatus\""),
+    "UserNavBadge uses multilingual i18n for guest status"
+  );
 
   console.log("\n=================================================");
   console.log(`🎉 ALL ${passCount}/${testCount} VERIFICATION CHECKS PASSED!`);

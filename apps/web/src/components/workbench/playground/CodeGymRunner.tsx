@@ -34,6 +34,7 @@ export const CodeGymRunner: React.FC = () => {
     resetPosState,
     taskMasteryStars,
     setTaskMastery,
+    saveTaskProgress,
     completeCodingTask,
     addXp,
     setPosVictoryModalOpen,
@@ -44,6 +45,7 @@ export const CodeGymRunner: React.FC = () => {
       resetPosState: s.resetPosState,
       taskMasteryStars: s.taskMasteryStars,
       setTaskMastery: s.setTaskMastery,
+      saveTaskProgress: s.saveTaskProgress,
       completeCodingTask: s.completeCodingTask,
       addXp: s.addXp,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
@@ -204,7 +206,7 @@ export const CodeGymRunner: React.FC = () => {
       const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
       setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
-      setTaskMastery(currentTask.id, 3);
+      saveTaskProgress(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
       addXp(30);
       setFeedback(t("codegym.round3Complete", "🏆 Спринт пройдено! Ідеальна швидкість та точність."));
@@ -219,7 +221,7 @@ export const CodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, targetCode, runPosExecution, currentTask, posState, roundStartTimeRef, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, targetCode, runPosExecution, currentTask, posState, roundStartTimeRef, setHasError, setRoundCompleted, setRoundStats, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
 
   const handleRunTransfer = useCallback(async () => {
     const res = await runPosExecution(typedCode);
