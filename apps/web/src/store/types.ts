@@ -4,7 +4,14 @@
  */
 
 import type { Node, Edge } from "@xyflow/react";
-import type { VirtualPosState, VirtualApiState, HttpMethod, HttpResponse } from "@iw/sim-engine";
+import type {
+  VirtualPosState,
+  VirtualApiState,
+  HttpMethod,
+  HttpResponse,
+  GitRepoState,
+  GitCommandResult,
+} from "@iw/sim-engine";
 
 /**
  * Physical animation & transmission timings (Item 56)
@@ -227,6 +234,22 @@ export interface ApiForgeSlice {
   setApiVictoryModalOpen: (open: boolean) => void;
 }
 
+export interface GitSlice {
+  gitRepoState: GitRepoState;
+  gitCliInput: string;
+  gitCliHistory: string[];
+  gitTerminalLogs: string[];
+  isGitVictoryModalOpen: boolean;
+  selectedCommitId: string | null;
+
+  setGitCliInput: (cmd: string) => void;
+  runGitCommand: (cmd: string) => GitCommandResult;
+  resolveActiveConflict: (strategy: "ours" | "theirs" | "both") => void;
+  setSelectedCommitId: (id: string | null) => void;
+  resetGitRepo: (customState?: Partial<GitRepoState>) => void;
+  setGitVictoryModalOpen: (open: boolean) => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -236,4 +259,5 @@ export type WorkbenchStore = TVStateSlice &
   IRSigSlice &
   CalculatorSlice &
   ApiForgeSlice &
+  GitSlice &
   WorkbenchActions;

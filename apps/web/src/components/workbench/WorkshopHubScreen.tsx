@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
-import { FINTECH_TASKS, CODING_TASKS, API_FORGE_TASKS } from "@iw/sim-engine";
+import { FINTECH_TASKS, CODING_TASKS, API_FORGE_TASKS, GIT_TASKS } from "@iw/sim-engine";
 import { UserNavBadge } from "../auth/UserNavBadge";
 import { useShallow } from "zustand/react/shallow";
 
@@ -33,6 +33,7 @@ export const WorkshopHubScreen: React.FC = () => {
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
     setApiVictoryModalOpen,
+    setGitVictoryModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -43,6 +44,7 @@ export const WorkshopHubScreen: React.FC = () => {
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
+      setGitVictoryModalOpen: s.setGitVictoryModalOpen,
     }))
   );
 
@@ -77,10 +79,22 @@ export const WorkshopHubScreen: React.FC = () => {
     (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
   );
 
-  // Total stars across platform (TV 39 ★ + POS 18 ★ + API 18 ★ = 75 ★)
-  const totalStars = totalTvStars + totalPosStars + totalApiStars;
+  // Git Time Machine module stats (6 tasks * 3 stars = 18 max stars)
+  const totalGitStars = useMemo(() => {
+    return GIT_TASKS.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
+  }, [taskMasteryStars]);
+  const isGitFullyMastered = totalGitStars >= 18;
+  const isGitEligibleForCert = GIT_TASKS.every(
+    (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+  );
+
+  // Total stars across platform (TV 39 ★ + POS 18 ★ + API 18 ★ + Git 18 ★ = 93 ★)
+  const totalStars = totalTvStars + totalPosStars + totalApiStars + totalGitStars;
   const maxPlatformStars =
-    CODING_TASKS.length * 3 + FINTECH_TASKS.length * 3 + API_FORGE_TASKS.length * 3;
+    CODING_TASKS.length * 3 +
+    FINTECH_TASKS.length * 3 +
+    API_FORGE_TASKS.length * 3 +
+    GIT_TASKS.length * 3;
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (isTvCompleted && isPosEligibleForCert);
@@ -275,8 +289,8 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
       </div>
 
-      {/* ── Station Showcase Cards Grid (4 Stations) ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+      {/* ── Station Showcase Cards Grid (5 Stations) ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-5">
         {/* ── Station 01: TV Station ── */}
         <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 hover:border-[#1A1D20]/50 transition-all shadow-paper-sm hover:shadow-paper-md space-y-4">
           <div className="space-y-3">
@@ -573,6 +587,107 @@ export const WorkshopHubScreen: React.FC = () => {
                 }}
                 className="p-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-600/40 text-cyan-800 transition-colors cursor-pointer"
                 title={t("hub.viewApiCertTooltip", "Переглянути сертифікат бекенд & API архітектора")}
+              >
+                <Trophy size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── Station 05: Git Time Machine ── */}
+        <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 hover:border-purple-600/60 transition-all shadow-paper-sm hover:shadow-paper-md space-y-4">
+          <div className="space-y-3">
+            {/* Badge & Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-purple-500/15 border border-purple-600/30 text-purple-900">
+                {t("hub.stations.git.code", "Модуль 5")} • 05
+              </span>
+              <span
+                className={`text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
+                  isGitFullyMastered
+                    ? "bg-amber-500/15 border-amber-600/30 text-amber-900"
+                    : "bg-purple-500/15 border-purple-600/30 text-purple-900"
+                }`}
+              >
+                {isGitFullyMastered
+                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (18/18 ★)`
+                  : `${t("hub.stationAvailable", "ДОСТУПНО")} (${totalGitStars}/18 ★)`}
+              </span>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div>
+              <h3 className="font-display font-bold text-lg text-[#1A1D20]">
+                {t("hub.stations.git.title", "Станція 05: Git Time Machine")}
+              </h3>
+              <p className="text-xs font-balsamiq text-[#1A1D20]/70 mt-0.5 leading-relaxed">
+                {t(
+                  "hub.stations.git.subtitle",
+                  "DAG дерево комітів, паралельні гілки, 3-Way злиття, вирішення конфліктів та rebase"
+                )}
+              </p>
+            </div>
+
+            {/* Blueprint Illustration: DAG Commit Graph + Branches */}
+            <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden">
+              <div className="absolute inset-0 bg-notebook-grid opacity-40 pointer-events-none" />
+              <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+                {/* Main Branch Line */}
+                <line x1="25" y1="45" x2="155" y2="45" stroke="#38BDF8" strokeWidth="2" />
+                
+                {/* Feature Branch Curve */}
+                <path d="M 55 45 C 75 45, 85 20, 115 20 L 140 20" stroke="#A855F7" strokeWidth="2" strokeDasharray="3 2" fill="none" />
+                
+                {/* Merge Curve */}
+                <path d="M 115 20 C 130 20, 135 45, 150 45" stroke="#A855F7" strokeWidth="1.5" strokeDasharray="2 2" fill="none" />
+
+                {/* Commit c1 (Root) */}
+                <circle cx="30" cy="45" r="7" fill="#FAF8F2" stroke="#1A1D20" strokeWidth="2" />
+                <text x="30" y="47" fill="#1A1D20" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c1</text>
+
+                {/* Commit c2 (Main) */}
+                <circle cx="75" cy="45" r="7" fill="#FAF8F2" stroke="#38BDF8" strokeWidth="2" />
+                <text x="75" y="47" fill="#1A1D20" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c2</text>
+
+                {/* Commit c3 (Feature) */}
+                <circle cx="115" cy="20" r="7" fill="#FAF8F2" stroke="#A855F7" strokeWidth="2" />
+                <text x="115" y="22" fill="#A855F7" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c3</text>
+
+                {/* Commit c4 (Merge) */}
+                <circle cx="150" cy="45" r="8" fill="#10B981" stroke="#1A1D20" strokeWidth="1.5" />
+                <text x="150" y="48" fill="#FAF8F2" fontSize="5.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c4</text>
+
+                {/* HEAD Tag */}
+                <rect x="135" y="62" width="30" height="12" rx="2" fill="#10B981" />
+                <text x="150" y="70" fill="#FAF8F2" fontSize="4.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">HEAD</text>
+              </svg>
+            </div>
+
+            {/* Specs & Star Progress */}
+            <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
+              <span>{t("hub.stations.git.specs", "6 завдань • Code Gym (3-Star) • C# / Go")}</span>
+              <span className="font-bold text-purple-800">{totalGitStars}/18 ★</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-2 flex items-center gap-2">
+            <button
+              onClick={() => handleEnterStation("git")}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#1A1D20] hover:bg-black text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+            >
+              <span>{t("hub.enterStation", "Увійти на станцію")}</span>
+              <ArrowRight size={14} />
+            </button>
+
+            {isGitEligibleForCert && (
+              <button
+                onClick={() => {
+                  audioFx.playSuccessFanfare();
+                  setGitVictoryModalOpen(true);
+                }}
+                className="p-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-600/40 text-purple-800 transition-colors cursor-pointer"
+                title={t("hub.viewGitCertTooltip", "Переглянути сертифікат Git архітектора")}
               >
                 <Trophy size={16} />
               </button>

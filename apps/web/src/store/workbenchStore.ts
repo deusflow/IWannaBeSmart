@@ -29,6 +29,7 @@ import { createPosSlice } from "./slices/posSlice";
 import { createCalculatorSlice } from "./slices/calculatorSlice";
 import { createIrPipelineSlice } from "./slices/irPipeline";
 import { createApiForgeSlice } from "./slices/apiForgeSlice";
+import { createGitSlice } from "./slices/gitSlice";
 
 export const useWorkbenchStore = create<WorkbenchStore>((...a) => ({
   ...createTvSlice(...a),
@@ -40,6 +41,7 @@ export const useWorkbenchStore = create<WorkbenchStore>((...a) => ({
   ...createCalculatorSlice(...a),
   ...createIrPipelineSlice(...a),
   ...createApiForgeSlice(...a),
+  ...createGitSlice(...a),
 }));
 
 export * from "./types";

@@ -259,4 +259,56 @@ describe("WorkbenchStore Slices", () => {
       expect(notFoundRes.statusCode).toBe(404);
     });
   });
+
+  describe("gitSlice (Station 05: Git Time Machine)", () => {
+    it("should execute git commit from CLI and advance main pointer", () => {
+      getStore().resetGitRepo();
+      const res = getStore().runGitCommand('git commit -m "feat: add telemetry transmitter"');
+
+      expect(res.success).toBe(true);
+      expect(res.createdCommitId).toBe("c2");
+      expect(getStore().gitRepoState.branches["main"]).toBe("c2");
+      expect(getStore().gitTerminalLogs.some((l) => l.includes("telemetry transmitter"))).toBe(true);
+    });
+
+    it("should switch branches and commit independently", () => {
+      getStore().resetGitRepo();
+      getStore().runGitCommand("git checkout -b feature/radar");
+      expect(getStore().gitRepoState.head.target).toBe("feature/radar");
+
+      getStore().runGitCommand('git commit -m "feat: radar sweep"');
+      expect(getStore().gitRepoState.branches["feature/radar"]).toBe("c2");
+      expect(getStore().gitRepoState.branches["main"]).toBe("c1");
+    });
+
+    it("should handle merge conflicts and resolve them with strategy", () => {
+      getStore().resetGitRepo();
+      getStore().gitRepoState.workingTree["config.ini"] = "port=8080";
+      getStore().runGitCommand('git commit -m "c2: port 8080"');
+
+      getStore().runGitCommand("git checkout -b dev c1");
+      getStore().gitRepoState.workingTree["config.ini"] = "port=9090";
+      getStore().runGitCommand('git commit -m "c3: port 9090"');
+
+      getStore().runGitCommand("git checkout main");
+      const mergeRes = getStore().runGitCommand("git merge dev");
+
+      expect(mergeRes.conflictDetected).toBe(true);
+      expect(getStore().gitRepoState.conflictState).toBeDefined();
+
+      getStore().resolveActiveConflict("theirs");
+      expect(getStore().gitRepoState.workingTree["config.ini"]).toBe("port=9090");
+
+      const finishMerge = getStore().runGitCommand('git commit -m "resolve conflict"');
+      expect(finishMerge.success).toBe(true);
+      expect(getStore().gitRepoState.conflictState).toBeNull();
+    });
+
+    it("should open and close Git Victory Modal", () => {
+      getStore().setGitVictoryModalOpen(true);
+      expect(getStore().isGitVictoryModalOpen).toBe(true);
+      getStore().setGitVictoryModalOpen(false);
+      expect(getStore().isGitVictoryModalOpen).toBe(false);
+    });
+  });
 });

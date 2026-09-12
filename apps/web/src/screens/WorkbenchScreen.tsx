@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS } from "@iw/sim-engine";
+import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
@@ -14,9 +14,12 @@ import { POSBlueprintDevice } from "../components/workbench/POSBlueprintDevice";
 import { CodeGymRunner } from "../components/workbench/playground/CodeGymRunner";
 import { ApiForgeBlueprintDevice } from "../components/workbench/ApiForgeBlueprintDevice";
 import { ApiCodeGymRunner } from "../components/workbench/playground/ApiCodeGymRunner";
+import { GitBlueprintDevice } from "../components/workbench/GitBlueprintDevice";
+import { GitCodeGymRunner } from "../components/workbench/playground/GitCodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
 import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
+import { GitStationVictoryModal } from "../components/workbench/GitStationVictoryModal";
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy, LayoutGrid } from "lucide-react";
@@ -73,6 +76,8 @@ export const WorkbenchScreen: React.FC = () => {
     setPosVictoryModalOpen,
     isApiVictoryModalOpen,
     setApiVictoryModalOpen,
+    isGitVictoryModalOpen,
+    setGitVictoryModalOpen,
     currentStationId,
     setCurrentStationId,
     currentView,
@@ -94,6 +99,8 @@ export const WorkbenchScreen: React.FC = () => {
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
       isApiVictoryModalOpen: s.isApiVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
+      isGitVictoryModalOpen: s.isGitVictoryModalOpen,
+      setGitVictoryModalOpen: s.setGitVictoryModalOpen,
       currentStationId: s.currentStationId,
       setCurrentStationId: s.setCurrentStationId,
       currentView: s.currentView,
@@ -124,11 +131,18 @@ export const WorkbenchScreen: React.FC = () => {
   ).length;
   const isApiCompleted = completedApiCount >= API_FORGE_TASKS.length;
 
+  const completedGitCount = GIT_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isGitCompleted = completedGitCount >= GIT_TASKS.length;
+
   const isCurrentStationCompleted =
     currentStationId === "pos"
       ? isPosCompleted
       : currentStationId === "api"
       ? isApiCompleted
+      : currentStationId === "git"
+      ? isGitCompleted
       : isTvCompleted;
 
   const currentStationProgressText =
@@ -136,6 +150,8 @@ export const WorkbenchScreen: React.FC = () => {
       ? `${completedPosCount}/${FINTECH_TASKS.length} ✓`
       : currentStationId === "api"
       ? `${completedApiCount}/${API_FORGE_TASKS.length} ✓`
+      : currentStationId === "git"
+      ? `${completedGitCount}/${GIT_TASKS.length} ✓`
       : `${completedTvCount}/${CODING_TASKS.length} ✓`;
 
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
@@ -205,6 +221,8 @@ export const WorkbenchScreen: React.FC = () => {
                     ? t("posStation.title")
                     : currentStationId === "api"
                     ? t("apiForge.title", "API Forge: Client & Server")
+                    : currentStationId === "git"
+                    ? t("git.title", "Git Time Machine: Visual DAG & CLI")
                     : t("level.level1Title", { defaultValue: tvLevel01.title })}
                 </span>
               </div>
@@ -307,6 +325,20 @@ export const WorkbenchScreen: React.FC = () => {
             {/* Right: API Code Gym Runner */}
             <div className="flex-1 w-full min-w-0">
               <ApiCodeGymRunner />
+            </div>
+          </div>
+        </main>
+      ) : currentStationId === "git" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: Git Device Rack (Terminal, DAG Graph, Conflict Studio) */}
+            <div className="w-full xl:w-[700px] 2xl:w-[760px] shrink-0 xl:sticky top-2">
+              <GitBlueprintDevice />
+            </div>
+
+            {/* Right: Git Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <GitCodeGymRunner />
             </div>
           </div>
         </main>
@@ -515,6 +547,13 @@ export const WorkbenchScreen: React.FC = () => {
       <ApiStationVictoryModal
         isOpen={isApiVictoryModalOpen}
         onClose={() => setApiVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 5: Git Time Machine Station Victory Modal */}
+      <GitStationVictoryModal
+        isOpen={isGitVictoryModalOpen}
+        onClose={() => setGitVictoryModalOpen(false)}
         xp={xp}
       />
     </div>

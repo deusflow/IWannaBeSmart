@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server, GitBranch } from "lucide-react";
 
 interface StationOption {
   id: string;
@@ -61,6 +61,18 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         ),
         status: t("hub.stationAvailable", "Доступно"),
         icon: <Server size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "git",
+        code: t("hub.stations.git.code", "Модуль 5"),
+        title: t("hub.stations.git.title", "Git Time Machine"),
+        subtitle: t(
+          "hub.stations.git.subtitle",
+          "DAG граф комітів, гілки, Fast-Forward, конфлікти та rebase"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <GitBranch size={16} strokeWidth={2} />,
         isAvailable: true,
       },
       {

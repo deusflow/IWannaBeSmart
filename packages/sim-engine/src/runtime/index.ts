@@ -12,3 +12,5 @@ export * from "./terminalContext";
 export * from "./tasks-fintech";
 export * from "./apiContext";
 export * from "./tasks-api";
+export * from "./gitContext";
+export * from "./tasks-git";
