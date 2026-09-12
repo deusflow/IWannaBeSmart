@@ -127,7 +127,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
         </div>
         <button
           onClick={() => setIsCollapsed(true)}
-          title="Згорнути панель"
+          title={t("architecture.collapsePanel", "Згорнути панель")}
           className="p-1 rounded-md hover:bg-[#2A2B2F] text-gray-500 hover:text-gray-300 cursor-pointer"
         >
           <PanelLeftClose size={14} />
@@ -262,7 +262,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
                           {isOnBoard ? (
                             <span
                               className="h-2 w-2 rounded-full bg-blue-500 shadow-xs"
-                              title="Розміщено на дошці"
+                              title={t("architecture.placedOnBoard", "Розміщено на дошці")}
                             />
                           ) : (
                             <Plus
@@ -282,7 +282,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
 
         {filteredFiles.length === 0 && (
           <div className="p-4 text-center text-xs font-balsamiq text-gray-500">
-            Файлів не знайдено
+            {t("architecture.noFilesFound", "Файлів не знайдено")}
           </div>
         )}
       </div>

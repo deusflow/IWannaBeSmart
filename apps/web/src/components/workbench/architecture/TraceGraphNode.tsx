@@ -4,6 +4,7 @@
  */
 
 import React, { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Handle, Position } from "@xyflow/react";
 import type { TraceNode, TraceNodeType } from "./types";
 import {
@@ -89,6 +90,7 @@ const TYPE_CONFIG: Record<
 };
 
 export const TraceGraphNode: React.FC<TraceGraphNodeProps> = memo(({ id, data }) => {
+  const { t } = useTranslation();
   const config = TYPE_CONFIG[data.type] || TYPE_CONFIG.Declaration;
   const isBypassed = Boolean(data.isBypassed);
   const isBroken = Boolean(data.isBroken) && !isBypassed;
@@ -144,7 +146,11 @@ export const TraceGraphNode: React.FC<TraceGraphNodeProps> = memo(({ id, data })
                 ? "bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30"
                 : "bg-white/5 text-gray-400 border border-white/10 hover:text-gray-200 hover:bg-white/10"
             }`}
-            title={isBypassed ? "Увімкнути вузол знову" : "Вимкнути вузол (Bypass v1)"}
+            title={
+              isBypassed
+                ? t("architecture.enableNode", "Увімкнути вузол знову")
+                : t("architecture.disableNode", "Вимкнути вузол (Bypass v1)")
+            }
           >
             {isBypassed ? <ToggleRight size={13} className="text-red-400" /> : <ToggleLeft size={13} />}
             <span>{isBypassed ? "Bypassed" : "Active"}</span>
@@ -187,17 +193,17 @@ export const TraceGraphNode: React.FC<TraceGraphNodeProps> = memo(({ id, data })
         {isBypassed ? (
           <div className="flex items-center gap-1.5 p-1.5 rounded bg-red-950/40 border border-red-900/40 text-red-300 text-[10px] font-mono">
             <AlertTriangle size={12} className="text-red-400 shrink-0" />
-            <span>Вузол обійдено: виклик не пройде</span>
+            <span>{t("architecture.nodeBypassed", "Вузол обійдено: виклик не пройде")}</span>
           </div>
         ) : isBroken ? (
           <div className="flex items-center gap-1.5 p-1.5 rounded bg-red-950/40 border border-red-900/40 text-red-300 text-[10px] font-mono animate-pulse">
             <AlertTriangle size={12} className="text-red-400 shrink-0" />
-            <span>Ланцюг обірвано вище</span>
+            <span>{t("architecture.chainBrokenAbove", "Ланцюг обірвано вище")}</span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-mono">
             <CheckCircle2 size={11} />
-            <span>Ланка зв'язана штатно</span>
+            <span>{t("architecture.linkNominal", "Ланка зв'язана штатно")}</span>
           </div>
         )}
       </div>

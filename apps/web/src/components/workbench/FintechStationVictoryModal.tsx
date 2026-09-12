@@ -148,7 +148,7 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
         <button
           onClick={onClose}
           className="absolute top-5 right-5 p-2 rounded-full bg-[#1A1D20]/10 hover:bg-[#1A1D20]/20 text-[#1A1D20] transition-colors cursor-pointer"
-          aria-label="Закрити"
+          aria-label={t("common.close", "Закрити")}
         >
           <X size={18} />
         </button>
@@ -201,7 +201,7 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
             </h3>
             <div className="flex items-center gap-2">
               <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded-md">
-                {FINTECH_SKILLS.length} / {FINTECH_SKILLS.length} Освоєно
+                {t("victoryModal.masteredStats", { current: FINTECH_SKILLS.length, total: FINTECH_SKILLS.length, defaultValue: `${FINTECH_SKILLS.length} / ${FINTECH_SKILLS.length} Освоєно` })}
               </span>
               <button
                 onClick={() => {
@@ -209,7 +209,7 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
                   setIsMatrixExpanded((p) => !p);
                 }}
                 className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 cursor-pointer transition-colors"
-                title={isMatrixExpanded ? "Згорнути" : "Показати всі"}
+                title={isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", "Показати всі")}
               >
                 <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${FINTECH_SKILLS.length})`)}</span>
                 {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}

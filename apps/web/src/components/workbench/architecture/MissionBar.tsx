@@ -92,10 +92,10 @@ export const MissionBar: React.FC<MissionBarProps> = ({
               >
                 {canvasMode === "TRACE"
                   ? isTraceBroken
-                    ? "Ланцюг розірвано (Bypassed)"
-                    : "Ланцюг замкнено (6 вузлів)"
+                    ? t("architecture.traceBroken", "Ланцюг розірвано (Bypassed)")
+                    : t("architecture.traceClosed", "Ланцюг замкнено (6 вузлів)")
                   : isAnyCommandWired
-                  ? "З'єднано"
+                  ? t("architecture.connected", "З'єднано")
                   : t("architecture.waitingConnection", "Очікує з'єднання")}
               </span>
             </div>

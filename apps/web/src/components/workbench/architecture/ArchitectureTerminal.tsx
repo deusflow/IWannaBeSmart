@@ -36,31 +36,31 @@ const SUBSYSTEM_CONFIG: Record<
     bg: "bg-blue-950/80",
     text: "text-blue-300",
     border: "border-blue-500/50",
-    label: "[КОНТРАКТ]",
+    label: "[CONTRACT]",
   },
   BUS: {
     bg: "bg-amber-950/80",
     text: "text-amber-300",
     border: "border-amber-500/50",
-    label: "[СИГНАЛ]",
+    label: "[SIGNAL]",
   },
   HARDWARE: {
     bg: "bg-emerald-950/80",
     text: "text-emerald-300",
     border: "border-emerald-500/50",
-    label: "[ЗАЛІЗО]",
+    label: "[HARDWARE]",
   },
   FAULT: {
     bg: "bg-red-950/80",
     text: "text-red-300",
     border: "border-red-500/60 animate-pulse",
-    label: "[ПОМИЛКА]",
+    label: "[FAULT]",
   },
   GRAPH: {
     bg: "bg-gray-800/80",
     text: "text-gray-400",
     border: "border-gray-600/40",
-    label: "[ГРАФ]",
+    label: "[GRAPH]",
   },
 };
 
@@ -370,7 +370,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                           onFocusNode(entry.targetNodeId!);
                         }}
                         className="px-1.5 py-0.2 rounded bg-white/10 hover:bg-accent-blue hover:text-white text-gray-400 text-[8px] font-mono shrink-0 transition-colors flex items-center gap-1 cursor-pointer"
-                        title="Центрувати ноду на полотні"
+                        title={t("architecture.focusNodeOnCanvas", "Центрувати ноду на полотні")}
                       >
                         <span>🎯 Focus</span>
                       </button>
@@ -387,7 +387,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
         {activeTab === "theory" && (
           <div className="space-y-2 py-1">
             <p className="font-balsamiq text-[9.5px] text-gray-500 mb-2">
-              Command Pattern &amp; Dependency Injection (3 Steps):
+              {t("architecture.theoryStepsHeader", "Command Pattern & Dependency Injection (3 Steps):")}
             </p>
             {STEPS.map((step) => (
               <div
@@ -405,11 +405,11 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                     {step.num}
                   </span>
                   <span className="font-mono text-[10px] font-bold text-gray-200">
-                    {step.title}
+                    {t(`terminalTheory.step${step.num}Title`, step.title)}
                   </span>
                 </div>
                 <p className="font-balsamiq text-[9.5px] text-gray-400 leading-snug mb-1.5">
-                  {step.desc}
+                  {t(`terminalTheory.step${step.num}Desc`, step.desc)}
                 </p>
                 <pre
                   className="text-[8.5px] font-mono text-emerald-300 px-2 py-1.5 rounded overflow-x-auto whitespace-pre-wrap"

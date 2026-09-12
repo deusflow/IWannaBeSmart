@@ -165,7 +165,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
         <button
           onClick={onClose}
           className="absolute top-5 right-5 p-2 rounded-full bg-[#1A1D20]/10 hover:bg-[#1A1D20]/20 text-[#1A1D20] transition-colors cursor-pointer"
-          aria-label="Закрити"
+          aria-label={t("common.close", "Закрити")}
         >
           <X size={18} />
         </button>
@@ -208,10 +208,10 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1 justify-end">
               <CheckCircle2 size={13} />
-              100% Автоматизм
+              {t("victoryModal.automation", "100% Автоматизм")}
             </span>
             <span className="text-[10px] font-mono text-[#1A1D20]/50">
-              Модуль 1 атестовано
+              {t("victoryModal.moduleCertified", "Модуль 1 атестовано")}
             </span>
           </div>
         </div>
@@ -225,7 +225,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-md">
-                {SKILL_MATRIX.length} / {SKILL_MATRIX.length} Освоєно
+                {t("victoryModal.masteredStats", { current: SKILL_MATRIX.length, total: SKILL_MATRIX.length, defaultValue: `${SKILL_MATRIX.length} / ${SKILL_MATRIX.length} Освоєно` })}
               </span>
               <button
                 onClick={() => {
@@ -233,7 +233,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
                   setIsMatrixExpanded((p) => !p);
                 }}
                 className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 cursor-pointer transition-colors"
-                title={isMatrixExpanded ? "Згорнути" : "Показати всі"}
+                title={isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", "Показати всі")}
               >
                 <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${SKILL_MATRIX.length})`)}</span>
                 {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}

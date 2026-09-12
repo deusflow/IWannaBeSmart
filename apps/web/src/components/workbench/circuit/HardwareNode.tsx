@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import {
   Cpu,
@@ -41,6 +42,7 @@ const ICON_MAP: Record<HardwareNodeData["nodeType"], LucideIcon> = {
 };
 
 export const HardwareNode: React.FC<NodeProps> = ({ data, selected }) => {
+  const { t } = useTranslation();
   const nodeData = data as unknown as HardwareNodeData;
   const Icon = ICON_MAP[nodeData.nodeType] || Cpu;
 
@@ -121,7 +123,7 @@ export const HardwareNode: React.FC<NodeProps> = ({ data, selected }) => {
                 isFault
                   ? "bg-accent-break animate-pulse"
                   : isLive
-                  ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]"
+                  ? "bg-emerald-500 shadow-[0_0_6px_rgba(160,185,129,0.7)]"
                   : "bg-gray-400"
               }`}
             />
@@ -134,7 +136,11 @@ export const HardwareNode: React.FC<NodeProps> = ({ data, selected }) => {
                   : "text-ink-subtle"
               }`}
             >
-              {isFault ? "Обрив" : isLive ? "Активний" : "Черговий"}
+              {isFault
+                ? t("circuit.statusBreak", "Обрив")
+                : isLive
+                ? t("circuit.statusActive", "Активний")
+                : t("circuit.statusStandby", "Черговий")}
             </span>
           </div>
         </div>

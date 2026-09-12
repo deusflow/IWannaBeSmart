@@ -7,6 +7,7 @@ import {
 } from "@xyflow/react";
 import { useWorkbenchStore, type CircuitEdgeId } from "../../../store/workbenchStore";
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface CircuitEdgeData extends Record<string, unknown> {
   isBroken: boolean;
@@ -25,6 +26,7 @@ export const CircuitEdge: React.FC<EdgeProps> = ({
   data,
   markerEnd,
 }) => {
+  const { t } = useTranslation();
   const toggleCircuitEdge = useWorkbenchStore((s) => s.toggleCircuitEdge);
   const edgeData = (data as unknown as CircuitEdgeData) || { isBroken: false, label: "" };
   const isBroken = !!edgeData.isBroken;
@@ -84,8 +86,14 @@ export const CircuitEdge: React.FC<EdgeProps> = ({
             onClick={handleEdgeClick}
             title={
               isBroken
-                ? `Лінія «${edgeData.label}» обірвана. Натисніть, щоб відновити зв'язок.`
-                : `Лінія «${edgeData.label}» справна. Натисніть, щоб змоделювати обрив.`
+                ? t("circuit.edgeBrokenTooltip", {
+                    label: edgeData.label,
+                    defaultValue: `Лінія «${edgeData.label}» обірвана. Натисніть, щоб відновити зв'язок.`,
+                  })
+                : t("circuit.edgeIntactTooltip", {
+                    label: edgeData.label,
+                    defaultValue: `Лінія «${edgeData.label}» справна. Натисніть, щоб змоделювати обрив.`,
+                  })
             }
             className={`group px-2 py-0.5 rounded-md border text-[9px] font-balsamiq font-bold flex items-center gap-1 shadow-xs transition-all duration-150 cursor-pointer ${
               isBroken
@@ -96,7 +104,12 @@ export const CircuitEdge: React.FC<EdgeProps> = ({
             {isBroken ? (
               <>
                 <AlertTriangle size={10} className="shrink-0 text-accent-break group-hover:text-white" />
-                <span>Обрив: {edgeData.label}</span>
+                <span>
+                  {t("circuit.edgeBrokenLabel", {
+                    label: edgeData.label,
+                    defaultValue: `Обрив: ${edgeData.label}`,
+                  })}
+                </span>
               </>
             ) : (
               <>

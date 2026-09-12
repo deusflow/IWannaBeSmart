@@ -413,7 +413,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 <div className="p-3.5 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 shadow-paper-xs">
                   <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-purple-900 font-bold">
                     <Award size={13} className="text-purple-700" />
-                    <span>Досвід (XP)</span>
+                    <span>{t("profile.xpLabel", "Досвід (XP)")}</span>
                   </div>
                   <div className="mt-1 font-display font-black text-xl text-[#1A1D20]">
                     {xp} XP
@@ -457,7 +457,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     ))
                   ) : (
                     <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/15 text-[#1A1D20]/70 text-xs font-mono">
-                      Виконайте кілька завдань на 2 або 3 зірки, щоб зафіксувати свої сильні сторони.
+                      {t("profile.noStrengthsYet", "Виконайте кілька завдань на 2 або 3 зірки, щоб зафіксувати свої сильні сторони.")}
                     </div>
                   )}
                 </div>
@@ -584,7 +584,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               {/* Station Certificates Showcase */}
               <div className="pt-2 space-y-2">
                 <div className="text-[11px] font-mono uppercase font-bold text-[#1A1D20]/70">
-                  Доступні сертифікати інженера
+                  {t("profile.availableCertificates", "Доступні сертифікати інженера")}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/20 flex items-center justify-between shadow-paper-xs">
@@ -598,7 +598,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       </div>
                     </div>
                     <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
-                      ЗДОБУТО
+                      {t("profile.acquired", "ЗДОБУТО")}
                     </span>
                   </div>
 
@@ -613,7 +613,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       </div>
                     </div>
                     <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
-                      ЗДОБУТО
+                      {t("profile.acquired", "ЗДОБУТО")}
                     </span>
                   </div>
                 </div>
