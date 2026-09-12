@@ -23,7 +23,10 @@ import "@xyflow/react/dist/style.css";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { ArchitectureNode } from "./ArchitectureNode";
 import { ArchitectureEdge, type ArchitectureEdgeData } from "./ArchitectureEdge";
-import { ProjectExplorer } from "./ProjectExplorer";
+import { ArchitectureTreePanel } from "./ArchitectureTreePanel";
+import { TraceGraphNode } from "./TraceGraphNode";
+import { CounterfactualPanel } from "./CounterfactualPanel";
+import { evaluateTraceGraph, computeTraceNodePosition } from "./traceGraph";
 import { ArchitectureTerminal } from "./ArchitectureTerminal";
 import { MentorBar } from "./MentorBar";
 import { CompletionModal } from "./CompletionModal";
@@ -35,8 +38,9 @@ import type {
   PortType,
   InjectedDependencyInfo,
   ActiveJourneyState,
+  TraceGraph,
 } from "./types";
-import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap, X } from "lucide-react";
+import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap, X, AlertTriangle } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 
 interface ArchitectureCanvasProps {
@@ -221,7 +225,10 @@ const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
   ];
 };
 
-const nodeTypes = { architectureNode: ArchitectureNode };
+const nodeTypes = {
+  architectureNode: ArchitectureNode,
+  traceNode: TraceGraphNode,
+};
 const edgeTypes = { architectureEdge: ArchitectureEdge };
 
 // ════════════════════════════════════════════════
@@ -237,8 +244,18 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     setArchEdges,
     mentorPhase,
     setMentorPhase,
+    selectedTraceEntityId,
+    setSelectedTraceEntityId,
+    bypassedTraceNodes,
+    toggleTraceBypass,
+    resetBypasses,
+    setIsTraceBroken,
+    setTraceFaultReason,
   } = useWorkbenchStore();
   const { screenToFlowPosition, fitView, setCenter, getNode } = useReactFlow();
+
+  // Mode: "TRACE" (EntityTraceView default) or "WIRING" (freeform ports)
+  const [canvasMode, setCanvasMode] = useState<"TRACE" | "WIRING">("TRACE");
 
   // Restore from store if we have saved state, otherwise use initial
   const initialNodes = storedNodes.length > 0
@@ -330,6 +347,100 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   }, []);
 
   const clearLogs = useCallback(() => setTerminalLogs([]), []);
+
+  // ── Trace-Chain Node System State Evaluation ──
+  const evaluatedTraceGraph: TraceGraph = useMemo(() => {
+    return evaluateTraceGraph(
+      selectedTraceEntityId || "IRemoteCommand",
+      undefined,
+      new Set(bypassedTraceNodes)
+    );
+  }, [selectedTraceEntityId, bypassedTraceNodes]);
+
+  const handleToggleTraceBypass = useCallback(
+    (nodeId: string) => {
+      audioFx.playRelayClick();
+      toggleTraceBypass(nodeId);
+    },
+    [toggleTraceBypass]
+  );
+
+  // Synchronize circuit breakage with TV hardware simulation & single-line terminal logs
+  useEffect(() => {
+    setIsTraceBroken(evaluatedTraceGraph.isBroken);
+    setTraceFaultReason(evaluatedTraceGraph.brokenReason);
+    if (canvasMode === "TRACE") {
+      setArchitecturePowerWired(!evaluatedTraceGraph.isBroken);
+    }
+
+    if (evaluatedTraceGraph.isBroken) {
+      addLog({
+        type: "error",
+        subsystem: "FAULT",
+        message: `[FAULT] Dependency unresolved: ${selectedTraceEntityId} has no active binding`,
+      });
+      addLog({
+        type: "error",
+        subsystem: "HARDWARE",
+        message: "[HARDWARE] TV CRT Anode: Power supply interrupted (0V)",
+      });
+    }
+  }, [
+    evaluatedTraceGraph.isBroken,
+    evaluatedTraceGraph.brokenReason,
+    selectedTraceEntityId,
+    canvasMode,
+    setIsTraceBroken,
+    setTraceFaultReason,
+    setArchitecturePowerWired,
+    addLog,
+  ]);
+
+  // Transform TraceNode -> @xyflow/react nodes (Rank & Fan-out horizontal flow)
+  const traceFlowNodes: Node[] = useMemo(() => {
+    return evaluatedTraceGraph.nodes.map((node) => {
+      const position = computeTraceNodePosition(node, 40, 180, 290, 160);
+      return {
+        id: node.id,
+        type: "traceNode",
+        position,
+        data: {
+          ...node,
+          onToggleBypass: handleToggleTraceBypass,
+          isSelectedEntity: node.label.includes(selectedTraceEntityId || "IRemoteCommand"),
+        },
+      };
+    });
+  }, [evaluatedTraceGraph, selectedTraceEntityId, handleToggleTraceBypass]);
+
+  // Transform TraceEdge -> @xyflow/react edges (explicit source: edge.from and target: edge.to)
+  const traceFlowEdges: Edge[] = useMemo(() => {
+    return evaluatedTraceGraph.edges.map((edge) => {
+      const isBroken = edge.status === "broken";
+      return {
+        id: edge.id,
+        source: edge.from,
+        target: edge.to,
+        sourceHandle: "out",
+        targetHandle: "in",
+        type: "default",
+        animated: !isBroken,
+        style: {
+          stroke: isBroken ? "#EF4444" : "#10B981",
+          strokeWidth: isBroken ? 2.5 : 2,
+          strokeDasharray: isBroken ? "6,6" : undefined,
+        },
+      };
+    });
+  }, [evaluatedTraceGraph]);
+
+  // Auto-fit view with padding: 0.2 when selectedTraceEntityId changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fitView({ padding: 0.2, duration: 400 });
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [selectedTraceEntityId, canvasMode, fitView]);
 
   // ── is power wire active? ──────────────────
   const isPowerWired = useMemo(
@@ -1121,6 +1232,75 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   const triggerCallFlowTrace = useCallback(() => {
     if (isTracing) return;
 
+    if (canvasMode === "TRACE") {
+      if (evaluatedTraceGraph.isBroken) {
+        audioFx.playErrorBuzz();
+        addLog({
+          type: "error",
+          subsystem: "FAULT",
+          message: `[FAULT] Dependency unresolved: ${selectedTraceEntityId} has no active binding`,
+        });
+        addLog({
+          type: "error",
+          subsystem: "HARDWARE",
+          message: "[HARDWARE] TV CRT Anode: Power supply interrupted (0V)",
+        });
+        return;
+      }
+
+      setIsTracing(true);
+      setCurrentTraceStep(1);
+      audioFx.playRemoteBeep();
+      addLog({
+        type: "info",
+        subsystem: "IoC",
+        message: `[TRACE 1/5] Declaration contract validated: ${selectedTraceEntityId}`,
+      });
+
+      const t1 = setTimeout(() => {
+        setCurrentTraceStep(2);
+        addLog({
+          type: "info",
+          subsystem: "IoC",
+          message: "[TRACE 2/5] Concrete implementation resolved: PowerCommand",
+        });
+      }, 350);
+
+      const t2 = setTimeout(() => {
+        setCurrentTraceStep(3);
+        addLog({
+          type: "info",
+          subsystem: "IoC",
+          message: "[TRACE 3/5] DI IoC Container injected: services.AddSingleton()",
+        });
+      }, 700);
+
+      const t3 = setTimeout(() => {
+        setCurrentTraceStep(4);
+        addLog({
+          type: "info",
+          subsystem: "BUS",
+          message: "[TRACE 4/5] TVController constructor initialized with dependency",
+        });
+      }, 1050);
+
+      const t4 = setTimeout(() => {
+        setCurrentTraceStep(5);
+        const store = useWorkbenchStore.getState();
+        store.togglePower();
+        addLog({
+          type: "success",
+          subsystem: "HARDWARE",
+          message: "[TRACE 5/5] TV CRT Anode energized: 12.0V operational",
+        });
+        setIsTracing(false);
+        setTimeout(() => setCurrentTraceStep(0), 1200);
+      }, 1400);
+
+      traceTimers.current.push(t1, t2, t3, t4);
+      return;
+    }
+
     if (!isAnyCommandWired) {
       audioFx.playErrorBuzz();
       // Trigger Red Memory Crash Shake on TVController
@@ -1301,7 +1481,19 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
       }
     }, 2400);
     traceTimers.current.push(t4);
-  }, [isTracing, isAnyCommandWired, isVolumeWired, addLog, getNode, setCenter, setNodes, setEdges]);
+  }, [
+    isTracing,
+    canvasMode,
+    evaluatedTraceGraph,
+    selectedTraceEntityId,
+    isAnyCommandWired,
+    isVolumeWired,
+    addLog,
+    getNode,
+    setCenter,
+    setNodes,
+    setEdges,
+  ]);
 
   // ── Fit view on mount ────────────────────────
   useEffect(() => {
@@ -1347,29 +1539,47 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         <div className="flex items-center gap-2.5 min-w-0">
           <div
             className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-              isAnyCommandWired
+              canvasMode === "TRACE"
+                ? evaluatedTraceGraph.isBroken
+                  ? "bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse"
+                  : "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                : isAnyCommandWired
                 ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                 : "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse"
             }`}
           >
-            {isAnyCommandWired ? <CheckCircle2 size={15} /> : <Cable size={15} />}
+            {canvasMode === "TRACE" ? (
+              evaluatedTraceGraph.isBroken ? <AlertTriangle size={15} /> : <CheckCircle2 size={15} />
+            ) : isAnyCommandWired ? (
+              <CheckCircle2 size={15} />
+            ) : (
+              <Cable size={15} />
+            )}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-mono font-bold text-[12px] text-gray-200 truncate">
-                TVController ➔ IRemoteCommand
+                {canvasMode === "TRACE"
+                  ? `EntityTraceView ➔ ${selectedTraceEntityId}`
+                  : "TVController ➔ IRemoteCommand"}
               </span>
               <span
                 className={`text-[9px] font-mono font-medium px-2 py-0.5 rounded-full border ${
-                  isAnyCommandWired
+                  canvasMode === "TRACE"
+                    ? evaluatedTraceGraph.isBroken
+                      ? "bg-red-500/20 text-red-300 border-red-500/40"
+                      : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                    : isAnyCommandWired
                     ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
                     : "bg-amber-500/15 text-amber-300 border-amber-500/30"
                 }`}
               >
-                {isAnyCommandWired
-                  ? isVolumeWired
-                    ? "VolumeUpCommand (0x9B1C)"
-                    : "PowerCommand (0x7F2A)"
+                {canvasMode === "TRACE"
+                  ? evaluatedTraceGraph.isBroken
+                    ? "Ланцюг розірвано (Bypassed)"
+                    : "Ланцюг замкнено (6 вузлів)"
+                  : isAnyCommandWired
+                  ? "З'єднано"
                   : t("architecture.waitingConnection", "Очікує з'єднання")}
               </span>
             </div>
@@ -1378,6 +1588,35 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+          {/* Canvas View Mode Toggle (Trace-Chain vs Freeform Wiring) */}
+          <div className="flex items-center bg-[#151619] p-0.5 rounded-lg border border-white/[0.08]">
+            <button
+              onClick={() => {
+                setCanvasMode("TRACE");
+                setTimeout(() => fitView({ padding: 0.2, duration: 400 }), 50);
+              }}
+              className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                canvasMode === "TRACE"
+                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-xs"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
+            >
+              Trace-Chain
+            </button>
+            <button
+              onClick={() => {
+                setCanvasMode("WIRING");
+                setTimeout(() => fitView({ padding: 0.2, duration: 400 }), 50);
+              }}
+              className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                canvasMode === "WIRING"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-xs"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
+            >
+              Freeform
+            </button>
+          </div>
           {/* Mode Toggle */}
           <div className="flex items-center bg-[#151619] p-0.5 rounded-lg border border-white/[0.08]">
             <button
@@ -1503,7 +1742,15 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
       {/* ── Body: sidebar + canvas ── */}
       <div className="flex-1 flex flex-row w-full min-h-0 relative overflow-hidden">
-        <ProjectExplorer onAddNode={addNodeByFileId} activeFileIds={activeFileIds} />
+        <ArchitectureTreePanel
+          onAddNode={addNodeByFileId}
+          activeFileIds={activeFileIds}
+          selectedEntityId={selectedTraceEntityId}
+          onSelectEntity={(entityId) => {
+            setSelectedTraceEntityId(entityId);
+            setCanvasMode("TRACE");
+          }}
+        />
 
         {/* ReactFlow canvas */}
         <div
@@ -1524,27 +1771,33 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
                 </div>
                 <div className="flex items-center gap-1.5 text-[9px] font-mono shrink-0">
                   <span className={currentTraceStep === 1 ? "text-amber-300 font-bold" : currentTraceStep > 1 ? "text-emerald-400" : "text-gray-500"}>
-                    {t("architecture.stepRemote", "1. IR Пульт")}
+                    {t("architecture.stepRemote", "1. Declaration")}
                   </span>
                   <span className="text-gray-600">→</span>
                   <span className={currentTraceStep === 2 ? "text-amber-300 font-bold" : currentTraceStep > 2 ? "text-emerald-400" : "text-gray-500"}>
-                    2. TVController
+                    2. Implementation
                   </span>
                   <span className="text-gray-600">→</span>
                   <span className={currentTraceStep === 3 ? "text-amber-300 font-bold" : currentTraceStep > 3 ? "text-emerald-400" : "text-gray-500"}>
-                    3. IRemoteCommand
+                    3. Registration (DI)
                   </span>
                   <span className="text-gray-600">→</span>
-                  <span className={currentTraceStep === 4 ? "text-amber-300 font-bold" : "text-gray-500"}>
-                    {isVolumeWired ? t("architecture.stepVolume", "4. Volume +10%") : t("architecture.stepPower", "4. Power Relay")}
+                  <span className={currentTraceStep === 4 ? "text-amber-300 font-bold" : currentTraceStep > 4 ? "text-emerald-400" : "text-gray-500"}>
+                    4. InjectionPoint
+                  </span>
+                  <span className="text-gray-600">→</span>
+                  <span className={currentTraceStep === 5 ? "text-amber-300 font-bold" : "text-gray-500"}>
+                    5. CallSite → Effect
                   </span>
                 </div>
               </div>
             )}
 
             <ReactFlow
-              nodes={processedNodes}
-              edges={processedEdges}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              nodes={(canvasMode === "TRACE" ? traceFlowNodes : processedNodes) as Node<any>[]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              edges={(canvasMode === "TRACE" ? traceFlowEdges : processedEdges) as Edge<any>[]}
               onNodesChange={handleNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
@@ -1571,6 +1824,16 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
                 className="!bg-[#26272C] !border-[#3A3B42] !rounded-xl !shadow-lg [&>button]:!bg-[#26272C] [&>button]:!border-[#3A3B42] [&>button]:!text-gray-500 hover:[&>button]:!text-gray-100 [&>button]:!fill-gray-500 hover:[&>button]:!fill-gray-100"
               />
             </ReactFlow>
+
+            {/* Counterfactual Interactive Bypass Panel (Fusion / Blender Style) */}
+            {canvasMode === "TRACE" && (
+              <CounterfactualPanel
+                graph={evaluatedTraceGraph}
+                bypassedNodeIds={bypassedTraceNodes}
+                onToggleBypass={handleToggleTraceBypass}
+                onResetBypasses={resetBypasses}
+              />
+            )}
 
             {/* Terminal overlay */}
             <ArchitectureTerminal

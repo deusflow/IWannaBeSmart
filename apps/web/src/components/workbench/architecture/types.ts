@@ -92,4 +92,50 @@ export interface TerminalLogEntry {
   codeContext?: string;
 }
 
+// ────────────────────────────────────────────────
+//  Trace-Chain Node System Specification Types
+// ────────────────────────────────────────────────
+export type TraceNodeType =
+  | "Declaration"     // где сущность объявлена/написана (интерфейс/функция)
+  | "Implementation"  // конкретная реализация (PowerCommand, VolumeUpCommand)
+  | "Registration"    // регистрация в DI-контейнере (services.AddSingleton/AddTransient)
+  | "InjectionPoint"  // где сущность внедряется через конструктор (TVController ctor)
+  | "CallSite"        // где вызывается / используется (TVController.PowerOn -> cmd.Execute())
+  | "Effect";         // итоговый наблюдаемый эффект (экран включен / звук изменен)
+
+export type TraceEdgeStatus = "active" | "broken" | "bypassed";
+
+export interface TraceNode {
+  id: string;
+  type: TraceNodeType;
+  filePath: string;
+  lineRange: [number, number];
+  label: string;         // напр. "IRemoteCommand (interface)"
+  description?: string;  // короткое пояснение для ученика
+  codeSnippet?: string;  // код данной точки для подсветки
+  isBypassed?: boolean;  // выключена ли нода тумблером Bypass
+  isBroken?: boolean;    // сломана ли нода из-за байпаса выше по течению
+  branchIndex?: number;  // индекс параллельной ветки для fan-out layout
+  totalBranches?: number;// всего веток на этом уровне
+  rank?: number;         // логический уровень (шаг 0..5)
+}
+
+export interface TraceEdge {
+  id: string;
+  from: string;          // TraceNode.id (источник)
+  to: string;            // TraceNode.id (цель)
+  kind: "declares" | "implements" | "registers" | "injects" | "calls" | "produces";
+  status: TraceEdgeStatus;
+  breakReason?: string;
+}
+
+export interface TraceGraph {
+  rootEntityId: string;
+  entityName: string;
+  nodes: TraceNode[];
+  edges: TraceEdge[];
+  isBroken: boolean;
+  brokenReason?: string;
+}
+
 

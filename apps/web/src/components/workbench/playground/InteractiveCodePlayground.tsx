@@ -61,6 +61,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     setTaskMastery,
     addXp,
     setStationVictoryModalOpen,
+    resetBypasses,
   } = useWorkbenchStore();
 
   const tierMeta = useMemo(() => ({
@@ -72,6 +73,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
 
   const [selectedTier, setSelectedTier] = useState<0 | 1 | 2>(0);
   const [selectedTaskId, setSelectedTaskId] = useState<string>("task-0-1-power-on");
+
+  // Auto-reset architecture trace bypasses on task change to prevent state leaks
+  useEffect(() => {
+    resetBypasses();
+  }, [selectedTaskId, resetBypasses]);
   const currentTask: CodingTask = useMemo(
     () => CODING_TASKS.find((t) => t.id === selectedTaskId) || CODING_TASKS[0],
     [selectedTaskId]

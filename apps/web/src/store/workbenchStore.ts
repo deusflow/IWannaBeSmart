@@ -80,6 +80,17 @@ export interface ArchitectureSlice {
   setArchNodes: (nodes: Node<Record<string, any>>[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setArchEdges: (edges: Edge<Record<string, any>>[]) => void;
+
+  // Trace-Chain Node System State (Items 0-5)
+  selectedTraceEntityId: string;
+  setSelectedTraceEntityId: (id: string) => void;
+  bypassedTraceNodes: string[];
+  toggleTraceBypass: (nodeId: string) => void;
+  resetBypasses: () => void;
+  isTraceBroken: boolean;
+  setIsTraceBroken: (broken: boolean) => void;
+  traceFaultReason?: string;
+  setTraceFaultReason: (reason?: string) => void;
 }
 
 export type MentorPhase = "GUIDED" | "VERIFY" | "PRACTICE" | "COMPLETED";
@@ -403,6 +414,14 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
         });
         return;
       }
+      // Architecture fault guard: If IRemoteCommand/DI is broken or bypassed
+      if (get().isTraceBroken) {
+        set({
+          power: false,
+          osdMessage: get().traceFaultReason || "Помилка ланцюга: IRemoteCommand має розрив (NullReference)",
+        });
+        return;
+      }
       const state = get();
       const nextPower = !state.power;
       if (nextPower) {
@@ -553,6 +572,28 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     archEdges: [],
     setArchNodes: (nodes) => set({ archNodes: nodes }),
     setArchEdges: (edges) => set({ archEdges: edges }),
+
+    // Trace-Chain Node System State
+    selectedTraceEntityId: "IRemoteCommand",
+    setSelectedTraceEntityId: (id: string) =>
+      set({ selectedTraceEntityId: id, bypassedTraceNodes: [], isTraceBroken: false, traceFaultReason: undefined }),
+    bypassedTraceNodes: [],
+    toggleTraceBypass: (nodeId: string) => {
+      const current = get().bypassedTraceNodes;
+      const next = current.includes(nodeId)
+        ? current.filter((id) => id !== nodeId)
+        : [...current, nodeId];
+      const isBroken = next.length > 0;
+      set({
+        bypassedTraceNodes: next,
+        isTraceBroken: isBroken,
+      });
+    },
+    resetBypasses: () => set({ bypassedTraceNodes: [], isTraceBroken: false, traceFaultReason: undefined }),
+    isTraceBroken: false,
+    setIsTraceBroken: (broken: boolean) => set({ isTraceBroken: broken }),
+    traceFaultReason: undefined,
+    setTraceFaultReason: (reason?: string) => set({ traceFaultReason: reason }),
 
     // 2d. Interactive Mentor Walkthrough Slice
     mentorPhase: "GUIDED",
@@ -798,7 +839,8 @@ export const useWorkbenchStore = create<WorkbenchStore>((set, get) => {
     },
 
     currentStationId: "tv",
-    setCurrentStationId: (id: string) => set({ currentStationId: id }),
+    setCurrentStationId: (id: string) =>
+      set({ currentStationId: id, bypassedTraceNodes: [], isTraceBroken: false, traceFaultReason: undefined }),
     currentView: "HUB",
     setCurrentView: (view: "HUB" | "STATION") => set({ currentView: view }),
 
