@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server } from "lucide-react";
 
 interface StationOption {
   id: string;
@@ -52,6 +52,18 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         isAvailable: true,
       },
       {
+        id: "api",
+        code: t("hub.stations.api.code", "Модуль 4"),
+        title: t("hub.stations.api.title", "API Forge"),
+        subtitle: t(
+          "hub.stations.api.subtitle",
+          "HTTP Клієнт, Кабель зв'язку, DTO та RESTful ендпоінти C# / Go"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <Server size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
         id: "garage",
         code: t("hub.stations.iot.code", "Модуль 3"),
         title: t("hub.stations.iot.title", "Гаражні ворота"),
@@ -65,7 +77,7 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
       },
       {
         id: "pc",
-        code: t("hub.stations.pc.code", "Модуль 4"),
+        code: t("hub.stations.pc.code", "Модуль 5"),
         title: t("hub.stations.pc.title", "Робоча станція"),
         subtitle: t(
           "hub.stations.pc.subtitle",

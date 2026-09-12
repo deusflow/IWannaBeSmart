@@ -166,4 +166,43 @@ describe("WorkbenchStore Slices", () => {
       expect(getStore().getTaskMastery("task-0-1-power-on")).toBe(3);
     });
   });
+
+  describe("apiForgeSlice (Station 04: Client & Server Simulation)", () => {
+    it("should initialize with default /health draft request", () => {
+      expect(getStore().clientDraftMethod).toBe("GET");
+      expect(getStore().clientDraftPath).toBe("/health");
+      expect(getStore().apiState.isCableBroken).toBe(false);
+    });
+
+    it("should update draft method, path, and body", () => {
+      getStore().setClientDraftMethod("POST");
+      getStore().setClientDraftPath("/api/orders");
+      getStore().setClientDraftBody(JSON.stringify({ item: "Widget", quantity: 5 }));
+
+      expect(getStore().clientDraftMethod).toBe("POST");
+      expect(getStore().clientDraftPath).toBe("/api/orders");
+      expect(getStore().clientDraftBody).toContain("Widget");
+    });
+
+    it("should dispatch client request and receive 200 OK from server", async () => {
+      getStore().resetApiState();
+      getStore().setClientDraftMethod("GET");
+      getStore().setClientDraftPath("/health");
+
+      const res = await getStore().sendClientRequest();
+      expect(res.statusCode).toBe(200);
+      expect(getStore().lastApiResponse?.statusCode).toBe(200);
+      expect(getStore().apiState.logs.length).toBeGreaterThan(0);
+    });
+
+    it("should toggle network cable and receive 504 Gateway Timeout", async () => {
+      getStore().resetApiState();
+      getStore().toggleNetworkCable();
+      expect(getStore().apiState.isCableBroken).toBe(true);
+
+      const res = await getStore().sendClientRequest();
+      expect(res.statusCode).toBe(504);
+      expect(getStore().lastApiResponse?.statusCode).toBe(504);
+    });
+  });
 });

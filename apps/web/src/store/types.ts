@@ -4,7 +4,7 @@
  */
 
 import type { Node, Edge } from "@xyflow/react";
-import type { VirtualPosState } from "@iw/sim-engine";
+import type { VirtualPosState, VirtualApiState, HttpMethod, HttpResponse } from "@iw/sim-engine";
 
 /**
  * Physical animation & transmission timings (Item 56)
@@ -204,6 +204,29 @@ export interface CalculatorSlice {
   calcClear: () => void;
 }
 
+export interface ApiForgeSlice {
+  clientDraftMethod: HttpMethod;
+  clientDraftPath: string;
+  clientDraftHeaders: Record<string, string>;
+  clientDraftBody: string;
+  isPacketInFlight: boolean;
+  packetProgress: number;
+  packetDirection: "CLIENT_TO_SERVER" | "SERVER_TO_CLIENT";
+  apiState: VirtualApiState;
+  lastApiResponse: HttpResponse | null;
+  isApiVictoryModalOpen: boolean;
+
+  setClientDraftMethod: (m: HttpMethod) => void;
+  setClientDraftPath: (p: string) => void;
+  setClientDraftHeaders: (h: Record<string, string>) => void;
+  setClientDraftBody: (b: string) => void;
+  toggleNetworkCable: () => void;
+  sendClientRequest: () => Promise<HttpResponse>;
+  applyApiExecution: (updates: Partial<VirtualApiState>) => void;
+  resetApiState: (custom?: Partial<VirtualApiState>) => void;
+  setApiVictoryModalOpen: (open: boolean) => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -212,4 +235,5 @@ export type WorkbenchStore = TVStateSlice &
   PosSlice &
   IRSigSlice &
   CalculatorSlice &
+  ApiForgeSlice &
   WorkbenchActions;

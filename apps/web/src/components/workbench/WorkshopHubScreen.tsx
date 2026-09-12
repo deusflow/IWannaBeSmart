@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
-import { FINTECH_TASKS, CODING_TASKS } from "@iw/sim-engine";
+import { FINTECH_TASKS, CODING_TASKS, API_FORGE_TASKS } from "@iw/sim-engine";
 import { UserNavBadge } from "../auth/UserNavBadge";
 import { useShallow } from "zustand/react/shallow";
 
@@ -32,6 +32,7 @@ export const WorkshopHubScreen: React.FC = () => {
     setCurrentView,
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
+    setApiVictoryModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -41,6 +42,7 @@ export const WorkshopHubScreen: React.FC = () => {
       setCurrentView: s.setCurrentView,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      setApiVictoryModalOpen: s.setApiVictoryModalOpen,
     }))
   );
 
@@ -66,9 +68,19 @@ export const WorkshopHubScreen: React.FC = () => {
     (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
   );
 
-  // Total stars across platform (TV 39 ★ + POS 18 ★ = 57 ★)
-  const totalStars = totalTvStars + totalPosStars;
-  const maxPlatformStars = CODING_TASKS.length * 3 + FINTECH_TASKS.length * 3;
+  // API Forge module stats (6 tasks * 3 stars = 18 max stars)
+  const totalApiStars = useMemo(() => {
+    return API_FORGE_TASKS.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
+  }, [taskMasteryStars]);
+  const isApiFullyMastered = totalApiStars >= 18;
+  const isApiEligibleForCert = API_FORGE_TASKS.every(
+    (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+  );
+
+  // Total stars across platform (TV 39 ★ + POS 18 ★ + API 18 ★ = 75 ★)
+  const totalStars = totalTvStars + totalPosStars + totalApiStars;
+  const maxPlatformStars =
+    CODING_TASKS.length * 3 + FINTECH_TASKS.length * 3 + API_FORGE_TASKS.length * 3;
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (isTvCompleted && isPosEligibleForCert);
@@ -263,8 +275,8 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
       </div>
 
-      {/* ── Station Showcase Cards Grid (3 Stations) ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* ── Station Showcase Cards Grid (4 Stations) ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
         {/* ── Station 01: TV Station ── */}
         <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 hover:border-[#1A1D20]/50 transition-all shadow-paper-sm hover:shadow-paper-md space-y-4">
           <div className="space-y-3">
@@ -463,6 +475,104 @@ export const WorkshopHubScreen: React.FC = () => {
                 }}
                 className="p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-600/40 text-amber-800 transition-colors cursor-pointer"
                 title={t("hub.viewFintechCertTooltip", "Переглянути комерційний сертифікат фінтех-інженера")}
+              >
+                <Trophy size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── Station 04: API Forge ── */}
+        <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 hover:border-cyan-600/60 transition-all shadow-paper-sm hover:shadow-paper-md space-y-4">
+          <div className="space-y-3">
+            {/* Badge & Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-cyan-500/15 border border-cyan-600/30 text-cyan-900">
+                {t("hub.stations.api.code", "Модуль 4")} • 04
+              </span>
+              <span
+                className={`text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
+                  isApiFullyMastered
+                    ? "bg-amber-500/15 border-amber-600/30 text-amber-900"
+                    : "bg-cyan-500/15 border-cyan-600/30 text-cyan-900"
+                }`}
+              >
+                {isApiFullyMastered
+                  ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (18/18 ★)`
+                  : `${t("hub.stationAvailable", "ДОСТУПНО")} (${totalApiStars}/18 ★)`}
+              </span>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div>
+              <h3 className="font-display font-bold text-lg text-[#1A1D20]">
+                {t("hub.stations.api.title", "Станція 04: API Кузня")}
+              </h3>
+              <p className="text-xs font-balsamiq text-[#1A1D20]/70 mt-0.5 leading-relaxed">
+                {t(
+                  "hub.stations.api.subtitle",
+                  "Клієнт-серверний зв'язок, HTTP кабелі, DTO контракти, авторизація та 504 Retries"
+                )}
+              </p>
+            </div>
+
+            {/* Blueprint Illustration: Client + Cable + Gateway Server */}
+            <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden">
+              <div className="absolute inset-0 bg-notebook-grid opacity-40 pointer-events-none" />
+              <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+                {/* Client Dispatcher Device */}
+                <rect x="15" y="24" width="46" height="42" rx="4" stroke="currentColor" strokeWidth="1.8" fill="#FAF8F2" />
+                <rect x="20" y="30" width="36" height="12" rx="2" fill="#1A1D20" />
+                <text x="23" y="39" fill="#06B6D4" fontSize="6" fontFamily="monospace" fontWeight="bold">POST :443</text>
+                <circle cx="25" cy="54" r="3" fill="#10B981" />
+                <circle cx="35" cy="54" r="3" fill="#3B82F6" />
+                <line x1="44" y1="54" x2="55" y2="54" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+
+                {/* HTTP Cable & In-Flight Packet */}
+                <line x1="61" y1="45" x2="119" y2="45" stroke="#06B6D4" strokeWidth="2.5" strokeDasharray="3 2" />
+                <rect x="82" y="39" width="16" height="12" rx="2" fill="#06B6D4" stroke="currentColor" strokeWidth="1" />
+                <text x="85" y="47" fill="#1A1D20" fontSize="5" fontFamily="monospace" fontWeight="extrabold">REQ</text>
+
+                {/* Gateway Server Rack */}
+                <rect x="119" y="18" width="48" height="54" rx="4" stroke="currentColor" strokeWidth="1.8" fill="#FAF8F2" />
+                <rect x="124" y="24" width="38" height="8" rx="1.5" fill="#1A1D20" />
+                <circle cx="128" cy="28" r="1.5" fill="#10B981" />
+                <line x1="133" y1="28" x2="157" y2="28" stroke="#374151" strokeWidth="1.5" />
+                <rect x="124" y="36" width="38" height="8" rx="1.5" fill="#1A1D20" />
+                <circle cx="128" cy="40" r="1.5" fill="#10B981" />
+                <line x1="133" y1="40" x2="157" y2="40" stroke="#374151" strokeWidth="1.5" />
+                <rect x="124" y="48" width="38" height="8" rx="1.5" fill="#1A1D20" />
+                <circle cx="128" cy="52" r="1.5" fill="#F59E0B" />
+                <line x1="133" y1="52" x2="157" y2="52" stroke="#374151" strokeWidth="1.5" />
+                <text x="130" y="66" fill="#10B981" fontSize="5" fontFamily="monospace">:8080 OK</text>
+              </svg>
+            </div>
+
+            {/* Specs & Star Progress */}
+            <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
+              <span>{t("hub.stations.api.specs", "6 завдань • Code Gym (3-Star) • C# / Go")}</span>
+              <span className="font-bold text-cyan-700">{totalApiStars}/18 ★</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-2 flex items-center gap-2">
+            <button
+              onClick={() => handleEnterStation("api")}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#1A1D20] hover:bg-black text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+            >
+              <span>{t("hub.enterStation", "Увійти на станцію")}</span>
+              <ArrowRight size={14} />
+            </button>
+
+            {isApiEligibleForCert && (
+              <button
+                onClick={() => {
+                  audioFx.playSuccessFanfare();
+                  setApiVictoryModalOpen(true);
+                }}
+                className="p-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-600/40 text-cyan-800 transition-colors cursor-pointer"
+                title={t("hub.viewApiCertTooltip", "Переглянути сертифікат бекенд & API архітектора")}
               >
                 <Trophy size={16} />
               </button>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { tvLevel01, CODING_TASKS, FINTECH_TASKS } from "@iw/sim-engine";
+import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
@@ -12,8 +12,11 @@ import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
 import { UserNavBadge } from "../components/auth/UserNavBadge";
 import { POSBlueprintDevice } from "../components/workbench/POSBlueprintDevice";
 import { CodeGymRunner } from "../components/workbench/playground/CodeGymRunner";
+import { ApiForgeBlueprintDevice } from "../components/workbench/ApiForgeBlueprintDevice";
+import { ApiCodeGymRunner } from "../components/workbench/playground/ApiCodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
+import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy, LayoutGrid } from "lucide-react";
@@ -68,6 +71,8 @@ export const WorkbenchScreen: React.FC = () => {
     setStationVictoryModalOpen,
     isPosVictoryModalOpen,
     setPosVictoryModalOpen,
+    isApiVictoryModalOpen,
+    setApiVictoryModalOpen,
     currentStationId,
     setCurrentStationId,
     currentView,
@@ -87,6 +92,8 @@ export const WorkbenchScreen: React.FC = () => {
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       isPosVictoryModalOpen: s.isPosVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      isApiVictoryModalOpen: s.isApiVictoryModalOpen,
+      setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       currentStationId: s.currentStationId,
       setCurrentStationId: s.setCurrentStationId,
       currentView: s.currentView,
@@ -112,11 +119,23 @@ export const WorkbenchScreen: React.FC = () => {
   ).length;
   const isPosCompleted = completedPosCount >= FINTECH_TASKS.length;
 
+  const completedApiCount = API_FORGE_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isApiCompleted = completedApiCount >= API_FORGE_TASKS.length;
+
   const isCurrentStationCompleted =
-    currentStationId === "pos" ? isPosCompleted : isTvCompleted;
+    currentStationId === "pos"
+      ? isPosCompleted
+      : currentStationId === "api"
+      ? isApiCompleted
+      : isTvCompleted;
+
   const currentStationProgressText =
     currentStationId === "pos"
       ? `${completedPosCount}/${FINTECH_TASKS.length} ✓`
+      : currentStationId === "api"
+      ? `${completedApiCount}/${API_FORGE_TASKS.length} ✓`
       : `${completedTvCount}/${CODING_TASKS.length} ✓`;
 
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
@@ -184,6 +203,8 @@ export const WorkbenchScreen: React.FC = () => {
                     ? t("architecture.title")
                     : currentStationId === "pos"
                     ? t("posStation.title")
+                    : currentStationId === "api"
+                    ? t("apiForge.title", "API Forge: Client & Server")
                     : t("level.level1Title", { defaultValue: tvLevel01.title })}
                 </span>
               </div>
@@ -215,6 +236,8 @@ export const WorkbenchScreen: React.FC = () => {
                 audioFx.playSuccessFanfare();
                 if (currentStationId === "pos") {
                   setPosVictoryModalOpen(true);
+                } else if (currentStationId === "api") {
+                  setApiVictoryModalOpen(true);
                 } else {
                   setStationVictoryModalOpen(true);
                 }
@@ -223,6 +246,8 @@ export const WorkbenchScreen: React.FC = () => {
               title={
                 currentStationId === "pos"
                   ? t("fintechVictoryModal.title", "Фінтех POS-термінал: Завершено")
+                  : currentStationId === "api"
+                  ? t("apiForge.victoryModal.title", "API Forge: Завершено")
                   : t("victoryModal.title", "Телевізійна станція: Завершено")
               }
             >
@@ -268,6 +293,20 @@ export const WorkbenchScreen: React.FC = () => {
             {/* Right: Code Gym Runner */}
             <div className="flex-1 w-full min-w-0">
               <CodeGymRunner />
+            </div>
+          </div>
+        </main>
+      ) : currentStationId === "api" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: API Device Rack (Client, Cable Bus, Server Gateway) */}
+            <div className="w-full xl:w-[620px] 2xl:w-[680px] shrink-0 xl:sticky top-2">
+              <ApiForgeBlueprintDevice />
+            </div>
+
+            {/* Right: API Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <ApiCodeGymRunner />
             </div>
           </div>
         </main>
@@ -469,6 +508,13 @@ export const WorkbenchScreen: React.FC = () => {
       <FintechStationVictoryModal
         isOpen={isPosVictoryModalOpen}
         onClose={() => setPosVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 4: API Forge Station Victory Modal */}
+      <ApiStationVictoryModal
+        isOpen={isApiVictoryModalOpen}
+        onClose={() => setApiVictoryModalOpen(false)}
         xp={xp}
       />
     </div>
