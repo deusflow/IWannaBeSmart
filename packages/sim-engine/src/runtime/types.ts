@@ -33,6 +33,35 @@ export interface RuntimeResult {
   mentorFeedback?: string;
 }
 
+export interface WorkedExample {
+  /** Такт 1: Готовий еталонний код */
+  sampleCode: {
+    csharp: string;
+    go: string;
+  } | string;
+  /** Такт 1: Лог у терміналі та реакція апаратного приладу */
+  demonstrationLog: {
+    terminal: string[];
+    hardwareEffect: string;
+  };
+  /** Такт 1: Покрокове пояснення (1-2 речення, що сталося) */
+  explanation: string;
+  /** Такт 2: Трафарет з пропусками */
+  clozeExercise: {
+    csharp: string;
+    go: string;
+  } | string;
+  /** Такт 3: Бойове завдання зі зміненою умовою без підказок */
+  finalChallenge: {
+    prompt: string;
+    hint?: string;
+    targetCode: {
+      csharp: string;
+      go: string;
+    } | string;
+  };
+}
+
 export interface TransferVariant {
   prompt: Record<"ua" | "en" | "da", string>;
   hint: Record<"ua" | "en" | "da", string>;
@@ -57,6 +86,7 @@ export interface CodingTask {
   /** i18n key for engineering-precision explanation with English CS terms */
   engineeringKey?: string;
   careerImpactKey?: string;
+  workedExample?: WorkedExample;
   initialCode: {
     csharp: string;
     go: string;

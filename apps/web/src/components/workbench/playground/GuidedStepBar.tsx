@@ -27,10 +27,14 @@ import {
   Code2,
   Layers,
   ExternalLink,
+  Play,
+  Terminal,
+  Activity,
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 import { getTaskDidacticInfo } from "./taskDidacticContext";
 import { theoryUa, type TaskTheory } from "@iw/i18n";
+import { getWorkedExample, type WorkedExample } from "@iw/sim-engine";
 
 // ─── Type definitions ─────────────────────────────────────────────────────────
 
@@ -43,6 +47,7 @@ export interface GuidedStepData {
   taskId?: string;
   tier?: 0 | 1 | 2;
   codeLang?: "csharp" | "go";
+  workedExample?: WorkedExample;
   targetCode?: {
     csharp: string;
     go: string;
@@ -73,9 +78,12 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   const [dismissed, setDismissed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [activeLayer, setActiveLayer] = useState<TutorialLayer>("solution");
+  const [isDemoRunning, setIsDemoRunning] = useState(false);
+  const [demoExecuted, setDemoExecuted] = useState(false);
 
   useEffect(() => {
     setIsExpanded(defaultExpanded);
+    setDemoExecuted(false);
   }, [data.taskId, defaultExpanded]);
 
   if (dismissed && !persistent) return null;
@@ -83,6 +91,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   const codeLang = data.codeLang || "csharp";
   const taskId = data.taskId || "";
   const didactic = taskId ? getTaskDidacticInfo(taskId) : undefined;
+  const workedExample = data.workedExample || (taskId ? getWorkedExample(taskId) : undefined);
 
   // Retrieve theory tokens for syntax breakdown
   const translatedTheory = t(`theory.tasks.${taskId}`, { returnObjects: true }) as TaskTheory;
@@ -94,7 +103,14 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   const simpleText = t(data.simpleKey, { defaultValue: "" });
   const engineeringText = t(data.engineeringKey, { defaultValue: "" });
 
+  const sampleWorkedCode = workedExample
+    ? typeof workedExample.sampleCode === "string"
+      ? workedExample.sampleCode
+      : workedExample.sampleCode[codeLang]
+    : undefined;
+
   const readyCode =
+    sampleWorkedCode ||
     data.targetCode?.[codeLang] ||
     (codeLang === "go" ? "tv.PowerOn()" : "tv.PowerOn();");
 
@@ -105,6 +121,17 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
     const next = !isExpanded;
     setIsExpanded(next);
     onToggleExpand?.(next);
+  };
+
+  const handleRunDemo = () => {
+    audioFx.playRelayClick();
+    audioFx.playRemoteBeep();
+    setIsDemoRunning(true);
+    setTimeout(() => {
+      setIsDemoRunning(false);
+      setDemoExecuted(true);
+      audioFx.playSuccessFanfare();
+    }, 500);
   };
 
   const handleStartPractice = () => {
@@ -262,16 +289,65 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "solution" && (
             <div className="space-y-3">
-              {/* Ready Working Code Box */}
+              {/* 3-Tact GRR Progress Navigation Banner */}
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#141820] border border-[#232936] text-[11px] font-mono text-gray-300 flex-wrap gap-2 shadow-xs">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-amber-400 shrink-0" />
+                  <span className="font-bold text-white tracking-wide text-xs">
+                    Gradual Release of Responsibility (GRR)
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px]">
+                  <span className="px-2 py-0.5 rounded bg-amber-500/25 text-amber-300 font-extrabold border border-amber-500/40">
+                    Такт 1: Вчитель показує
+                  </span>
+                  <span className="text-gray-500 font-bold">→</span>
+                  <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300/80 border border-blue-500/20">
+                    Такт 2: Повтори зі мною
+                  </span>
+                  <span className="text-gray-500 font-bold">→</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300/80 border border-emerald-500/20">
+                    Такт 3: Тепер ти сам
+                  </span>
+                </div>
+              </div>
+
+              {/* Ready Working Code Box with ▶ Демонстрація button */}
               <div>
-                <div className="flex items-center justify-between text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#1A1D20]/70 mb-1.5">
-                  <span className="flex items-center gap-1">
-                    <CheckCircle2 size={12} className="text-emerald-700" />
-                    <span>{t("guide.readyCodeTitle", "Еталонне рішення (Ready Working Solution):")}</span>
+                <div className="flex items-center justify-between text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#1A1D20]/80 mb-1.5 flex-wrap gap-2">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 size={13} className="text-emerald-700" />
+                    <span>{t("guide.readyCodeTitle", "Такт 1: Еталонний код вчителя (Sample Code):")}</span>
                   </span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#1A1D20]/10 font-bold">
-                    {codeLang === "csharp" ? "C# (.NET)" : "Go (Golang)"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {workedExample && (
+                      <button
+                        id="btn-run-demonstration"
+                        onClick={handleRunDemo}
+                        disabled={isDemoRunning}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer shadow-xs ${
+                          isDemoRunning
+                            ? "bg-amber-600 text-white animate-pulse"
+                            : demoExecuted
+                            ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                            : "bg-amber-500 hover:bg-amber-400 text-black active:scale-95"
+                        }`}
+                        title="Запустити демонстрацію вчителя з апаратним ефектом та телеметрією"
+                      >
+                        <Play size={12} className="fill-current" />
+                        <span>
+                          {isDemoRunning
+                            ? "Виконується..."
+                            : demoExecuted
+                            ? "✓ Продемонстровано (Повторити)"
+                            : "▶ Демонстрація"}
+                        </span>
+                      </button>
+                    )}
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#1A1D20]/10 font-bold">
+                      {codeLang === "csharp" ? "C# (.NET)" : "Go (Golang)"}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="rounded-xl bg-[#181A1E] border border-[#2B2E36] p-3 shadow-inner relative overflow-hidden font-mono text-xs text-white">
@@ -283,6 +359,80 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                   </pre>
                 </div>
               </div>
+
+              {/* Physical Hardware Effect & Terminal Demonstration Logs */}
+              {workedExample && (
+                <div className="space-y-2.5">
+                  {/* Hardware effect alert */}
+                  <div
+                    className={`p-3 rounded-xl border transition-all duration-300 ${
+                      isDemoRunning
+                        ? "bg-amber-500/25 border-amber-500 shadow-md ring-2 ring-amber-400/50"
+                        : demoExecuted
+                        ? "bg-emerald-900/10 border-emerald-700/40 text-emerald-950"
+                        : "bg-[#FAF8F2] border-[#1A1D20]/15"
+                    }`}
+                  >
+                    <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/80 flex items-center gap-1.5 mb-1">
+                      <Activity size={12} className="text-emerald-700 shrink-0" />
+                      <span>Апаратний ефект пристрою (Hardware Effect):</span>
+                    </div>
+                    <p className="font-sans text-xs text-[#1A1D20] font-semibold leading-relaxed">
+                      {workedExample.demonstrationLog.hardwareEffect}
+                    </p>
+                  </div>
+
+                  {/* Terminal telemetry log bus */}
+                  <div className="rounded-xl bg-[#0F141C] border border-[#1F2937] p-3 shadow-inner font-mono text-[11px] text-gray-200 space-y-1">
+                    <div className="flex items-center justify-between text-[10px] text-gray-400 border-b border-gray-800 pb-1 mb-1.5">
+                      <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
+                        <Terminal size={12} />
+                        <span>Системна телеметрія (Hardware Bus Terminal):</span>
+                      </span>
+                      <span className="text-[9px] text-emerald-400">● LIVE RUNTIME</span>
+                    </div>
+                    <div className="space-y-0.5 text-emerald-400/90 font-mono">
+                      {workedExample.demonstrationLog.terminal.map((line, idx) => (
+                        <div key={idx} className="leading-tight flex items-start gap-1">
+                          <span className="text-gray-600 select-none">&gt;</span>
+                          <span>{line}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Teacher Step-by-Step Explanation */}
+                  <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1">
+                    <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70 flex items-center gap-1">
+                      <Lightbulb size={11} className="text-amber-700 shrink-0" />
+                      <span>Пояснення вчителя (Teacher Card):</span>
+                    </div>
+                    <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
+                      {workedExample.explanation}
+                    </p>
+                  </div>
+
+                  {/* Preview of Tact 2 and Tact 3 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-blue-600/25 space-y-1">
+                      <div className="text-[10px] font-mono font-bold uppercase text-blue-900 flex items-center gap-1">
+                        <span>Такт 2: Повтори зі мною (Cloze)</span>
+                      </div>
+                      <p className="text-[11px] font-sans text-blue-950">
+                        Заповніть пропуски <code className="px-1 py-0.2 bg-blue-100 rounded text-blue-900 font-bold">___</code> у коді. Система миттєво перевіряє кожен символ.
+                      </p>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-emerald-600/25 space-y-1">
+                      <div className="text-[10px] font-mono font-bold uppercase text-emerald-900 flex items-center gap-1">
+                        <span>Такт 3: Тепер ти сам</span>
+                      </div>
+                      <p className="text-[11px] font-sans text-emerald-950">
+                        {workedExample.finalChallenge.prompt}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Didactic explanation: why this syntax */}
               {didactic?.whyThisCode && (

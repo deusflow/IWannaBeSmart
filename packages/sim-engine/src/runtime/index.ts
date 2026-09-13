@@ -16,3 +16,4 @@ export * from "./gitContext";
 export * from "./tasks-git";
 export * from "./banditContext";
 export * from "./tasks-bandit";
+export * from "./workedExamplesData";

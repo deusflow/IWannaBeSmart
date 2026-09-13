@@ -8,6 +8,8 @@ import {
   createInitialBanditState,
   BANDIT_FLAGS,
 } from "./banditContext";
+import type { WorkedExample } from "./types";
+import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export interface BanditTask {
   id: string;
@@ -18,6 +20,7 @@ export interface BanditTask {
   hintKey: string;
   simpleExplanationKey?: string;
   engineeringKey?: string;
+  workedExample?: WorkedExample;
   successKey: string;
   flag: string;
   targetCode: {
@@ -572,3 +575,10 @@ func GuardAuth(w http.ResponseWriter, r *http.Request) bool {
     },
   },
 ];
+
+// Attach authentic Gradual Release of Responsibility (GRR) worked examples
+BANDIT_TASKS.forEach((t) => {
+  if (!t.workedExample && WORKED_EXAMPLES[t.id]) {
+    t.workedExample = WORKED_EXAMPLES[t.id];
+  }
+});

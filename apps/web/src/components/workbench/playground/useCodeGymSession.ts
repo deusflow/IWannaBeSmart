@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { audioFx } from "../../../utils/audioFx";
+import type { WorkedExample } from "@iw/sim-engine";
 
 export interface CodeGymTaskLike {
   id: string;
@@ -17,6 +18,7 @@ export interface CodeGymTaskLike {
     csharp: string;
     go: string;
   };
+  workedExample?: WorkedExample;
   sprintTimeLimit?: number;
   isBugfixTask?: boolean;
   initialCode?: {
@@ -39,6 +41,41 @@ interface UseCodeGymSessionOptions<TTask extends CodeGymTaskLike> {
   onRoundComplete?: (round: 1 | 2 | 3 | 4, code: string, stats?: { wpm: number; accuracy: number }) => Promise<void> | void;
 }
 
+function checkClozeConsistency(input: string, target: string): { isComplete: boolean; isValid: boolean } {
+  const normInput = input.trim();
+  const normTarget = target.trim();
+
+  if (normInput === normTarget) {
+    return { isComplete: true, isValid: true };
+  }
+
+  const collapseWs = (s: string) => s.replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ");
+  if (collapseWs(normInput) === collapseWs(normTarget)) {
+    return { isComplete: true, isValid: true };
+  }
+
+  if (normInput.includes("___")) {
+    const escaped = normInput
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      .replace(/(?:\\_\\_\\_)+/g, "[\\s\\S]*?");
+    try {
+      const re = new RegExp("^" + escaped + "$");
+      if (re.test(normTarget) || re.test(collapseWs(normTarget))) {
+        return { isComplete: false, isValid: true };
+      }
+    } catch {
+      // Fallback on regex compilation error
+    }
+    return { isComplete: false, isValid: false };
+  }
+
+  if (normTarget.startsWith(normInput) || collapseWs(normTarget).startsWith(collapseWs(normInput))) {
+    return { isComplete: false, isValid: true };
+  }
+
+  return { isComplete: false, isValid: false };
+}
+
 export function useCodeGymSession<TTask extends CodeGymTaskLike>({
   currentTask,
   onRoundComplete,
@@ -50,7 +87,15 @@ export function useCodeGymSession<TTask extends CodeGymTaskLike>({
   const [showTransferHint, setShowTransferHint] = useState<boolean>(false);
 
   const targetCode = currentTask.targetCode[codeLang];
-  const clozeTemplate = currentTask.clozeTemplate[codeLang];
+  const clozeTemplate = useMemo(() => {
+    const workedCloze = currentTask.workedExample?.clozeExercise;
+    if (workedCloze) {
+      return typeof workedCloze === "string" ? workedCloze : workedCloze[codeLang];
+    }
+    const raw = currentTask.clozeTemplate;
+    if (!raw) return "";
+    return typeof raw === "string" ? raw : raw[codeLang];
+  }, [currentTask, codeLang]);
 
   const sprintLimit = Math.max(
     20,
@@ -200,11 +245,58 @@ export function useCodeGymSession<TTask extends CodeGymTaskLike>({
     [targetCode, currentTask.isBugfixTask, playThrottledKeyClick, t, onRoundComplete]
   );
 
+  // Handle cloze input with instant character/token validation
+  const handleClozeChange = useCallback(
+    async (input: string) => {
+      setTypedCode(input);
+      if (!roundStartTimeRef.current) {
+        roundStartTimeRef.current = Date.now();
+      }
+      playThrottledKeyClick();
+
+      const { isComplete, isValid } = checkClozeConsistency(input, targetCode);
+
+      if (isComplete) {
+        setHasError(false);
+        setFeedback(null);
+        setRoundCompleted(true);
+        const elapsedMinutes = Math.max(
+          0.04,
+          (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000
+        );
+        const calculatedWpm = Math.round(
+          targetCode.length / 5 / elapsedMinutes
+        );
+        const stats = { wpm: calculatedWpm, accuracy: 100 };
+        setRoundStats(stats);
+        audioFx.playSuccessFanfare();
+        if (onRoundComplete) {
+          await onRoundComplete(2, input, stats);
+        }
+      } else if (!isValid) {
+        setHasError(true);
+        audioFx.playErrorBuzz();
+        setFeedback(
+          t(
+            "codegym.clozeMismatchPrompt",
+            "Невірний токен у пропуску! Звіртеся зі зразком викладацького коду."
+          )
+        );
+      } else {
+        setHasError(false);
+        setFeedback(null);
+      }
+    },
+    [targetCode, playThrottledKeyClick, t, onRoundComplete]
+  );
+
   // Handle general code input
   const handleCodeChange = useCallback(
     (input: string) => {
       if (activeRound === 1) {
         handleTraceChange(input);
+      } else if (activeRound === 2) {
+        handleClozeChange(input);
       } else {
         setTypedCode(input);
         playThrottledKeyClick();
@@ -214,7 +306,7 @@ export function useCodeGymSession<TTask extends CodeGymTaskLike>({
         }
       }
     },
-    [activeRound, handleTraceChange, playThrottledKeyClick, isTimerRunning]
+    [activeRound, handleTraceChange, handleClozeChange, playThrottledKeyClick, isTimerRunning]
   );
 
   // Sprint timer interval

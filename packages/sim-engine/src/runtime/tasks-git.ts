@@ -8,6 +8,8 @@ import {
   type GitRuntimeResult,
   INITIAL_GIT_STATE,
 } from "./gitContext";
+import type { WorkedExample } from "./types";
+import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export interface GitTask {
   id: string;
@@ -18,6 +20,7 @@ export interface GitTask {
   hintKey: string;
   simpleExplanationKey?: string;
   engineeringKey?: string;
+  workedExample?: WorkedExample;
   successKey: string;
   targetCode: {
     csharp: string;
@@ -440,3 +443,10 @@ exec.Command("git", /* merge */).Run()`,
     },
   },
 ];
+
+// Attach authentic Gradual Release of Responsibility (GRR) worked examples
+GIT_TASKS.forEach((t) => {
+  if (!t.workedExample && WORKED_EXAMPLES[t.id]) {
+    t.workedExample = WORKED_EXAMPLES[t.id];
+  }
+});

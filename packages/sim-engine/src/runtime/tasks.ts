@@ -5,6 +5,7 @@
 
 import type { CodingTask } from "./types";
 import { executeTvScript } from "./evaluator";
+import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export const CODING_TASKS: CodingTask[] = [
   {
@@ -1364,3 +1365,10 @@ if ___ <= 100 {
     },
   },
 ];
+
+// Attach authentic Gradual Release of Responsibility (GRR) worked examples
+CODING_TASKS.forEach((t) => {
+  if (!t.workedExample && WORKED_EXAMPLES[t.id]) {
+    t.workedExample = WORKED_EXAMPLES[t.id];
+  }
+});

@@ -4,6 +4,9 @@
  */
 
 import type { VirtualPosState, PosRuntimeResult } from "./terminalContext";
+import type { WorkedExample } from "./types";
+import { WORKED_EXAMPLES } from "./workedExamplesData";
+
 export interface PosTransferVariant {
   prompt: Record<"ua" | "en" | "da", string>;
   hint: Record<"ua" | "en" | "da", string>;
@@ -28,6 +31,7 @@ export interface FintechTask {
   simpleExplanationKey?: string;
   /** i18n key for engineering-precision explanation with English CS terms */
   engineeringKey?: string;
+  workedExample?: WorkedExample;
   targetCode: {
     csharp: string;
     go: string;
@@ -670,3 +674,10 @@ status = "APPROVED"`,
     },
   },
 ];
+
+// Attach authentic Gradual Release of Responsibility (GRR) worked examples
+FINTECH_TASKS.forEach((t) => {
+  if (!t.workedExample && WORKED_EXAMPLES[t.id]) {
+    t.workedExample = WORKED_EXAMPLES[t.id];
+  }
+});

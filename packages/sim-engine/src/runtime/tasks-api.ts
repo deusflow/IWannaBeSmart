@@ -8,6 +8,8 @@ import {
   type ApiRuntimeResult,
   INITIAL_API_STATE,
 } from "./apiContext";
+import type { WorkedExample } from "./types";
+import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export interface ApiForgeTask {
   id: string;
@@ -18,6 +20,7 @@ export interface ApiForgeTask {
   hintKey: string;
   simpleExplanationKey?: string;
   engineeringKey?: string;
+  workedExample?: WorkedExample;
   successKey: string;
   targetCode: {
     csharp: string;
@@ -57,9 +60,10 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
 })`,
     },
     clozeTemplate: {
-      csharp: `app.MapGet("/health", () => /* Вкажіть Results.Ok(...) */);`,
+      csharp: `app.MapGet("/health", () => Results.___({ status = "___", service = "api-forge" }));`,
       go: `http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(/* Вкажіть статус 200 OK */)
+    w.WriteHeader(http.___)
+    w.Write([]byte(\`{"status":"___","service":"api-forge"}\`))
 })`,
     },
     initialState: INITIAL_API_STATE,
@@ -118,14 +122,16 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     clozeTemplate: {
       csharp: `app.MapGet("/api/devices/{id}", (string id, IDeviceRepository repo) => {
     var device = repo.Find(id);
-    return device != null ? Results.Ok(device) : /* 404 Not Found guard */;
+    return device != null ? Results.Ok(device) : Results.___(new { error = "Device not found" });
 });`,
       go: `http.HandleFunc("/api/devices/", func(w http.ResponseWriter, r *http.Request) {
     id := strings.TrimPrefix(r.URL.Path, "/api/devices/")
+    device, exists := repo.Find(id)
     if !exists {
-        /* Вкажіть http.StatusNotFound */
+        http.Error(w, \`{"error":"Device not found"}\`, http.___)
         return
     }
+    json.NewEncoder(w).Encode(device)
 })`,
     },
     initialState: INITIAL_API_STATE,
@@ -186,15 +192,20 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     },
     clozeTemplate: {
       csharp: `app.MapPost("/api/orders", (CreateOrderDto dto, IOrderService service) => {
-    if (/* Перевірте item та quantity > 0 */)
-        return Results.BadRequest(new { error = "Invalid order" });
-    return Results.Created($"/api/orders/{order.Id}", order);
+    if (string.IsNullOrWhiteSpace(dto.Item) || dto.Quantity <= ___)
+        return Results.___(new { error = "Invalid order payload" });
+    var order = service.Create(dto.Item, dto.Quantity);
+    return Results.___($"/api/orders/{order.Id}", order);
 });`,
       go: `http.HandleFunc("/api/orders", func(w http.ResponseWriter, r *http.Request) {
-    if dto.Quantity <= 0 {
-        http.Error(w, "Bad request", /* Вкажіть статус 400 */)
+    var dto CreateOrderDto
+    if err := json.NewDecoder(r.Body).Decode(&dto); err != nil || dto.Item == "" || dto.Quantity <= ___ {
+        http.Error(w, \`{"error":"Invalid order payload"}\`, http.___)
         return
     }
+    order := service.Create(dto.Item, dto.Quantity)
+    w.WriteHeader(http.___)
+    json.NewEncoder(w).Encode(order)
 })`,
     },
     initialState: INITIAL_API_STATE,
@@ -254,16 +265,17 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     clozeTemplate: {
       csharp: `app.MapGet("/api/secure/stats", (HttpContext context) => {
     var auth = context.Request.Headers.Authorization.ToString();
-    if (!auth.StartsWith("Bearer "))
-        return /* Поверніть 401 Unauthorized */;
+    if (!auth.StartsWith("___"))
+        return Results.___();
     return Results.Ok(new { gatewayStatus = "HEALTHY" });
 });`,
       go: `http.HandleFunc("/api/secure/stats", func(w http.ResponseWriter, r *http.Request) {
     auth := r.Header.Get("Authorization")
-    if !strings.HasPrefix(auth, "Bearer ") {
-        /* Вкажіть http.StatusUnauthorized */
+    if !strings.HasPrefix(auth, "___") {
+        http.Error(w, \`{"error":"Unauthorized"}\`, http.___)
         return
     }
+    w.Write([]byte(\`{"gatewayStatus":"HEALTHY"}\`))
 })`,
     },
     initialState: INITIAL_API_STATE,
@@ -318,13 +330,14 @@ json.NewDecoder(resp.Body).Decode(&health)`,
     },
     clozeTemplate: {
       csharp: `using var client = new HttpClient();
-var response = await client.GetAsync("https://forge.api/health");
-/* Викличте EnsureSuccessStatusCode() або перевірте IsSuccessStatusCode */
+var response = await client.___("https://forge.api/health");
+response.___();
 var health = await response.Content.ReadFromJsonAsync<HealthDto>();`,
-      go: `resp, err := http.Get("https://forge.api/health")
-if err != nil || /* Перевірте resp.StatusCode != http.StatusOK */ {
+      go: `resp, err := http.___("https://forge.api/health")
+if err != nil || resp.StatusCode != http.___ {
     return nil, errors.New("failed")
-}`,
+}
+defer resp.Body.Close()`,
     },
     initialState: INITIAL_API_STATE,
     validate: (_before, after, result, code = "") => {
@@ -384,20 +397,20 @@ if err != nil || /* Перевірте resp.StatusCode != http.StatusOK */ {
 }`,
     },
     clozeTemplate: {
-      csharp: `for (int attempt = 1; attempt <= 3; attempt++) {
+      csharp: `for (int attempt = 1; attempt <= ___; attempt++) {
     try {
         var res = await client.GetAsync(url);
         if (res.IsSuccessStatusCode) return await res.Content.ReadAsStringAsync();
-    } catch (HttpRequestException) {
-        /* Додайте затримку Task.Delay */
+    } catch (HttpRequestException) when (attempt < 3) {
+        await Task.___(___ * attempt);
     }
 }`,
-      go: `for attempt := 1; attempt <= 3; attempt++ {
+      go: `for attempt := 1; attempt <= ___; attempt++ {
     resp, err := client.Get(url)
     if err == nil && resp.StatusCode == http.StatusOK {
         return resp, nil
     }
-    /* Додайте time.Sleep */
+    time.Sleep(time.Duration(attempt * ___) * time.Millisecond)
 }`,
     },
     initialState: INITIAL_API_STATE,
@@ -426,3 +439,10 @@ if err != nil || /* Перевірте resp.StatusCode != http.StatusOK */ {
     },
   },
 ];
+
+// Attach authentic Gradual Release of Responsibility (GRR) worked examples
+API_FORGE_TASKS.forEach((t) => {
+  if (!t.workedExample && WORKED_EXAMPLES[t.id]) {
+    t.workedExample = WORKED_EXAMPLES[t.id];
+  }
+});
