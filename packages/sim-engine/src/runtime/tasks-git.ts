@@ -16,6 +16,8 @@ export interface GitTask {
   conceptKey: string;
   descKey: string;
   hintKey: string;
+  simpleExplanationKey?: string;
+  engineeringKey?: string;
   successKey: string;
   targetCode: {
     csharp: string;
@@ -43,6 +45,8 @@ export const GIT_TASKS: GitTask[] = [
     conceptKey: "git.tasks.task1.concept",
     descKey: "git.tasks.task1.desc",
     hintKey: "git.tasks.task1.hint",
+    simpleExplanationKey: "git.tasks.task1.desc",
+    engineeringKey: "git.tasks.task1.concept",
     successKey: "git.tasks.task1.success",
     targetCode: {
       csharp: `// C# Process Execution of Git Commit

@@ -16,6 +16,8 @@ export interface ApiForgeTask {
   conceptKey: string;
   descKey: string;
   hintKey: string;
+  simpleExplanationKey?: string;
+  engineeringKey?: string;
   successKey: string;
   targetCode: {
     csharp: string;
@@ -43,6 +45,8 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     conceptKey: "apiForge.tasks.task1.concept",
     descKey: "apiForge.tasks.task1.desc",
     hintKey: "apiForge.tasks.task1.hint",
+    simpleExplanationKey: "apiForge.tasks.task1.simple",
+    engineeringKey: "apiForge.tasks.task1.engineering",
     successKey: "apiForge.tasks.task1.success",
     targetCode: {
       csharp: `app.MapGet("/health", () => Results.Ok(new { status = "UP", service = "api-forge" }));`,
@@ -93,6 +97,8 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     conceptKey: "apiForge.tasks.task2.concept",
     descKey: "apiForge.tasks.task2.desc",
     hintKey: "apiForge.tasks.task2.hint",
+    simpleExplanationKey: "apiForge.tasks.task2.simple",
+    engineeringKey: "apiForge.tasks.task2.engineering",
     successKey: "apiForge.tasks.task2.success",
     targetCode: {
       csharp: `app.MapGet("/api/devices/{id}", (string id, IDeviceRepository repo) => {
@@ -157,6 +163,8 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     conceptKey: "apiForge.tasks.task3.concept",
     descKey: "apiForge.tasks.task3.desc",
     hintKey: "apiForge.tasks.task3.hint",
+    simpleExplanationKey: "apiForge.tasks.task3.simple",
+    engineeringKey: "apiForge.tasks.task3.engineering",
     successKey: "apiForge.tasks.task3.success",
     targetCode: {
       csharp: `app.MapPost("/api/orders", (CreateOrderDto dto, IOrderService service) => {
@@ -224,6 +232,8 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     conceptKey: "apiForge.tasks.task4.concept",
     descKey: "apiForge.tasks.task4.desc",
     hintKey: "apiForge.tasks.task4.hint",
+    simpleExplanationKey: "apiForge.tasks.task4.simple",
+    engineeringKey: "apiForge.tasks.task4.engineering",
     successKey: "apiForge.tasks.task4.success",
     targetCode: {
       csharp: `app.MapGet("/api/secure/stats", (HttpContext context) => {
@@ -290,6 +300,8 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     conceptKey: "apiForge.tasks.task5.concept",
     descKey: "apiForge.tasks.task5.desc",
     hintKey: "apiForge.tasks.task5.hint",
+    simpleExplanationKey: "apiForge.tasks.task5.simple",
+    engineeringKey: "apiForge.tasks.task5.engineering",
     successKey: "apiForge.tasks.task5.success",
     targetCode: {
       csharp: `using var client = new HttpClient();
@@ -351,6 +363,8 @@ if err != nil || /* Перевірте resp.StatusCode != http.StatusOK */ {
     conceptKey: "apiForge.tasks.task6.concept",
     descKey: "apiForge.tasks.task6.desc",
     hintKey: "apiForge.tasks.task6.hint",
+    simpleExplanationKey: "apiForge.tasks.task6.simple",
+    engineeringKey: "apiForge.tasks.task6.engineering",
     successKey: "apiForge.tasks.task6.success",
     targetCode: {
       csharp: `for (int attempt = 1; attempt <= 3; attempt++) {

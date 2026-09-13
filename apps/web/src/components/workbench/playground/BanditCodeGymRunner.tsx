@@ -23,6 +23,7 @@ import { audioFx } from "../../../utils/audioFx";
 import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
+import { GuidedStepBar } from "./GuidedStepBar";
 
 export const BanditCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -314,6 +315,28 @@ export const BanditCodeGymRunner: React.FC = () => {
               <X size={14} />
             </button>
           </div>
+        )}
+
+        {/* Guided Step Bar (Teacher Demonstration & Code Breakdown) */}
+        {currentTask.simpleExplanationKey && (
+          <GuidedStepBar
+            data={{
+              simpleKey: currentTask.simpleExplanationKey,
+              engineeringKey: currentTask.engineeringKey || currentTask.simpleExplanationKey,
+              taskId: currentTask.id,
+              tier: 1,
+              codeLang,
+              targetCode: currentTask.targetCode,
+            }}
+            persistent={true}
+            defaultExpanded={starsEarned === 0 && activeRound === 1}
+            onStartPractice={() => {
+              setTimeout(() => {
+                const cm = document.querySelector(".cm-content") as HTMLElement | null;
+                cm?.focus();
+              }, 50);
+            }}
+          />
         )}
 
         {/* 4-Round Mode Selector Tabs */}

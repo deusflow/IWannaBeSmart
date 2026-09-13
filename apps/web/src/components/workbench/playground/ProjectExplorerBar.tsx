@@ -15,14 +15,16 @@ import {
   Layers,
   Cpu,
   X,
+  Database,
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
+import { useWorkbenchStore } from "../../../store/workbenchStore";
 
 interface ProjectFile {
   id: string;
   name: string;
   type: "file" | "folder";
-  icon?: "code" | "config" | "interface" | "driver";
+  icon?: "code" | "config" | "interface" | "driver" | "data";
   children?: ProjectFile[];
   badge?: string;
   codeSnippet?: {
@@ -50,6 +52,7 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
   className = "",
 }) => {
   const { t, i18n } = useTranslation();
+  const currentStationId = useWorkbenchStore((s) => s.currentStationId);
   const currentLang = (i18n.language?.startsWith("da")
     ? "da"
     : i18n.language?.startsWith("en")
@@ -103,181 +106,100 @@ require (
           badge: "Main()",
           codeSnippet: {
             csharp: `using System;
-using SmartTvApp.Core;
+using SmartTvApp.Hardware;
 
 namespace SmartTvApp;
 
 public class Program
 {
-    // 📍 ТОЧКА ВХОДУ: Увесь ваш код компілюється та виконується всередині Main()
     public static void Main(string[] args)
     {
-        // 💾 КУПА (Heap): Виділяється блок пам'яті під об'єкт VirtualTV
-        // 📚 СТЕК (Stack): Змінна 'tv' зберігає 64-бітну адресу пам'яті
-        VirtualTV tv = new VirtualTV();
+        Console.WriteLine("[RTOS INITIALIZED] Booting TV chassis...");
+        TV tv = new TV();
 
-        // ═══════════════════════════════════════════════
-        // ⚡ ВАШ КОД ВИКОНУЄТЬСЯ ТУТ:
-        // ═══════════════════════════════════════════════
 ${currentCode
   .split("\n")
   .map((line) => "        " + line)
   .join("\n")}
-        // ═══════════════════════════════════════════════
 
-        Console.WriteLine($"[RUNTIME OK] Device state: IsOn={tv.IsOn}, Channel={tv.Channel}");
+        Console.WriteLine($"[TELEMETRY] Power: {tv.IsOn}, Channel: {tv.Channel}");
     }
 }`,
             go: `package main
 
 import (
     "fmt"
-    "github.com/iwannabesmart/tv-core/core"
+    "github.com/iwannabesmart/tv-core/hardware"
 )
 
-// 📍 ТОЧКА ВХОДУ: main() запускає горутину керування приладом
 func main() {
-    // 💾 СТРУКТУРА: виділяється екземпляр VirtualTV у пам'яті
-    tv := core.NewVirtualTV()
+    fmt.Println("[RTOS INITIALIZED] Booting TV chassis...")
+    tv := hardware.NewTV()
 
-    // ═══════════════════════════════════════════════
-    // ⚡ ВАШ КОД ВИКОНУЄТЬСЯ ТУТ:
-    // ═══════════════════════════════════════════════
 ${currentCode
   .split("\n")
   .map((line) => "    " + line)
   .join("\n")}
-    // ═══════════════════════════════════════════════
 
-    fmt.Printf("[RUNTIME OK] State: IsOn=%v, Channel=%d\\n", tv.IsOn, tv.Channel)
+    fmt.Printf("[TELEMETRY] Power: %t, Channel: %d\\n", tv.IsOn, tv.Channel)
 }`,
           },
           description: {
-            ua: "Головна точка входу консольного додатку. Знімає ілюзію «магічного рядка»: кожна інструкція насправді працює всередині методу Main() на стеку викликів.",
-            en: "Primary entrypoint of the application. Demystifies magic one-liners: all code executes within static void Main() inside a call stack frame.",
-            da: "Hovedindgangspunkt for applikationen: al kode eksekveres inden i Main() på kaldestakken.",
+            ua: "Головна точка входу програми: саме тут рантайм створює об'єкт телевізора в купі (Heap) та послідовно виконує ваші інструкції.",
+            en: "Main program entrypoint: this is where runtime allocates the TV instance in Heap and sequentially runs your instructions.",
+            da: "Hovedprogrammets startpunkt: her allokeres TV-instansen i Heap, og instruktionerne udføres sekventielt.",
           },
         },
         {
-          id: "virtual-tv-cs",
-          name: codeLang === "csharp" ? "VirtualTv.cs" : "tv.go",
+          id: "tv-hardware-driver",
+          name: codeLang === "csharp" ? "TV.cs" : "tv.go",
           type: "file",
-          icon: "code",
-          badge: "Class",
+          icon: "driver",
+          badge: "Hardware",
           codeSnippet: {
-            csharp: `namespace SmartTvApp.Core;
+            csharp: `namespace SmartTvApp.Hardware;
 
-public class VirtualTV
+public class TV
 {
-    // Поля стану в оперативній пам'яті (Heap fields)
-    private bool _isOn = false;
-    private int _channel = 1;
-    private int _volume = 10;
-    private int _brightness = 50;
-    private bool _isFuseBlown = false;
+    public bool IsOn { get; private set; } = false;
+    public int Channel { get; private set; } = 1;
+    public int Volume { get; private set; } = 20;
 
-    public bool IsOn => _isOn;
-    public int Channel => _channel;
-    public int Brightness => _brightness;
-
-    public void PowerOn() => _isOn = true;
-    public void PowerOff() => _isOn = false;
-
-    public void SetChannel(int ch)
-    {
-        if (!_isOn) throw new InvalidOperationException("Device is OFF");
-        _channel = ch;
-    }
-
-    public void SetBrightness(int b)
-    {
-        if (b > 100)
-        {
-            _isFuseBlown = true;
-            throw new Exception("CATHODE_RAY_OVERLOAD: Safety fuse tripped!");
-        }
-        _brightness = b;
-    }
+    public void PowerOn() => IsOn = true;
+    public void PowerOff() => IsOn = false;
+    public void SetChannel(int ch) => Channel = ch;
+    public void VolumeUp() => Volume++;
 }`,
-            go: `package core
+            go: `package hardware
 
-import "errors"
-
-type VirtualTV struct {
-    IsOn         bool
-    Channel      int
-    Volume       int
-    Brightness   int
-    IsFuseBlown  bool
+type TV struct {
+    IsOn    bool
+    Channel int
+    Volume  int
 }
 
-func NewVirtualTV() *VirtualTV {
-    return &VirtualTV{Channel: 1, Volume: 10, Brightness: 50}
+func NewTV() *TV {
+    return &TV{IsOn: false, Channel: 1, Volume: 20}
 }
 
-func (tv *VirtualTV) PowerOn() { tv.IsOn = true }
-func (tv *VirtualTV) SetChannel(ch int) error {
-    if !tv.IsOn { return errors.New("device is OFF") }
-    tv.Channel = ch
-    return nil
-}`,
+func (t *TV) PowerOn() { t.IsOn = true }
+func (t *TV) PowerOff() { t.IsOn = false }
+func (t *TV) SetChannel(ch int) { t.Channel = ch }`,
           },
           description: {
-            ua: "Клас моделі телевізора: інкапсулює апаратний стан (живлення, канал, яскравість) та захищає поля від некоректної мутації.",
-            en: "Core domain model class: encapsulates hardware state (power, channel, brightness) and enforces hardware invariants.",
-            da: "Domænemodelklasse: indkapsler hardwaretilstand og håndhæver systeminvarianter.",
-          },
-        },
-        {
-          id: "iremotecmd-cs",
-          name: codeLang === "csharp" ? "IRemoteCommand.cs" : "command.go",
-          type: "file",
-          icon: "interface",
-          badge: "Interface",
-          codeSnippet: {
-            csharp: `namespace SmartTvApp.Core;
-
-// 🔌 КОНТРАКТ: Будь-яка кнопка пульта або плагін реалізує цей інтерфейс
-public interface IRemoteCommand
-{
-    void Execute();
-}
-
-public class PowerCommand : IRemoteCommand
-{
-    private readonly VirtualTV _tv;
-    public PowerCommand(VirtualTV tv) => _tv = tv;
-    public void Execute() => _tv.PowerOn();
-}`,
-            go: `package core
-
-// 🔌 ІНТЕРФЕЙСНИЙ КОНТРАКТ у Go
-type IRemoteCommand interface {
-    Execute()
-}
-
-type PowerCommand struct {
-    Tv *VirtualTV
-}
-
-func (c PowerCommand) Execute() {
-    c.Tv.PowerOn()
-}`,
-          },
-          description: {
-            ua: "Контракт інтерфейсу (Патерн Команда): дозволяє пульту викликати Execute() без знання того, яка саме команда підключена.",
-            en: "Interface contract (Command Pattern): enables dynamic polymorphic dispatch via Execute() without tight coupling.",
-            da: "Grænsefladekontrakt (Command Pattern): muliggør polymorf eksekvering uden tæt kobling.",
+            ua: "Клас апаратного контролера телевізора: інкапсулює внутрішній стан приладу та захищає поля від некоректних змін ззовні.",
+            en: "Hardware TV controller class: encapsulates internal state and protects fields from invalid external mutations.",
+            da: "Hardware TV-controller klasse: indkapsler intern tilstand og beskytter felter.",
           },
         },
       ],
     },
   ];
 
-  // Fintech project files
+  // POS project files
   const fintechFiles: ProjectFile[] = [
     {
-      id: "solution-root-pos",
+      id: "solution-root-fintech",
       name: "PosSolution",
       type: "folder",
       children: [
@@ -295,58 +217,55 @@ func (c PowerCommand) Execute() {
     <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>`,
-            go: `module github.com/iwannabesmart/pos-core\n\ngo 1.23`,
+            go: `module github.com/iwannabesmart/pos-terminal
+
+go 1.23`,
           },
           description: {
-            ua: "Конфігурація фінансового термінала з підвищеними вимогами до безпеки типів.",
-            en: "Fintech terminal configuration with strict type safety constraints.",
-            da: "Fintech terminalkonfiguration med strenge typesikkerhedskrav.",
+            ua: "Файл проєкту платіжного POS-термінала: містить суворі налаштування фінансової безпеки та аудиту транзакцій.",
+            en: "Payment POS terminal project file: configured with strict financial security rules and audit logging.",
+            da: "Betalingsterminal projektfil: konfigureret med strenge finansielle sikkerhedsregler.",
           },
         },
         {
-          id: "pos-program-cs",
-          name: codeLang === "csharp" ? "Program.cs" : "main.go",
+          id: "program-cs",
+          name: codeLang === "csharp" ? "CashierSession.cs" : "main.go",
           type: "file",
           icon: "code",
           badge: "Main()",
           codeSnippet: {
             csharp: `using System;
 using PosApp.Security;
-using PosApp.Gateways;
 
 namespace PosApp;
 
-public class Program
+public class CashierSession
 {
-    // 📍 ТОЧКА ВХОДУ: Обробка платіжної транзакції
     public static void Main(string[] args)
     {
-        decimal balance = 1000.0m;
-        decimal amount = 200.0m;
-        string status = "IDLE";
+        Console.WriteLine("[POS SECURE TERMINAL] Starting cashier session...");
+        decimal balance = 100.00m;
+        string status = "READY";
 
-        // ═══════════════════════════════════════════════
-        // ⚡ ВАШ КОД БІЗНЕС-ПРОЦЕСИНГУ:
-        // ═══════════════════════════════════════════════
 ${currentCode
   .split("\n")
   .map((line) => "        " + line)
   .join("\n")}
-        // ═══════════════════════════════════════════════
 
-        Console.WriteLine($"[LEDGER AUDIT] Final Balance: {balance:C2}, Status: {status}");
+        Console.WriteLine($"[LEDGER AUDIT] Balance: {balance:C}, Status: {status}");
     }
 }`,
             go: `package main
 
-import "fmt"
+import (
+    "fmt"
+)
 
 func main() {
-    balance := 1000.0
-    amount := 200.0
-    status := "IDLE"
+    fmt.Println("[POS SECURE TERMINAL] Starting cashier session...")
+    balance := 100.00
+    status := "READY"
 
-    // ⚡ ВАШ КОД БІЗНЕС-ПРОЦЕСИНГУ:
 ${currentCode
   .split("\n")
   .map((line) => "    " + line)
@@ -395,7 +314,234 @@ type IPaymentGateway interface {
     },
   ];
 
-  const rootFolder = isFintech ? fintechFiles[0] : tvFiles[0];
+  // API Forge project files
+  const apiFiles: ProjectFile[] = [
+    {
+      id: "solution-root-api",
+      name: "ApiForgeSolution",
+      type: "folder",
+      children: [
+        {
+          id: "api-csproj",
+          name: "ApiForgeServer.csproj",
+          type: "file",
+          icon: "config",
+          badge: "Web SDK",
+          codeSnippet: {
+            csharp: `<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+</Project>`,
+            go: `module github.com/iwannabesmart/api-forge
+
+go 1.23
+
+require (
+    // Standard net/http standard library
+)`,
+          },
+          description: {
+            ua: "Файл конфігурації веб-сервера: використовує Microsoft.NET.Sdk.Web для створення високопродуктивного RESTful Kestrel сервера.",
+            en: "Web server configuration file utilizing ASP.NET Core Web SDK for high-performance Kestrel API.",
+            da: "Webserver konfigurationsfil, der benytter ASP.NET Core Web SDK.",
+          },
+        },
+        {
+          id: "program-cs",
+          name: codeLang === "csharp" ? "Program.cs" : "main.go",
+          type: "file",
+          icon: "code",
+          badge: "Endpoints",
+          codeSnippet: {
+            csharp: `var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+// ── Register Minimal API Endpoints ──
+${currentCode}
+
+app.Run("http://0.0.0.0:8080");`,
+            go: `package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    // ── Register HTTP Handlers ──
+${currentCode}
+
+    fmt.Println("API Server listening on :8080...")
+    http.ListenAndServe(":8080", nil)
+}`,
+          },
+          description: {
+            ua: "Точка входу API: реєстрація маршрутів (Endpoints), обробників запитів та запуск Kestrel HTTP сервера на порту 8080.",
+            en: "API Server entrypoint: registers HTTP route endpoints, handlers, and starts listening on port 8080.",
+            da: "API-serverens startpunkt: registrerer ruter og starter HTTP-lytter.",
+          },
+        },
+        {
+          id: "order-dto",
+          name: codeLang === "csharp" ? "OrderDto.cs" : "order_dto.go",
+          type: "file",
+          icon: "data",
+          badge: "DTO Contract",
+          codeSnippet: {
+            csharp: `namespace ApiForge.Models;
+
+public record OrderDto(
+    string Item,
+    int Quantity
+);`,
+            go: `package models
+
+type OrderDto struct {
+    Item     string \`json:"item"\`
+    Quantity int    \`json:"quantity"\`
+}`,
+          },
+          description: {
+            ua: "Data Transfer Object (DTO): контракт структури даних, що передається через мережевий кабель між клієнтом та сервером.",
+            en: "Data Transfer Object (DTO): wire contract defining the JSON payload shape between client and server.",
+            da: "Data Transfer Object (DTO): netværkskontrakt for JSON-nyttelast.",
+          },
+        },
+      ],
+    },
+  ];
+
+  // Git Time Machine project files
+  const gitFiles: ProjectFile[] = [
+    {
+      id: "solution-root-git",
+      name: "GitRepositoryRoot",
+      type: "folder",
+      children: [
+        {
+          id: "git-head",
+          name: ".git/HEAD",
+          type: "file",
+          icon: "config",
+          badge: "Ref Pointer",
+          codeSnippet: {
+            csharp: `ref: refs/heads/main`,
+            go: `ref: refs/heads/main`,
+          },
+          description: {
+            ua: "Вказівник HEAD: містить посилання на активну гілку або прямий хеш коміту (detached HEAD).",
+            en: "HEAD reference pointer: designates the current checked-out branch or commit hash.",
+            da: "HEAD reference pointer: angiver den aktuelt udtjekkede gren.",
+          },
+        },
+        {
+          id: "program-cs",
+          name: "device.config",
+          type: "file",
+          icon: "code",
+          badge: "Tracked File",
+          codeSnippet: {
+            csharp: `# Physical Device Configuration
+baudrate=115200
+parity=none
+device_id=RADAR-01
+firmware_version=2.4.0`,
+            go: `# Physical Device Configuration
+baudrate=115200
+parity=none
+device_id=RADAR-01
+firmware_version=2.4.0`,
+          },
+          description: {
+            ua: "Файл конфігурації у робочому дереві: саме тут відбуваються зміни, фіксуються коміти та виникають конфлікти злиття.",
+            en: "Tracked working tree file: subject to commit snapshots, branch divergences, and merge conflicts.",
+            da: "Sporet arbejdsfil: underlagt commits, forgreninger og flettekonflikter.",
+          },
+        },
+      ],
+    },
+  ];
+
+  // Cyber Bandit project files
+  const banditFiles: ProjectFile[] = [
+    {
+      id: "solution-root-bandit",
+      name: "BanditCyberLab",
+      type: "folder",
+      children: [
+        {
+          id: "env-file",
+          name: ".env",
+          type: "file",
+          icon: "config",
+          badge: "Secrets",
+          codeSnippet: {
+            csharp: `API_SECRET=super_secret_production_key_vault_992
+DATABASE_URL=Server=127.0.0.1;Port=5432;Database=bandit;`,
+            go: `API_SECRET=super_secret_production_key_vault_992
+DATABASE_URL=Server=127.0.0.1;Port=5432;Database=bandit;`,
+          },
+          description: {
+            ua: "Змінні середовища: безпечне сховище секретів, яке ніколи не має потрапляти у Git репозиторій.",
+            en: "Environment secrets file: safe credential storage protected from source code repository commits.",
+            da: "Miljøvariabler: sikker hemmelighedsopbevaring adskilt fra versionsstyring.",
+          },
+        },
+        {
+          id: "program-cs",
+          name: codeLang === "csharp" ? "SecurityMiddleware.cs" : "middleware.go",
+          type: "file",
+          icon: "code",
+          badge: "Defense",
+          codeSnippet: {
+            csharp: `using System.Security.Cryptography;
+using Microsoft.AspNetCore.Http;
+
+namespace SecurityApp;
+
+public class SecurityMiddleware
+{
+    public static void Configure(WebApplication app)
+    {
+${currentCode}
+    }
+}`,
+            go: `package security
+
+import (
+    "crypto/hmac"
+    "crypto/sha256"
+    "net/http"
+)
+
+// Defense in depth security pipeline
+${currentCode}`,
+          },
+          description: {
+            ua: "Конвеєр безпеки: перевірка HMAC підписів, лімітування запитів та захист від атак ін'єкцій.",
+            en: "Defense middleware pipeline: HMAC verification, rate limiting, and SQL injection barriers.",
+            da: "Sikkerhedsmiddleware: HMAC-verifikation og hastighedsbegrænsning.",
+          },
+        },
+      ],
+    },
+  ];
+
+  const rootFolder =
+    currentStationId === "api"
+      ? apiFiles[0]
+      : currentStationId === "git"
+      ? gitFiles[0]
+      : currentStationId === "bandit"
+      ? banditFiles[0]
+      : isFintech || currentStationId === "pos"
+      ? fintechFiles[0]
+      : tvFiles[0];
+
   const allFiles = rootFolder.children || [];
 
   const selectedFile =
@@ -420,52 +566,52 @@ type IPaymentGateway interface {
     <>
       {/* ── Top Inlined Breadcrumbs & Solution Explorer Trigger ── */}
       <div
-        className={`flex items-center justify-between px-3 py-1.5 rounded-xl border border-border/40 bg-card/60 backdrop-blur-md text-xs font-mono select-none ${className}`}
+        className={`flex items-center justify-between px-3 py-1.5 rounded-xl border border-slate-800 bg-[#0A0E17] text-xs font-mono select-none shadow-sm ${className}`}
       >
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar text-muted-foreground">
-          <span className="text-primary/90 font-bold flex items-center gap-1">
-            <FolderTree className="w-3.5 h-3.5" />
-            {isFintech ? "PosSolution" : "SmartTvSolution"}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar text-slate-400">
+          <span className="text-emerald-400 font-bold flex items-center gap-1">
+            <FolderTree className="w-3.5 h-3.5 text-emerald-400" />
+            {rootFolder.name}
           </span>
-          <ChevronRight className="w-3 h-3 opacity-40 shrink-0" />
-          <span className="text-foreground font-semibold flex items-center gap-1">
-            <FileCode className="w-3.5 h-3.5 text-blue-400" />
+          <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
+          <span className="text-slate-200 font-semibold flex items-center gap-1">
+            <FileCode className="w-3.5 h-3.5 text-cyan-400" />
             {codeLang === "csharp" ? "Program.cs" : "main.go"}
           </span>
-          <ChevronRight className="w-3 h-3 opacity-40 shrink-0" />
-          <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold text-[10px]">
-            {codeLang === "csharp" ? "static void Main(args)" : "func main()"}
+          <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
+          <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px]">
+            {codeLang === "csharp" ? "entrypoint" : "package main"}
           </span>
         </div>
 
         <button
           onClick={handleOpenModal}
           title={t("playground.solutionExplorer", "Оглядач проєкту")}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer ml-2 shrink-0"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600/50 text-emerald-300 text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer ml-2 shrink-0 shadow-sm"
         >
-          <FolderTree className="w-3.5 h-3.5" />
+          <FolderTree className="w-3.5 h-3.5 text-emerald-400" />
           <span>{t("playground.solutionExplorer", "Оглядач проєкту")}</span>
         </button>
       </div>
 
-      {/* ── Blueprint Solution Drawer / Modal ── */}
+      {/* ── Blueprint Solution Drawer / Modal (SOLID 100% OPAQUE BACKGROUND) ── */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-background/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-5xl h-[85vh] max-h-[720px] rounded-2xl border border-border/80 bg-card shadow-2xl flex flex-col overflow-hidden font-sans">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 font-sans">
+          <div className="relative w-full max-w-5xl h-[85vh] max-h-[720px] rounded-2xl border-2 border-slate-700/80 bg-[#0F141C] shadow-[0_0_60px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden text-slate-100">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/60 bg-muted/30">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-[#161D27]">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <div className="w-8 h-8 rounded-xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
                   <FolderTree className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-mono text-sm font-bold text-foreground flex items-center gap-2">
+                  <h3 className="font-mono text-sm font-bold text-slate-100 flex items-center gap-2">
                     <span>{rootFolder.name}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-semibold">
                       {codeLang === "csharp" ? "C# (.NET 9.0)" : "Go 1.23"}
                     </span>
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-slate-400 font-sans">
                     {t(
                       "playground.inspectArchitecture",
                       "Архітектура та файли реального комерційного проєкту"
@@ -476,22 +622,22 @@ type IPaymentGateway interface {
 
               <button
                 onClick={handleCloseModal}
-                className="w-8 h-8 rounded-lg hover:bg-muted border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                className="w-8 h-8 rounded-lg hover:bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-100 transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Content: 2-column layout */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden">
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden bg-[#0B0E14]">
               {/* Left Column: File Tree */}
-              <div className="md:col-span-4 border-r border-border/60 p-3 bg-muted/10 overflow-y-auto space-y-1">
-                <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted-foreground px-2 py-1 flex items-center justify-between">
+              <div className="md:col-span-4 border-r border-slate-800 p-3 bg-[#0D1117] overflow-y-auto space-y-1">
+                <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 px-2 py-1 flex items-center justify-between">
                   <span>FILES & CLASSES</span>
-                  <span className="text-[10px] text-primary">SOLUTION EXPLORER</span>
+                  <span className="text-[10px] text-emerald-400">SOLUTION EXPLORER</span>
                 </div>
 
-                <div className="space-y-0.5 font-mono text-xs">
+                <div className="space-y-1 font-mono text-xs">
                   {allFiles.map((file) => {
                     const isSelected = file.id === selectedFile.id;
                     return (
@@ -500,8 +646,8 @@ type IPaymentGateway interface {
                         onClick={() => handleSelectFile(file.id)}
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-primary/15 text-primary font-bold border border-primary/30 shadow-xs"
-                            : "hover:bg-muted/50 text-foreground/80 border border-transparent"
+                            ? "bg-emerald-950/70 text-emerald-300 font-bold border border-emerald-600/60 shadow-sm"
+                            : "hover:bg-slate-850 text-slate-300 border border-transparent hover:border-slate-800"
                         }`}
                       >
                         <div className="flex items-center gap-2 truncate">
@@ -509,17 +655,19 @@ type IPaymentGateway interface {
                             <FileText className="w-4 h-4 text-emerald-400 shrink-0" />
                           ) : file.icon === "interface" ? (
                             <Layers className="w-4 h-4 text-purple-400 shrink-0" />
+                          ) : file.icon === "data" ? (
+                            <Database className="w-4 h-4 text-amber-400 shrink-0" />
                           ) : (
-                            <FileCode className="w-4 h-4 text-blue-400 shrink-0" />
+                            <FileCode className="w-4 h-4 text-cyan-400 shrink-0" />
                           )}
                           <span className="truncate">{file.name}</span>
                         </div>
                         {file.badge && (
                           <span
                             className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase shrink-0 ${
-                              file.badge === "Main()"
-                                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                                : "bg-muted text-muted-foreground"
+                              file.badge === "Main()" || file.badge === "Endpoints"
+                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                                : "bg-slate-800 text-slate-400"
                             }`}
                           >
                             {file.badge}
@@ -531,7 +679,7 @@ type IPaymentGateway interface {
                 </div>
 
                 {/* Educational Callout inside File Tree */}
-                <div className="mt-4 p-3 rounded-xl border border-amber-500/30 bg-amber-500/5 text-amber-300 text-xs space-y-1.5">
+                <div className="mt-4 p-3 rounded-xl border border-amber-500/40 bg-amber-950/30 text-amber-300 text-xs space-y-1.5 font-sans">
                   <div className="flex items-center gap-1.5 font-bold">
                     <Cpu className="w-4 h-4 text-amber-400 shrink-0" />
                     <span>Зняття ілюзії магічного коду:</span>
@@ -552,20 +700,20 @@ type IPaymentGateway interface {
               </div>
 
               {/* Right Column: Code Viewer & Context Explanation */}
-              <div className="md:col-span-8 flex flex-col overflow-hidden bg-background/50">
+              <div className="md:col-span-8 flex flex-col overflow-hidden bg-[#06090E]">
                 {/* File Header Tab */}
-                <div className="flex items-center justify-between px-4 py-2 border-b border-border/60 bg-muted/20 font-mono text-xs">
-                  <div className="flex items-center gap-2 text-foreground font-semibold">
-                    <FileCode className="w-4 h-4 text-primary" />
+                <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-[#161D27] font-mono text-xs">
+                  <div className="flex items-center gap-2 text-slate-200 font-semibold">
+                    <FileCode className="w-4 h-4 text-emerald-400" />
                     <span>{selectedFile.name}</span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground font-mono">
+                  <span className="text-[10px] text-slate-400 font-mono">
                     UTF-8 • {codeLang.toUpperCase()}
                   </span>
                 </div>
 
-                {/* Code Container */}
-                <div className="flex-1 p-4 overflow-y-auto font-mono text-xs leading-relaxed bg-black/40 text-emerald-300 select-text">
+                {/* Code Container (Solid opaque dark background) */}
+                <div className="flex-1 p-4 overflow-y-auto font-mono text-xs leading-relaxed bg-[#05080E] text-emerald-300 select-text border-b border-slate-800">
                   <pre className="whitespace-pre-wrap">
                     <code>
                       {codeLang === "csharp"
@@ -576,13 +724,13 @@ type IPaymentGateway interface {
                 </div>
 
                 {/* File Didactic Summary Footer */}
-                <div className="p-3 border-t border-border/60 bg-muted/20 text-xs text-muted-foreground flex items-center justify-between">
+                <div className="p-3 bg-[#131922] text-xs text-slate-300 flex items-center justify-between font-sans">
                   <span className="leading-relaxed">
                     {selectedFile?.description?.[currentLang] || selectedFile?.description?.ua || ""}
                   </span>
                   <button
                     onClick={handleCloseModal}
-                    className="px-3 py-1 rounded-lg bg-primary text-primary-foreground font-bold font-mono text-xs hover:bg-primary/90 transition-all cursor-pointer shrink-0 ml-3"
+                    className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs transition-all cursor-pointer shrink-0 ml-3"
                   >
                     Зрозуміло
                   </button>

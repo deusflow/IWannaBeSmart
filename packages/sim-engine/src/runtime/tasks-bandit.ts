@@ -16,6 +16,8 @@ export interface BanditTask {
   conceptKey: string;
   descKey: string;
   hintKey: string;
+  simpleExplanationKey?: string;
+  engineeringKey?: string;
   successKey: string;
   flag: string;
   targetCode: {
@@ -44,6 +46,8 @@ export const BANDIT_TASKS: BanditTask[] = [
     conceptKey: "bandit.tasks.task1.concept",
     descKey: "bandit.tasks.task1.desc",
     hintKey: "bandit.tasks.task1.hint",
+    simpleExplanationKey: "bandit.tasks.task1.desc",
+    engineeringKey: "bandit.tasks.task1.concept",
     successKey: "bandit.tasks.task1.success",
     flag: BANDIT_FLAGS[1],
     targetCode: {

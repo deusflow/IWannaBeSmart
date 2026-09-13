@@ -321,6 +321,67 @@ export const theoryUa: TheoryDictionary = {
       notes: "Кожна транзакція в банку має бути строго ідемпотентною або списувати кошти строго через єдину агреговану проводку (Single-source mutation).",
       diff: "У C#: decimal totalAmount = amount + fee; balance -= totalAmount;. У Go: totalAmount := amount + fee \\n balance -= totalAmount.",
     },
+    "task-api-1-heartbeat": {
+      concept: "Heartbeat перевірка доступності сервера через протокол HTTP GET /health.",
+      tokens: [
+        { token: "app.MapGet", role: "Route Mapping", explanation: "Реєструє HTTP GET метод у маршрутизаторі Kestrel." },
+        { token: '"/health"', role: "URL Route Path", explanation: "Шлях ендпоінта, на який клієнти надсилають HTTP запити." },
+        { token: "Results.Ok()", role: "HTTP Status 200", explanation: "Повертає стандартну HTTP відповідь з кодом 200 OK та JSON серіалізацією." },
+      ],
+      notes: "Healthcheck ендпоінти не повинні звертатися до важких баз даних або виконувати складні обчислення.",
+      diff: "У C#: app.MapGet(\"/health\", () => Results.Ok(...));. У Go: http.HandleFunc(\"/health\", func(w, r) { w.WriteHeader(http.StatusOK) }).",
+    },
+    "task-api-2-path-params": {
+      concept: "Параметри маршруту (URL Route Parameters) та захисна перевірка наявності 404 Guard.",
+      tokens: [
+        { token: "{id}", role: "Route Parameter", explanation: "Динамічний ідентифікатор у URL, який витягується фреймворком." },
+        { token: "repo.Find(id)", role: "Data Lookup", explanation: "Пошук сутності у репозиторії за отриманим ідентифікатором." },
+        { token: "Results.NotFound()", role: "HTTP Status 404", explanation: "Повертає статус 404 Not Found, якщо ресурс не існує." },
+      ],
+      notes: "404 Guard запобігає падінню сервера з кодом 500 через звернення до порожніх вказівників (null).",
+      diff: "У C#: app.MapGet(\"/api/devices/{id}\", (string id) => ...). У Go: strings.TrimPrefix(r.URL.Path, \"/api/devices/\").",
+    },
+    "task-api-3-dto-validation": {
+      concept: "Обробка вхідного корисного навантаження (Payload) та валідація полів DTO з кодами 400 та 201.",
+      tokens: [
+        { token: "app.MapPost", role: "HTTP POST", explanation: "Слухає запити на створення нового ресурсу." },
+        { token: "CreateOrderDto dto", role: "Model Binding", explanation: "Автоматична десеріалізація JSON тіла запиту у строго типізований DTO об'єкт." },
+        { token: "Results.BadRequest()", role: "HTTP Status 400", explanation: "Відхиляє некоректні дані, якщо обов'язкові поля порожні." },
+        { token: "Results.Created()", role: "HTTP Status 201", explanation: "Підтверджує успішне створення нового ресурсу." },
+      ],
+      notes: "Валідація DTO завжди повинна відбуватися до збереження в базу даних.",
+      diff: "У C#: Results.Created(uri, order). У Go: w.WriteHeader(http.StatusCreated); json.NewEncoder(w).Encode(order).",
+    },
+    "task-api-4-bearer-auth": {
+      concept: "Безпека та авторизація через заголовок Authorization з Bearer токеном.",
+      tokens: [
+        { token: "Headers.Authorization", role: "HTTP Header", explanation: "Стандартний заголовок протоколу HTTP для передачі облікових даних." },
+        { token: "StartsWith(\"Bearer \")", role: "Scheme Check", explanation: "Перевірка стандартної схеми токенів авторизації Bearer." },
+        { token: "Results.Unauthorized()", role: "HTTP Status 401", explanation: "Блокує неавторизований запит без доступу до приватних ресурсів." },
+      ],
+      notes: "401 Unauthorized означає відсутність валідного токена, 403 Forbidden — токен є, але прав недостатньо.",
+      diff: "У C#: ctx.Request.Headers.Authorization.ToString(). У Go: r.Header.Get(\"Authorization\").",
+    },
+    "task-api-5-client-consumer": {
+      concept: "Розробка HTTP клієнта, виконання запиту та десеріалізація отриманого JSON.",
+      tokens: [
+        { token: "HttpClient", role: "HTTP Client", explanation: "Клас для відправки HTTP запитів та отримання відповідей." },
+        { token: "EnsureSuccessStatusCode()", role: "Status Check", explanation: "Переконується що відповідь лежить у діапазоні 200..299, інакше викидає виняток." },
+        { token: "ReadFromJsonAsync<T>()", role: "JSON Deserializer", explanation: "Перетворює отримані байти JSON у пам'яті на C# структуру." },
+      ],
+      notes: "У Go обов'язково закривайте потік тіла відповіді через defer resp.Body.Close().",
+      diff: "У C#: await client.GetAsync(url). У Go: resp, err := http.Get(url).",
+    },
+    "task-api-6-resilient-retry": {
+      concept: "Стійкість до мережевих збоїв: патерн Retry з експоненційною затримкою.",
+      tokens: [
+        { token: "for (attempt = 1..3)", role: "Retry Loop", explanation: "Обмежує максимальну кількість спроб повтору, запобігаючи нескінченним циклам." },
+        { token: "catch (HttpRequestException)", role: "Fault Isolation", explanation: "Перехоплює лише тимчасові помилки мережі, ігноруючи бізнес-помилки." },
+        { token: "Task.Delay(100 * attempt)", role: "Exponential Backoff", explanation: "Збільшує паузу між спробами, даючи лінії зв'язку час відновитися." },
+      ],
+      notes: "Ніколи не робіть повторні запити без затримки — це може викликати лавину відмов (Retry Storm).",
+      diff: "У C#: await Task.Delay(ms). У Go: time.Sleep(duration).",
+    },
   },
 };
 
