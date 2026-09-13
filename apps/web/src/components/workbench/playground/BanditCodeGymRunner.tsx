@@ -4,13 +4,12 @@
  * Trace -> Cloze -> Sprint -> Architecture for Tasks 1..6 (C# & Go)
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Star,
   Trophy,
   X,
-  Shield,
   Flag,
 } from "lucide-react";
 import {
@@ -272,61 +271,8 @@ export const BanditCodeGymRunner: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Round Selector & Explorer Bar ────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#070B12] border border-slate-800 p-3 rounded-xl">
-        <div className="flex items-center gap-2">
-          {[
-            { round: 1, label: t("codegym.round1", "Round 1: Trace"), desc: "Type matching code line-by-line" },
-            { round: 2, label: t("codegym.round2", "Round 2: Cloze"), desc: "Fill in security critical blanks" },
-            { round: 3, label: t("codegym.round3", "Round 3: Sprint"), desc: "Speed muscle memory sprint" },
-            { round: 4, label: t("codegym.round4", "Round 4: Architecture"), desc: "DevOps & Security Architecture" },
-          ].map((r) => {
-            const isActive = activeRound === r.round;
-            return (
-              <button
-                key={r.round}
-                onClick={() => {
-                  audioFx.playKeyClick();
-                  setActiveRound(r.round as 1 | 2 | 3 | 4);
-                }}
-                className={`px-3 py-1.5 text-xs rounded-lg font-bold transition-all ${
-                  isActive
-                    ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
-                    : "bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800"
-                }`}
-                title={r.desc}
-              >
-                {r.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Timer status if Round 3 */}
-        {activeRound === 3 && (
-          <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-400">Time:</span>
-            <span
-              className={`font-bold ${
-                timeLeft <= 5 ? "text-rose-400 animate-pulse" : "text-amber-400"
-              }`}
-            >
-              {timeLeft}s
-            </span>
-            {!isTimerRunning && (
-              <button
-                onClick={handleStartSprint}
-                className="px-2 py-0.5 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded text-xs transition-colors"
-              >
-                Start Sprint
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* ── Task Info Box ─────────────────────────────────────────────── */}
-      <div className="bg-[#070B12] border border-emerald-950 p-3 rounded-xl space-y-1">
+      {/* ── Task Info & Mode Tabs ───────────────────────────────────── */}
+      <div className="bg-[#070B12] border border-emerald-950 p-4 rounded-xl space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 bg-emerald-950 border border-emerald-800 text-emerald-300 text-[10px] font-bold rounded">
@@ -346,77 +292,127 @@ export const BanditCodeGymRunner: React.FC = () => {
         <p className="text-xs text-slate-400 leading-relaxed">
           {t(currentTask.descKey, "Implement robust defensive code to pass penetration testing.")}
         </p>
-      </div>
 
-      {/* ── Editor Container with Project Explorer ───────────────────── */}
-      <div className="bg-[#05080E] border border-emerald-950 rounded-xl overflow-hidden shadow-2xl flex flex-col">
-        <ProjectExplorerBar
-          fileName={fileName}
-          codeLang={codeLang}
-          activeRound={activeRound}
-          gutterWidth={gutterWidth}
-          roundStats={roundStats}
-          onResetRound={handleResetRound}
-          onShowHint={() => setShowTooltip(true)}
-        />
-
-        <div ref={editorContainerRef} className="p-3 min-h-[280px]">
-          <CodeGymEditor
-            codeLang={codeLang}
-            activeRound={activeRound}
-            targetCode={targetCode}
-            clozeTemplate={clozeTemplate}
-            typedCode={typedCode}
-            onCodeChange={handleCodeChange}
-            traceCharsMatched={traceCharsMatched}
-            gutterWidth={gutterWidth}
-          />
-        </div>
-
-        {/* Feedback / Error banner */}
-        {feedback && (
-          <div
-            className={`p-3 border-t text-xs font-mono flex items-center justify-between ${
-              hasError
-                ? "bg-rose-950/60 border-rose-900 text-rose-300"
-                : "bg-emerald-950/60 border-emerald-900 text-emerald-300"
-            }`}
-          >
-            <span>{feedback}</span>
-            <button onClick={() => setFeedback("")}>
-              <X className="w-4 h-4 text-slate-400 hover:text-slate-200" />
+        {/* Parchment Tooltip popover */}
+        {showTooltip && (
+          <div className="p-3 rounded-xl bg-slate-900 border border-emerald-800 text-slate-200 text-xs font-mono leading-relaxed shadow-sm animate-in fade-in flex items-start justify-between gap-2">
+            <div className="flex-1">
+              <div className="font-mono font-bold text-[10px] uppercase text-emerald-400 mb-1">
+                {t("common.simpleExplanation", "Підказка безпеки")}:
+              </div>
+              <p>{t(currentTask.hintKey, currentTask.descKey)}</p>
+            </div>
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setShowTooltip(false);
+              }}
+              className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer shrink-0"
+              title={t("common.close", "Закрити")}
+              aria-label={t("common.close", "Закрити")}
+            >
+              <X size={14} />
             </button>
           </div>
         )}
 
-        {/* Bottom Verify Action Bar */}
-        <div className="flex items-center justify-between p-3 bg-slate-950 border-t border-slate-900">
-          <button
-            onClick={handleResetRound}
-            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded transition-colors"
-          >
-            Reset Round
-          </button>
+        {/* 4-Round Mode Selector Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          {[
+            { round: 1, label: t("codegym.round1Badge", "Раунд 1"), desc: t("codegym.round1DescShort", "Сліпий трафарет") },
+            { round: 2, label: t("codegym.round2Badge", "Раунд 2"), desc: t("codegym.round2DescShort", "Прогалини (Cloze)") },
+            { round: 3, label: t("codegym.round3Badge", "Раунд 3"), desc: `${t("codegym.round3DescShort", "Спринт")} (${sprintLimit}с)` },
+            { round: 4, label: t("codegym.round4Badge", "Раунд 4"), desc: t("codegym.round4DescShort", "Варіація") },
+          ].map(({ round, label, desc }) => {
+            const isActive = activeRound === round;
+            const isUnlocked = round === 1 || starsEarned >= round - 1;
 
-          <div className="flex items-center gap-2">
-            {roundCompleted && nextTask && (
+            return (
               <button
-                onClick={() => handleSelectTask(nextTask.id)}
-                className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded transition-colors"
+                key={round}
+                disabled={!isUnlocked}
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setActiveRound(round as 1 | 2 | 3 | 4);
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
+                  isActive
+                    ? "bg-[#10B981] border-[#10B981] text-slate-950 font-bold shadow-md"
+                    : isUnlocked
+                    ? "bg-slate-950 hover:bg-slate-900 border-slate-800 text-slate-200 hover:border-emerald-700/60"
+                    : "bg-slate-950/40 border-slate-900 text-slate-600 cursor-not-allowed opacity-50"
+                }`}
               >
-                Next Task (T{nextTask.order}) -&gt;
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-extrabold text-[11px] uppercase">
+                    {label}
+                  </span>
+                  {starsEarned >= round && (
+                    <span className="text-amber-400 text-xs">
+                      {round === 4 ? "💎" : "⭐"}
+                    </span>
+                  )}
+                </div>
+                <div className={`text-[10px] truncate mt-0.5 ${isActive ? "text-slate-900 font-semibold" : "text-slate-400"}`}>
+                  {desc}
+                </div>
               </button>
-            )}
-            <button
-              onClick={handleVerify}
-              className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded transition-colors shadow-[0_0_12px_rgba(16,185,129,0.4)] flex items-center gap-1.5"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Verify Security Defense</span>
-            </button>
-          </div>
+            );
+          })}
         </div>
       </div>
+
+      {/* Project Explorer Bar */}
+      <ProjectExplorerBar
+        currentCode={typedCode || targetCode}
+        codeLang={codeLang}
+        isFintech={false}
+      />
+
+      {/* Unified CodeGymEditor Component */}
+      <CodeGymEditor
+        currentTask={{
+          ...currentTask,
+          initialCode: {
+            csharp: currentTask.targetCode.csharp,
+            go: currentTask.targetCode.go,
+          },
+          clozeTemplate: currentTask.clozeTemplate,
+        }}
+        codeLang={codeLang}
+        onChangeLang={setCodeLang}
+        activeRound={activeRound}
+        fileName={fileName}
+        typedCode={typedCode}
+        onChangeCode={handleCodeChange}
+        targetCode={targetCode}
+        clozeTemplate={clozeTemplate}
+        roundCompleted={roundCompleted}
+        hasError={hasError}
+        feedback={feedback}
+        timeLeft={timeLeft}
+        isTimerRunning={isTimerRunning}
+        roundStats={roundStats}
+        traceCharsMatched={traceCharsMatched}
+        gutterWidth={gutterWidth}
+        editorContainerRef={editorContainerRef}
+        showTransferHint={showTransferHint}
+        onToggleTransferHint={() => setShowTransferHint((prev) => !prev)}
+        onResetRound={handleResetRound}
+        onStartSprint={handleStartSprint}
+        onVerify={handleVerify}
+        onAdvanceRound={() => {
+          audioFx.playRelayClick();
+          setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
+        }}
+        onNextTask={() => {
+          if (nextTask) {
+            audioFx.playRelayClick();
+            handleSelectTask(nextTask.id);
+          }
+        }}
+        nextTaskAvailable={Boolean(nextTask)}
+      />
     </div>
   );
 };

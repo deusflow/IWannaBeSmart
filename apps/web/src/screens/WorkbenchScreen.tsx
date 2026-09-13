@@ -81,6 +81,8 @@ export const WorkbenchScreen: React.FC = () => {
     setApiVictoryModalOpen,
     isGitVictoryModalOpen,
     setGitVictoryModalOpen,
+    isBanditVictoryModalOpen,
+    setBanditVictoryModalOpen,
     currentStationId,
     setCurrentStationId,
     currentView,
@@ -590,6 +592,13 @@ export const WorkbenchScreen: React.FC = () => {
       <GitStationVictoryModal
         isOpen={isGitVictoryModalOpen}
         onClose={() => setGitVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 6: Cyber Bandit Lab Station Victory Modal */}
+      <BanditStationVictoryModal
+        isOpen={isBanditVictoryModalOpen}
+        onClose={() => setBanditVictoryModalOpen(false)}
         xp={xp}
       />
     </div>

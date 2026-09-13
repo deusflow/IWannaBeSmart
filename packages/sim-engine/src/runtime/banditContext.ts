@@ -195,7 +195,7 @@ export function getInitialBanditFiles(level: number): Record<string, BanditFile>
 /**
  * Creates sample packet for MITM interception
  */
-export function createTransitPacket(level: number): BanditPacket {
+export function createTransitPacket(_level = 1): BanditPacket {
   const bodyObj = {
     orderId: "ORD-942",
     item: "Quantum Cryptographic Key",

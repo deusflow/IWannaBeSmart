@@ -7,7 +7,6 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
-  Award,
   Download,
   ArrowRight,
   X,

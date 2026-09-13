@@ -5,7 +5,6 @@
 
 import type { StateCreator } from "zustand";
 import {
-  type BanditState,
   type DefenseStatus,
   type SqlInjectionResult,
   type RateLimitResult,
@@ -17,7 +16,6 @@ import {
   executeSqlAuthQuery,
   simulateRateLimitRequest,
   toggleBanditDefense,
-  BANDIT_FLAGS,
 } from "@iw/sim-engine";
 import { audioFx } from "../../utils/audioFx";
 import type { WorkbenchStore, BanditSlice } from "../types";

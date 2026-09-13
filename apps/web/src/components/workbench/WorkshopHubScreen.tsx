@@ -12,7 +12,6 @@ import {
   Award,
   CheckCircle2,
   ShieldCheck,
-  Shield,
   Cpu,
   ChevronDown,
   ChevronUp,
@@ -35,6 +34,7 @@ export const WorkshopHubScreen: React.FC = () => {
     setPosVictoryModalOpen,
     setApiVictoryModalOpen,
     setGitVictoryModalOpen,
+    setBanditVictoryModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
