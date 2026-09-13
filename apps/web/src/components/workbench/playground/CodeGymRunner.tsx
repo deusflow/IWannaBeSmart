@@ -543,6 +543,7 @@ export const CodeGymRunner: React.FC = () => {
         currentCode={typedCode || targetCode}
         codeLang={codeLang}
         isFintech={true}
+        stationId="pos"
       />
 
       {/* Unified CodeGymEditor Component */}

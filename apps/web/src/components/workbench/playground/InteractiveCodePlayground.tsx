@@ -733,6 +733,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         currentCode={typedCode || targetCode}
         codeLang={codeLang}
         isFintech={false}
+        stationId="tv"
       />
 
       {/* Unified CodeGymEditor Component */}

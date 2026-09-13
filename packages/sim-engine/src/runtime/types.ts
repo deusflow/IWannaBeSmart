@@ -33,6 +33,18 @@ export interface RuntimeResult {
   mentorFeedback?: string;
 }
 
+export type LocalizedText = string | { ua: string; en: string; da: string };
+
+export function resolveLocalizedText(
+  val: LocalizedText | undefined,
+  lang: string = "ua"
+): string {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  const targetLang = lang === "en" ? "en" : lang === "da" ? "da" : "ua";
+  return val[targetLang] || val.ua || val.en || "";
+}
+
 export interface WorkedExample {
   /** Такт 1: Готовий еталонний код */
   sampleCode: {
@@ -42,10 +54,10 @@ export interface WorkedExample {
   /** Такт 1: Лог у терміналі та реакція апаратного приладу */
   demonstrationLog: {
     terminal: string[];
-    hardwareEffect: string;
+    hardwareEffect: LocalizedText;
   };
   /** Такт 1: Покрокове пояснення (1-2 речення, що сталося) */
-  explanation: string;
+  explanation: LocalizedText;
   /** Такт 2: Трафарет з пропусками */
   clozeExercise: {
     csharp: string;
@@ -53,8 +65,8 @@ export interface WorkedExample {
   } | string;
   /** Такт 3: Бойове завдання зі зміненою умовою без підказок */
   finalChallenge: {
-    prompt: string;
-    hint?: string;
+    prompt: LocalizedText;
+    hint?: LocalizedText;
     targetCode: {
       csharp: string;
       go: string;

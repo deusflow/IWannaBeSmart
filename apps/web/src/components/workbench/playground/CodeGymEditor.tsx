@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import CodeMirror from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { EditorView } from "@codemirror/view";
 import { cpp } from "@codemirror/lang-cpp";
 import { go } from "@codemirror/lang-go";
 import {
@@ -82,8 +83,24 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
   const { t, i18n } = useTranslation();
 
   const extensions = useMemo(() => {
-    return codeLang === "go" ? [go()] : [cpp()];
-  }, [codeLang]);
+    const langExt = codeLang === "go" ? go() : cpp();
+    if (activeRound === 1 && !currentTask.isBugfixTask) {
+      const transparentTheme = EditorView.theme({
+        "&": {
+          backgroundColor: "transparent !important",
+        },
+        ".cm-gutters": {
+          backgroundColor: "#18191C !important",
+          borderRight: "1px solid #2B2D33",
+        },
+        ".cm-content": {
+          caretColor: "#38bdf8",
+        },
+      });
+      return [langExt, transparentTheme];
+    }
+    return [langExt];
+  }, [codeLang, activeRound, currentTask.isBugfixTask]);
 
   return (
     <div className="w-full rounded-2xl overflow-hidden border border-[#2B2D33] shadow-lg bg-[#1E1E22] flex flex-col">
@@ -160,13 +177,100 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
         </div>
       </div>
 
-      {/* ── Round 4: Transfer Mission Prompt Banner ── */}
+      {/* ── Round 1: TRACE Didactic Banner & Reference Card (GRR Tact 1) ── */}
+      {activeRound === 1 && !currentTask.isBugfixTask && (
+        <div className="px-4 py-3 bg-[#141820] border-b border-[#2B2D33] text-ink-light space-y-2.5 select-none">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold uppercase tracking-wider">
+                {t("codegym.round1TactBadge", "Такт 1: Сліпий трафарет (Trace)")}
+              </span>
+              <span className="text-[11px] font-mono text-gray-400">
+                ★ {t("codegym.star1Title", "1-ша зірка м'язової пам'яті")}
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-gray-400">
+              {t("codegym.traceHintHotkey", "Друкуйте в редакторі символ у символ")}
+            </span>
+          </div>
+          <p className="text-xs font-mono text-gray-300 leading-relaxed">
+            {t(
+              "codegym.round1Instruction",
+              "Надрукуйте наведений нижче еталонний код у редакторі. Кожен правильний символ миттєво фіксується системою для вироблення м'язової пам'яті синтаксису."
+            )}
+          </p>
+          {/* Reference Code Card */}
+          <div className="rounded-xl bg-[#0F1115] border border-amber-500/30 p-2.5 shadow-inner">
+            <div className="text-[10px] font-mono font-bold uppercase text-amber-400/90 mb-1 flex items-center justify-between">
+              <span>{t("codegym.referenceTitle", "Еталонний зразок для набору:")}</span>
+              <span className="text-gray-500 text-[9px]">
+                {codeLang === "csharp" ? "C# (.NET)" : "Go (Golang)"}
+              </span>
+            </div>
+            <pre className="text-xs font-mono text-emerald-300 font-bold whitespace-pre-wrap leading-relaxed select-text overflow-x-auto">
+              <code>{targetCode}</code>
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* ── Round 2: CLOZE Didactic Banner (GRR Tact 2) ── */}
+      {activeRound === 2 && (
+        <div className="px-4 py-2.5 bg-[#121824] border-b border-[#2B2D33] text-ink-light space-y-1 select-none">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider">
+                {t("codegym.round2TactBadge", "Такт 2: Прогалини (Cloze)")}
+              </span>
+              <span className="text-[11px] font-mono text-gray-400">
+                ★ {t("codegym.star2Title", "2-га зірка розуміння")}
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-gray-400">
+              {t("codegym.clozeHintHotkey", "Ctrl+Enter — Перевірити")}
+            </span>
+          </div>
+          <p className="text-xs font-mono text-gray-300 leading-relaxed">
+            {t(
+              "codegym.round2Instruction",
+              "Відновіть пропущені фрагменти коду (позначені `___`), спираючись на вивчену логіку та ключові конструкції."
+            )}
+          </p>
+        </div>
+      )}
+
+      {/* ── Round 3: SPRINT Didactic Banner (GRR Tact 3) ── */}
+      {activeRound === 3 && (
+        <div className="px-4 py-2.5 bg-[#1C1608] border-b border-[#2B2D33] text-ink-light space-y-1 select-none">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold uppercase tracking-wider">
+                {t("codegym.round3TactBadge", "Такт 3: Спринт на швидкість (Sprint)")}
+              </span>
+              <span className="text-[11px] font-mono text-gray-400">
+                ★ {t("codegym.star3Title", "3-тя зірка швидкості")}
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-gray-400">
+              {t("codegym.sprintHintHotkey", "Натисніть 'Старт' або почніть друкувати")}
+            </span>
+          </div>
+          <p className="text-xs font-mono text-gray-300 leading-relaxed">
+            {t(
+              "codegym.round3Instruction",
+              "Надрукуйте весь код по пам'яті без помилок до вичерпання таймера. Це закріплює впевненість та автономність розробника."
+            )}
+          </p>
+        </div>
+      )}
+
+      {/* ── Round 4: Transfer Mission Prompt Banner (GRR Tact 3+) ── */}
       {activeRound === 4 && (
         <div className="px-4 py-3 bg-[#161B22] border-b border-[#2B2D33] text-ink-light space-y-2 select-none">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.transferCardTitle", "Місія варіації (Transfer Task)")}
+                {t("codegym.round4TactBadge", "Такт 3+: Варіація (Transfer Challenge)")}
               </span>
               <span className="text-[11px] font-mono text-gray-400">
                 ★ {t("codegym.star4Title", "4-та зірка майстра")}
@@ -250,7 +354,7 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
         {/* Ghost Stencil Overlay for Round 1 (when not bugfix) */}
         {activeRound === 1 && !currentTask.isBugfixTask && (
           <div
-            className="absolute inset-0 pointer-events-none select-none font-mono text-[13px] leading-[19px] p-4 text-gray-500/30 whitespace-pre overflow-hidden"
+            className="absolute inset-0 pointer-events-none select-none font-mono text-[13px] leading-relaxed p-4 text-slate-400/50 whitespace-pre overflow-hidden z-0"
             style={{ paddingLeft: `${gutterWidth + 16}px` }}
           >
             {targetCode}
@@ -271,7 +375,7 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
             autocompletion: false,
             highlightActiveLine: false,
           }}
-          className="text-[13px] font-mono leading-relaxed"
+          className="text-[13px] font-mono leading-relaxed relative z-10"
         />
       </div>
 

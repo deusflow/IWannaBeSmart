@@ -679,6 +679,67 @@ export const theoryEn: TheoryDictionary = {
       notes: "Financial ledger operations must maintain strict single-source state updates to prevent reconciliation mismatches.",
       diff: "C#: decimal totalAmount = amount + fee; balance -= totalAmount;. Go: totalAmount := amount + fee \\n balance -= totalAmount.",
     },
+    "task-api-1-heartbeat": {
+      concept: "Heartbeat liveness check verifying server availability via HTTP GET /health protocol.",
+      tokens: [
+        { token: "app.MapGet", role: "Route Mapping", explanation: "Registers an HTTP GET route in the Kestrel middleware pipeline." },
+        { token: '"/health"', role: "URL Route Path", explanation: "Endpoint path that client dispatchers send HTTP requests to." },
+        { token: "Results.Ok()", role: "HTTP Status 200", explanation: "Returns standard HTTP response with 200 OK status code and serialized JSON." },
+      ],
+      notes: "Healthcheck endpoints must remain lightweight and avoid expensive database queries or heavy I/O operations.",
+      diff: "In C#: app.MapGet(\"/health\", () => Results.Ok(...));. In Go: http.HandleFunc(\"/health\", func(w, r) { w.WriteHeader(http.StatusOK) }).",
+    },
+    "task-api-2-path-params": {
+      concept: "URL route parameters and defensive 404 Guard clause verification.",
+      tokens: [
+        { token: "{id}", role: "Route Parameter", explanation: "Dynamic identifier extracted from the URL route by the web framework." },
+        { token: "repo.Find(id)", role: "Data Lookup", explanation: "Entity retrieval from repository using the extracted identifier." },
+        { token: "Results.NotFound()", role: "HTTP Status 404", explanation: "Returns 404 Not Found status if the requested resource does not exist." },
+      ],
+      notes: "A 404 Guard clause prevents internal 500 server crashes caused by dereferencing null pointers.",
+      diff: "In C#: app.MapGet(\"/api/devices/{id}\", (string id) => ...). In Go: strings.TrimPrefix(r.URL.Path, \"/api/devices/\").",
+    },
+    "task-api-3-dto-validation": {
+      concept: "Inbound request payload processing and DTO schema validation returning 400 and 201 status codes.",
+      tokens: [
+        { token: "app.MapPost", role: "HTTP POST", explanation: "Listens for requests creating a new persistent resource." },
+        { token: "CreateOrderDto dto", role: "Model Binding", explanation: "Automatic deserialization of JSON body into a strongly typed DTO object in Heap." },
+        { token: "Results.BadRequest()", role: "HTTP Status 400", explanation: "Rejects invalid payload when mandatory fields fail validation." },
+        { token: "Results.Created()", role: "HTTP Status 201", explanation: "Confirms successful persistence of the newly created resource." },
+      ],
+      notes: "DTO validation must always occur before committing any mutations to the persistent database.",
+      diff: "In C#: Results.Created(uri, order). In Go: w.WriteHeader(http.StatusCreated); json.NewEncoder(w).Encode(order).",
+    },
+    "task-api-4-bearer-auth": {
+      concept: "API security and authorization via HTTP Authorization header carrying a Bearer token.",
+      tokens: [
+        { token: "Headers.Authorization", role: "HTTP Header", explanation: "Standard HTTP protocol header transporting client credentials." },
+        { token: "StartsWith(\"Bearer \")", role: "Scheme Check", explanation: "Validates standard Bearer token authorization scheme format." },
+        { token: "Results.Unauthorized()", role: "HTTP Status 401", explanation: "Rejects unauthenticated requests lacking valid credentials from accessing private resources." },
+      ],
+      notes: "401 Unauthorized denotes missing or invalid credentials; 403 Forbidden indicates recognized credentials with insufficient privileges.",
+      diff: "In C#: ctx.Request.Headers.Authorization.ToString(). In Go: r.Header.Get(\"Authorization\").",
+    },
+    "task-api-5-client-consumer": {
+      concept: "Building an HTTP client consumer, executing requests, and deserializing JSON responses.",
+      tokens: [
+        { token: "HttpClient", role: "HTTP Client", explanation: "Primary transport client for dispatching HTTP requests and receiving responses." },
+        { token: "EnsureSuccessStatusCode()", role: "Status Check", explanation: "Verifies HTTP response code falls in 200..299 range, raising an exception otherwise." },
+        { token: "ReadFromJsonAsync<T>()", role: "JSON Deserializer", explanation: "Streams received response bytes into a strongly typed memory structure." },
+      ],
+      notes: "In Go, always close the response body stream via defer resp.Body.Close() to prevent socket descriptor leaks.",
+      diff: "In C#: await client.GetAsync(url). In Go: resp, err := http.Get(url).",
+    },
+    "task-api-6-resilient-retry": {
+      concept: "Network fault resilience using the Retry pattern with exponential backoff.",
+      tokens: [
+        { token: "for (attempt = 1..3)", role: "Retry Loop", explanation: "Caps maximum attempt count to prevent infinite execution loops." },
+        { token: "catch (HttpRequestException)", role: "Fault Isolation", explanation: "Catches transient network bus errors while ignoring permanent business exceptions." },
+        { token: "Task.Delay(100 * attempt)", role: "Exponential Backoff", explanation: "Increases pause between attempts, allowing degraded network lines time to recover." },
+      ],
+      notes: "Never execute retries without a backoff delay; immediate loops trigger severe cascading retry storms.",
+      diff: "In C#: await Task.Delay(ms). In Go: time.Sleep(duration).",
+    },
   },
 };
 
@@ -975,6 +1036,67 @@ export const theoryDa: TheoryDictionary = {
       ],
       notes: "Finansielle transaktioner skal have ét autoritativt træk.",
       diff: "C#: decimal totalAmount = amount + fee; balance -= totalAmount;. Go: totalAmount := amount + fee \\n balance -= totalAmount.",
+    },
+    "task-api-1-heartbeat": {
+      concept: "Heartbeat tilgængelighedskontrol af server via HTTP GET /health protokollen.",
+      tokens: [
+        { token: "app.MapGet", role: "Route Mapping", explanation: "Registrerer en HTTP GET rute i Kestrels middleware-pipeline." },
+        { token: '"/health"', role: "URL Route Path", explanation: "Endepunktssti som klienter sender HTTP-forespørgsler til." },
+        { token: "Results.Ok()", role: "HTTP Status 200", explanation: "Returnerer standardsvar med statuskoden 200 OK og JSON-serialisering." },
+      ],
+      notes: "Healthcheck-endepunkter skal holdes letvægts og undgå tunge databasekald eller I/O-operationer.",
+      diff: "I C#: app.MapGet(\"/health\", () => Results.Ok(...));. I Go: http.HandleFunc(\"/health\", func(w, r) { w.WriteHeader(http.StatusOK) }).",
+    },
+    "task-api-2-path-params": {
+      concept: "Rutteparametre (URL Route Parameters) og defensiv 404 Guard kontrol.",
+      tokens: [
+        { token: "{id}", role: "Route Parameter", explanation: "Dynamisk identifikator i URL udtrukket af webframeworket." },
+        { token: "repo.Find(id)", role: "Data Lookup", explanation: "Søgning efter entitet i repository baseret på den udtrukne identifikator." },
+        { token: "Results.NotFound()", role: "HTTP Status 404", explanation: "Returnerer 404 Not Found status hvis ressourcen ikke eksisterer." },
+      ],
+      notes: "404 Guard forhindrer interne 500-serverfejl forårsaget af null-pointer referencer.",
+      diff: "I C#: app.MapGet(\"/api/devices/{id}\", (string id) => ...). I Go: strings.TrimPrefix(r.URL.Path, \"/api/devices/\").",
+    },
+    "task-api-3-dto-validation": {
+      concept: "Behandling af indgående payload og validering af DTO-felter med statuskoder 400 og 201.",
+      tokens: [
+        { token: "app.MapPost", role: "HTTP POST", explanation: "Lytter efter forespørgsler der opretter en ny ressource." },
+        { token: "CreateOrderDto dto", role: "Model Binding", explanation: "Automatisk deserialisering af JSON-brødtekst til et stærkt typet DTO-objekt i Heap." },
+        { token: "Results.BadRequest()", role: "HTTP Status 400", explanation: "Afviser ugyldige data hvis obligatoriske felter mangler." },
+        { token: "Results.Created()", role: "HTTP Status 201", explanation: "Bekræfter succesfuld oprettelse af den nye ressource." },
+      ],
+      notes: "Validering af DTO skal altid udføres før data gemmes i databasen.",
+      diff: "I C#: Results.Created(uri, order). I Go: w.WriteHeader(http.StatusCreated); json.NewEncoder(w).Encode(order).",
+    },
+    "task-api-4-bearer-auth": {
+      concept: "API-sikkerhed og autorisation via HTTP Authorization header med Bearer token.",
+      tokens: [
+        { token: "Headers.Authorization", role: "HTTP Header", explanation: "Standard HTTP-header til transmission af legitimationsoplysninger." },
+        { token: "StartsWith(\"Bearer \")", role: "Scheme Check", explanation: "Validerer standardformatet for Bearer token autorisation." },
+        { token: "Results.Unauthorized()", role: "HTTP Status 401", explanation: "Afviser uautoriserede anmodninger uden gyldigt adgangstoken." },
+      ],
+      notes: "401 Unauthorized angiver manglende eller ugyldigt token; 403 Forbidden angiver utilstrækkelige rettigheder.",
+      diff: "I C#: ctx.Request.Headers.Authorization.ToString(). I Go: r.Header.Get(\"Authorization\").",
+    },
+    "task-api-5-client-consumer": {
+      concept: "Implementering af HTTP-klient, udførelse af kald og deserialisering af modtaget JSON.",
+      tokens: [
+        { token: "HttpClient", role: "HTTP Client", explanation: "Klientklasse til afsendelse af HTTP-forespørgsler og modtagelse af svar." },
+        { token: "EnsureSuccessStatusCode()", role: "Status Check", explanation: "Sikrer at svaret ligger i intervallet 200..299 og kaster ellers en undtagelse." },
+        { token: "ReadFromJsonAsync<T>()", role: "JSON Deserializer", explanation: "Konverterer modtagne JSON-bytes i hukommelsen til en stærk typestruktur." },
+      ],
+      notes: "I Go skal svarstrømmen altid lukkes med defer resp.Body.Close() for at undgå socket-lækager.",
+      diff: "I C#: await client.GetAsync(url). I Go: resp, err := http.Get(url).",
+    },
+    "task-api-6-resilient-retry": {
+      concept: "Modstandsdygtighed over for netværksfejl: Retry-mønster med eksponentiel ventetid.",
+      tokens: [
+        { token: "for (attempt = 1..3)", role: "Retry Loop", explanation: "Begrænser det maksimale antal gentagne forsøg mod uendelige løkker." },
+        { token: "catch (HttpRequestException)", role: "Fault Isolation", explanation: "Fanger udelukkende midlertidige netværksfejl og ignorerer forretningsfejl." },
+        { token: "Task.Delay(100 * attempt)", role: "Exponential Backoff", explanation: "Øger pausen mellem forsøg så netværkslinjen har tid til at genoprette forbindelsen." },
+      ],
+      notes: "Udfør aldrig gentagne forespørgsler uden forsinkelse; øjeblikkelige løkker forårsager overbelastning (Retry Storm).",
+      diff: "I C#: await Task.Delay(ms). I Go: time.Sleep(duration).",
     },
   },
 };

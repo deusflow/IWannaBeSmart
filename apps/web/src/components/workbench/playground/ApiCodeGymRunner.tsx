@@ -25,6 +25,22 @@ import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
 
+const TASK_DEFAULT_REQUESTS: Record<
+  string,
+  { method: "GET" | "POST"; path: string; body?: string; withAuth?: boolean }
+> = {
+  "task-api-1-heartbeat": { method: "GET", path: "/health" },
+  "task-api-2-path-params": { method: "GET", path: "/api/devices/42" },
+  "task-api-3-dto-validation": {
+    method: "POST",
+    path: "/api/orders",
+    body: '{\n  "item": "NanoSensor",\n  "quantity": 5\n}',
+  },
+  "task-api-4-bearer-auth": { method: "GET", path: "/api/secure/stats", withAuth: true },
+  "task-api-5-rate-limit": { method: "GET", path: "/api/secure/stats", withAuth: true },
+  "task-api-6-resilience": { method: "GET", path: "/health" },
+};
+
 export const ApiCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
   const {
@@ -37,6 +53,10 @@ export const ApiCodeGymRunner: React.FC = () => {
     completeCodingTask,
     addXp,
     setApiVictoryModalOpen,
+    setClientDraftMethod,
+    setClientDraftPath,
+    setClientDraftHeaders,
+    setClientDraftBody,
   } = useWorkbenchStore(
     useShallow((s) => ({
       apiState: s.apiState,
@@ -48,6 +68,10 @@ export const ApiCodeGymRunner: React.FC = () => {
       completeCodingTask: s.completeCodingTask,
       addXp: s.addXp,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
+      setClientDraftMethod: s.setClientDraftMethod,
+      setClientDraftPath: s.setClientDraftPath,
+      setClientDraftHeaders: s.setClientDraftHeaders,
+      setClientDraftBody: s.setClientDraftBody,
     }))
   );
 
@@ -118,6 +142,32 @@ export const ApiCodeGymRunner: React.FC = () => {
     },
   });
 
+  const syncTaskDraft = useCallback(
+    (taskId: string) => {
+      const preset =
+        TASK_DEFAULT_REQUESTS[taskId] || TASK_DEFAULT_REQUESTS["task-api-1-heartbeat"];
+      setClientDraftMethod(preset.method);
+      setClientDraftPath(preset.path);
+      setClientDraftBody(preset.body || "");
+      if (preset.withAuth) {
+        setClientDraftHeaders({
+          Accept: "application/json",
+          Authorization: "Bearer forge-token-secure-99",
+        });
+      } else {
+        setClientDraftHeaders({
+          Accept: "application/json",
+        });
+      }
+    },
+    [setClientDraftMethod, setClientDraftPath, setClientDraftBody, setClientDraftHeaders]
+  );
+
+  // Synchronize HTTP Dispatcher draft on initial mount
+  useEffect(() => {
+    syncTaskDraft(selectedTaskId);
+  }, []);
+
   const handleSelectTask = useCallback(
     (taskId: string) => {
       if (taskId === selectedTaskId) return;
@@ -126,12 +176,13 @@ export const ApiCodeGymRunner: React.FC = () => {
       setActiveRound(1);
       setShowTooltip(false);
       setShowTransferHint(false);
+      syncTaskDraft(taskId);
       const nextT = API_FORGE_TASKS.find((t) => t.id === taskId);
       if (nextT) {
         resetApiState(nextT.initialState);
       }
     },
-    [selectedTaskId, resetApiState, setActiveRound, setShowTooltip, setShowTransferHint]
+    [selectedTaskId, resetApiState, setActiveRound, setShowTooltip, setShowTransferHint, syncTaskDraft]
   );
 
   const fileName = useMemo(
@@ -510,6 +561,7 @@ export const ApiCodeGymRunner: React.FC = () => {
         currentCode={typedCode || targetCode}
         codeLang={codeLang}
         isFintech={false}
+        stationId="api"
       />
 
       {/* Unified CodeGymEditor Component */}

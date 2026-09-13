@@ -390,6 +390,7 @@ export const BanditCodeGymRunner: React.FC = () => {
         currentCode={typedCode || targetCode}
         codeLang={codeLang}
         isFintech={false}
+        stationId="bandit"
       />
 
       {/* Unified CodeGymEditor Component */}

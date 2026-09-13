@@ -74,7 +74,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   defaultExpanded = false,
   onToggleExpand,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [activeLayer, setActiveLayer] = useState<TutorialLayer>("solution");
@@ -102,6 +102,18 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
 
   const simpleText = t(data.simpleKey, { defaultValue: "" });
   const engineeringText = t(data.engineeringKey, { defaultValue: "" });
+
+  const currentLang = (i18n.language?.startsWith("da")
+    ? "da"
+    : i18n.language?.startsWith("en")
+    ? "en"
+    : "ua") as "ua" | "en" | "da";
+
+  const getLocStr = (val: any): string => {
+    if (!val) return "";
+    if (typeof val === "string") return val;
+    return val[currentLang] || val.ua || val.en || "";
+  };
 
   const sampleWorkedCode = workedExample
     ? typeof workedExample.sampleCode === "string"
@@ -378,7 +390,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                       <span>Апаратний ефект пристрою (Hardware Effect):</span>
                     </div>
                     <p className="font-sans text-xs text-[#1A1D20] font-semibold leading-relaxed">
-                      {workedExample.demonstrationLog.hardwareEffect}
+                      {getLocStr(workedExample.demonstrationLog.hardwareEffect)}
                     </p>
                   </div>
 
@@ -408,7 +420,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                       <span>Пояснення вчителя (Teacher Card):</span>
                     </div>
                     <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
-                      {workedExample.explanation}
+                      {getLocStr(workedExample.explanation)}
                     </p>
                   </div>
 
@@ -427,7 +439,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                         <span>Такт 3: Тепер ти сам</span>
                       </div>
                       <p className="text-[11px] font-sans text-emerald-950">
-                        {workedExample.finalChallenge.prompt}
+                        {getLocStr(workedExample.finalChallenge.prompt)}
                       </p>
                     </div>
                   </div>

@@ -55,14 +55,16 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
               expect(worked.sampleCode.go.trim().length).toBeGreaterThan(0);
             }
 
+            const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+
             // demonstrationLog check
             expect(worked.demonstrationLog).toBeDefined();
             expect(Array.isArray(worked.demonstrationLog.terminal)).toBe(true);
             expect(worked.demonstrationLog.terminal.length).toBeGreaterThanOrEqual(1);
-            expect(worked.demonstrationLog.hardwareEffect.trim().length).toBeGreaterThan(0);
+            expect(toStr(worked.demonstrationLog.hardwareEffect).trim().length).toBeGreaterThan(0);
 
             // explanation check
-            expect(worked.explanation.trim().length).toBeGreaterThan(0);
+            expect(toStr(worked.explanation).trim().length).toBeGreaterThan(0);
           });
 
           it("Такт 2: should provide clozeExercise with '___' fill-in-the-blank tokens", () => {
@@ -81,8 +83,10 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
             const worked = (task.workedExample || WORKED_EXAMPLES[task.id] || getWorkedExample(task.id)) as WorkedExample;
             expect(worked).toBeDefined();
 
+            const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+
             expect(worked.finalChallenge).toBeDefined();
-            expect(worked.finalChallenge.prompt.trim().length).toBeGreaterThan(0);
+            expect(toStr(worked.finalChallenge.prompt).trim().length).toBeGreaterThan(0);
 
             if (typeof worked.finalChallenge.targetCode === "string") {
               expect(worked.finalChallenge.targetCode.trim().length).toBeGreaterThan(0);
@@ -97,20 +101,22 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
   });
 
   describe("Domain Authenticity & Separation", () => {
+    const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+
     it("TV worked examples should reference TV hardware (relays, volume, channels, cathode ray)", () => {
       const tvTask1 = getWorkedExample("task-0-1-power-on");
-      expect(tvTask1?.demonstrationLog.hardwareEffect.toLowerCase()).toContain("реле");
+      expect(toStr(tvTask1?.demonstrationLog.hardwareEffect).toLowerCase()).toContain("реле");
 
       const tvTask2 = getWorkedExample("task-0-2-types");
-      expect(tvTask2?.demonstrationLog.hardwareEffect.toLowerCase()).toContain("частот");
+      expect(toStr(tvTask2?.demonstrationLog.hardwareEffect).toLowerCase()).toContain("частот");
     });
 
     it("POS worked examples should reference acquirer, PIN, contactless limits, or receipt printing", () => {
       const posTask1 = getWorkedExample("task-pos-guard-clause");
-      expect(posTask1?.demonstrationLog.hardwareEffect.toLowerCase()).toContain("термінал");
+      expect(toStr(posTask1?.demonstrationLog.hardwareEffect).toLowerCase()).toContain("термінал");
 
       const posTask2 = getWorkedExample("task-pos-fee-calculation");
-      expect(posTask2?.demonstrationLog.hardwareEffect.toLowerCase()).toContain("чек");
+      expect(toStr(posTask2?.demonstrationLog.hardwareEffect).toLowerCase()).toContain("чек");
     });
 
     it("API Forge worked examples should reference HTTP status codes and wire transit", () => {
@@ -131,7 +137,7 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
 
     it("Cyber Bandit Lab worked examples should reference cryptography, tokens, or security gates", () => {
       const banditTask1 = getWorkedExample("task-bandit-1-hidden-key");
-      expect(banditTask1?.demonstrationLog.hardwareEffect.toLowerCase()).toContain("змінних оточення");
+      expect(toStr(banditTask1?.demonstrationLog.hardwareEffect).toLowerCase()).toContain("змінних оточення");
 
       const banditTask3 = getWorkedExample("task-bandit-3-wire-tap");
       expect(banditTask3?.demonstrationLog.terminal.some((l) => l.includes("HMAC"))).toBe(true);
@@ -172,9 +178,8 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
       for (const task of allTasks) {
         const we = task.workedExample || WORKED_EXAMPLES[task.id] || getWorkedExample(task.id);
         expect(we).toBeDefined();
-        if (!we || !we.finalChallenge.hint) continue;
-
-        const hintNorm = normalize(we.finalChallenge.hint);
+        const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+        const hintNorm = normalize(toStr(we.finalChallenge.hint));
         const targetCs =
           typeof we.finalChallenge.targetCode === "string"
             ? we.finalChallenge.targetCode

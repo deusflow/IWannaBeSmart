@@ -454,6 +454,7 @@ export const GitCodeGymRunner: React.FC = () => {
         currentCode={typedCode || targetCode}
         codeLang={codeLang}
         isFintech={false}
+        stationId="git"
       />
 
       {/* Unified CodeGymEditor Component */}

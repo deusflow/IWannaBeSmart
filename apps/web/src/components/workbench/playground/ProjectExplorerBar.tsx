@@ -43,6 +43,7 @@ interface ProjectExplorerBarProps {
   codeLang?: "csharp" | "go";
   isFintech?: boolean;
   className?: string;
+  stationId?: string;
 }
 
 export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
@@ -50,6 +51,7 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
   codeLang = "csharp",
   isFintech = false,
   className = "",
+  stationId,
 }) => {
   const { t, i18n } = useTranslation();
   const currentStationId = useWorkbenchStore((s) => s.currentStationId);
@@ -531,14 +533,16 @@ ${currentCode}`,
     },
   ];
 
+  const activeStation = stationId || currentStationId;
+
   const rootFolder =
-    currentStationId === "api"
+    activeStation === "api"
       ? apiFiles[0]
-      : currentStationId === "git"
+      : activeStation === "git"
       ? gitFiles[0]
-      : currentStationId === "bandit"
+      : activeStation === "bandit"
       ? banditFiles[0]
-      : isFintech || currentStationId === "pos"
+      : isFintech || activeStation === "pos"
       ? fintechFiles[0]
       : tvFiles[0];
 
@@ -596,8 +600,8 @@ ${currentCode}`,
 
       {/* ── Blueprint Solution Drawer / Modal (SOLID 100% OPAQUE BACKGROUND) ── */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 font-sans">
-          <div className="relative w-full max-w-5xl h-[85vh] max-h-[720px] rounded-2xl border-2 border-slate-700/80 bg-[#0F141C] shadow-[0_0_60px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#030712]/95 backdrop-blur-md animate-in fade-in duration-200 font-sans">
+          <div className="relative w-full max-w-5xl h-[85vh] max-h-[720px] rounded-2xl border-2 border-slate-700/80 bg-[#0B0E14] shadow-[0_0_60px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden text-slate-100 isolate">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-[#161D27]">
               <div className="flex items-center gap-3">
@@ -647,7 +651,7 @@ ${currentCode}`,
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all cursor-pointer ${
                           isSelected
                             ? "bg-emerald-950/70 text-emerald-300 font-bold border border-emerald-600/60 shadow-sm"
-                            : "hover:bg-slate-850 text-slate-300 border border-transparent hover:border-slate-800"
+                            : "hover:bg-[#161D27] text-slate-300 border border-transparent hover:border-slate-800"
                         }`}
                       >
                         <div className="flex items-center gap-2 truncate">
@@ -682,19 +686,45 @@ ${currentCode}`,
                 <div className="mt-4 p-3 rounded-xl border border-amber-500/40 bg-amber-950/30 text-amber-300 text-xs space-y-1.5 font-sans">
                   <div className="flex items-center gap-1.5 font-bold">
                     <Cpu className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>Зняття ілюзії магічного коду:</span>
+                    <span>
+                      {activeStation === "api"
+                        ? "Зняття ілюзії магічного коду (ASP.NET / Go HTTP):"
+                        : activeStation === "pos"
+                        ? "Зняття ілюзії магічного коду (POS Terminal):"
+                        : activeStation === "git"
+                        ? "Зняття ілюзії магічного коду (Git DAG Engine):"
+                        : activeStation === "bandit"
+                        ? "Зняття ілюзії магічного коду (Cyber Defense Pipeline):"
+                        : "Зняття ілюзії магічного коду:"}
+                    </span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-amber-200/90">
-                    {t(
-                      "playground.entrypointHint",
-                      "Усі команди виконуються всередині точки входу Main(). Жоден рядок не існує у вакуумі."
-                    )}
+                    {activeStation === "api"
+                      ? "Усі ендпоінти реєструються у конвеєрі Kestrel/net/http всередині точки входу. Жоден маршрут не висить у повітрі."
+                      : activeStation === "pos"
+                      ? "Транзакційний цикл касира виконується всередині сесії CashierSession з перевіркою інваріантів рахунку."
+                      : activeStation === "git"
+                      ? "Команди git маніпулюють об'єктами у сховищі .git та вказівником HEAD, формуючи ациклічний граф (DAG)."
+                      : activeStation === "bandit"
+                      ? "SecurityMiddleware перехоплює вхідний потік байтів до потрапляння в контролер, блокуючи ін'єкції та атаки."
+                      : t(
+                          "playground.entrypointHint",
+                          "Усі команди виконуються всередині точки входу Main(). Жоден рядок не існує у вакуумі."
+                        )}
                   </p>
                   <p className="text-[10px] text-amber-300/80 font-mono">
-                    {t(
-                      "playground.heapAllocationHint",
-                      "TV tv = new TV(); виділяє пам'ять у Heap, посилання живе у Stack."
-                    )}
+                    {activeStation === "api"
+                      ? "Results.Ok(...) виділяє пам'ять для JSON-відповіді в Heap, а сокет відправляє байти клієнту."
+                      : activeStation === "pos"
+                      ? "Сума balance та статус транзакції зберігаються у Heap терміналу."
+                      : activeStation === "git"
+                      ? "HEAD посилається на хеш останнього коміту у дереві ревізій."
+                      : activeStation === "bandit"
+                      ? "Криптографічні ключі та токени зберігаються в захищеній пам'яті процесу, запобігаючи витоку через стек або логи."
+                      : t(
+                          "playground.heapAllocationHint",
+                          "TV tv = new TV(); виділяє пам'ять у Heap, посилання живе у Stack."
+                        )}
                   </p>
                 </div>
               </div>
