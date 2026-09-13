@@ -311,15 +311,15 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px]">
                   <span className="px-2 py-0.5 rounded bg-amber-500/25 text-amber-300 font-extrabold border border-amber-500/40">
-                    Такт 1: Вчитель показує
+                    {t("guide.tact1Header", "Такт 1: Вчитель показує")}
                   </span>
                   <span className="text-gray-500 font-bold">→</span>
                   <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300/80 border border-blue-500/20">
-                    Такт 2: Повтори зі мною
+                    {t("guide.tact2Header", "Такт 2: Повтори зі мною")}
                   </span>
                   <span className="text-gray-500 font-bold">→</span>
                   <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300/80 border border-emerald-500/20">
-                    Такт 3: Тепер ти сам
+                    {t("guide.tact3Header", "Такт 3: Тепер ти сам")}
                   </span>
                 </div>
               </div>
@@ -349,10 +349,10 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                         <Play size={12} className="fill-current" />
                         <span>
                           {isDemoRunning
-                            ? "Виконується..."
+                            ? t("guide.demoRunning", "Виконується...")
                             : demoExecuted
-                            ? "✓ Продемонстровано (Повторити)"
-                            : "▶ Демонстрація"}
+                            ? t("guide.demoRepeated", "✓ Продемонстровано (Повторити)")
+                            : t("guide.demoButton", "▶ Демонстрація")}
                         </span>
                       </button>
                     )}
@@ -387,7 +387,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                   >
                     <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/80 flex items-center gap-1.5 mb-1">
                       <Activity size={12} className="text-emerald-700 shrink-0" />
-                      <span>Апаратний ефект пристрою (Hardware Effect):</span>
+                      <span>{t("guide.hardwareEffectTitle", "Апаратний ефект пристрою (Hardware Effect):")}</span>
                     </div>
                     <p className="font-sans text-xs text-[#1A1D20] font-semibold leading-relaxed">
                       {getLocStr(workedExample.demonstrationLog.hardwareEffect)}
@@ -399,7 +399,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                     <div className="flex items-center justify-between text-[10px] text-gray-400 border-b border-gray-800 pb-1 mb-1.5">
                       <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
                         <Terminal size={12} />
-                        <span>Системна телеметрія (Hardware Bus Terminal):</span>
+                        <span>{t("guide.terminalTitle", "Системна телеметрія (Hardware Bus Terminal):")}</span>
                       </span>
                       <span className="text-[9px] text-emerald-400">● LIVE RUNTIME</span>
                     </div>
@@ -417,7 +417,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                   <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1">
                     <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70 flex items-center gap-1">
                       <Lightbulb size={11} className="text-amber-700 shrink-0" />
-                      <span>Пояснення вчителя (Teacher Card):</span>
+                      <span>{t("guide.teacherCardTitle", "Пояснення вчителя (Teacher Card):")}</span>
                     </div>
                     <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
                       {getLocStr(workedExample.explanation)}
@@ -428,15 +428,18 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-blue-600/25 space-y-1">
                       <div className="text-[10px] font-mono font-bold uppercase text-blue-900 flex items-center gap-1">
-                        <span>Такт 2: Повтори зі мною (Cloze)</span>
+                        <span>{t("guide.tact2ClozeTitle", "Такт 2: Повтори зі мною (Cloze)")}</span>
                       </div>
                       <p className="text-[11px] font-sans text-blue-950">
-                        Заповніть пропуски <code className="px-1 py-0.2 bg-blue-100 rounded text-blue-900 font-bold">___</code> у коді. Система миттєво перевіряє кожен символ.
+                        {t(
+                          "guide.tact2ClozeDesc",
+                          "Заповніть пропуски ___ у коді. Система миттєво перевіряє кожен символ."
+                        )}
                       </p>
                     </div>
                     <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-emerald-600/25 space-y-1">
                       <div className="text-[10px] font-mono font-bold uppercase text-emerald-900 flex items-center gap-1">
-                        <span>Такт 3: Тепер ти сам</span>
+                        <span>{t("guide.tact3PromptTitle", "Такт 3: Тепер ти сам")}</span>
                       </div>
                       <p className="text-[11px] font-sans text-emerald-950">
                         {getLocStr(workedExample.finalChallenge.prompt)}
@@ -576,26 +579,26 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 <div className="space-y-1.5 text-xs font-mono">
                   {didactic.architectureMap.contractFile && (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
-                      <span className="text-purple-700 font-bold">📄 Інтерфейс:</span>
+                      <span className="text-purple-700 font-bold">📄 {t("architecture.interfaceLabel", "Інтерфейс")}:</span>
                       <code className="text-[#1A1D20]">{didactic.architectureMap.contractFile}</code>
                     </div>
                   )}
                   {didactic.architectureMap.implementationFile && (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
-                      <span className="text-emerald-700 font-bold">⚙️ Реалізація:</span>
+                      <span className="text-emerald-700 font-bold">⚙️ {t("architecture.implementationLabel", "Реалізація")}:</span>
                       <code className="text-[#1A1D20]">{didactic.architectureMap.implementationFile}</code>
                     </div>
                   )}
                   {didactic.architectureMap.clientFile && (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
-                      <span className="text-blue-700 font-bold">🔌 Диспетчер:</span>
+                      <span className="text-blue-700 font-bold">🔌 {t("architecture.dispatcherLabel", "Диспетчер")}:</span>
                       <code className="text-[#1A1D20]">{didactic.architectureMap.clientFile}</code>
                     </div>
                   )}
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-600/25 text-[11px] font-mono text-purple-950">
-                  <strong>Нода на полотні:</strong> {didactic.architectureMap.canvasWiring}
+                  <strong>{t("architecture.canvasNodeLabel", "Нода на полотні")}:</strong> {didactic.architectureMap.canvasWiring}
                 </div>
 
                 {data.onOpenArchitectureStudio && (

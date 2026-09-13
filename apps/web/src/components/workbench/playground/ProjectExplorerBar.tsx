@@ -38,6 +38,101 @@ interface ProjectFile {
   };
 }
 
+const STATION_CALLOUTS: Record<
+  string,
+  {
+    title: Record<"ua" | "en" | "da", string>;
+    body: Record<"ua" | "en" | "da", string>;
+    note: Record<"ua" | "en" | "da", string>;
+  }
+> = {
+  api: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (ASP.NET / Go HTTP):",
+      en: "Demystifying Magic Code (ASP.NET / Go HTTP):",
+      da: "Afmystificering af magisk kode (ASP.NET / Go HTTP):",
+    },
+    body: {
+      ua: "Усі ендпоінти реєструються у конвеєрі Kestrel/net/http всередині точки входу. Жоден маршрут не висить у повітрі.",
+      en: "All endpoints are explicitly registered in the Kestrel / net/http pipeline inside the entrypoint. No route hangs in midair.",
+      da: "Alle endepunkter registreres eksplicit i Kestrel / net/http pipelinen i programmets startpunkt. Ingen ruter svæver i luften.",
+    },
+    note: {
+      ua: "Results.Ok(...) виділяє пам'ять для JSON-відповіді в Heap, а сокет відправляє байти клієнту.",
+      en: "Results.Ok(...) allocates heap memory for the JSON payload, and the underlying socket transmits bytes to the client.",
+      da: "Results.Ok(...) allokerer heap-hukommelse til JSON-svaret, og soklen sender bytes til klienten.",
+    },
+  },
+  pos: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (POS Terminal):",
+      en: "Demystifying Magic Code (POS Terminal):",
+      da: "Afmystificering af magisk kode (POS Terminal):",
+    },
+    body: {
+      ua: "Транзакційний цикл касира виконується всередині сесії CashierSession з перевіркою інваріантів рахунку.",
+      en: "The cashier transaction loop runs within a stateful CashierSession, strictly enforcing financial account invariants.",
+      da: "Kassereks transaktionsløkke afvikles i en CashierSession med streng validering af kontoinvarianter.",
+    },
+    note: {
+      ua: "Сума balance та статус транзакції зберігаються у Heap терміналу.",
+      en: "The balance amount and transaction state machine reside in the terminal's Heap memory.",
+      da: "Saldobeløb og transaktionens tilstandsmaskine opbevares i terminalens Heap-hukommelse.",
+    },
+  },
+  git: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (Git DAG Engine):",
+      en: "Demystifying Magic Code (Git DAG Engine):",
+      da: "Afmystificering af magisk kode (Git DAG Engine):",
+    },
+    body: {
+      ua: "Команди git маніпулюють об'єктами у сховищі .git та вказівником HEAD, формуючи ациклічний граф (DAG).",
+      en: "Git commands manipulate immutable objects in the .git storage and update the HEAD pointer, building a Directed Acyclic Graph (DAG).",
+      da: "Git-kommandoer manipulerer uforanderlige objekter i .git-arkivet og opdaterer HEAD-viseren for at danne en retningsbestemt acyklisk graf (DAG).",
+    },
+    note: {
+      ua: "HEAD посилається на хеш останнього коміту у дереві ревізій.",
+      en: "HEAD references the SHA-1 commit hash at the frontier of the revision tree.",
+      da: "HEAD refererer til SHA-1-hashet for den seneste commit i revisionstræet.",
+    },
+  },
+  bandit: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (Cyber Defense Pipeline):",
+      en: "Demystifying Magic Code (Cyber Defense Pipeline):",
+      da: "Afmystificering af magisk kode (Cyber Defense Pipeline):",
+    },
+    body: {
+      ua: "SecurityMiddleware перехоплює вхідний потік байтів до потрапляння в контролер, блокуючи ін'єкції та атаки.",
+      en: "SecurityMiddleware intercepts the incoming byte stream before reaching the controller, filtering injection vectors and unauthorized payloads.",
+      da: "SecurityMiddleware opfanger den indgående bytestrøm før controlleren, og blokerer injektioner og ondsindede angreb.",
+    },
+    note: {
+      ua: "Криптографічні ключі та токени зберігаються в захищеній пам'яті процесу, запобігаючи витоку через стек або логи.",
+      en: "Cryptographic keys and tokens are held in secure process memory, preventing leakage through stack dumps or debug traces.",
+      da: "Kryptografiske nøgler og tokens opbevares i beskyttet proceshukommelse for at forhindre lækage via stakdumps eller logs.",
+    },
+  },
+  tv: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (Smart TV Chassis):",
+      en: "Demystifying Magic Code (Smart TV Chassis):",
+      da: "Afmystificering af magisk kode (Smart TV Chassis):",
+    },
+    body: {
+      ua: "Усі команди виконуються всередині точки входу Main(). Жоден рядок не існує у вакуумі.",
+      en: "All commands execute strictly within the Main() entrypoint. No instruction operates in a vacuum.",
+      da: "Alle kommandoer udføres i programmets startpunkt Main(). Ingen instruktion svæver i et tomrum.",
+    },
+    note: {
+      ua: "TV tv = new TV(); виділяє пам'ять у Heap, посилання живе у Stack.",
+      en: "TV tv = new TV(); allocates memory on the Heap, while the reference handle lives on the call Stack.",
+      da: "TV tv = new TV(); allokerer hukommelse på Heap, mens referencen lever på stakken (Stack).",
+    },
+  },
+};
+
 interface ProjectExplorerBarProps {
   currentCode?: string;
   codeLang?: "csharp" | "go";
@@ -683,50 +778,23 @@ ${currentCode}`,
                 </div>
 
                 {/* Educational Callout inside File Tree */}
-                <div className="mt-4 p-3 rounded-xl border border-amber-500/40 bg-amber-950/30 text-amber-300 text-xs space-y-1.5 font-sans">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <Cpu className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>
-                      {activeStation === "api"
-                        ? "Зняття ілюзії магічного коду (ASP.NET / Go HTTP):"
-                        : activeStation === "pos"
-                        ? "Зняття ілюзії магічного коду (POS Terminal):"
-                        : activeStation === "git"
-                        ? "Зняття ілюзії магічного коду (Git DAG Engine):"
-                        : activeStation === "bandit"
-                        ? "Зняття ілюзії магічного коду (Cyber Defense Pipeline):"
-                        : "Зняття ілюзії магічного коду:"}
-                    </span>
-                  </div>
-                  <p className="text-[11px] leading-relaxed text-amber-200/90">
-                    {activeStation === "api"
-                      ? "Усі ендпоінти реєструються у конвеєрі Kestrel/net/http всередині точки входу. Жоден маршрут не висить у повітрі."
-                      : activeStation === "pos"
-                      ? "Транзакційний цикл касира виконується всередині сесії CashierSession з перевіркою інваріантів рахунку."
-                      : activeStation === "git"
-                      ? "Команди git маніпулюють об'єктами у сховищі .git та вказівником HEAD, формуючи ациклічний граф (DAG)."
-                      : activeStation === "bandit"
-                      ? "SecurityMiddleware перехоплює вхідний потік байтів до потрапляння в контролер, блокуючи ін'єкції та атаки."
-                      : t(
-                          "playground.entrypointHint",
-                          "Усі команди виконуються всередині точки входу Main(). Жоден рядок не існує у вакуумі."
-                        )}
-                  </p>
-                  <p className="text-[10px] text-amber-300/80 font-mono">
-                    {activeStation === "api"
-                      ? "Results.Ok(...) виділяє пам'ять для JSON-відповіді в Heap, а сокет відправляє байти клієнту."
-                      : activeStation === "pos"
-                      ? "Сума balance та статус транзакції зберігаються у Heap терміналу."
-                      : activeStation === "git"
-                      ? "HEAD посилається на хеш останнього коміту у дереві ревізій."
-                      : activeStation === "bandit"
-                      ? "Криптографічні ключі та токени зберігаються в захищеній пам'яті процесу, запобігаючи витоку через стек або логи."
-                      : t(
-                          "playground.heapAllocationHint",
-                          "TV tv = new TV(); виділяє пам'ять у Heap, посилання живе у Stack."
-                        )}
-                  </p>
-                </div>
+                {(() => {
+                  const callout = STATION_CALLOUTS[activeStation] || STATION_CALLOUTS.tv;
+                  return (
+                    <div className="mt-4 p-3 rounded-xl border border-amber-500/40 bg-amber-950/30 text-amber-300 text-xs space-y-1.5 font-sans">
+                      <div className="flex items-center gap-1.5 font-bold">
+                        <Cpu className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>{callout.title[currentLang] || callout.title.en}</span>
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-amber-200/90">
+                        {callout.body[currentLang] || callout.body.en}
+                      </p>
+                      <p className="text-[10px] text-amber-300/80 font-mono">
+                        {callout.note[currentLang] || callout.note.en}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Right Column: Code Viewer & Context Explanation */}
@@ -762,7 +830,7 @@ ${currentCode}`,
                     onClick={handleCloseModal}
                     className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs transition-all cursor-pointer shrink-0 ml-3"
                   >
-                    Зрозуміло
+                    {t("common.understood", "Зрозуміло")}
                   </button>
                 </div>
               </div>
