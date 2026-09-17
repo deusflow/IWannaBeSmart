@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { User, LogOut, ChevronDown, ShieldCheck, Sparkles, LogIn, ArrowRight } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { TOTAL_MAX_STARS } from "@iw/sim-engine";
 import { AuthModal } from "./AuthModal";
 import { UserProfileModal } from "../profile/UserProfileModal";
 
@@ -89,13 +90,11 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           id="btn-user-profile-menu"
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className={`flex items-center gap-2.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl bg-[#EBE5D8] hover:bg-[#FAF8F2] border-2 border-[#1A1D20]/20 hover:border-emerald-600/50 text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-[0.98] select-none group ${
-            isMenuOpen ? "ring-2 ring-emerald-600/20 border-emerald-600" : ""
-          }`}
-          title={`${callsign} (${user.email})`}
+          className="flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 rounded-2xl bg-[#FAF8F2] hover:bg-white border-2 border-[#1A1D20]/25 hover:border-emerald-600/50 shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-[0.98] select-none group"
+          title={t("auth.profileTooltip", "Відкрити панель інженера та телеметрію")}
         >
-          {/* Avatar or Monogram Squircle */}
-          <div className="w-7 h-7 rounded-xl overflow-hidden border-2 border-emerald-600/40 shadow-xs flex items-center justify-center shrink-0 bg-white">
+          {/* Avatar / Initials Stamp */}
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl overflow-hidden bg-accent-blue/15 border border-accent-blue/35 text-accent-blue flex items-center justify-center font-display font-extrabold text-xs shadow-2xs shrink-0">
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
@@ -103,15 +102,13 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#1A1D20] to-[#2C3038] text-white flex items-center justify-center text-[10px] font-mono font-black">
-                {initials}
-              </div>
+              <span>{initials}</span>
             )}
           </div>
 
-          {/* Callsign & Online Sync Status */}
-          <div className="text-left flex flex-col justify-center leading-none">
-            <div className="flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase tracking-wider text-emerald-800">
+          {/* Callsign & Cloud Pulse */}
+          <div className="text-left leading-none hidden xs:flex flex-col justify-center">
+            <div className="flex items-center gap-1 text-[8px] sm:text-[9px] font-mono uppercase tracking-wider text-[#1A1D20]/60 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>{t("auth.syncBadge", "SYNC")} • ONLINE</span>
             </div>
@@ -123,7 +120,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           {/* Star Balance Badge */}
           <div className="flex items-center gap-0.5 text-amber-900 font-bold text-[10px] font-mono bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-600/35 shadow-2xs">
             <span className="text-amber-600">★</span>
-            <span>{totalStars}/57</span>
+            <span>{totalStars}/{TOTAL_MAX_STARS}</span>
           </div>
 
           <ChevronDown
@@ -166,7 +163,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
               <span>{t("auth.masteryStars", "Зірки майстерності:")}</span>
               <span className="text-amber-800 font-bold bg-amber-500/20 border border-amber-600/30 px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1">
                 <Sparkles size={11} className="text-amber-600" />
-                <span>★ {totalStars} / 57</span>
+                <span>★ {totalStars} / {TOTAL_MAX_STARS}</span>
               </span>
             </div>
           </div>

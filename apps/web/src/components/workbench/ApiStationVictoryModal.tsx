@@ -3,7 +3,7 @@
  * @description Station 04: API Forge Victory Modal with Backend & API Architect Skill Matrix
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
@@ -83,6 +83,16 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
   const [isMatrixExpanded, setIsMatrixExpanded] = useState<boolean>(true);
 
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

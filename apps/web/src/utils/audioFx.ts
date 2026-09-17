@@ -11,8 +11,12 @@ class AudioFxEngine {
   constructor() {
     // Read persisted sound setting if available
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("iw_audio_muted");
-      this._isMuted = saved === "true";
+      try {
+        const saved = localStorage.getItem("iw_audio_muted");
+        this._isMuted = saved === "true";
+      } catch {
+        this._isMuted = false;
+      }
     }
   }
 
@@ -52,7 +56,11 @@ class AudioFxEngine {
   public setMuted(muted: boolean): void {
     this._isMuted = muted;
     if (typeof window !== "undefined") {
-      localStorage.setItem("iw_audio_muted", String(muted));
+      try {
+        localStorage.setItem("iw_audio_muted", String(muted));
+      } catch {
+        // Safe catch for iframe / storage quota / private browsing
+      }
     }
   }
 

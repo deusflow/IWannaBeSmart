@@ -5,7 +5,7 @@
  *              structure (.csproj, classes, Main entrypoint, Heap/Stack allocation).
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FolderTree,
@@ -158,6 +158,16 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState<string>("program-cs");
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   // TV project files
   const tvFiles: ProjectFile[] = [

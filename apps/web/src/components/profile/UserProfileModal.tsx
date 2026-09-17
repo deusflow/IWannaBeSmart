@@ -3,7 +3,7 @@
  * @description Blueprint Engineer Profile modal with Callsign/Avatar customization, Learning Analytics, and Achievements.
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   X,
@@ -36,6 +36,7 @@ import {
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
+  TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 
 interface UserProfileModalProps {
@@ -98,6 +99,16 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
   const [isSaving, setIsSaving] = useState(false);
   const [savedNotice, setSavedNotice] = useState(false);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   // Google avatar fallback
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
@@ -536,7 +547,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     <span>{t("profile.masteredStarsLabel", "Освоєно зірок")}</span>
                   </div>
                   <div className="mt-1 font-display font-black text-xl text-[#1A1D20]">
-                    ★ {totalMasteryStars} / 57
+                    ★ {totalMasteryStars} / {TOTAL_MAX_STARS}
                   </div>
                 </div>
 

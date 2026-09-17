@@ -3,7 +3,7 @@
  * @description Station 06: Cyber Bandit Lab Victory Modal with Ethical Hacker & Defense Architect Skill Matrix
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
@@ -79,6 +79,16 @@ export const BanditStationVictoryModal: React.FC<BanditStationVictoryModalProps>
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const [copied, setCopied] = useState(false);
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

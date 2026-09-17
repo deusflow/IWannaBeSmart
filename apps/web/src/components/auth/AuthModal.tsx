@@ -62,6 +62,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   }, [isOpen, mode, clearError]);
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   // Automatically close if user becomes authenticated
   useEffect(() => {
     if (user && isOpen) {
