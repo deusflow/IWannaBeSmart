@@ -372,7 +372,7 @@ export const theoryUa: TheoryDictionary = {
       notes: "У Go обов'язково закривайте потік тіла відповіді через defer resp.Body.Close().",
       diff: "У C#: await client.GetAsync(url). У Go: resp, err := http.Get(url).",
     },
-    "task-api-6-resilient-retry": {
+    "task-api-6-resiliency-retry": {
       concept: "Стійкість до мережевих збоїв: патерн Retry з експоненційною затримкою.",
       tokens: [
         { token: "for (attempt = 1..3)", role: "Retry Loop", explanation: "Обмежує максимальну кількість спроб повтору, запобігаючи нескінченним циклам." },
@@ -381,6 +381,124 @@ export const theoryUa: TheoryDictionary = {
       ],
       notes: "Ніколи не робіть повторні запити без затримки — це може викликати лавину відмов (Retry Storm).",
       diff: "У C#: await Task.Delay(ms). У Go: time.Sleep(duration).",
+    },
+    "task-git-1-genesis": {
+      concept: "Фіксація атомарного стану (Genesis Commit). Git створює незмінний зліпок дерева файлів (Snapshot) із власним SHA-1 хешем.",
+      tokens: [
+        { token: "git", role: "CLI Executable", explanation: "Системна розподілена система контролю версій." },
+        { token: "add .", role: "Staging Area", explanation: "Переносить усі змінені файли робочої директорії в індекс для фіксації." },
+        { token: "commit -m", role: "Snapshot Creation", explanation: "Фіксує зліпок із пояснювальним повідомленням про зміну." },
+      ],
+      notes: "Кожен коміт містить автора, часову мітку, хеш вмісту та посилання на батьківські коміти.",
+      diff: "У C#: Process.Start(\"git\", \"commit -m ...\"). У Go: exec.Command(\"git\", \"commit\", \"-m\", \"...\").Run().",
+    },
+    "task-git-2-branching": {
+      concept: "Ізольовані лінії розробки (Branching). Створення та перемикання на нову гілку для безпечної реалізації фічі.",
+      tokens: [
+        { token: "checkout", role: "Working Tree Switch", explanation: "Оновлює файли в робочому просторі відповідно до вказаної версії." },
+        { token: "-b", role: "Create Flag", explanation: "Створює нову гілку і миттєво перемикає покажчик HEAD на неї." },
+        { token: "feature/ir-blaster", role: "Branch Name", explanation: "Назва гілки, що посилається на поточний коміт." },
+      ],
+      notes: "Гілка в Git — це лише 41-байтний файл у .git/refs/heads/, що зберігає хеш коміту.",
+      diff: "У C#: Process.Start(\"git\", \"checkout -b ...\"). У Go: exec.Command(\"git\", \"checkout\", \"-b\", \"...\").Run().",
+    },
+    "task-git-3-merge": {
+      concept: "Злиття історії (Merge). Поєднання виконаної роботи з фіче-гілки у головну виробничу гілку main.",
+      tokens: [
+        { token: "checkout main", role: "Target Branch", explanation: "Перемикання на цільову гілку, куди буде інтегровано код." },
+        { token: "merge", role: "DAG Combiner", explanation: "Інтегрує історію комітів іншої гілки в поточну." },
+        { token: "feature/ir-blaster", role: "Source Branch", explanation: "Гілка, чиї зміни вливаються." },
+      ],
+      notes: "Якщо в main не було нових комітів, Git виконує швидке злиття Fast-Forward без створення додаткового коміту.",
+      diff: "У C#: Process.Start(\"git\", \"merge ...\"). У Go: exec.Command(\"git\", \"merge\", \"...\").Run().",
+    },
+    "task-git-4-conflict": {
+      concept: "Розв'язання конфліктів (Merge Conflicts). Ручне узгодження суперечливих змін в однакових рядках файлу.",
+      tokens: [
+        { token: "merge hotfix/baudrate", role: "Trigger Merge", explanation: "Ініціює злиття, що виявляє конфліктні рядки." },
+        { token: "add device.config", role: "Resolution Flag", explanation: "Позначає конфліктний файл як успішно розв'язаний." },
+        { token: "commit -m", role: "Merge Commit", explanation: "Створює коміт злиття із двома предками (Parents)." },
+      ],
+      notes: "Конфлікти виникають, коли обидві гілки змінили однакові рядки з моменту їхнього спільного предка.",
+      diff: "У C#: Process.Start(\"git\", \"add ...\"). У Go: exec.Command(\"git\", \"add\", \"...\").Run().",
+    },
+    "task-git-5-rebase": {
+      concept: "Лінеаризація історії (Git Rebase). Перенесення основи гілки на верхівку main для збереження чистого графа.",
+      tokens: [
+        { token: "checkout feature/...", role: "Source Context", explanation: "Перехід у гілку, чиї коміти будуть перенесені." },
+        { token: "rebase main", role: "Rebase Execution", explanation: "Відтворює коміти по черзі поверх останнього коміту main." },
+      ],
+      notes: "Rebase створює нові коміти з новими хешами — ніколи не застосовуйте його до спільних публічних гілок!",
+      diff: "У C#: Process.Start(\"git\", \"rebase main\"). У Go: exec.Command(\"git\", \"rebase\", \"main\").Run().",
+    },
+    "task-git-6-pull-request": {
+      concept: "Конвеєр автоматизації та Pull Request. Ізольований рев'ю-код із проходженням автоматичних CI-тестів.",
+      tokens: [
+        { token: "checkout -b pr/...", role: "PR Branch", explanation: "Ізольована гілка під Pull Request для CI перевірок." },
+        { token: "CI Quality Gate", role: "Automated Checks", explanation: "Автоматичний запуск лінтерів і тестів до злиття." },
+        { token: "merge pr/...", role: "Trunk Landing", explanation: "Інтеграція перевіреного та атестованого коду в головну гілку." },
+      ],
+      notes: "GitHub Flow гарантує, що зламаний або нестабільний код не потрапить у production без схвалення.",
+      diff: "У C#: Process.Start(\"git\", \"merge pr/...\"). У Go: exec.Command(\"git\", \"merge\", \"pr/...\").Run().",
+    },
+    "task-bandit-1-hidden-key": {
+      concept: "Безпечне завантаження конфігурації. Зчитування ключів зі змінних оточення (Environment Variables) замість хардкоду.",
+      tokens: [
+        { token: "Environment.GetEnvironmentVariable", role: "OS Secret Reader", explanation: "Зчитує конфіденційні дані з пам'яті процесу операційної системи." },
+        { token: "\"API_SECRET\"", role: "Secret Key Identifier", explanation: "Ім'я змінної середовища, де зберігається токен." },
+        { token: "throw new InvalidOperationException", role: "Fail-Fast Guard", explanation: "Зупиняє запуск системи, якщо обов'язковий ключ відсутній." },
+      ],
+      notes: "Хардкод секретів у коді — причина №1 витоків облікових даних на GitHub.",
+      diff: "У C#: Environment.GetEnvironmentVariable(\"KEY\"). У Go: os.Getenv(\"KEY\").",
+    },
+    "task-bandit-2-obfuscation": {
+      concept: "Криптографічна стійкість (CSPRNG). Генерація непередбачуваних токенів за допомогою апаратної ентропії.",
+      tokens: [
+        { token: "RandomNumberGenerator.Fill(buffer)", role: "CSPRNG Buffer Fill", explanation: "Заповнює пам'ять криптографічно непередбачуваними байтами ОС." },
+        { token: "Convert.ToBase64String", role: "Binary Encoding", explanation: "Перетворює сирі байти у безпечний для URL та заголовків рядок." },
+      ],
+      notes: "Звичайний Random() генерує псевдовипадкові числа за фіксованою математичною формулою і легко зламується.",
+      diff: "У C#: RandomNumberGenerator.Fill(buf). У Go: rand.Read(buf).",
+    },
+    "task-bandit-3-wire-tap": {
+      concept: "Контроль цілісності повідомлень (HMAC-SHA256). Підпис запиту секретним ключем та захист від Timing Attacks.",
+      tokens: [
+        { token: "new HMACSHA256(key)", role: "HMAC Hasher", explanation: "Ініціалізує алгоритм хешування з секретним ключем." },
+        { token: "ComputeHash(payload)", role: "Digest Calculation", explanation: "Створює цифровий підпис тіла запиту." },
+        { token: "FixedTimeEquals", role: "Constant Time Comparator", explanation: "Порівнює байти за фіксований час, захищаючи від атак за часом виконання." },
+      ],
+      notes: "Оператор '==' припиняє перевірку на першому невідповідному байті, що дає змогу хакеру виміряти час і підібрати підпис.",
+      diff: "У C#: CryptographicOperations.FixedTimeEquals(a, b). У Go: hmac.Equal(a, b).",
+    },
+    "task-bandit-4-sql-injection": {
+      concept: "Імунітет до SQL-ін'єкцій (Prepared Statements). Розділення структури запиту та даних користувача через параметризацію.",
+      tokens: [
+        { token: "@username", role: "Query Parameter Placeholder", explanation: "Іменований плейсхолдер у дереві скомпільованого SQL-запиту." },
+        { token: "cmd.Parameters.AddWithValue", role: "Safe Data Binding", explanation: "Передає вхідні дані виключно як літерал, унеможливлюючи виконання коду." },
+        { token: "SqlCommand", role: "Prepared Command", explanation: "Клас драйвера бази даних для безпечного виконання запитів." },
+      ],
+      notes: "Конкатенація рядків у SQL перетворює введення користувача на виконуваний код (наприклад, ' OR '1'='1).",
+      diff: "У C#: cmd.Parameters.AddWithValue(\"@u\", val). У Go: db.QueryRow(\"... WHERE u = $1\", val).",
+    },
+    "task-bandit-5-rate-limiter": {
+      concept: "Захист від перевантаження (Rate Limiting & HTTP 429). Обмеження частоти запитів через алгоритм Token Bucket.",
+      tokens: [
+        { token: "StatusCodes.Status429TooManyRequests", role: "HTTP Throttle Status", explanation: "Стандартний код відповіді про перевищення ліміту частоти звернень." },
+        { token: "AttemptAcquire", role: "Token Bucket Check", explanation: "Перевіряє наявність дозволених квот запитів у поточному часовому вікні." },
+      ],
+      notes: "Rate Limiting захищає базу даних та процесор від атак типу перебору паролів (Brute Force) та DDoS.",
+      diff: "У C#: context.Response.StatusCode = 429. У Go: http.Error(w, \"Rate limit\", 429).",
+    },
+    "task-bandit-6-defense-in-depth": {
+      concept: "Глибокоешелонована оборона (Defense in Depth). Послідовний захисний конвеєр: TLS, Rate Limiting, AuthN/AuthZ та HMAC.",
+      tokens: [
+        { token: "app.UseHttpsRedirection()", role: "TLS Transport Guard", explanation: "Примусовий перехід на шифроване з'єднання TLS." },
+        { token: "app.UseRateLimiter()", role: "Traffic Gate", explanation: "Фільтрація аномальних сплесків трафіку." },
+        { token: "app.UseAuthentication()", role: "Identity Verification", explanation: "Перевірка цифрового підпису Bearer токена." },
+        { token: "app.UseAuthorization()", role: "Role Access Guard", explanation: "Перевірка прав доступу користувача до ресурсу." },
+      ],
+      notes: "Якщо зловмисник зламає один шар захисту, наступний шар повинен зупинити атаку.",
+      diff: "У C#: конвеєр app.Use...(). У Go: ланцюг обгорток middleware(handler).",
     },
   },
 };
@@ -730,7 +848,7 @@ export const theoryEn: TheoryDictionary = {
       notes: "In Go, always close the response body stream via defer resp.Body.Close() to prevent socket descriptor leaks.",
       diff: "In C#: await client.GetAsync(url). In Go: resp, err := http.Get(url).",
     },
-    "task-api-6-resilient-retry": {
+    "task-api-6-resiliency-retry": {
       concept: "Network fault resilience using the Retry pattern with exponential backoff.",
       tokens: [
         { token: "for (attempt = 1..3)", role: "Retry Loop", explanation: "Caps maximum attempt count to prevent infinite execution loops." },
@@ -739,6 +857,124 @@ export const theoryEn: TheoryDictionary = {
       ],
       notes: "Never execute retries without a backoff delay; immediate loops trigger severe cascading retry storms.",
       diff: "In C#: await Task.Delay(ms). In Go: time.Sleep(duration).",
+    },
+    "task-git-1-genesis": {
+      concept: "Atomic snapshot creation (Genesis Commit). Git stores immutable directory trees as snapshots identified by unique SHA-1 hashes.",
+      tokens: [
+        { token: "git", role: "CLI Executable", explanation: "Distributed version control system CLI executable." },
+        { token: "add .", role: "Staging Area", explanation: "Stages all modified working tree files into the index." },
+        { token: "commit -m", role: "Snapshot Creation", explanation: "Creates an immutable snapshot accompanied by an audit message." },
+      ],
+      notes: "Every commit tracks author metadata, timestamp, tree hash, and parent pointers.",
+      diff: "In C#: Process.Start(\"git\", \"commit -m ...\"). In Go: exec.Command(\"git\", \"commit\", \"-m\", \"...\").Run().",
+    },
+    "task-git-2-branching": {
+      concept: "Isolated development lines (Branching). Creating and switching to a dedicated feature branch.",
+      tokens: [
+        { token: "checkout", role: "Working Tree Switch", explanation: "Updates working tree files to match specified revision." },
+        { token: "-b", role: "Create Flag", explanation: "Creates a new branch and immediately attaches HEAD pointer." },
+        { token: "feature/ir-blaster", role: "Branch Name", explanation: "Semantic branch identifier pointing to current commit." },
+      ],
+      notes: "A Git branch is simply a 41-byte text file under .git/refs/heads/ storing a commit SHA.",
+      diff: "In C#: Process.Start(\"git\", \"checkout -b ...\"). In Go: exec.Command(\"git\", \"checkout\", \"-b\", \"...\").Run().",
+    },
+    "task-git-3-merge": {
+      concept: "History integration (Merge). Combining completed feature work back into the primary trunk.",
+      tokens: [
+        { token: "checkout main", role: "Target Branch", explanation: "Switches context to target integration branch." },
+        { token: "merge", role: "DAG Combiner", explanation: "Integrates target branch commit tree into current branch." },
+        { token: "feature/ir-blaster", role: "Source Branch", explanation: "Branch whose changes are being imported." },
+      ],
+      notes: "When main has no conflicting commits, Git performs a fast-forward pointer movement.",
+      diff: "In C#: Process.Start(\"git\", \"merge ...\"). In Go: exec.Command(\"git\", \"merge\", \"...\").Run().",
+    },
+    "task-git-4-conflict": {
+      concept: "Conflict resolution (Merge Conflicts). Reconciling conflicting edits made to identical file spans.",
+      tokens: [
+        { token: "merge hotfix/baudrate", role: "Trigger Merge", explanation: "Triggers merge operation encountering overlapping line edits." },
+        { token: "add device.config", role: "Resolution Flag", explanation: "Stages manually resolved file to mark conflict resolved." },
+        { token: "commit -m", role: "Merge Commit", explanation: "Finalizes 3-way merge by recording multi-parent commit node." },
+      ],
+      notes: "Conflicts happen when two branches mutate identical lines after their common ancestor commit.",
+      diff: "In C#: Process.Start(\"git\", \"add ...\"). In Go: exec.Command(\"git\", \"add\", \"...\").Run().",
+    },
+    "task-git-5-rebase": {
+      concept: "History linearization (Git Rebase). Replaying topic commits on top of current trunk tip.",
+      tokens: [
+        { token: "checkout feature/...", role: "Source Context", explanation: "Selects branch whose commits will be replayed." },
+        { token: "rebase main", role: "Rebase Execution", explanation: "Reapplies branch commits sequentially atop latest main commit." },
+      ],
+      notes: "Rebase alters commit hashes — never rebase branches published to shared remote repositories!",
+      diff: "In C#: Process.Start(\"git\", \"rebase main\"). In Go: exec.Command(\"git\", \"rebase\", \"main\").Run().",
+    },
+    "task-git-6-pull-request": {
+      concept: "Automated CI Pipeline & Pull Request. Isolated review workflow backed by automated CI gates.",
+      tokens: [
+        { token: "checkout -b pr/...", role: "PR Branch", explanation: "Dedicated PR branch subjected to build validation." },
+        { token: "CI Quality Gate", role: "Automated Checks", explanation: "Automatic test runners and linters enforcing release standards." },
+        { token: "merge pr/...", role: "Trunk Landing", explanation: "Clean integration of approved branch into production." },
+      ],
+      notes: "GitHub Flow prevents regression defects from landing in master without automated peer validation.",
+      diff: "In C#: Process.Start(\"git\", \"merge pr/...\"). In Go: exec.Command(\"git\", \"merge\", \"pr/...\").Run().",
+    },
+    "task-bandit-1-hidden-key": {
+      concept: "Secure credential configuration. Loading secrets dynamically from environment variables instead of source hardcoding.",
+      tokens: [
+        { token: "Environment.GetEnvironmentVariable", role: "OS Secret Reader", explanation: "Extracts credentials directly from OS process environment space." },
+        { token: "\"API_SECRET\"", role: "Secret Key Identifier", explanation: "Standardized environmental variable key name." },
+        { token: "throw new InvalidOperationException", role: "Fail-Fast Guard", explanation: "Halts boot process immediately when essential secret is missing." },
+      ],
+      notes: "Hardcoding credentials inside code repositories accounts for the vast majority of cloud breaches.",
+      diff: "In C#: Environment.GetEnvironmentVariable(\"KEY\"). In Go: os.Getenv(\"KEY\").",
+    },
+    "task-bandit-2-obfuscation": {
+      concept: "Cryptographic pseudo-random generation (CSPRNG). Generating unpredictable session tokens backed by OS entropy.",
+      tokens: [
+        { token: "RandomNumberGenerator.Fill(buffer)", role: "CSPRNG Buffer Fill", explanation: "Populates buffer with cryptographically secure random bytes from OS entropy." },
+        { token: "Convert.ToBase64String", role: "Binary Encoding", explanation: "Encodes binary buffer into URL and header-safe Base64 string." },
+      ],
+      notes: "Standard pseudo-random generators (new Random()) follow deterministic math and are completely vulnerable to prediction.",
+      diff: "In C#: RandomNumberGenerator.Fill(buf). In Go: rand.Read(buf).",
+    },
+    "task-bandit-3-wire-tap": {
+      concept: "Message authentication & integrity (HMAC-SHA256). Signing payloads with shared keys and mitigating timing attacks.",
+      tokens: [
+        { token: "new HMACSHA256(key)", role: "HMAC Hasher", explanation: "Initializes keyed-hash message authentication engine with secret." },
+        { token: "ComputeHash(payload)", role: "Digest Calculation", explanation: "Generates tamper-proof cryptographic fingerprint over request payload." },
+        { token: "FixedTimeEquals", role: "Constant Time Comparator", explanation: "Compares signatures in constant time to thwart timing side-channel attacks." },
+      ],
+      notes: "Naive '==' comparisons abort at the first mismatched byte, leaking character matching timing to eavesdroppers.",
+      diff: "In C#: CryptographicOperations.FixedTimeEquals(a, b). In Go: hmac.Equal(a, b).",
+    },
+    "task-bandit-4-sql-injection": {
+      concept: "SQL injection immunity (Prepared Statements). Separating SQL syntax parsing from user data through parameterized binding.",
+      tokens: [
+        { token: "@username", role: "Query Parameter Placeholder", explanation: "Designated parameter token parsed strictly as data literal." },
+        { token: "cmd.Parameters.AddWithValue", role: "Safe Data Binding", explanation: "Binds user input directly to database driver parameter slots." },
+        { token: "SqlCommand", role: "Prepared Command", explanation: "Database execution abstraction executing pre-compiled statements." },
+      ],
+      notes: "String concatenation inside SQL strings allows attackers to break quotation contexts and execute arbitrary SQL.",
+      diff: "In C#: cmd.Parameters.AddWithValue(\"@u\", val). In Go: db.QueryRow(\"... WHERE u = $1\", val).",
+    },
+    "task-bandit-5-rate-limiter": {
+      concept: "Traffic throttling defense (Rate Limiting & HTTP 429). Token Bucket algorithm enforcing client request quotas.",
+      tokens: [
+        { token: "StatusCodes.Status429TooManyRequests", role: "HTTP Throttle Status", explanation: "Standard RFC 6585 response signaling client request rate overflow." },
+        { token: "AttemptAcquire", role: "Token Bucket Check", explanation: "Evaluates available request token allowance within current quota window." },
+      ],
+      notes: "Rate limiting guards thread pools and database connections against brute-force and volumetric DDoS spikes.",
+      diff: "In C#: context.Response.StatusCode = 429. In Go: http.Error(w, \"Rate limit\", 429).",
+    },
+    "task-bandit-6-defense-in-depth": {
+      concept: "Multi-layered resilience (Defense in Depth). Cascading pipeline enforcing TLS, Rate Limiting, AuthN/AuthZ, and input validation.",
+      tokens: [
+        { token: "app.UseHttpsRedirection()", role: "TLS Transport Guard", explanation: "Mandates strict HTTPS transport encryption." },
+        { token: "app.UseRateLimiter()", role: "Traffic Gate", explanation: "Throttles volumetric floods at early ingress stage." },
+        { token: "app.UseAuthentication()", role: "Identity Verification", explanation: "Validates cryptographic token authenticity." },
+        { token: "app.UseAuthorization()", role: "Role Access Guard", explanation: "Restricts resource endpoints based on user claims." },
+      ],
+      notes: "Should one defense layer fail, succeeding layers prevent full system compromise.",
+      diff: "In C#: app.Use...() pipeline. In Go: middleware wrapper chain middleware(handler).",
     },
   },
 };
@@ -1088,7 +1324,7 @@ export const theoryDa: TheoryDictionary = {
       notes: "I Go skal svarstrømmen altid lukkes med defer resp.Body.Close() for at undgå socket-lækager.",
       diff: "I C#: await client.GetAsync(url). I Go: resp, err := http.Get(url).",
     },
-    "task-api-6-resilient-retry": {
+    "task-api-6-resiliency-retry": {
       concept: "Modstandsdygtighed over for netværksfejl: Retry-mønster med eksponentiel ventetid.",
       tokens: [
         { token: "for (attempt = 1..3)", role: "Retry Loop", explanation: "Begrænser det maksimale antal gentagne forsøg mod uendelige løkker." },
@@ -1097,6 +1333,124 @@ export const theoryDa: TheoryDictionary = {
       ],
       notes: "Udfør aldrig gentagne forespørgsler uden forsinkelse; øjeblikkelige løkker forårsager overbelastning (Retry Storm).",
       diff: "I C#: await Task.Delay(ms). I Go: time.Sleep(duration).",
+    },
+    "task-git-1-genesis": {
+      concept: "Atomisk øjebliksbillede (Genesis Commit). Git gemmer uforanderlige mappe-træer som snapshots identificeret med unikke SHA-1 hashes.",
+      tokens: [
+        { token: "git", role: "CLI Executable", explanation: "Distribueret versionsstyringsværktøj i terminalen." },
+        { token: "add .", role: "Staging Area", explanation: "Klargør alle ændrede filer i arbejdsmappen til arkivering." },
+        { token: "commit -m", role: "Snapshot Creation", explanation: "Gemmer et uforanderligt øjebliksbillede med en forklarende besked." },
+      ],
+      notes: "Hver commit registrerer forfatter, tidsstempel, indholdshash og forældrepegepinde.",
+      diff: "I C#: Process.Start(\"git\", \"commit -m ...\"). I Go: exec.Command(\"git\", \"commit\", \"-m\", \"...\").Run().",
+    },
+    "task-git-2-branching": {
+      concept: "Isolerede udviklingslinjer (Branching). Oprettelse af og skift til en dedikeret funktionsgren.",
+      tokens: [
+        { token: "checkout", role: "Working Tree Switch", explanation: "Opdaterer arbejdsmappens filer til den valgte version." },
+        { token: "-b", role: "Create Flag", explanation: "Opretter en ny gren og flytter straks HEAD-markøren." },
+        { token: "feature/ir-blaster", role: "Branch Name", explanation: "Navnet på grenen, som peger på den aktuelle commit." },
+      ],
+      notes: "En Git-gren er blot en 41-byte tekstfil i .git/refs/heads/, der indeholder et commit-hash.",
+      diff: "I C#: Process.Start(\"git\", \"checkout -b ...\"). I Go: exec.Command(\"git\", \"checkout\", \"-b\", \"...\").Run().",
+    },
+    "task-git-3-merge": {
+      concept: "Fletning af historik (Merge). Forener fuldført arbejde fra funktionsgrenen ind i hovedgrenen main.",
+      tokens: [
+        { token: "checkout main", role: "Target Branch", explanation: "Skifter kontekst til målgrenen hvor koden skal integreres." },
+        { token: "merge", role: "DAG Combiner", explanation: "Forener ændringerne fra kildegrenen ind i den aktuelle gren." },
+        { token: "feature/ir-blaster", role: "Source Branch", explanation: "Kildegrenen hvis ændringer indføres." },
+      ],
+      notes: "Hvis main ikke har nye commits, udfører Git en hurtig Fast-Forward fremføring uden ekstra commit.",
+      diff: "I C#: Process.Start(\"git\", \"merge ...\"). I Go: exec.Command(\"git\", \"merge\", \"...\").Run().",
+    },
+    "task-git-4-conflict": {
+      concept: "Løsning af flettekonflikter (Merge Conflicts). Manuel afstemning af modstridende ændringer i samme fillinjer.",
+      tokens: [
+        { token: "merge hotfix/baudrate", role: "Trigger Merge", explanation: "Starter fletning som opdager overlappende linjeændringer." },
+        { token: "add device.config", role: "Resolution Flag", explanation: "Klargør den rettede fil og markerer konflikten som løst." },
+        { token: "commit -m", role: "Merge Commit", explanation: "Opretter en flette-commit med to forældreknuder." },
+      ],
+      notes: "Konflikter opstår, når to grene har ændret de samme linjer efter deres fælles forfader.",
+      diff: "I C#: Process.Start(\"git\", \"add ...\"). I Go: exec.Command(\"git\", \"add\", \"...\").Run().",
+    },
+    "task-git-5-rebase": {
+      concept: "Lineær historik (Git Rebase). Genafspiller commits oven på spidsen af hovedgrenen for et rent træ.",
+      tokens: [
+        { token: "checkout feature/...", role: "Source Context", explanation: "Vælger grenen hvis commits skal genafspilles." },
+        { token: "rebase main", role: "Rebase Execution", explanation: "Gennemtvinger sekventiel påføring oven på seneste main commit." },
+      ],
+      notes: "Rebase genererer nye hashes — udfør aldrig rebase på offentlige delte grene!",
+      diff: "I C#: Process.Start(\"git\", \"rebase main\"). I Go: exec.Command(\"git\", \"rebase\", \"main\").Run().",
+    },
+    "task-git-6-pull-request": {
+      concept: "Automatiseret CI-pipeline & Pull Request. Isoleret review-arbejdsgang sikret med automatiske tests.",
+      tokens: [
+        { token: "checkout -b pr/...", role: "PR Branch", explanation: "Dedikeret PR-gren klargjort til CI-verifikation." },
+        { token: "CI Quality Gate", role: "Automated Checks", explanation: "Automatiske testkørsler og linters der sikrer kodekvalitet." },
+        { token: "merge pr/...", role: "Trunk Landing", explanation: "Sikker indførelse af godkendt kode i produktionsgrenen." },
+      ],
+      notes: "GitHub Flow sikrer at ustabil kode aldrig når master uden automatisk validering.",
+      diff: "I C#: Process.Start(\"git\", \"merge pr/...\"). I Go: exec.Command(\"git\", \"merge\", \"pr/...\").Run().",
+    },
+    "task-bandit-1-hidden-key": {
+      concept: "Sikker konfigurationsindlæsning. Henter hemmeligheder fra miljøvariable (Environment Variables) frem for hårdkodning.",
+      tokens: [
+        { token: "Environment.GetEnvironmentVariable", role: "OS Secret Reader", explanation: "Henter fortrolige data direkte fra operativsystemets proceshukommelse." },
+        { token: "\"API_SECRET\"", role: "Secret Key Identifier", explanation: "Miljøvariablens standardiserede nøglenavn." },
+        { token: "throw new InvalidOperationException", role: "Fail-Fast Guard", explanation: "Afbryder opstarten øjeblikkeligt, hvis nøglen mangler." },
+      ],
+      notes: "Hårdkodning af adgangsnøgler i kildekoden er årsag nummer 1 til sikkerhedslækager på GitHub.",
+      diff: "I C#: Environment.GetEnvironmentVariable(\"KEY\"). I Go: os.Getenv(\"KEY\").",
+    },
+    "task-bandit-2-obfuscation": {
+      concept: "Kryptografisk tilfældighed (CSPRNG). Generering af uforudsigelige tokens ved hjælp af hardware-entropi.",
+      tokens: [
+        { token: "RandomNumberGenerator.Fill(buffer)", role: "CSPRNG Buffer Fill", explanation: "Udfylder bufferen med kryptografisk sikre tilfældige bytes fra OS-entropi." },
+        { token: "Convert.ToBase64String", role: "Binary Encoding", explanation: "Koder binære bytes til en sikker Base64-tekststreng til webbrug." },
+      ],
+      notes: "Almindelige Random()-funktioner følger deterministiske formler og kan nemt forudsiges af angribere.",
+      diff: "I C#: RandomNumberGenerator.Fill(buf). I Go: rand.Read(buf).",
+    },
+    "task-bandit-3-wire-tap": {
+      concept: "Integritetskontrol (HMAC-SHA256). Signering af beskeder med delt hemmelig nøgle og beskyttelse mod timing-angreb.",
+      tokens: [
+        { token: "new HMACSHA256(key)", role: "HMAC Hasher", explanation: "Initialiserer hash-algoritmen med den hemmelige nøgle." },
+        { token: "ComputeHash(payload)", role: "Digest Calculation", explanation: "Beregner et manipulationssikkert fingeraftryk af beskedens indhold." },
+        { token: "FixedTimeEquals", role: "Constant Time Comparator", explanation: "Sammenligner bytes i konstant tid mod timing-angreb." },
+      ],
+      notes: "Almindelig '==' afbryder ved første forkerte byte, hvilket gør det muligt at gætte signaturen ud fra mikrosekunder.",
+      diff: "I C#: CryptographicOperations.FixedTimeEquals(a, b). I Go: hmac.Equal(a, b).",
+    },
+    "task-bandit-4-sql-injection": {
+      concept: "Immunitet mod SQL-injektion (Prepared Statements). Adskillelse af SQL-forespørgslens struktur og brugerdata via parametre.",
+      tokens: [
+        { token: "@username", role: "Query Parameter Placeholder", explanation: "Navngivet pladsholder i den forudkompilerede SQL-forespørgsel." },
+        { token: "cmd.Parameters.AddWithValue", role: "Safe Data Binding", explanation: "Binder input udelukkende som dataværdi, hvilket blokerer kodekørsel." },
+        { token: "SqlCommand", role: "Prepared Command", explanation: "Databasekommando der sikrer adskillelse mellem logik og data." },
+      ],
+      notes: "Tekstsammenkædning i SQL lader hackere indsætte ' OR '1'='1 og omgå alle adgangskontroller.",
+      diff: "I C#: cmd.Parameters.AddWithValue(\"@u\", val). I Go: db.QueryRow(\"... WHERE u = $1\", val).",
+    },
+    "task-bandit-5-rate-limiter": {
+      concept: "Beskyttelse mod overbelastning (Rate Limiting & HTTP 429). Begrænsning af forespørgselsfrekvens via Token Bucket-algoritmen.",
+      tokens: [
+        { token: "StatusCodes.Status429TooManyRequests", role: "HTTP Throttle Status", explanation: "Standard HTTP-svarkode for overskredet anmodningsgrænse." },
+        { token: "AttemptAcquire", role: "Token Bucket Check", explanation: "Kontrollerer om der er tilgængelige anmodningskvoter i tidsvinduet." },
+      ],
+      notes: "Rate limiting forhindrer udtømning af servertilslutninger og beskytter mod brute-force angreb.",
+      diff: "I C#: context.Response.StatusCode = 429. I Go: http.Error(w, \"Rate limit\", 429).",
+    },
+    "task-bandit-6-defense-in-depth": {
+      concept: "Dybdegående forsvar (Defense in Depth). Trinvist sikkerhedspipeline: TLS, Rate Limiting, AuthN/AuthZ og signaturvalidering.",
+      tokens: [
+        { token: "app.UseHttpsRedirection()", role: "TLS Transport Guard", explanation: "Gennemtvinger krypteret HTTPS-forbindelse." },
+        { token: "app.UseRateLimiter()", role: "Traffic Gate", explanation: "Filtrerer unormale trafikbølger på et tidligt stadie." },
+        { token: "app.UseAuthentication()", role: "Identity Verification", explanation: "Validerer ægtheden af brugerens Bearer-token." },
+        { token: "app.UseAuthorization()", role: "Role Access Guard", explanation: "Kontrollerer brugerens rettigheder til det specifikke endepunkt." },
+      ],
+      notes: "Hvis et forsvarslag svigter, skal det næste lag forhindre et fuldstændigt sikkerhedsbrud.",
+      diff: "I C#: app.Use...() middleware-pipeline. I Go: middleware-kæde middleware(handler).",
     },
   },
 };

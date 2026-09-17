@@ -107,10 +107,10 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
 
   // Retrieve theory tokens for syntax breakdown
   const translatedTheory = t(`theory.tasks.${taskId}`, { returnObjects: true }) as TaskTheory;
-  const theory: TaskTheory =
+  const theory: TaskTheory | undefined =
     translatedTheory && translatedTheory.tokens
       ? translatedTheory
-      : theoryUa.tasks[taskId] || theoryUa.tasks["task-0-1-power-on"];
+      : theoryUa.tasks[taskId] || (taskId.startsWith("task-0") ? theoryUa.tasks["task-0-1-power-on"] : undefined);
 
   const simpleText = t(data.simpleKey, { defaultValue: "" });
   const engineeringText = t(data.engineeringKey, { defaultValue: "" });

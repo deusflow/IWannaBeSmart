@@ -251,6 +251,8 @@ export const WorkbenchScreen: React.FC = () => {
                     ? t("apiForge.title", "API Forge: Client & Server")
                     : currentStationId === "git"
                     ? t("git.title", "Git Time Machine: Visual DAG & CLI")
+                    : currentStationId === "bandit"
+                    ? t("bandit.title", "Cyber Bandit Lab: Ethical Security")
                     : t("level.level1Title", { defaultValue: tvLevel01.title })}
                 </span>
               </div>
