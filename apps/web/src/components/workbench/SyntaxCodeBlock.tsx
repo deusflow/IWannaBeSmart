@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, Copy } from "lucide-react";
 
 interface SyntaxCodeBlockProps {
@@ -10,6 +11,7 @@ export const SyntaxCodeBlock: React.FC<SyntaxCodeBlockProps> = ({
   code,
   language,
 }) => {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -141,18 +143,18 @@ export const SyntaxCodeBlock: React.FC<SyntaxCodeBlockProps> = ({
         {/* Copy Button */}
         <button
           onClick={handleCopy}
-          title="Копіювати код"
+          title={t("common.copy", "Копіювати")}
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#252A34] hover:bg-[#323846] text-[#C4CBD4] text-[11px] font-sans transition-all active:scale-95 cursor-pointer border border-[#3A4250]"
         >
           {copied ? (
             <>
               <Check size={12} className="text-[#4ADE80]" />
-              <span className="text-[#4ADE80] font-semibold">Скопійовано</span>
+              <span className="text-[#4ADE80] font-semibold">{t("common.copied", "Скопійовано")}</span>
             </>
           ) : (
             <>
               <Copy size={12} />
-              <span>Копіювати</span>
+              <span>{t("common.copy", "Копіювати")}</span>
             </>
           )}
         </button>

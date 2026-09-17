@@ -252,7 +252,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
               <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/15 text-[#1A1D20]">
                 <FileCode2 size={12} className="text-purple-700 shrink-0" />
                 <span className="truncate">
-                  <strong>Контракт:</strong> {didactic.architectureMap.contractFile}
+                  <strong>{t("architecture.interfaceLabel", "Контракт")}:</strong> {didactic.architectureMap.contractFile}
                 </span>
               </div>
             )}
@@ -260,7 +260,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
               <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/15 text-[#1A1D20]">
                 <FileCode2 size={12} className="text-emerald-700 shrink-0" />
                 <span className="truncate">
-                  <strong>Клас:</strong> {didactic.architectureMap.implementationFile}
+                  <strong>{t("architecture.implementationLabel", "Клас")}:</strong> {didactic.architectureMap.implementationFile}
                 </span>
               </div>
             )}

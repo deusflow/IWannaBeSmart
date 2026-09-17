@@ -18,6 +18,8 @@ export const enTranslation = {
         collapse: "Collapse",
         expand: "Expand",
         showAll: "Show all",
+        copy: "Copy",
+        copied: "Copied",
       },
       auth: {
         titleSignIn: "Engineer Authorization",

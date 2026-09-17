@@ -18,6 +18,8 @@ export const uaTranslation = {
         collapse: "Згорнути",
         expand: "Розгорнути",
         showAll: "Показати всі",
+        copy: "Копіювати",
+        copied: "Скопійовано",
       },
       auth: {
         titleSignIn: "Авторизація інженера",

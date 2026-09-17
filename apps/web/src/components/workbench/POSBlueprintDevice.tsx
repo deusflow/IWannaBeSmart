@@ -325,7 +325,12 @@ export const POSBlueprintDevice: React.FC = () => {
               </span>
               <span className="text-[10px] text-gray-400 font-bold">
                 {posState.failedAttempts && posState.failedAttempts > 0 ? (
-                  <span className="text-red-400">Спроби: {posState.failedAttempts}/3</span>
+                  <span className="text-red-400">
+                    {t("posDevice.attemptsCount", {
+                      count: posState.failedAttempts,
+                      defaultValue: `Спроби: ${posState.failedAttempts}/3`,
+                    })}
+                  </span>
                 ) : (
                   <span>{posManualPin.length}/4</span>
                 )}
