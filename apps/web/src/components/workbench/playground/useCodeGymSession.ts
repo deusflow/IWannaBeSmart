@@ -38,6 +38,7 @@ export interface CodeGymTaskLike {
 
 interface UseCodeGymSessionOptions<TTask extends CodeGymTaskLike> {
   currentTask: TTask;
+  starsEarned?: number;
   onRoundComplete?: (round: 1 | 2 | 3 | 4, code: string, stats?: { wpm: number; accuracy: number }) => Promise<void> | void;
 }
 
@@ -78,9 +79,25 @@ function checkClozeConsistency(input: string, target: string): { isComplete: boo
 
 export function useCodeGymSession<TTask extends CodeGymTaskLike>({
   currentTask,
+  starsEarned = 0,
   onRoundComplete,
 }: UseCodeGymSessionOptions<TTask>) {
   const { t } = useTranslation();
+
+  const [isTheoryUnlocked, setIsTheoryUnlocked] = useState<boolean>(() => starsEarned > 0);
+
+  useEffect(() => {
+    setIsTheoryUnlocked(starsEarned > 0);
+  }, [currentTask.id, starsEarned]);
+
+  const unlockPractice = useCallback(() => {
+    setIsTheoryUnlocked(true);
+    audioFx.playRelayClick();
+    setTimeout(() => {
+      const cm = document.querySelector(".cm-content") as HTMLElement | null;
+      cm?.focus();
+    }, 50);
+  }, []);
 
   const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
   const [activeRound, setActiveRound] = useState<1 | 2 | 3 | 4>(1);
@@ -406,5 +423,8 @@ export function useCodeGymSession<TTask extends CodeGymTaskLike>({
     handleCodeChange,
     handleStartSprint,
     handleResetRound,
+    isTheoryUnlocked,
+    setIsTheoryUnlocked,
+    unlockPractice,
   };
 }

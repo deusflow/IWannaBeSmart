@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Sparkles,
+  BookOpen,
   HelpCircle,
   Wrench,
 } from "lucide-react";
@@ -51,6 +52,8 @@ interface CodeGymEditorProps<TTask extends CodeGymTaskLike> {
   onAdvanceRound: () => void;
   onNextTask?: () => void;
   nextTaskAvailable: boolean;
+  isTheoryUnlocked?: boolean;
+  onOpenTheory?: () => void;
 }
 
 export function CodeGymEditor<TTask extends CodeGymTaskLike>({
@@ -79,8 +82,47 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
   onAdvanceRound,
   onNextTask,
   nextTaskAvailable,
+  isTheoryUnlocked = true,
+  onOpenTheory,
 }: CodeGymEditorProps<TTask>) {
   const { t, i18n } = useTranslation();
+
+  const actionDescription = useMemo(() => {
+    if (currentTask.isBugfixTask) {
+      return t(
+        "playground.defectBrief",
+        "Знайдіть та виправте логічну помилку в коді нижче, щоб відновити роботу приладу."
+      );
+    }
+    if (activeRound === 1) {
+      return t(
+        "codegym.round1Instruction",
+        "Надрукуйте наведений нижче еталонний код у редакторі. Кожен правильний символ миттєво фіксується системою для вироблення м'язової пам'яті синтаксису."
+      );
+    }
+    if (activeRound === 2) {
+      return t(
+        "codegym.round2Instruction",
+        "Відновіть пропущені фрагменти коду (позначені `___`), спираючись на вивчену логіку та ключові конструкції."
+      );
+    }
+    if (activeRound === 3) {
+      return t(
+        "codegym.round3Instruction",
+        "Надрукуйте весь код по пам'яті без помилок до вичерпання таймера. Це закріплює впевненість та автономність розробника."
+      );
+    }
+    const langKey = (i18n.language?.startsWith("da")
+      ? "da"
+      : i18n.language?.startsWith("en")
+      ? "en"
+      : "ua") as "ua" | "en" | "da";
+    return (
+      currentTask.transferVariant?.prompt[langKey] ||
+      currentTask.transferVariant?.prompt.ua ||
+      t(currentTask.descKey)
+    );
+  }, [currentTask, activeRound, i18n.language, t]);
 
   const extensions = useMemo(() => {
     const langExt = codeLang === "go" ? go() : cpp();
@@ -177,13 +219,33 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
         </div>
       </div>
 
+      {/* ── Mission Brief Card (Goal & Action) ── */}
+      <div className="px-4 py-2.5 bg-[#17191E] border-b border-[#2B2D33] text-xs font-mono space-y-1 select-none">
+        <div className="flex items-start gap-2">
+          <span className="text-amber-400 font-bold shrink-0">
+            {t("guide.missionGoalLabel", "🎯 Мета:")}
+          </span>
+          <span className="text-gray-200 font-medium leading-relaxed">
+            {t(currentTask.descKey)}
+          </span>
+        </div>
+        <div className="flex items-start gap-2">
+          <span className="text-cyan-400 font-bold shrink-0">
+            {t("guide.missionActionLabel", "✍️ Дія:")}
+          </span>
+          <span className="text-gray-300 leading-relaxed">
+            {actionDescription}
+          </span>
+        </div>
+      </div>
+
       {/* ── Round 1: TRACE Didactic Banner & Reference Card (GRR Tact 1) ── */}
       {activeRound === 1 && !currentTask.isBugfixTask && (
         <div className="px-4 py-3 bg-[#141820] border-b border-[#2B2D33] text-ink-light space-y-2.5 select-none">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round1TactBadge", "Такт 1: Сліпий трафарет (Trace)")}
+                {t("codegym.round1Badge", "1. Повтори за зразком")}
               </span>
               <span className="text-[11px] font-mono text-gray-400">
                 ★ {t("codegym.star1Title", "1-ша зірка м'язової пам'яті")}
@@ -193,12 +255,6 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
               {t("codegym.traceHintHotkey", "Друкуйте в редакторі символ у символ")}
             </span>
           </div>
-          <p className="text-xs font-mono text-gray-300 leading-relaxed">
-            {t(
-              "codegym.round1Instruction",
-              "Надрукуйте наведений нижче еталонний код у редакторі. Кожен правильний символ миттєво фіксується системою для вироблення м'язової пам'яті синтаксису."
-            )}
-          </p>
           {/* Reference Code Card */}
           <div className="rounded-xl bg-[#0F1115] border border-amber-500/30 p-2.5 shadow-inner">
             <div className="text-[10px] font-mono font-bold uppercase text-amber-400/90 mb-1 flex items-center justify-between">
@@ -220,7 +276,7 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round2TactBadge", "Такт 2: Прогалини (Cloze)")}
+                {t("codegym.round2Badge", "2. Заповни пропуски")}
               </span>
               <span className="text-[11px] font-mono text-gray-400">
                 ★ {t("codegym.star2Title", "2-га зірка розуміння")}
@@ -230,12 +286,6 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
               {t("codegym.clozeHintHotkey", "Ctrl+Enter — Перевірити")}
             </span>
           </div>
-          <p className="text-xs font-mono text-gray-300 leading-relaxed">
-            {t(
-              "codegym.round2Instruction",
-              "Відновіть пропущені фрагменти коду (позначені `___`), спираючись на вивчену логіку та ключові конструкції."
-            )}
-          </p>
         </div>
       )}
 
@@ -245,7 +295,7 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round3TactBadge", "Такт 3: Спринт на швидкість (Sprint)")}
+                {t("codegym.round3Badge", "3. Напиши по пам'яті")}
               </span>
               <span className="text-[11px] font-mono text-gray-400">
                 ★ {t("codegym.star3Title", "3-тя зірка швидкості")}
@@ -255,12 +305,6 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
               {t("codegym.sprintHintHotkey", "Натисніть 'Старт' або почніть друкувати")}
             </span>
           </div>
-          <p className="text-xs font-mono text-gray-300 leading-relaxed">
-            {t(
-              "codegym.round3Instruction",
-              "Надрукуйте весь код по пам'яті без помилок до вичерпання таймера. Це закріплює впевненість та автономність розробника."
-            )}
-          </p>
         </div>
       )}
 
@@ -270,7 +314,7 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round4TactBadge", "Такт 3+: Варіація (Transfer Challenge)")}
+                {t("codegym.round4Badge", "4. Задача із зірочкою")}
               </span>
               <span className="text-[11px] font-mono text-gray-400">
                 ★ {t("codegym.star4Title", "4-та зірка майстра")}
@@ -349,8 +393,36 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
         </div>
       )}
 
-      {/* ── Editor Container with Ghost Overlay ── */}
+      {/* ── Editor Container with Ghost Overlay & Theory Gating ── */}
       <div ref={editorContainerRef} className="relative min-h-[160px] bg-[#1E2024]">
+        {/* Theory Locked Overlay */}
+        {!isTheoryUnlocked && (
+          <div className="absolute inset-0 z-20 backdrop-blur-[3px] bg-[#14161B]/90 flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-3 text-amber-400 shadow-lg shadow-amber-500/10">
+              <BookOpen size={24} className="animate-pulse" />
+            </div>
+            <h4 className="text-sm font-bold font-mono text-amber-300 mb-1.5">
+              {t("codegym.theoryLockedTitle", "Практику заблоковано до ознайомлення з теорією")}
+            </h4>
+            <p className="text-xs font-mono text-gray-300 max-w-md leading-relaxed mb-4">
+              {t(
+                "codegym.theoryLockedDesc",
+                "Подивіться зразок вчителя та життєву аналогію вгорі, щоб зрозуміти сенс команди перед набором."
+              )}
+            </p>
+            {onOpenTheory && (
+              <button
+                type="button"
+                onClick={onOpenTheory}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-mono font-extrabold text-xs shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <BookOpen size={14} />
+                <span>{t("codegym.openTheoryBtn", "📖 Відкрити пояснення вчителя")}</span>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Ghost Stencil Overlay for Round 1 (when not bugfix) */}
         {activeRound === 1 && !currentTask.isBugfixTask && (
           <div
@@ -366,6 +438,7 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
           theme={oneDark}
           extensions={extensions}
           onChange={onChangeCode}
+          editable={isTheoryUnlocked}
           height="auto"
           minHeight="160px"
           basicSetup={{
@@ -457,7 +530,12 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
                 <button
                   type="button"
                   onClick={onVerify}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer"
+                  disabled={!isTheoryUnlocked}
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-mono font-bold text-xs shadow-md transition-all ${
+                    !isTheoryUnlocked
+                      ? "bg-red-900/40 text-red-300/40 border border-red-900/30 cursor-not-allowed"
+                      : "bg-red-600 hover:bg-red-500 text-white cursor-pointer"
+                  }`}
                 >
                   <Wrench size={14} />
                   <span>{t("playground.runVerificationBtn", "Виправити дефект (Ctrl+Enter)")}</span>
@@ -466,7 +544,12 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
                 <button
                   type="button"
                   onClick={onVerify}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/80 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer"
+                  disabled={!isTheoryUnlocked}
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-mono font-bold text-xs shadow-md transition-all ${
+                    !isTheoryUnlocked
+                      ? "bg-accent-blue/30 text-white/40 cursor-not-allowed"
+                      : "bg-accent-blue hover:bg-accent-blue/80 text-white cursor-pointer"
+                  }`}
                 >
                   <Play size={13} className="fill-white" />
                   <span>{t("codegym.verifyClozeBtn", "Перевірити прогалини (Ctrl+Enter)")}</span>
@@ -476,7 +559,12 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
                   <button
                     type="button"
                     onClick={onStartSprint}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                    disabled={!isTheoryUnlocked}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-mono font-extrabold text-xs shadow-md transition-all ${
+                      !isTheoryUnlocked
+                        ? "bg-amber-500/30 text-stone-900/40 cursor-not-allowed"
+                        : "bg-amber-500 hover:bg-amber-400 text-stone-900 cursor-pointer"
+                    }`}
                   >
                     <Timer size={14} />
                     <span>{t("codegym.startSprintBtn", "Старт спринту")}</span>
@@ -485,7 +573,12 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
                   <button
                     type="button"
                     onClick={onVerify}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                    disabled={!isTheoryUnlocked}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-mono font-extrabold text-xs shadow-md transition-all ${
+                      !isTheoryUnlocked
+                        ? "bg-amber-500/30 text-stone-900/40 cursor-not-allowed"
+                        : "bg-amber-500 hover:bg-amber-400 text-stone-900 cursor-pointer"
+                    }`}
                   >
                     <Play size={13} className="fill-stone-900" />
                     <span>{t("codegym.finishSprintBtn", "Фініш спринту (Ctrl+Enter)")}</span>
@@ -495,7 +588,12 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
                 <button
                   type="button"
                   onClick={onVerify}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-900 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                  disabled={!isTheoryUnlocked}
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-mono font-extrabold text-xs shadow-md transition-all ${
+                    !isTheoryUnlocked
+                      ? "bg-cyan-500/30 text-stone-900/40 cursor-not-allowed"
+                      : "bg-cyan-500 hover:bg-cyan-400 text-stone-900 cursor-pointer"
+                  }`}
                 >
                   <Sparkles size={14} />
                   <span>{t("codegym.verifyVariationBtn", "Перевірити варіацію (Ctrl+Enter)")}</span>

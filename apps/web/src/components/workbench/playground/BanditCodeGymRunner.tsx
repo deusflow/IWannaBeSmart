@@ -90,6 +90,8 @@ export const BanditCodeGymRunner: React.FC = () => {
     handleCodeChange,
     handleStartSprint,
     handleResetRound,
+    isTheoryUnlocked,
+    unlockPractice,
   } = useCodeGymSession({
     currentTask: {
       ...currentTask,
@@ -99,12 +101,21 @@ export const BanditCodeGymRunner: React.FC = () => {
       },
       clozeTemplate: currentTask.clozeTemplate,
     },
+    starsEarned,
     onRoundComplete: async () => {
       setTaskMastery(currentTask.id, 1);
       completeCodingTask(currentTask.id);
       addXp(15);
     },
   });
+
+  const [forceTheoryExpanded, setForceTheoryExpanded] = useState<boolean | undefined>(undefined);
+
+  const handleOpenTheory = useCallback(() => {
+    setForceTheoryExpanded(true);
+    const el = document.getElementById("guided-step-bar-container");
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, []);
 
   const handleSelectTask = useCallback(
     (taskId: string) => {
@@ -330,7 +341,11 @@ export const BanditCodeGymRunner: React.FC = () => {
             }}
             persistent={true}
             defaultExpanded={starsEarned === 0 && activeRound === 1}
+            forceExpanded={forceTheoryExpanded}
+            isTheoryUnlocked={isTheoryUnlocked}
+            onUnlockPractice={unlockPractice}
             onStartPractice={() => {
+              unlockPractice();
               setTimeout(() => {
                 const cm = document.querySelector(".cm-content") as HTMLElement | null;
                 cm?.focus();
@@ -436,6 +451,8 @@ export const BanditCodeGymRunner: React.FC = () => {
           }
         }}
         nextTaskAvailable={Boolean(nextTask)}
+        isTheoryUnlocked={isTheoryUnlocked}
+        onOpenTheory={handleOpenTheory}
       />
     </div>
   );

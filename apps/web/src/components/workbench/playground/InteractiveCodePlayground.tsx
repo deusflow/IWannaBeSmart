@@ -195,8 +195,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     handleCodeChange,
     handleStartSprint,
     handleResetRound,
+    isTheoryUnlocked,
+    unlockPractice,
   } = useCodeGymSession({
     currentTask,
+    starsEarned,
     onRoundComplete: async (_round, code) => {
       setTaskMastery(currentTask.id, 1);
       completeCodingTask(currentTask.id);
@@ -204,6 +207,14 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       await runTvExecution(code);
     },
   });
+
+  const [forceTheoryExpanded, setForceTheoryExpanded] = useState<boolean | undefined>(undefined);
+
+  const handleOpenTheory = useCallback(() => {
+    setForceTheoryExpanded(true);
+    const el = document.getElementById("guided-step-bar-container");
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, []);
 
   // Handle task switching
   const handleSelectTask = useCallback((taskId: string) => {
@@ -673,7 +684,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
             }}
             persistent={true}
             defaultExpanded={starsEarned === 0 && activeRound === 1}
+            forceExpanded={forceTheoryExpanded}
+            isTheoryUnlocked={isTheoryUnlocked}
+            onUnlockPractice={unlockPractice}
             onStartPractice={() => {
+              unlockPractice();
               setTimeout(() => {
                 const cm = document.querySelector(".cm-content") as HTMLElement | null;
                 cm?.focus();
@@ -772,6 +787,8 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           }
         }}
         nextTaskAvailable={Boolean(nextTask && isNextTaskUnlocked)}
+        isTheoryUnlocked={isTheoryUnlocked}
+        onOpenTheory={handleOpenTheory}
       />
     </div>
   );

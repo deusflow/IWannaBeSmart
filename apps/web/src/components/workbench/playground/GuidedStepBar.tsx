@@ -60,7 +60,10 @@ interface GuidedStepBarProps {
   onStartPractice: () => void;
   persistent?: boolean;
   defaultExpanded?: boolean;
+  forceExpanded?: boolean;
   onToggleExpand?: (expanded: boolean) => void;
+  isTheoryUnlocked?: boolean;
+  onUnlockPractice?: () => void;
 }
 
 export type TutorialLayer = "solution" | "simple" | "engineering" | "tokens" | "architecture";
@@ -72,7 +75,10 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   onStartPractice,
   persistent = true,
   defaultExpanded = false,
+  forceExpanded,
   onToggleExpand,
+  isTheoryUnlocked = true,
+  onUnlockPractice,
 }) => {
   const { t, i18n } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
@@ -85,6 +91,12 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
     setIsExpanded(defaultExpanded);
     setDemoExecuted(false);
   }, [data.taskId, defaultExpanded]);
+
+  useEffect(() => {
+    if (forceExpanded !== undefined) {
+      setIsExpanded(forceExpanded);
+    }
+  }, [forceExpanded]);
 
   if (dismissed && !persistent) return null;
 
@@ -139,6 +151,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
     audioFx.playRelayClick();
     audioFx.playRemoteBeep();
     setIsDemoRunning(true);
+    onUnlockPractice?.();
     setTimeout(() => {
       setIsDemoRunning(false);
       setDemoExecuted(true);
@@ -150,6 +163,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
     audioFx.playSuccessFanfare();
     setIsExpanded(false);
     onToggleExpand?.(false);
+    onUnlockPractice?.();
     onStartPractice();
   };
 
@@ -164,7 +178,12 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
 
   return (
     <div
-      className="w-full rounded-2xl border border-[#1A1D20]/20 bg-[#EBE5D8] shadow-[0_2px_14px_rgba(26,29,32,0.08)] overflow-hidden transition-all duration-300 select-none"
+      id="guided-step-bar-container"
+      className={`w-full rounded-2xl transition-all duration-300 select-none overflow-hidden ${
+        !isTheoryUnlocked
+          ? "border-2 border-amber-500 shadow-[0_0_24px_rgba(245,158,11,0.25)] ring-2 ring-amber-400/40 bg-[#EBE5D8]"
+          : "border border-[#1A1D20]/20 bg-[#EBE5D8] shadow-[0_2px_14px_rgba(26,29,32,0.08)]"
+      }`}
       role="region"
       aria-label="Tutorial Briefing and Guided Explanation"
     >
@@ -178,11 +197,17 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           <div className="w-6 h-6 rounded-lg bg-[#1A1D20] text-white flex items-center justify-center shrink-0 shadow-xs">
             <Sparkles size={13} className="text-amber-400" />
           </div>
-          <span className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#1A1D20] group-hover:text-black transition-colors flex items-center gap-1.5">
+          <span className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#1A1D20] group-hover:text-black transition-colors flex items-center gap-1.5 flex-wrap">
             <span>{t("guide.title", "Еталонний зразок та інструкція")}</span>
             <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#1A1D20]/10 text-[#1A1D20]/80">
               {codeLang === "csharp" ? "C#" : "Go"}
             </span>
+            {!isTheoryUnlocked && (
+              <span className="px-2 py-0.5 rounded-full bg-amber-500 text-stone-950 font-mono text-[9px] font-extrabold flex items-center gap-1 animate-pulse shadow-xs">
+                <Sparkles size={10} className="fill-stone-950" />
+                <span>{t("guide.theoryRequirementBadge", "✨ Почніть тут: ознайомтесь із поясненням")}</span>
+              </span>
+            )}
           </span>
           <span className="text-[10px] font-mono text-[#1A1D20]/50 group-hover:text-[#1A1D20] flex items-center gap-0.5 transition-colors">
             {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
@@ -323,6 +348,19 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                   </span>
                 </div>
               </div>
+
+              {/* Upfront Plain-Language Intuition Analogy */}
+              {simpleText && (
+                <div className="p-3 rounded-xl bg-[#FAF8F2] border border-amber-600/30 space-y-1 shadow-2xs">
+                  <div className="text-[10px] font-mono font-bold uppercase text-amber-900 flex items-center gap-1.5">
+                    <Lightbulb size={12} className="text-amber-700 shrink-0" />
+                    <span>{t("guide.simpleLabel", "Простими словами (Intuition Analogy)")}</span>
+                  </div>
+                  <p className="font-balsamiq text-xs text-[#1A1D20] leading-relaxed">
+                    {simpleText}
+                  </p>
+                </div>
+              )}
 
               {/* Ready Working Code Box with ▶ Демонстрація button */}
               <div>
@@ -663,11 +701,11 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <button
               id="guided-step-bar-start-practice"
               onClick={handleStartPractice}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1A1D20] text-white font-display font-extrabold text-xs hover:bg-black active:scale-95 transition-all cursor-pointer shadow-md shadow-black/20"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-display font-extrabold text-xs active:scale-95 transition-all cursor-pointer shadow-md shadow-amber-500/20"
               title={t("guide.startPracticeTooltip", "Згорнути інструкцію та перейти до практики")}
             >
-              <PenLine size={13} />
-              <span>{t("guide.startPractice", "⚔️ В бій: Раунд 1 (Сліпий трафарет) →")}</span>
+              <PenLine size={13} className="text-stone-950" />
+              <span>{t("guide.understoodStartPractice", "👉 Я зрозумів! До практики →")}</span>
             </button>
           </div>
         </div>

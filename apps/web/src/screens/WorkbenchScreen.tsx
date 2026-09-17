@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
@@ -59,7 +59,13 @@ const EngineeringChipXpIcon: React.FC<{ className?: string; size?: number }> = (
 export const WorkbenchScreen: React.FC = () => {
   const { t } = useTranslation();
   const [activeView, setActiveView] = useState<"device" | "architecture">("device");
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(() => {
+    const store = useWorkbenchStore.getState();
+    const completedTvCount = CODING_TASKS.filter(
+      (t) => (store.taskMasteryStars[t.id] || 0) >= 1 || store.completedCodingTasks[t.id]
+    ).length;
+    return completedTvCount < CODING_TASKS.length;
+  });
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
   const [isMuted, setIsMuted] = useState(audioFx.isMuted());
 
@@ -169,6 +175,12 @@ export const WorkbenchScreen: React.FC = () => {
       : currentStationId === "bandit"
       ? `${completedBanditCount}/${BANDIT_TASKS.length} ✓`
       : `${completedTvCount}/${CODING_TASKS.length} ✓`;
+
+  useEffect(() => {
+    if (currentStationId === "tv" && !isTvCompleted) {
+      setIsDrawerOpen(true);
+    }
+  }, [currentStationId, isTvCompleted]);
 
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
 
