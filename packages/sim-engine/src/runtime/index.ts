@@ -28,6 +28,6 @@ export const TOTAL_MAX_STARS =
   CODING_TASKS.length * 4 +
   FINTECH_TASKS.length * 4 +
   API_FORGE_TASKS.length * 4 +
-  GIT_TASKS.length * 3 +
-  BANDIT_TASKS.length * 3;
+  GIT_TASKS.length * 4 +
+  BANDIT_TASKS.length * 4;
 

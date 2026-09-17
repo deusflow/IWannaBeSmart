@@ -104,11 +104,21 @@ export const BanditCodeGymRunner: React.FC = () => {
       clozeTemplate: currentTask.clozeTemplate,
     },
     starsEarned,
-    onRoundComplete: async () => {
-      setTaskMastery(currentTask.id, 1);
-      saveTaskProgress(currentTask.id, 1);
+    onRoundComplete: async (round) => {
+      const targetStars = round ?? 1;
+      setTaskMastery(currentTask.id, targetStars);
+      saveTaskProgress(currentTask.id, targetStars);
       completeCodingTask(currentTask.id);
-      addXp(15);
+      addXp(targetStars * 15);
+      const allCompleted = BANDIT_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setBanditVictoryModalOpen(true);
+        }, 1200);
+      }
     },
   });
 
@@ -188,7 +198,7 @@ export const BanditCodeGymRunner: React.FC = () => {
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
       );
-      if (allCompleted && activeRound >= 2) {
+      if (allCompleted) {
         setTimeout(() => {
           setBanditVictoryModalOpen(true);
         }, 1200);

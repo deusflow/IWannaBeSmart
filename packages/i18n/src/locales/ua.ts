@@ -48,6 +48,7 @@ export const uaTranslation = {
         signOut: "Вийти з акаунту",
         online: "ONLINE",
         syncBadge: "SYNC",
+        profileTooltip: "Відкрити панель інженера та телеметрію",
       },
       profile: {
         modalTitle: "Профіль та аналітика інженера",

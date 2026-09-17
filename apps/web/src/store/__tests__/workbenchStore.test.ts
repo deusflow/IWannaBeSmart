@@ -5,6 +5,14 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { useWorkbenchStore } from "../workbenchStore";
+import {
+  TOTAL_MAX_STARS,
+  CODING_TASKS,
+  FINTECH_TASKS,
+  API_FORGE_TASKS,
+  GIT_TASKS,
+  BANDIT_TASKS,
+} from "@iw/sim-engine";
 
 // Helper accessor to always inspect the fresh Zustand state
 const getStore = () => useWorkbenchStore.getState();
@@ -391,4 +399,46 @@ describe("WorkbenchStore Slices", () => {
       expect(getStore().isBanditVictoryModalOpen).toBe(false);
     });
   });
+
+  describe("mentorSlice (Gamification, Mastery & Global Stars)", () => {
+    it("should compute TOTAL_MAX_STARS accurately across all 5 stations", () => {
+      const expectedTotal =
+        CODING_TASKS.length * 4 +
+        FINTECH_TASKS.length * 4 +
+        API_FORGE_TASKS.length * 4 +
+        GIT_TASKS.length * 4 +
+        BANDIT_TASKS.length * 4;
+      expect(TOTAL_MAX_STARS).toBe(expectedTotal);
+      expect(TOTAL_MAX_STARS).toBe(172);
+    });
+
+    it("should record task mastery stars and best WPM without downgrade", () => {
+      const store = getStore();
+      const testTaskId = "task-pos-guard-clause";
+
+      store.setTaskMastery(testTaskId, 2, 45);
+      expect(store.getTaskMastery(testTaskId)).toBe(2);
+      expect(getStore().taskBestWpm[testTaskId]).toBe(45);
+
+      // Attempting lower stars should not downgrade mastery
+      store.setTaskMastery(testTaskId, 1, 30);
+      expect(store.getTaskMastery(testTaskId)).toBe(2);
+      expect(getStore().taskBestWpm[testTaskId]).toBe(45);
+
+      // Higher stars and faster WPM should upgrade
+      store.setTaskMastery(testTaskId, 3, 65);
+      expect(store.getTaskMastery(testTaskId)).toBe(3);
+      expect(getStore().taskBestWpm[testTaskId]).toBe(65);
+    });
+
+    it("should save task progress via saveTaskProgress proxy", () => {
+      const store = getStore();
+      const testTaskId = "task-git-1-genesis";
+
+      store.saveTaskProgress(testTaskId, 4, 80);
+      expect(store.getTaskMastery(testTaskId)).toBe(4);
+      expect(getStore().taskBestWpm[testTaskId]).toBe(80);
+    });
+  });
 });
+

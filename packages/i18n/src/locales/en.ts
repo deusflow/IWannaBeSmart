@@ -48,6 +48,7 @@ export const enTranslation = {
         signOut: "Sign Out",
         online: "ONLINE",
         syncBadge: "SYNC",
+        profileTooltip: "Open engineer panel and telemetry",
       },
       profile: {
         modalTitle: "Engineer Profile & Analytics",

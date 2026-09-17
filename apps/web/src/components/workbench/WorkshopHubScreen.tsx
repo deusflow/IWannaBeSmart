@@ -87,11 +87,11 @@ export const WorkshopHubScreen: React.FC = () => {
   // 3. API Forge (4 stars per task)
   const apiStats = useMemo(() => getStationStats(API_FORGE_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
 
-  // 4. Git Time Machine (3 stars per task)
-  const gitStats = useMemo(() => getStationStats(GIT_TASKS, 3), [taskMasteryStars, completedCodingTasks]);
+  // 4. Git Time Machine (4 stars per task)
+  const gitStats = useMemo(() => getStationStats(GIT_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
 
-  // 5. Cyber Bandit Lab (3 stars per task)
-  const banditStats = useMemo(() => getStationStats(BANDIT_TASKS, 3), [taskMasteryStars, completedCodingTasks]);
+  // 5. Cyber Bandit Lab (4 stars per task)
+  const banditStats = useMemo(() => getStationStats(BANDIT_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
 
   // Total stars across platform
   const totalStars =
@@ -235,7 +235,7 @@ export const WorkshopHubScreen: React.FC = () => {
             "Фундаментальні патерни, змінні, інкапсуляція та диспетчеризація команд"
           )}
           blueprint={<TvBlueprintSvg />}
-          specs={`${CODING_TASKS.length} завдань • Smart TV • C# / Go`}
+          specs={t("hub.stations.tv.specs", `${CODING_TASKS.length} tasks • Smart TV • C# / Go`)}
           currentStars={tvStats.current}
           maxStars={tvStats.max}
           statusType={tvStats.statusType}
@@ -262,7 +262,7 @@ export const WorkshopHubScreen: React.FC = () => {
             "Фінансова безпека, Guard Clauses, поліморфізм шлюзів та Dependency Injection"
           )}
           blueprint={<PosBlueprintSvg />}
-          specs={`${FINTECH_TASKS.length} завдань • Code Gym (4-Star) • C# / Go`}
+          specs={t("hub.stations.pos.specs", `${FINTECH_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
           currentStars={posStats.current}
           maxStars={posStats.max}
           statusType={posStats.statusType}
@@ -311,7 +311,7 @@ export const WorkshopHubScreen: React.FC = () => {
             "Клієнт-серверний зв'язок, HTTP кабелі, DTO контракти, авторизація та 504 Retries"
           )}
           blueprint={<ApiForgeBlueprintSvg />}
-          specs={`${API_FORGE_TASKS.length} завдань • Code Gym (4-Star) • C# / Go`}
+          specs={t("hub.stations.api.specs", `${API_FORGE_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
           currentStars={apiStats.current}
           maxStars={apiStats.max}
           statusType={apiStats.statusType}
@@ -339,7 +339,7 @@ export const WorkshopHubScreen: React.FC = () => {
             "DAG дерево комітів, паралельні гілки, 3-Way злиття, вирішення конфліктів та rebase"
           )}
           blueprint={<GitBlueprintSvg />}
-          specs={`${GIT_TASKS.length} завдань • Code Gym (3-Star) • C# / Go`}
+          specs={t("hub.stations.git.specs", `${GIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
           currentStars={gitStats.current}
           maxStars={gitStats.max}
           statusType={gitStats.statusType}
@@ -367,7 +367,7 @@ export const WorkshopHubScreen: React.FC = () => {
             "Етичний хакінг, перехоплення пакетів, підміна параметрів, SQL-ін'єкції та Rate Limiting"
           )}
           blueprint={<BanditBlueprintSvg />}
-          specs={`${BANDIT_TASKS.length} завдань • Code Gym (3-Star) • C# / Go`}
+          specs={t("hub.stations.bandit.specs", `${BANDIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
           currentStars={banditStats.current}
           maxStars={banditStats.max}
           statusType={banditStats.statusType}

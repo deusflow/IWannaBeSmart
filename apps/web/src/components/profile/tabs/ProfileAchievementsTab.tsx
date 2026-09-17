@@ -6,14 +6,23 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Zap,
-  Layers,
-  CreditCard,
-  Award,
   Trophy,
   ArrowRight,
+  Check,
+  Lock,
   type LucideIcon,
 } from "lucide-react";
+
+export interface ProfileBadge {
+  id: string;
+  title: string;
+  desc: string;
+  icon: LucideIcon;
+  iconColor: string;
+  bgColor: string;
+  isUnlocked: boolean;
+  progressText?: string;
+}
 
 export interface ProfileCertCard {
   id: string;
@@ -31,11 +40,13 @@ export interface ProfileCertCard {
 
 export interface ProfileAchievementsTabProps {
   certCards: ProfileCertCard[];
+  badges?: ProfileBadge[];
   onJumpToTask: (stationId: string) => void;
 }
 
 export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
   certCards,
+  badges = [],
   onJumpToTask,
 }) => {
   const { t } = useTranslation();
@@ -47,65 +58,58 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Badge 1: Speed Demon */}
-        <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
-          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-800 flex items-center justify-center shrink-0">
-            <Zap size={18} />
-          </div>
-          <div>
-            <div className="font-display font-extrabold text-xs text-[#1A1D20]">
-              {t("profile.badgeSpeedDemon", "Спринтер алгоритмів")}
-            </div>
-            <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
-              {t("profile.badgeSpeedDemonDesc", "Досягнуто швидкість понад 60 слів/хв у Code Gym")}
-            </div>
-          </div>
-        </div>
+        {badges.map((badge) => {
+          const IconComponent = badge.icon;
+          return (
+            <div
+              key={badge.id}
+              className={`p-4 rounded-2xl border transition-all shadow-paper-xs relative flex items-start gap-3 ${
+                badge.isUnlocked
+                  ? "bg-[#EBE5D8] border-[#1A1D20]/25 text-[#1A1D20]"
+                  : "bg-[#FAF8F2]/60 border-[#1A1D20]/15 text-[#1A1D20]/50 opacity-75"
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
+                  badge.isUnlocked
+                    ? `${badge.bgColor} ${badge.iconColor}`
+                    : "bg-slate-200/50 border-slate-300/60 text-slate-400"
+                }`}
+              >
+                <IconComponent size={18} />
+              </div>
+              <div className="flex-1 min-w-0 pr-14">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`font-display font-extrabold text-xs ${
+                      badge.isUnlocked ? "text-[#1A1D20]" : "text-[#1A1D20]/70"
+                    }`}
+                  >
+                    {badge.title}
+                  </span>
+                </div>
+                <div className="text-[11px] text-[#1A1D20]/70 mt-0.5 leading-snug">
+                  {badge.desc}
+                </div>
+              </div>
 
-        {/* Badge 2: Architecture Master */}
-        <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
-          <div className="w-9 h-9 rounded-xl bg-accent-blue/15 border border-accent-blue/30 text-accent-blue flex items-center justify-center shrink-0">
-            <Layers size={18} />
-          </div>
-          <div>
-            <div className="font-display font-extrabold text-xs text-[#1A1D20]">
-              {t("profile.badgeArchitectureMaster", "Майстер архітектури")}
+              {/* Status badge in top right */}
+              <div className="absolute top-3 right-3 flex items-center gap-1">
+                {badge.isUnlocked ? (
+                  <span className="text-[9px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30 flex items-center gap-1">
+                    <Check size={10} strokeWidth={3} />
+                    <span>{t("profile.acquired", "ЗДОБУТО")}</span>
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-mono font-bold text-[#1A1D20]/60 bg-[#1A1D20]/5 px-2 py-0.5 rounded border border-[#1A1D20]/15 flex items-center gap-1">
+                    <Lock size={9} />
+                    <span>{badge.progressText || t("profile.certLocked", "БЛОКОВАНО")}</span>
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
-              {t("profile.badgeArchitectureMasterDesc", "Успішно зібрано DI контейнер та з'єднано шину викликів")}
-            </div>
-          </div>
-        </div>
-
-        {/* Badge 3: Fintech Shield */}
-        <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-600/40 text-emerald-800 flex items-center justify-center shrink-0">
-            <CreditCard size={18} />
-          </div>
-          <div>
-            <div className="font-display font-extrabold text-xs text-[#1A1D20]">
-              {t("profile.badgeFintechShield", "Вартовий транзакцій")}
-            </div>
-            <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
-              {t("profile.badgeFintechShieldDesc", "Захищено банківський POS-термінал від збоїв та блокувань")}
-            </div>
-          </div>
-        </div>
-
-        {/* Badge 4: Pattern Collector */}
-        <div className="p-4 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-3 shadow-paper-xs">
-          <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-600/40 text-purple-800 flex items-center justify-center shrink-0">
-            <Award size={18} />
-          </div>
-          <div>
-            <div className="font-display font-extrabold text-xs text-[#1A1D20]">
-              {t("profile.badgePatternCollector", "Колекціонер патернів")}
-            </div>
-            <div className="text-[11px] text-[#1A1D20]/70 mt-0.5">
-              {t("profile.badgePatternCollectorDesc", "Освоєно понад 5 ключових патернів проєктування")}
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       {/* Station Certificates Showcase */}

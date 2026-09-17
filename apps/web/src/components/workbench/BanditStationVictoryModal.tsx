@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { BANDIT_TASKS } from "@iw/sim-engine";
 
 interface BanditStationVictoryModalProps {
   isOpen: boolean;
@@ -77,8 +78,12 @@ export const BanditStationVictoryModal: React.FC<BanditStationVictoryModalProps>
 }) => {
   const { t } = useTranslation();
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
+  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const [copied, setCopied] = useState(false);
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
+
+  const currentBanditStars = BANDIT_TASKS.reduce((acc, task) => acc + (taskMasteryStars[task.id] || 0), 0);
+  const maxBanditStars = BANDIT_TASKS.length * 4;
 
   // Close on Escape key
   useEffect(() => {
@@ -160,8 +165,8 @@ DATE: ${new Date().toLocaleDateString()}
         {/* XP Badge */}
         <div className="flex items-center justify-around bg-emerald-950/40 border border-emerald-900/60 rounded-xl p-3">
           <div className="text-center">
-            <span className="text-[10px] text-slate-400 uppercase font-bold">STATION STARS</span>
-            <div className="text-lg font-bold text-amber-400">18 / 18 ★</div>
+            <span className="text-[10px] text-slate-400 uppercase font-bold">{t("hub.stationStars", "STATION STARS")}</span>
+            <div className="text-lg font-bold text-amber-400">{currentBanditStars} / {maxBanditStars} ★</div>
           </div>
           <div className="h-8 w-px bg-slate-800" />
           <div className="text-center">

@@ -118,12 +118,22 @@ export const CodeGymRunner: React.FC = () => {
   } = useCodeGymSession({
     currentTask,
     starsEarned,
-    onRoundComplete: async (_round, code) => {
-      setTaskMastery(currentTask.id, 1);
-      saveTaskProgress(currentTask.id, 1);
+    onRoundComplete: async (round, code) => {
+      const targetStars = round ?? 1;
+      setTaskMastery(currentTask.id, targetStars);
+      saveTaskProgress(currentTask.id, targetStars);
       completeCodingTask(currentTask.id);
-      addXp(15);
+      addXp(targetStars * 15);
       await runPosExecution(code);
+      const allCompleted = FINTECH_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setPosVictoryModalOpen(true);
+        }, 1200);
+      }
     },
   });
 
@@ -187,6 +197,16 @@ export const CodeGymRunner: React.FC = () => {
       completeCodingTask(currentTask.id);
       addXp(20);
       setFeedback(t(currentTask.successKey));
+
+      const allCompleted = FINTECH_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setPosVictoryModalOpen(true);
+        }, 1200);
+      }
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
@@ -198,7 +218,7 @@ export const CodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t, taskMasteryStars, setPosVictoryModalOpen]);
 
   const handleRunSprint = useCallback(async () => {
     const isMatch = typedCode.trim() === targetCode.trim();

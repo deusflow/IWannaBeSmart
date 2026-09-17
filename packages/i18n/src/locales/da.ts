@@ -48,6 +48,7 @@ export const daTranslation = {
         signOut: "Log ud",
         online: "ONLINE",
         syncBadge: "SYNC",
+        profileTooltip: "Åbn ingeniørpanel og telemetri",
       },
       profile: {
         modalTitle: "Ingeniørprofil og analyse",

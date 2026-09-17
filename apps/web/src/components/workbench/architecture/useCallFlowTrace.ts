@@ -108,7 +108,8 @@ export function useCallFlowTrace({
           message: "[TRACE 5/5] TV CRT Anode energized: 12.0V operational",
         });
         setIsTracing(false);
-        setTimeout(() => setCurrentTraceStep(0), 1200);
+        const tReset = setTimeout(() => setCurrentTraceStep(0), 1200);
+        traceTimers.current.push(tReset);
       }, 1400);
 
       traceTimers.current.push(t1, t2, t3, t4);
@@ -125,7 +126,7 @@ export function useCallFlowTrace({
             : n
         )
       );
-      setTimeout(() => {
+      const tCrash = setTimeout(() => {
         setNodes((nds) =>
           nds.map((n) =>
             n.id === "node-class-tv-controller"
@@ -134,6 +135,7 @@ export function useCallFlowTrace({
           )
         );
       }, 1400);
+      traceTimers.current.push(tCrash);
 
       addLog({
         type: "error",

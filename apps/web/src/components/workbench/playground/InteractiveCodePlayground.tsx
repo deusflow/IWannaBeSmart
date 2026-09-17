@@ -197,12 +197,22 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   } = useCodeGymSession({
     currentTask,
     starsEarned,
-    onRoundComplete: async (_round, code) => {
-      setTaskMastery(currentTask.id, 1);
-      saveTaskProgress(currentTask.id, 1);
+    onRoundComplete: async (round, code) => {
+      const targetStars = round ?? 1;
+      setTaskMastery(currentTask.id, targetStars);
+      saveTaskProgress(currentTask.id, targetStars);
       completeCodingTask(currentTask.id);
-      addXp(15);
+      addXp(targetStars * 15);
       await runTvExecution(code);
+      const allCompleted = CODING_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setStationVictoryModalOpen(true);
+        }, 1200);
+      }
     },
   });
 
@@ -309,6 +319,16 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       completeCodingTask(currentTask.id);
       addXp(20);
       setFeedback(t(currentTask.successKey));
+
+      const allCompleted = CODING_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setStationVictoryModalOpen(true);
+        }, 1200);
+      }
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
@@ -320,7 +340,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t, taskMasteryStars, completedCodingTasks, setStationVictoryModalOpen]);
 
   const handleRunSprint = useCallback(async () => {
     const isMatch = typedCode.trim() === targetCode.trim();

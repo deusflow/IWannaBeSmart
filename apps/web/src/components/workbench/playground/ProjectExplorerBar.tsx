@@ -83,6 +83,8 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
     setSelectedFileId(id);
   };
 
+  const primaryCodeFile = allFiles.find((f) => f.id === "program-cs") || allFiles[1] || allFiles[0];
+
   return (
     <>
       {/* ── Top Inlined Breadcrumbs & Solution Explorer Trigger ── */}
@@ -97,11 +99,11 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
           <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
           <span className="text-slate-200 font-semibold flex items-center gap-1">
             <FileCode className="w-3.5 h-3.5 text-cyan-400" />
-            {codeLang === "csharp" ? "Program.cs" : "main.go"}
+            {primaryCodeFile?.name || (codeLang === "csharp" ? "Program.cs" : "main.go")}
           </span>
           <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
           <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px]">
-            {codeLang === "csharp" ? "entrypoint" : "package main"}
+            {primaryCodeFile?.badge || (codeLang === "csharp" ? "entrypoint" : "package main")}
           </span>
         </div>
 

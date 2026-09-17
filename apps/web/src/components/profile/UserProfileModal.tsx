@@ -19,6 +19,8 @@ import {
   Server,
   GitBranch,
   ShieldAlert,
+  Zap,
+  Layers,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -32,7 +34,11 @@ import {
 } from "@iw/sim-engine";
 import { ProfileIdentityTab } from "./tabs/ProfileIdentityTab";
 import { ProfileAnalyticsTab } from "./tabs/ProfileAnalyticsTab";
-import { ProfileAchievementsTab, ProfileCertCard } from "./tabs/ProfileAchievementsTab";
+import {
+  ProfileAchievementsTab,
+  ProfileCertCard,
+  ProfileBadge,
+} from "./tabs/ProfileAchievementsTab";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -254,6 +260,88 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setBanditVictoryModalOpen,
   ]);
 
+  const badges: ProfileBadge[] = useMemo(() => {
+    const patternsCount = [
+      Boolean(
+        completedCodingTasks["task-2-branching"] ||
+        (taskMasteryStars["task-2-branching"] || 0) >= 1 ||
+        completedCodingTasks["task-pos-pin-lockout"] ||
+        (taskMasteryStars["task-pos-pin-lockout"] || 0) >= 1
+      ),
+      Boolean(
+        completedCodingTasks["task-boundary-guard"] ||
+        (taskMasteryStars["task-boundary-guard"] || 0) >= 1 ||
+        completedCodingTasks["task-pos-guard-clause"] ||
+        (taskMasteryStars["task-pos-guard-clause"] || 0) >= 1
+      ),
+      Boolean(
+        completedCodingTasks["task-interface-polymorphism"] ||
+        (taskMasteryStars["task-interface-polymorphism"] || 0) >= 1 ||
+        completedCodingTasks["task-pos-interface-polymorphism"] ||
+        (taskMasteryStars["task-pos-interface-polymorphism"] || 0) >= 1
+      ),
+      Boolean(
+        completedCodingTasks["task-di-container"] ||
+        (taskMasteryStars["task-di-container"] || 0) >= 1 ||
+        completedCodingTasks["task-pos-dependency-injection"] ||
+        (taskMasteryStars["task-pos-dependency-injection"] || 0) >= 1
+      ),
+      Boolean(
+        completedCodingTasks["task-command-registry"] ||
+        (taskMasteryStars["task-command-registry"] || 0) >= 1
+      ),
+    ].filter(Boolean).length;
+
+    return [
+      {
+        id: "speed-demon",
+        title: t("profile.badgeSpeedDemon", "Спринтер алгоритмів"),
+        desc: t("profile.badgeSpeedDemonDesc", "Досягнуто швидкість понад 60 слів/хв у Code Gym"),
+        icon: Zap,
+        iconColor: "text-amber-800",
+        bgColor: "bg-amber-500/20 border-amber-600/40",
+        isUnlocked: maxWpmRecord >= 60,
+        progressText: `${maxWpmRecord} / 60 WPM`,
+      },
+      {
+        id: "architecture-master",
+        title: t("profile.badgeArchitectureMaster", "Майстер архітектури"),
+        desc: t("profile.badgeArchitectureMasterDesc", "Успішно зібрано DI контейнер та з'єднано шину викликів"),
+        icon: Layers,
+        iconColor: "text-accent-blue",
+        bgColor: "bg-accent-blue/15 border-accent-blue/30",
+        isUnlocked: Boolean(
+          completedCodingTasks["task-di-container"] ||
+          (taskMasteryStars["task-di-container"] || 0) >= 1 ||
+          completedCodingTasks["task-interface-polymorphism"] ||
+          (taskMasteryStars["task-interface-polymorphism"] || 0) >= 1
+        ),
+      },
+      {
+        id: "fintech-shield",
+        title: t("profile.badgeFintechShield", "Вартовий транзакцій"),
+        desc: t("profile.badgeFintechShieldDesc", "Захищено банківський POS-термінал від збоїв та блокувань"),
+        icon: CreditCard,
+        iconColor: "text-emerald-800",
+        bgColor: "bg-emerald-500/20 border-emerald-600/40",
+        isUnlocked: Boolean(
+          (completedCodingTasks["task-pos-pin-lockout"] || (taskMasteryStars["task-pos-pin-lockout"] || 0) >= 1) &&
+          (completedCodingTasks["task-pos-guard-clause"] || (taskMasteryStars["task-pos-guard-clause"] || 0) >= 1)
+        ),
+      },
+      {
+        id: "pattern-collector",
+        title: t("profile.badgePatternCollector", "Колекціонер патернів"),
+        desc: t("profile.badgePatternCollectorDesc", "Освоєно понад 5 ключових патернів проєктування"),
+        icon: Award,
+        iconColor: "text-purple-800",
+        bgColor: "bg-purple-500/20 border-purple-600/40",
+        isUnlocked: patternsCount >= 5,
+        progressText: `${patternsCount} / 5`,
+      },
+    ];
+  }, [maxWpmRecord, completedCodingTasks, taskMasteryStars, t]);
+
   if (!isOpen) return null;
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -389,6 +477,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           {activeTab === "achievements" && (
             <ProfileAchievementsTab
               certCards={certCards}
+              badges={badges}
               onJumpToTask={handleJumpToTask}
             />
           )}
