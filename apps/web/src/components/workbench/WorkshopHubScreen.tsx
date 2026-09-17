@@ -15,6 +15,7 @@ import {
   Cpu,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -304,8 +305,22 @@ export const WorkshopHubScreen: React.FC = () => {
       {/* ── Station Showcase Cards Grid (5 Stations) ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-5">
         {/* ── Station 01: TV Station ── */}
-        <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 hover:border-[#1A1D20]/50 transition-all shadow-paper-sm hover:shadow-paper-md space-y-4">
+        <div
+          className={`flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 ${
+            !isTvCompleted || xp < 100
+              ? "border-amber-500/60 shadow-paper-md ring-2 ring-amber-500/20"
+              : "border-[#1A1D20]/25 hover:border-[#1A1D20]/50 shadow-paper-sm hover:shadow-paper-md"
+          } transition-all space-y-4`}
+        >
           <div className="space-y-3">
+            {/* Beginner Guidance Beacon */}
+            {(!isTvCompleted || xp < 100) && (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-900 text-xs font-mono font-bold animate-pulse">
+                <Sparkles size={13} className="text-amber-700 shrink-0" />
+                <span>{t("hub.recommendedStart", "🌟 Рекомендований старт для новачків")}</span>
+              </div>
+            )}
+
             {/* Badge & Status */}
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]">
@@ -384,7 +399,11 @@ export const WorkshopHubScreen: React.FC = () => {
           <div className="pt-2 flex items-center gap-2">
             <button
               onClick={() => handleEnterStation("tv")}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-[#1A1D20] hover:bg-black text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+              className={`flex-1 py-2.5 px-4 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm ${
+                !isTvCompleted || xp < 100
+                  ? "bg-accent-blue hover:bg-blue-600 text-white ring-2 ring-blue-500/40"
+                  : "bg-[#1A1D20] hover:bg-black text-white"
+              }`}
             >
               <span>{t("hub.enterStation", "Увійти на станцію")}</span>
               <ArrowRight size={14} />
@@ -505,6 +524,79 @@ export const WorkshopHubScreen: React.FC = () => {
                 <Trophy size={16} />
               </button>
             )}
+          </div>
+        </div>
+
+        {/* ── Station 03: IoT Garage Gate (Locked Preview) ── */}
+        <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#EBE5D8]/70 border-2 border-dashed border-[#1A1D20]/30 space-y-4 relative overflow-hidden">
+          <div className="space-y-3">
+            {/* Badge & Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]/60">
+                {t("hub.stations.iot.code", "Модуль 3")} • 03
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-stone-500/15 border border-stone-600/30 text-stone-700">
+                <Lock size={10} />
+                <span>{t("hub.stationLocked", "ЗАБЛОКОВАНО")}</span>
+              </span>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div>
+              <h3 className="font-display font-bold text-lg text-[#1A1D20]/70 flex items-center gap-2">
+                <span>{t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")}</span>
+              </h3>
+              <p className="text-xs font-balsamiq text-[#1A1D20]/60 mt-0.5 leading-relaxed">
+                {t(
+                  "hub.stations.iot.subtitle",
+                  "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
+                )}
+              </p>
+            </div>
+
+            {/* Blueprint Illustration: Servo + Sensor + Laser */}
+            <div className="p-4 rounded-2xl bg-[#DFD7C5]/50 border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden opacity-60">
+              <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
+              <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+                {/* Gate Posts */}
+                <line x1="30" y1="10" x2="30" y2="80" stroke="currentColor" strokeWidth="3" />
+                <line x1="150" y1="10" x2="150" y2="80" stroke="currentColor" strokeWidth="3" />
+                <line x1="25" y1="10" x2="155" y2="10" stroke="currentColor" strokeWidth="3" />
+                {/* Gate Bars */}
+                <line x1="30" y1="30" x2="150" y2="30" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" />
+                <line x1="30" y1="50" x2="150" y2="50" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" />
+                {/* Servo Motor Box */}
+                <rect x="135" y="12" width="22" height="18" rx="2" fill="#FAF8F2" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="146" cy="21" r="4" stroke="currentColor" strokeWidth="1.2" fill="#D97706" />
+                {/* Laser Obstacle Sensor */}
+                <rect x="25" y="65" width="10" height="10" rx="2" fill="#1A1D20" />
+                <rect x="145" y="65" width="10" height="10" rx="2" fill="#1A1D20" />
+                <line x1="35" y1="70" x2="145" y2="70" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="3 3" />
+                <text x="65" y="66" fill="#EF4444" fontSize="6" fontFamily="monospace">IR OBSTACLE SENSOR</text>
+              </svg>
+            </div>
+
+            {/* Lock Criteria & Progress */}
+            <div className="p-3 rounded-xl bg-[#DFD7C5]/60 border border-[#1A1D20]/15 space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] font-mono text-[#1A1D20]/70">
+                <span>{t("hub.unlockCondition", "Потрібно 200+ XP або Модулі 1 та 2")}</span>
+                <span className="font-bold">{isStation3Unlocked ? "200/200 XP ✓" : `${xp}/200 XP`}</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-amber-600 transition-all duration-300"
+                  style={{ width: `${station3ProgressPercent}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Action / Future Badge */}
+          <div className="pt-2">
+            <div className="w-full py-2 px-3 rounded-xl bg-[#DFD7C5]/70 border border-[#1A1D20]/20 text-[#1A1D20]/60 font-mono font-bold text-[11px] text-center flex items-center justify-center gap-1.5">
+              <Lock size={12} />
+              <span>{t("hub.stations.iot.badge", "НЕЗАБАРОМ: EventBus & Async I/O")}</span>
+            </div>
           </div>
         </div>
 
@@ -796,79 +888,6 @@ export const WorkshopHubScreen: React.FC = () => {
                 <Trophy size={16} />
               </button>
             )}
-          </div>
-        </div>
-
-        {/* ── Station 03: IoT Garage Gate (Locked) ── */}
-        <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#EBE5D8]/70 border-2 border-dashed border-[#1A1D20]/30 space-y-4 relative overflow-hidden">
-          <div className="space-y-3">
-            {/* Badge & Status */}
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]/60">
-                {t("hub.stations.iot.code", "Модуль 3")} • 03
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-stone-500/15 border border-stone-600/30 text-stone-700">
-                <Lock size={10} />
-                <span>{t("hub.stationLocked", "ЗАБЛОКОВАНО")}</span>
-              </span>
-            </div>
-
-            {/* Title & Subtitle */}
-            <div>
-              <h3 className="font-display font-bold text-lg text-[#1A1D20]/70 flex items-center gap-2">
-                <span>{t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")}</span>
-              </h3>
-              <p className="text-xs font-balsamiq text-[#1A1D20]/60 mt-0.5 leading-relaxed">
-                {t(
-                  "hub.stations.iot.subtitle",
-                  "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
-                )}
-              </p>
-            </div>
-
-            {/* Blueprint Illustration: Servo + Sensor + Laser */}
-            <div className="p-4 rounded-2xl bg-[#DFD7C5]/50 border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden opacity-60">
-              <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
-              <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
-                {/* Gate Posts */}
-                <line x1="30" y1="10" x2="30" y2="80" stroke="currentColor" strokeWidth="3" />
-                <line x1="150" y1="10" x2="150" y2="80" stroke="currentColor" strokeWidth="3" />
-                <line x1="25" y1="10" x2="155" y2="10" stroke="currentColor" strokeWidth="3" />
-                {/* Gate Bars */}
-                <line x1="30" y1="30" x2="150" y2="30" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" />
-                <line x1="30" y1="50" x2="150" y2="50" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" />
-                {/* Servo Motor Box */}
-                <rect x="135" y="12" width="22" height="18" rx="2" fill="#FAF8F2" stroke="currentColor" strokeWidth="1.5" />
-                <circle cx="146" cy="21" r="4" stroke="currentColor" strokeWidth="1.2" fill="#D97706" />
-                {/* Laser Obstacle Sensor */}
-                <rect x="25" y="65" width="10" height="10" rx="2" fill="#1A1D20" />
-                <rect x="145" y="65" width="10" height="10" rx="2" fill="#1A1D20" />
-                <line x1="35" y1="70" x2="145" y2="70" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="3 3" />
-                <text x="65" y="66" fill="#EF4444" fontSize="6" fontFamily="monospace">IR OBSTACLE SENSOR</text>
-              </svg>
-            </div>
-
-            {/* Lock Criteria & Progress */}
-            <div className="p-3 rounded-xl bg-[#DFD7C5]/60 border border-[#1A1D20]/15 space-y-1.5">
-              <div className="flex items-center justify-between text-[10px] font-mono text-[#1A1D20]/70">
-                <span>{t("hub.unlockCondition", "Потрібно 200+ XP або Модулі 1 та 2")}</span>
-                <span className="font-bold">{isStation3Unlocked ? "200/200 XP ✓" : `${xp}/200 XP`}</span>
-              </div>
-              <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-amber-600 transition-all duration-300"
-                  style={{ width: `${station3ProgressPercent}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Action / Future Badge */}
-          <div className="pt-2">
-            <div className="w-full py-2 px-3 rounded-xl bg-[#DFD7C5]/70 border border-[#1A1D20]/20 text-[#1A1D20]/60 font-mono font-bold text-[11px] text-center flex items-center justify-center gap-1.5">
-              <Lock size={12} />
-              <span>{t("hub.stations.iot.badge", "НЕЗАБАРОМ: EventBus & Async I/O")}</span>
-            </div>
           </div>
         </div>
       </div>

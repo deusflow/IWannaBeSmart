@@ -67,6 +67,9 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <span className="h-2 w-2 rounded-full bg-accent-blue shrink-0" />
             <span>{t("workbench.remoteConsoleTitle", "Пульт ДК (Консоль)")}</span>
           </span>
+          <span className="text-[10px] text-ink-muted/70 font-mono hidden sm:inline-block">
+            {t("workbench.remoteAffordanceTip", "⚡ Пульт реагує на код у шухляді (або на тестові кліки)")}
+          </span>
           <span className="text-[10px] px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted font-mono">
             BN59-01315Q
           </span>
@@ -329,13 +332,18 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
   return (
     <div className="relative flex flex-col items-center select-none transition-all duration-300 ease-out">
       {/* Handset Header */}
-      <div className="w-44 flex items-center justify-between font-display text-xs text-ink-muted pb-1.5 px-1 whitespace-nowrap">
-        <span className="flex items-center gap-1.5 font-bold text-ink text-sm">
-          <span className="h-2 w-2 rounded-full bg-accent-blue shrink-0" />
-          <span>{t("workbench.remoteHandsetTitle", "Пульт ДК")}</span>
-        </span>
-        <span className="text-[10px] px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted font-mono">
-          BN59-01315Q
+      <div className="w-44 flex flex-col pb-1.5 px-1">
+        <div className="flex items-center justify-between font-display text-xs text-ink-muted whitespace-nowrap">
+          <span className="flex items-center gap-1.5 font-bold text-ink text-sm">
+            <span className="h-2 w-2 rounded-full bg-accent-blue shrink-0" />
+            <span>{t("workbench.remoteHandsetTitle", "Пульт ДК")}</span>
+          </span>
+          <span className="text-[10px] px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted font-mono">
+            BN59-01315Q
+          </span>
+        </div>
+        <span className="text-[9px] text-ink-muted/70 font-mono mt-0.5 text-center leading-tight">
+          {t("workbench.remoteAffordanceTip", "⚡ Пульт реагує на код або кліки")}
         </span>
       </div>
 

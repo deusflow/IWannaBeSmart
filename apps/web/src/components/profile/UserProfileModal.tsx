@@ -22,11 +22,21 @@ import {
   ArrowRight,
   Tv,
   CreditCard,
+  Server,
+  GitBranch,
+  ShieldAlert,
+  Trophy,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
-import { FINTECH_TASKS } from "@iw/sim-engine";
+import {
+  CODING_TASKS,
+  FINTECH_TASKS,
+  API_FORGE_TASKS,
+  GIT_TASKS,
+  BANDIT_TASKS,
+} from "@iw/sim-engine";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -56,14 +66,26 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const {
     xp,
     taskMasteryStars,
+    completedCodingTasks,
     setCurrentStationId,
     setCurrentView,
+    setStationVictoryModalOpen,
+    setPosVictoryModalOpen,
+    setApiVictoryModalOpen,
+    setGitVictoryModalOpen,
+    setBanditVictoryModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
       taskMasteryStars: s.taskMasteryStars,
+      completedCodingTasks: s.completedCodingTasks,
       setCurrentStationId: s.setCurrentStationId,
       setCurrentView: s.setCurrentView,
+      setStationVictoryModalOpen: s.setStationVictoryModalOpen,
+      setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      setApiVictoryModalOpen: s.setApiVictoryModalOpen,
+      setGitVictoryModalOpen: s.setGitVictoryModalOpen,
+      setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
     }))
   );
 
@@ -86,25 +108,48 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     return { title: t("profile.rankJunior", "Молодший інженер-дослідник"), level: "Level 1", color: "text-amber-800 border-amber-600/30 bg-amber-500/15" };
   }, [xp, t]);
 
-  // Telemetry: strengths & growth areas computation
+  // Telemetry: strengths & growth areas computation across all 5 stations
   const { strengths, growthAreas, totalMasteryStars, maxWpmRecord } = useMemo(() => {
     const starValues = Object.values(taskMasteryStars);
     const starSum = starValues.reduce((acc, s) => acc + (s || 0), 0);
 
-    // Filter fintech tasks into strengths (>= 2 stars) vs growth areas (< 2 stars or unattempted)
     const strongList: Array<{ id: string; title: string; stars: number; station: string }> = [];
-    const growthList: Array<{ id: string; title: string; stars: number; stationId: string }> = [];
+    const growthList: Array<{ id: string; title: string; stars: number; stationId: string; stationName: string }> = [];
 
-    // Evaluate Fintech Tasks
-    for (const task of FINTECH_TASKS) {
-      const stars = taskMasteryStars[task.id] || 0;
-      const title = t(task.titleKey, task.id);
-      if (stars >= 2) {
-        strongList.push({ id: task.id, title, stars, station: "POS Terminal" });
-      } else {
-        growthList.push({ id: task.id, title, stars, stationId: "pos" });
+    const stationGroups = [
+      { tasks: CODING_TASKS, stationId: "tv", stationName: "Smart TV" },
+      { tasks: FINTECH_TASKS, stationId: "pos", stationName: "POS Terminal" },
+      { tasks: API_FORGE_TASKS, stationId: "api", stationName: "API Forge" },
+      { tasks: GIT_TASKS, stationId: "git", stationName: "Git Time Machine" },
+      { tasks: BANDIT_TASKS, stationId: "bandit", stationName: "Cyber Bandit" },
+    ];
+
+    for (const group of stationGroups) {
+      for (const task of group.tasks) {
+        const rawStars = taskMasteryStars[task.id] || 0;
+        const isDone = Boolean(completedCodingTasks[task.id]);
+        const effectiveStars = rawStars > 0 ? rawStars : isDone ? 1 : 0;
+        const title = t(task.titleKey, task.id);
+
+        if (effectiveStars >= 2) {
+          strongList.push({ id: task.id, title, stars: effectiveStars, station: group.stationName });
+        } else {
+          growthList.push({
+            id: task.id,
+            title,
+            stars: effectiveStars,
+            stationId: group.stationId,
+            stationName: group.stationName,
+          });
+        }
       }
     }
+
+    // Prioritize growth areas: in-progress tasks first (stars === 1), then unattempted
+    growthList.sort((a, b) => {
+      if (a.stars !== b.stars) return b.stars - a.stars;
+      return 0;
+    });
 
     return {
       strengths: strongList,
@@ -112,7 +157,97 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       totalMasteryStars: Math.max(starSum, profile?.total_stars || 0),
       maxWpmRecord: 72, // Benchmark record
     };
-  }, [taskMasteryStars, profile?.total_stars, t]);
+  }, [taskMasteryStars, completedCodingTasks, profile?.total_stars, t]);
+
+  // Dynamic station certificates verification across all 5 modules
+  const certCards = useMemo(() => {
+    const checkCert = (tasks: Array<{ id: string }>) => {
+      const completedCount = tasks.filter(
+        (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+      ).length;
+      const isEligible = completedCount === tasks.length;
+      return { completedCount, total: tasks.length, isEligible };
+    };
+
+    const tvStatus = checkCert(CODING_TASKS);
+    const posStatus = checkCert(FINTECH_TASKS);
+    const apiStatus = checkCert(API_FORGE_TASKS);
+    const gitStatus = checkCert(GIT_TASKS);
+    const banditStatus = checkCert(BANDIT_TASKS);
+
+    return [
+      {
+        id: "tv",
+        title: t("profile.badgeCertStation1", "Сертифікат Станції 01"),
+        spec: `${tvStatus.completedCount} / ${tvStatus.total} завдань`,
+        icon: Tv,
+        iconColor: "text-accent-blue",
+        status: tvStatus,
+        onViewCert: () => {
+          onClose();
+          setStationVictoryModalOpen(true);
+        },
+      },
+      {
+        id: "pos",
+        title: t("profile.badgeCertStation2", "Сертифікат Станції 02"),
+        spec: `${posStatus.completedCount} / ${posStatus.total} завдань`,
+        icon: CreditCard,
+        iconColor: "text-emerald-700",
+        status: posStatus,
+        onViewCert: () => {
+          onClose();
+          setPosVictoryModalOpen(true);
+        },
+      },
+      {
+        id: "api",
+        title: t("profile.badgeCertStation4", "Сертифікат Станції 04 (API Forge)"),
+        spec: `${apiStatus.completedCount} / ${apiStatus.total} завдань`,
+        icon: Server,
+        iconColor: "text-cyan-700",
+        status: apiStatus,
+        onViewCert: () => {
+          onClose();
+          setApiVictoryModalOpen(true);
+        },
+      },
+      {
+        id: "git",
+        title: t("profile.badgeCertStation5", "Сертифікат Станції 05 (Git)"),
+        spec: `${gitStatus.completedCount} / ${gitStatus.total} завдань`,
+        icon: GitBranch,
+        iconColor: "text-purple-700",
+        status: gitStatus,
+        onViewCert: () => {
+          onClose();
+          setGitVictoryModalOpen(true);
+        },
+      },
+      {
+        id: "bandit",
+        title: t("profile.badgeCertStation6", "Сертифікат Станції 06 (Cyber Bandit)"),
+        spec: `${banditStatus.completedCount} / ${banditStatus.total} завдань`,
+        icon: ShieldAlert,
+        iconColor: "text-rose-700",
+        status: banditStatus,
+        onViewCert: () => {
+          onClose();
+          setBanditVictoryModalOpen(true);
+        },
+      },
+    ];
+  }, [
+    taskMasteryStars,
+    completedCodingTasks,
+    t,
+    onClose,
+    setStationVictoryModalOpen,
+    setPosVictoryModalOpen,
+    setApiVictoryModalOpen,
+    setGitVictoryModalOpen,
+    setBanditVictoryModalOpen,
+  ]);
 
   if (!isOpen) return null;
 
@@ -479,18 +614,21 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                   {growthAreas.length > 0 ? (
                     growthAreas.map((item) => (
                       <div
                         key={item.id}
                         className="p-3 rounded-xl bg-amber-500/10 border border-amber-600/30 flex items-center justify-between gap-3 text-xs"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-amber-900 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-600/30">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="text-amber-900 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-600/30 shrink-0">
                             {item.stars === 0 ? "UNATTEMPTED" : `${item.stars} ★`}
                           </span>
-                          <span className="font-display font-bold text-[#1A1D20]">{item.title}</span>
+                          <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-[#1A1D20]/5 text-[#1A1D20]/60 border border-[#1A1D20]/10 shrink-0">
+                            {item.stationName}
+                          </span>
+                          <span className="font-display font-bold text-[#1A1D20] truncate">{item.title}</span>
                         </div>
                         <button
                           type="button"
@@ -587,35 +725,72 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   {t("profile.availableCertificates", "Доступні сертифікати інженера")}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/20 flex items-center justify-between shadow-paper-xs">
-                    <div className="flex items-center gap-2.5">
-                      <Tv size={16} className="text-accent-blue" />
-                      <div>
-                        <div className="text-xs font-display font-extrabold text-[#1A1D20]">
-                          {t("profile.badgeCertStation1", "Сертифікат Станції 01")}
+                  {certCards.map((cert) => {
+                    const IconComponent = cert.icon;
+                    return (
+                      <div
+                        key={cert.id}
+                        className="p-3.5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/20 flex items-center justify-between shadow-paper-xs"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <IconComponent size={16} className={`${cert.iconColor} shrink-0`} />
+                          <div className="min-w-0">
+                            <div className="text-xs font-display font-extrabold text-[#1A1D20] truncate">
+                              {cert.title}
+                            </div>
+                            <div className="text-[10px] text-[#1A1D20]/60 font-mono">
+                              {cert.spec}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-[10px] text-[#1A1D20]/60 font-mono">13 / 13 завдань</div>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
-                      {t("profile.acquired", "ЗДОБУТО")}
-                    </span>
-                  </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/20 flex items-center justify-between shadow-paper-xs">
-                    <div className="flex items-center gap-2.5">
-                      <CreditCard size={16} className="text-emerald-700" />
-                      <div>
-                        <div className="text-xs font-display font-extrabold text-[#1A1D20]">
-                          {t("profile.badgeCertStation2", "Сертифікат Станції 02")}
-                        </div>
-                        <div className="text-[10px] text-[#1A1D20]/60 font-mono">Fintech Code Gym</div>
+                        {cert.status.isEligible ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
+                              {t("profile.acquired", "ЗДОБУТО")}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={cert.onViewCert}
+                              className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-600/40 text-amber-900 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                              title={t("profile.viewCertBtn", "Переглянути")}
+                            >
+                              <Trophy size={11} />
+                              <span>{t("profile.viewCertBtn", "Переглянути")}</span>
+                            </button>
+                          </div>
+                        ) : cert.status.completedCount > 0 ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-500/15 px-2 py-0.5 rounded border border-amber-600/30">
+                              {t("profile.certInProgress", "В ПРОЦЕСІ")}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleJumpToTask(cert.id)}
+                              className="px-2 py-1 rounded-lg bg-[#1A1D20] hover:bg-black text-white text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                              title={t("profile.practiceTaskBtn", "Практикувати")}
+                            >
+                              <ArrowRight size={10} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[10px] font-mono font-bold text-[#1A1D20]/50 bg-[#1A1D20]/5 px-2 py-0.5 rounded border border-[#1A1D20]/15">
+                              {t("profile.certLocked", "НЕ РОЗПОЧАТО")}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleJumpToTask(cert.id)}
+                              className="px-2 py-1 rounded-lg bg-[#1A1D20] hover:bg-black text-white text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                              title={t("profile.practiceTaskBtn", "Практикувати")}
+                            >
+                              <ArrowRight size={10} />
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
-                      {t("profile.acquired", "ЗДОБУТО")}
-                    </span>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

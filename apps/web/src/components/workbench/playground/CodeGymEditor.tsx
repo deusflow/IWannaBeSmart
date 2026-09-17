@@ -3,7 +3,7 @@
  * @description Unified Code Gym CodeMirror Editor with ghost text overlay, sprint timer, diagnostics & actions.
  */
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CodeMirror from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -86,6 +86,26 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
   onOpenTheory,
 }: CodeGymEditorProps<TTask>) {
   const { t, i18n } = useTranslation();
+
+  // Flow State Keyboard Navigation: When a round is completed, Enter or Tab automatically advances
+  useEffect(() => {
+    if (!roundCompleted) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept if user is typing with Ctrl, Meta, or Alt modifiers
+      if ((e.key === "Enter" || e.key === "Tab") && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        if (activeRound < 4) {
+          onAdvanceRound();
+        } else if (nextTaskAvailable && onNextTask) {
+          onNextTask();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [roundCompleted, activeRound, nextTaskAvailable, onAdvanceRound, onNextTask]);
 
   const actionDescription = useMemo(() => {
     if (currentTask.isBugfixTask) {
@@ -505,11 +525,13 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer animate-pulse"
                 >
                   <span>
-                    {activeRound === 1
+                    {(activeRound === 1
                       ? t("codegym.nextRound2", "Раунд 2: Прогалини →")
                       : activeRound === 2
                       ? t("codegym.nextRound3", "Раунд 3: Спринт →")
-                      : t("codegym.nextRound4", "Раунд 4: Варіація →")}
+                      : t("codegym.nextRound4", "Раунд 4: Варіація →")) +
+                      " " +
+                      t("codegym.advanceHotkeyHint", "(Enter ↵)")}
                   </span>
                   <ArrowRight size={14} />
                 </button>
@@ -519,7 +541,11 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
                   onClick={onNextTask}
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
                 >
-                  <span>{t("codegym.nextTaskBtn", "Наступне завдання →")}</span>
+                  <span>
+                    {t("codegym.nextTaskBtn", "Наступне завдання →") +
+                      " " +
+                      t("codegym.advanceHotkeyHint", "(Enter ↵)")}
+                  </span>
                   <ArrowRight size={14} />
                 </button>
               ) : null}
