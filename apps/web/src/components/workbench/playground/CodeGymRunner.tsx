@@ -221,6 +221,16 @@ export const CodeGymRunner: React.FC = () => {
       completeCodingTask(currentTask.id);
       addXp(30);
       setFeedback(t("codegym.round3Complete", "🏆 Спринт пройдено! Ідеальна швидкість та точність."));
+
+      const allCompleted = FINTECH_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setPosVictoryModalOpen(true);
+        }, 1200);
+      }
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
@@ -232,7 +242,24 @@ export const CodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, targetCode, runPosExecution, currentTask, posState, roundStartTimeRef, setHasError, setRoundCompleted, setRoundStats, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
+  }, [
+    typedCode,
+    targetCode,
+    runPosExecution,
+    currentTask,
+    posState,
+    roundStartTimeRef,
+    setHasError,
+    setRoundCompleted,
+    setRoundStats,
+    saveTaskProgress,
+    completeCodingTask,
+    addXp,
+    setFeedback,
+    taskMasteryStars,
+    setPosVictoryModalOpen,
+    t,
+  ]);
 
   const handleRunTransfer = useCallback(async () => {
     const res = await runPosExecution(typedCode);
@@ -254,12 +281,37 @@ export const CodeGymRunner: React.FC = () => {
       completeCodingTask(currentTask.id);
       addXp(40);
       setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
+
+      const allCompleted = FINTECH_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setPosVictoryModalOpen(true);
+        }, 1200);
+      }
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
       setFeedback(res.error || t(currentTask.hintKey));
     }
-  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [
+    typedCode,
+    runPosExecution,
+    currentTask,
+    posState,
+    setHasError,
+    setRoundCompleted,
+    setRoundStats,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    setFeedback,
+    taskMasteryStars,
+    setPosVictoryModalOpen,
+    t,
+  ]);
 
   const handleVerifyBugfix = useCallback(async () => {
     const res = await runPosExecution(typedCode);

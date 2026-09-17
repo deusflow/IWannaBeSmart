@@ -81,6 +81,8 @@ export const BanditCodeGymRunner: React.FC = () => {
     timeLeft,
     isTimerRunning,
     roundStats,
+    setRoundStats,
+    roundStartTimeRef,
     gutterWidth,
     editorContainerRef,
     targetCode,
@@ -165,13 +167,20 @@ export const BanditCodeGymRunner: React.FC = () => {
       setRoundCompleted(true);
 
       const targetStars = activeRound === 1 ? 1 : activeRound === 2 ? 2 : 3;
+      let calculatedWpm: number | undefined;
+      if (activeRound === 3) {
+        const elapsedMinutes = Math.max(0.04, (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000);
+        calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
+        setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
+      }
+
       if (starsEarned < targetStars) {
-        setTaskMastery(currentTask.id, targetStars);
+        setTaskMastery(currentTask.id, targetStars, calculatedWpm);
         addXp(activeRound * 25);
         completeCodingTask(currentTask.id);
       }
 
-      saveTaskProgress(currentTask.id, activeRound, targetStars);
+      saveTaskProgress(currentTask.id, targetStars, calculatedWpm);
 
       // Check if all 6 Bandit tasks are completed
       const allCompleted = BANDIT_TASKS.every(
@@ -191,10 +200,13 @@ export const BanditCodeGymRunner: React.FC = () => {
   }, [
     activeRound,
     typedCode,
+    targetCode,
     codeLang,
     currentTask,
     banditState,
     starsEarned,
+    roundStartTimeRef,
+    setRoundStats,
     setTaskMastery,
     saveTaskProgress,
     completeCodingTask,

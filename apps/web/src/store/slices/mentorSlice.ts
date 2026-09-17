@@ -111,6 +111,16 @@ export const createMentorSlice: StateCreator<
     }
   })(),
 
+  taskBestWpm: (() => {
+    try {
+      return typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("iw_task_best_wpm") || "{}")
+        : {};
+    } catch {
+      return {};
+    }
+  })(),
+
   setTaskMastery: (taskId: string, stars: number, bestWpm?: number) => {
     const current = get().taskMasteryStars[taskId] || 0;
     const nextStars = Math.max(current, stars);
@@ -122,6 +132,21 @@ export const createMentorSlice: StateCreator<
       }
     } catch {
       // Safe catch
+    }
+
+    if (typeof bestWpm === "number" && bestWpm > 0) {
+      const currentWpm = get().taskBestWpm?.[taskId] || 0;
+      if (bestWpm > currentWpm) {
+        const nextWpmMap = { ...get().taskBestWpm, [taskId]: bestWpm };
+        set({ taskBestWpm: nextWpmMap });
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("iw_task_best_wpm", JSON.stringify(nextWpmMap));
+          }
+        } catch {
+          // Safe catch
+        }
+      }
     }
 
     // Offline-First cloud sync with onConflict if authenticated
@@ -191,12 +216,14 @@ export const createMentorSlice: StateCreator<
       }
 
       const localMap = { ...get().taskMasteryStars };
+      const localWpmMap = { ...get().taskBestWpm };
       const toUpload: Array<{
         user_id: string;
         station_id: string;
         task_id: string;
         tier: number;
         stars: number;
+        best_wpm?: number;
         completed_at: string;
       }> = [];
 
@@ -207,19 +234,27 @@ export const createMentorSlice: StateCreator<
           stars: number;
           station_id: string;
           tier: number;
+          best_wpm?: number;
         }>) {
           const localStars = localMap[row.task_id] || 0;
           const finalStars = Math.max(localStars, row.stars);
           localMap[row.task_id] = finalStars;
 
-          // If local had higher stars, queue upload
-          if (localStars > row.stars) {
+          if (typeof row.best_wpm === "number" && row.best_wpm > 0) {
+            const currentWpm = localWpmMap[row.task_id] || 0;
+            localWpmMap[row.task_id] = Math.max(currentWpm, row.best_wpm);
+          }
+
+          // If local had higher stars or higher WPM, queue upload
+          const localWpm = localWpmMap[row.task_id] || 0;
+          if (localStars > row.stars || (localWpm > (row.best_wpm || 0))) {
             toUpload.push({
               user_id: userId,
               station_id: row.station_id || get().currentStationId || "tv",
               task_id: row.task_id,
               tier: row.tier || 0,
               stars: localStars,
+              best_wpm: localWpm > 0 ? localWpm : undefined,
               completed_at: new Date().toISOString(),
             });
           }
@@ -232,22 +267,25 @@ export const createMentorSlice: StateCreator<
       );
       for (const [taskId, stars] of Object.entries(localMap)) {
         if (!cloudTaskIds.has(taskId) && stars > 0) {
+          const localWpm = localWpmMap[taskId];
           toUpload.push({
             user_id: userId,
             station_id: get().currentStationId || "tv",
             task_id: taskId,
             tier: 0,
             stars,
+            best_wpm: localWpm && localWpm > 0 ? localWpm : undefined,
             completed_at: new Date().toISOString(),
           });
         }
       }
 
       // Update local state and localStorage
-      set({ taskMasteryStars: localMap });
+      set({ taskMasteryStars: localMap, taskBestWpm: localWpmMap });
       try {
         if (typeof window !== "undefined") {
           localStorage.setItem("iw_mastery_stars", JSON.stringify(localMap));
+          localStorage.setItem("iw_task_best_wpm", JSON.stringify(localWpmMap));
         }
       } catch {
         // Safe catch

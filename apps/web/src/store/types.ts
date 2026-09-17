@@ -114,6 +114,7 @@ export interface MentorSlice {
   addXp: (amount: number) => void;
   // Code Gym Mastery Stars & Fintech Station
   taskMasteryStars: Record<string, number>;
+  taskBestWpm: Record<string, number>;
   setTaskMastery: (taskId: string, stars: number, bestWpm?: number) => void;
   saveTaskProgress: (taskId: string, stars: number, bestWpm?: number) => void;
   getTaskMastery: (taskId: string) => number;

@@ -66,6 +66,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const {
     xp,
     taskMasteryStars,
+    taskBestWpm,
     completedCodingTasks,
     setCurrentStationId,
     setCurrentView,
@@ -78,6 +79,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     useShallow((s) => ({
       xp: s.xp,
       taskMasteryStars: s.taskMasteryStars,
+      taskBestWpm: s.taskBestWpm,
       completedCodingTasks: s.completedCodingTasks,
       setCurrentStationId: s.setCurrentStationId,
       setCurrentView: s.setCurrentView,
@@ -151,13 +153,16 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       return 0;
     });
 
+    const wpmValues = Object.values(taskBestWpm || {});
+    const recordedMaxWpm = wpmValues.length > 0 ? Math.max(...wpmValues) : 0;
+
     return {
       strengths: strongList,
       growthAreas: growthList,
       totalMasteryStars: Math.max(starSum, profile?.total_stars || 0),
-      maxWpmRecord: 72, // Benchmark record
+      maxWpmRecord: recordedMaxWpm,
     };
-  }, [taskMasteryStars, completedCodingTasks, profile?.total_stars, t]);
+  }, [taskMasteryStars, taskBestWpm, completedCodingTasks, profile?.total_stars, t]);
 
   // Dynamic station certificates verification across all 5 modules
   const certCards = useMemo(() => {
@@ -520,7 +525,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     <span>{t("profile.bestWpmLabel", "Рекордна швидкість")}</span>
                   </div>
                   <div className="mt-1 font-display font-black text-xl text-[#1A1D20] flex items-baseline gap-1">
-                    <span>{maxWpmRecord}</span>
+                    <span>{maxWpmRecord > 0 ? maxWpmRecord : "—"}</span>
                     <span className="text-xs font-mono text-[#1A1D20]/60 font-normal">WPM</span>
                   </div>
                 </div>

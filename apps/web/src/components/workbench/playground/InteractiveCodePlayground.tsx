@@ -342,10 +342,20 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
       setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
-      setTaskMastery(currentTask.id, 3);
+      setTaskMastery(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
       addXp(30);
       setFeedback(t("codegym.round3Complete", "🏆 Спринт пройдено! Ідеальна швидкість та точність."));
+
+      const allCompleted = CODING_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setStationVictoryModalOpen(true);
+        }, 1200);
+      }
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
@@ -357,7 +367,24 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, targetCode, runTvExecution, currentTask, roundStartTimeRef, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [
+    typedCode,
+    targetCode,
+    runTvExecution,
+    currentTask,
+    roundStartTimeRef,
+    setHasError,
+    setRoundCompleted,
+    setRoundStats,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    setFeedback,
+    taskMasteryStars,
+    completedCodingTasks,
+    setStationVictoryModalOpen,
+    t,
+  ]);
 
   const handleRunTransfer = useCallback(async () => {
     const { beforeState, res } = await runTvExecution(typedCode, 200);
@@ -379,12 +406,37 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       completeCodingTask(currentTask.id);
       addXp(40);
       setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
+
+      const allCompleted = CODING_TASKS.every(
+        (task) =>
+          task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+      );
+      if (allCompleted) {
+        setTimeout(() => {
+          setStationVictoryModalOpen(true);
+        }, 1200);
+      }
     } else {
       setHasError(true);
       audioFx.playErrorBuzz();
       setFeedback(res.error || t(currentTask.hintKey));
     }
-  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [
+    typedCode,
+    runTvExecution,
+    currentTask,
+    setHasError,
+    setRoundCompleted,
+    setRoundStats,
+    setTaskMastery,
+    completeCodingTask,
+    addXp,
+    setFeedback,
+    taskMasteryStars,
+    completedCodingTasks,
+    setStationVictoryModalOpen,
+    t,
+  ]);
 
   const handleVerifyBugfix = useCallback(async () => {
     const { beforeState, res } = await runTvExecution(typedCode, 200);

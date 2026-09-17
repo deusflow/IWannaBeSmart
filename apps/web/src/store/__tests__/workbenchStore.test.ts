@@ -162,8 +162,17 @@ describe("WorkbenchStore Slices", () => {
       getStore().addXp(50);
       expect(getStore().xp).toBe(initialXp + 50);
 
-      getStore().setTaskMastery("task-0-1-power-on", 3);
+      getStore().setTaskMastery("task-0-1-power-on", 3, 65);
       expect(getStore().getTaskMastery("task-0-1-power-on")).toBe(3);
+      expect(getStore().taskBestWpm["task-0-1-power-on"]).toBe(65);
+
+      // Subsequent faster sprint should update best WPM
+      getStore().saveTaskProgress("task-0-1-power-on", 3, 78);
+      expect(getStore().taskBestWpm["task-0-1-power-on"]).toBe(78);
+
+      // Slower sprint should preserve existing higher record
+      getStore().saveTaskProgress("task-0-1-power-on", 3, 50);
+      expect(getStore().taskBestWpm["task-0-1-power-on"]).toBe(78);
     });
   });
 
