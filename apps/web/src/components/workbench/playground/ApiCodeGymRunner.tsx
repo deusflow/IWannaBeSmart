@@ -139,6 +139,7 @@ export const ApiCodeGymRunner: React.FC = () => {
     starsEarned,
     onRoundComplete: async (_round, code) => {
       setTaskMastery(currentTask.id, 1);
+      saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
       addXp(15);
       await runApiExecution(code);
@@ -224,6 +225,7 @@ export const ApiCodeGymRunner: React.FC = () => {
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 2);
+      saveTaskProgress(currentTask.id, 2);
       completeCodingTask(currentTask.id);
       addXp(20);
       setFeedback(t(currentTask.successKey));
@@ -238,7 +240,7 @@ export const ApiCodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runApiExecution, currentTask, apiState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runApiExecution, currentTask, apiState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
 
   const handleRunSprint = useCallback(async () => {
     const isMatch = typedCode.trim() === targetCode.trim();
@@ -313,6 +315,7 @@ export const ApiCodeGymRunner: React.FC = () => {
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 4);
+      saveTaskProgress(currentTask.id, 4);
       completeCodingTask(currentTask.id);
       addXp(40);
       setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
@@ -340,6 +343,7 @@ export const ApiCodeGymRunner: React.FC = () => {
     setRoundCompleted,
     setRoundStats,
     setTaskMastery,
+    saveTaskProgress,
     completeCodingTask,
     addXp,
     setFeedback,

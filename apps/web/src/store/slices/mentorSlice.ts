@@ -13,6 +13,29 @@ import type {
   MentorPhase,
 } from "../types";
 
+function deriveStationAndTier(
+  taskId: string,
+  fallbackStationId?: string
+): { stationId: string; tier: number } {
+  if (taskId.startsWith("task-pos-")) {
+    return { stationId: "pos", tier: 0 };
+  }
+  if (taskId.startsWith("task-api-")) {
+    return { stationId: "api", tier: 0 };
+  }
+  if (taskId.startsWith("task-git-")) {
+    return { stationId: "git", tier: 0 };
+  }
+  if (taskId.startsWith("task-bandit-")) {
+    return { stationId: "bandit", tier: 0 };
+  }
+  const tvTask = CODING_TASKS.find((t) => t.id === taskId);
+  if (tvTask) {
+    return { stationId: "tv", tier: tvTask.tier ?? 0 };
+  }
+  return { stationId: fallbackStationId || "tv", tier: 0 };
+}
+
 export const createMentorSlice: StateCreator<
   WorkbenchStore,
   [],
@@ -154,6 +177,10 @@ export const createMentorSlice: StateCreator<
       try {
         const userId = useAuthStore.getState().user?.id;
         if (userId) {
+          const { stationId: targetStationId, tier: targetTier } = deriveStationAndTier(
+            taskId,
+            get().currentStationId
+          );
           const payload: {
             user_id: string;
             station_id: string;
@@ -164,9 +191,9 @@ export const createMentorSlice: StateCreator<
             completed_at: string;
           } = {
             user_id: userId,
-            station_id: get().currentStationId || "tv",
+            station_id: targetStationId,
             task_id: taskId,
-            tier: 0,
+            tier: targetTier,
             stars: nextStars,
             completed_at: new Date().toISOString(),
           };
@@ -248,11 +275,15 @@ export const createMentorSlice: StateCreator<
           // If local had higher stars or higher WPM, queue upload
           const localWpm = localWpmMap[row.task_id] || 0;
           if (localStars > row.stars || (localWpm > (row.best_wpm || 0))) {
+            const { stationId: targetStationId, tier: targetTier } = deriveStationAndTier(
+              row.task_id,
+              row.station_id || get().currentStationId
+            );
             toUpload.push({
               user_id: userId,
-              station_id: row.station_id || get().currentStationId || "tv",
+              station_id: targetStationId,
               task_id: row.task_id,
-              tier: row.tier || 0,
+              tier: targetTier,
               stars: localStars,
               best_wpm: localWpm > 0 ? localWpm : undefined,
               completed_at: new Date().toISOString(),
@@ -268,11 +299,15 @@ export const createMentorSlice: StateCreator<
       for (const [taskId, stars] of Object.entries(localMap)) {
         if (!cloudTaskIds.has(taskId) && stars > 0) {
           const localWpm = localWpmMap[taskId];
+          const { stationId: targetStationId, tier: targetTier } = deriveStationAndTier(
+            taskId,
+            get().currentStationId
+          );
           toUpload.push({
             user_id: userId,
-            station_id: get().currentStationId || "tv",
+            station_id: targetStationId,
             task_id: taskId,
-            tier: 0,
+            tier: targetTier,
             stars,
             best_wpm: localWpm && localWpm > 0 ? localWpm : undefined,
             completed_at: new Date().toISOString(),

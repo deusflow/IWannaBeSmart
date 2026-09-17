@@ -71,6 +71,12 @@ const FINTECH_SKILLS: SkillItem[] = [
     codeExample: "services.AddScoped<IPaymentGateway, DankortGateway>();",
     category: "Inversion of Control & DI",
   },
+  {
+    id: "idempotency-defense",
+    nameKey: "fintechVictoryModal.skills.idempotencyDefense",
+    codeExample: "totalAmount = amount + fee; balance -= totalAmount; // No double fee deduction",
+    category: "Idempotency & Bugfix",
+  },
 ];
 
 export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProps> = ({
@@ -127,13 +133,14 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
 ═══════════════════════════════════════════════════════
 
 Загальний досвід: ${xp} XP
-Освоєні комерційні архітектурні патерни (6/6):
+Освоєні комерційні архітектурні патерни (7/7):
   1. [✓] Guard Clauses & Balance Protection
   2. [✓] Fee Calculation & Balance Mutation
   3. [✓] State Locking & Anti-Bruteforce PIN Counter
   4. [✓] Batch Settlement Loops (Length / len)
   5. [✓] Gateway Interface Decoupling (IPaymentGateway.Charge)
   6. [✓] Provider Injection & IoC Container (services.AddScoped)
+  7. [✓] Atomic Single-Source Mutation & Double Deduction Defense
 
 Кваліфікація: CERTIFIED FINTECH PROCESSOR ARCHITECT GRADE I
 ═══════════════════════════════════════════════════════`;

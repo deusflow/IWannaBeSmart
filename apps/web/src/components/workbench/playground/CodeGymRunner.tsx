@@ -120,6 +120,7 @@ export const CodeGymRunner: React.FC = () => {
     starsEarned,
     onRoundComplete: async (_round, code) => {
       setTaskMastery(currentTask.id, 1);
+      saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
       addXp(15);
       await runPosExecution(code);
@@ -182,6 +183,7 @@ export const CodeGymRunner: React.FC = () => {
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 2);
+      saveTaskProgress(currentTask.id, 2);
       completeCodingTask(currentTask.id);
       addXp(20);
       setFeedback(t(currentTask.successKey));
@@ -196,7 +198,7 @@ export const CodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
 
   const handleRunSprint = useCallback(async () => {
     const isMatch = typedCode.trim() === targetCode.trim();
@@ -278,6 +280,7 @@ export const CodeGymRunner: React.FC = () => {
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 4);
+      saveTaskProgress(currentTask.id, 4);
       completeCodingTask(currentTask.id);
       addXp(40);
       setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
@@ -305,6 +308,7 @@ export const CodeGymRunner: React.FC = () => {
     setRoundCompleted,
     setRoundStats,
     setTaskMastery,
+    saveTaskProgress,
     completeCodingTask,
     addXp,
     setFeedback,
@@ -323,6 +327,7 @@ export const CodeGymRunner: React.FC = () => {
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 1);
+      saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
       addXp(30);
       setFeedback(
@@ -341,7 +346,7 @@ export const CodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, codeLang, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, codeLang, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
 
   const handleVerify = useCallback(() => {
     if (currentTask.isBugfixTask && activeRound === 1) {

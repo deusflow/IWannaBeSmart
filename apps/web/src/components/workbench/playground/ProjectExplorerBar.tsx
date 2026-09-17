@@ -246,7 +246,7 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                 {/* File Didactic Summary Footer */}
                 <div className="p-3 bg-[#131922] text-xs text-slate-300 flex items-center justify-between font-sans">
                   <span className="leading-relaxed">
-                    {selectedFile?.description?.[currentLang] || selectedFile?.description?.ua || ""}
+                    {selectedFile?.description?.[currentLang] || selectedFile?.description?.en || selectedFile?.description?.ua || ""}
                   </span>
                   <button
                     onClick={handleCloseModal}

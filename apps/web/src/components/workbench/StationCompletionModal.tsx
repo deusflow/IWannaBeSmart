@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, Award, Download, ArrowRight, X, Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
+import { CODING_TASKS } from "@iw/sim-engine";
 
 interface StationCompletionModalProps {
   isOpen: boolean;
@@ -144,7 +145,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
 ═══════════════════════════════════════════════════════
 
 Загальний досвід: ${xp} XP
-Виконано: 13/13 завдань (3 Ранги: Основи, Логіка, Архітектура)
+Виконано: ${CODING_TASKS.length}/${CODING_TASKS.length} завдань (3 Ранги: Основи, Логіка, Архітектура)
 Освоєні архітектурні патерни (11/11):
   1. [✓] Method Invocation & Direct Calling (tv.PowerOn())
   2. [✓] Type Contracts & Signatures (int vs string)
@@ -184,7 +185,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
         <div className="text-center space-y-3 pt-2">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600/15 border-2 border-emerald-700/40 text-emerald-800 font-mono font-extrabold text-xs uppercase tracking-widest shadow-xs">
             <Sparkles size={14} className="animate-spin" />
-            <span>{t("victoryModal.stampBadge", "СТАНЦІЮ ЗАВЕРШЕНО • ВСІ 13 ЗАВДАНЬ ВИКОНАНО")}</span>
+            <span>{t("victoryModal.stampBadge", `СТАНЦІЮ ЗАВЕРШЕНО • ВСІ ${CODING_TASKS.length} ЗАВДАНЬ ВИКОНАНО`)}</span>
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#1A1D20] tracking-tight">

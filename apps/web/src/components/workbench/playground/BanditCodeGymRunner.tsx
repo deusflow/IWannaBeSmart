@@ -106,6 +106,7 @@ export const BanditCodeGymRunner: React.FC = () => {
     starsEarned,
     onRoundComplete: async () => {
       setTaskMastery(currentTask.id, 1);
+      saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
       addXp(15);
     },
@@ -166,7 +167,7 @@ export const BanditCodeGymRunner: React.FC = () => {
       setFeedback(t(validation.messageKey || currentTask.successKey));
       setRoundCompleted(true);
 
-      const targetStars = activeRound === 1 ? 1 : activeRound === 2 ? 2 : 3;
+      const targetStars = activeRound;
       let calculatedWpm: number | undefined;
       if (activeRound === 3) {
         const elapsedMinutes = Math.max(0.04, (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000);

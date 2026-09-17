@@ -43,7 +43,7 @@ interface CodeGymEditorProps<TTask extends CodeGymTaskLike> {
   roundStats: { wpm: number; accuracy: number } | null;
   traceCharsMatched: number;
   gutterWidth: number;
-  editorContainerRef: any;
+  editorContainerRef: React.RefObject<HTMLDivElement>;
   showTransferHint: boolean;
   onToggleTransferHint: () => void;
   onResetRound: () => void;

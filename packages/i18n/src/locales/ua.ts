@@ -708,6 +708,7 @@ export const uaTranslation = {
         patternsShort: "Патернів",
         enterStation: "Увійти на станцію",
         viewCertificate: "Сертифікат",
+        viewCertTooltip: "Переглянути сертифікат",
         worldSelect: "Вибір світу",
         stationCatalog: "Каталог станцій",
         viewFintechCertTooltip: "Переглянути комерційний сертифікат фінтех-інженера",
@@ -952,6 +953,7 @@ export const uaTranslation = {
           batchSettlement: "Пакетна обробка та закриття зміни (For Loop)",
           gatewayInterface: "Поліморфізм та контракти (Interface IPaymentGateway)",
           dependencyInjection: "Контейнер залежностей (IoC Container & AddScoped)",
+          idempotencyDefense: "Ідемпотентність та захист від подвійного списання (Bugfix)",
         },
       },
       posDevice: {
