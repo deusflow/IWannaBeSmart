@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { API_FORGE_TASKS } from "@iw/sim-engine";
 
 interface ApiStationVictoryModalProps {
   isOpen: boolean;
@@ -83,6 +84,10 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
   const [isMatrixExpanded, setIsMatrixExpanded] = useState<boolean>(true);
 
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
+  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+
+  const currentApiStars = API_FORGE_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
+  const maxApiStars = API_FORGE_TASKS.length * 4;
 
   // Close on Escape key
   useEffect(() => {
@@ -179,10 +184,10 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
             </div>
             <div>
               <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/60">
-                Зірки майстерності
+                {t("hub.stationStars", "STATION STARS")}
               </div>
               <div className="text-base font-display font-extrabold text-[#1A1D20]">
-                18 / 18 ★
+                {currentApiStars} / {maxApiStars} ★
               </div>
             </div>
           </div>
@@ -214,7 +219,7 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
             <div className="flex items-center gap-2">
               <ShieldCheck size={16} className="text-cyan-800" />
               <span className="font-display font-bold text-xs uppercase tracking-wider text-[#1A1D20]">
-                Матриця компетенцій Backend & API Architect (6 патернів)
+                {t("apiForge.victoryModal.matrixTitle", "Матриця компетенцій Backend & API Architect (6 патернів)")}
               </span>
             </div>
             {isMatrixExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}

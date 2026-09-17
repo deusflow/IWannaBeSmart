@@ -749,14 +749,14 @@ export const enTranslation = {
             title: "Station 05: Git Time Machine",
             subtitle: "DAG commit tree, branching, 3-Way merges, merge conflict resolution, and rebase",
             code: "Module 5",
-            specs: "6 tasks • Code Gym (3-Star) • C# / Go",
+            specs: "6 tasks • Code Gym (4-Star) • C# / Go",
             progressStars: "mastery stars",
           },
           bandit: {
             title: "Station 06: Cyber Bandit Lab",
             subtitle: "Ethical hacking, wire packet sniffing, parameter tampering, SQL injection, and rate limiting",
             code: "Module 6",
-            specs: "6 tasks • Code Gym (3-Star) • C# / Go",
+            specs: "6 tasks • Code Gym (4-Star) • C# / Go",
             progressStars: "mastery stars",
           },
           iot: {
@@ -968,6 +968,7 @@ export const enTranslation = {
         netDisconnected: "DISCONNECTED",
         cardBlocked: "CARD BLOCKED",
         pinLimitExceeded: "Exceeded 3 PIN attempts limit ({{count}}/3). Keypad disabled.",
+        attemptsCount: "Attempts: {{count}}/3",
         currentBalance: "Current Balance",
         checkingAccount: "Checking •••• 4421",
         dailyTotal: "Daily Total (Z-Report)",
@@ -1017,6 +1018,10 @@ export const enTranslation = {
         irIndicator: "IR",
         netIndicator: "Network",
         remoteHint: "Remote: 0–9, VOL±, CH±",
+        volPlusHint: "VOL+ on remote or click",
+        volMinusHint: "VOL- on remote or click",
+        chPlusHint: "CH+ on remote or click",
+        chMinusHint: "CH- on remote or click",
       },
       remoteDevice: {
         power: "Power",
@@ -1128,6 +1133,7 @@ export const enTranslation = {
         victoryModal: {
           title: "Module 4: API Forge Completed!",
           subtitle: "You have built an enterprise-grade client-server architecture: from contracts and status codes to Bearer tokens and 504 fault tolerance.",
+          matrixTitle: "Backend & API Architect Competency Matrix (6 Patterns)",
         },
       },
       git: {

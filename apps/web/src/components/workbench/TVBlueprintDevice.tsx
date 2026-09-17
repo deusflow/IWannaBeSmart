@@ -212,7 +212,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                         <button
                           onClick={() => calcSetOperation("+")}
                           className="h-6 sm:h-7 rounded-lg bg-purple-950/80 hover:bg-purple-900 active:scale-95 text-purple-200 font-mono font-bold text-xs flex items-center justify-center border border-purple-600/60 cursor-pointer"
-                          title="VOL+ на пульті або клік"
+                          title={t("tvDevice.volPlusHint", "VOL+ на пульті або клік")}
                         >
                           + (VOL+)
                         </button>
@@ -229,7 +229,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                         <button
                           onClick={() => calcSetOperation("-")}
                           className="h-6 sm:h-7 rounded-lg bg-purple-950/80 hover:bg-purple-900 active:scale-95 text-purple-200 font-mono font-bold text-xs flex items-center justify-center border border-purple-600/60 cursor-pointer"
-                          title="VOL- на пульті або клік"
+                          title={t("tvDevice.volMinusHint", "VOL- на пульті або клік")}
                         >
                           - (VOL-)
                         </button>
@@ -246,7 +246,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                         <button
                           onClick={calcEvaluate}
                           className="h-6 sm:h-7 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 active:scale-95 text-emerald-300 font-mono font-bold text-xs flex items-center justify-center border border-emerald-600/70 cursor-pointer"
-                          title="CH+ на пульті або клік"
+                          title={t("tvDevice.chPlusHint", "CH+ на пульті або клік")}
                         >
                           = (CH+)
                         </button>
@@ -254,7 +254,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                         <button
                           onClick={calcClear}
                           className="h-6 sm:h-7 rounded-lg bg-red-950/60 hover:bg-red-900 active:scale-95 text-red-300 font-mono font-bold text-xs flex items-center justify-center border border-red-700/50 cursor-pointer"
-                          title="CH- на пульті або клік"
+                          title={t("tvDevice.chMinusHint", "CH- на пульті або клік")}
                         >
                           C (CH-)
                         </button>

@@ -253,12 +253,14 @@ export const BanditCodeGymRunner: React.FC = () => {
               >
                 <span>T{task.order}</span>
                 <div className="flex items-center">
-                  {[1, 2, 3].map((s) => (
+                  {[1, 2, 3, 4].map((s) => (
                     <Star
                       key={s}
                       className={`w-3 h-3 ${
                         s <= stars
-                          ? "text-amber-400 fill-amber-400"
+                          ? s === 4
+                            ? "text-cyan-400 fill-cyan-400"
+                            : "text-amber-400 fill-amber-400"
                           : "text-slate-600"
                       }`}
                     />

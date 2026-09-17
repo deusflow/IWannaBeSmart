@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, Award, Download, ArrowRight, X, Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
+import { useWorkbenchStore } from "../../store/workbenchStore";
 import { CODING_TASKS } from "@iw/sim-engine";
 
 interface StationCompletionModalProps {
@@ -97,9 +98,13 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
   xp,
 }) => {
   const { t } = useTranslation();
+  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isMatrixExpanded, setIsMatrixExpanded] = useState(false);
+
+  const currentTvStars = CODING_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
+  const maxTvStars = CODING_TASKS.length * 4;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -145,7 +150,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
 ═══════════════════════════════════════════════════════
 
 Загальний досвід: ${xp} XP
-Виконано: ${CODING_TASKS.length}/${CODING_TASKS.length} завдань (3 Ранги: Основи, Логіка, Архітектура)
+Виконано: ${CODING_TASKS.length}/${CODING_TASKS.length} завдань (4 Рівні: Трасування, Cloze, Спринт, Трансфер)
 Освоєні архітектурні патерни (11/11):
   1. [✓] Method Invocation & Direct Calling (tv.PowerOn())
   2. [✓] Type Contracts & Signatures (int vs string)
@@ -216,14 +221,24 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
             </div>
           </div>
 
-          <div className="hidden sm:flex flex-col text-right">
-            <span className="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1 justify-end">
-              <CheckCircle2 size={13} />
-              {t("victoryModal.automation", "100% Автоматизм")}
-            </span>
-            <span className="text-[10px] font-mono text-[#1A1D20]/50">
-              {t("victoryModal.moduleCertified", "Модуль 1 атестовано")}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/60">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-amber-700">
+                {currentTvStars} / {maxTvStars} ★
+              </div>
+            </div>
+            <div className="hidden sm:flex flex-col text-right">
+              <span className="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1 justify-end">
+                <CheckCircle2 size={13} />
+                {t("victoryModal.automation", "100% Автоматизм")}
+              </span>
+              <span className="text-[10px] font-mono text-[#1A1D20]/50">
+                {t("victoryModal.moduleCertified", "Модуль 1 атестовано")}
+              </span>
+            </div>
           </div>
         </div>
 

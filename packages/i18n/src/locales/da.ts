@@ -735,28 +735,28 @@ export const daTranslation = {
             title: "Station 02: Fintech POS-terminal",
             subtitle: "Finansiel sikkerhed, Guard Clauses, gateway-polymorfi og Dependency Injection",
             code: "Modul 2",
-            specs: "6 opgaver • Code Gym (3-Star) • C# / Go",
+            specs: "7 opgaver • Code Gym (4-Star) • C# / Go",
             progressStars: "mestringsstjerner",
           },
           api: {
             title: "Station 04: API Forge",
             subtitle: "Klient-server pakker, HTTP-kabler, DTO-kontrakter, autentificering og 504 Retries",
             code: "Modul 4",
-            specs: "6 opgaver • Code Gym (3-Star) • C# / Go",
+            specs: "6 opgaver • Code Gym (4-Star) • C# / Go",
             progressStars: "mestringsstjerner",
           },
           git: {
             title: "Station 05: Git Time Machine",
             subtitle: "DAG commit-træ, parallelle grene, 3-Way merges, konfliktløsning og rebase",
             code: "Modul 5",
-            specs: "6 opgaver • Code Gym (3-Star) • C# / Go",
+            specs: "6 opgaver • Code Gym (4-Star) • C# / Go",
             progressStars: "mestringsstjerner",
           },
           bandit: {
             title: "Station 06: Cyber Bandit Lab",
             subtitle: "Etisk hacking, wire tap pakkeaflytning, parametermanipulation, SQL-injektion og rate limiting",
             code: "Modul 6",
-            specs: "6 opgaver • Code Gym (3-Star) • C# / Go",
+            specs: "6 opgaver • Code Gym (4-Star) • C# / Go",
             progressStars: "mestringsstjerner",
           },
           iot: {
@@ -1017,6 +1017,10 @@ export const daTranslation = {
         irIndicator: "IR",
         netIndicator: "Netværk",
         remoteHint: "Fjernbetjening: 0–9, VOL±, CH±",
+        volPlusHint: "VOL+ på fjernbetjening eller klik",
+        volMinusHint: "VOL- på fjernbetjening eller klik",
+        chPlusHint: "CH+ på fjernbetjening eller klik",
+        chMinusHint: "CH- på fjernbetjening eller klik",
       },
       remoteDevice: {
         power: "Strøm",
@@ -1128,6 +1132,7 @@ export const daTranslation = {
         victoryModal: {
           title: "Modul 4: API Forge Fuldført!",
           subtitle: "Du har bygget en robust klient-server arkitektur: fra kontrakter og statuskoder til Bearer tokens og 504 fejltolerance.",
+          matrixTitle: "Backend & API Architect Kompetencematrix (6 Mønstre)",
         },
       },
       git: {

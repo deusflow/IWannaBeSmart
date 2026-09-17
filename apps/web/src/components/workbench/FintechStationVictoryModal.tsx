@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { FINTECH_TASKS } from "@iw/sim-engine";
 
 interface FintechStationVictoryModalProps {
   isOpen: boolean;
@@ -36,46 +37,46 @@ interface SkillItem {
 
 const FINTECH_SKILLS: SkillItem[] = [
   {
-    id: "guard-clauses",
+    id: "guard-clause",
     nameKey: "fintechVictoryModal.skills.guardClauses",
-    codeExample: 'if (amount > balance) { status = "DECLINED"; return; }',
-    category: "Security & Guarding",
+    codeExample: "if (amount <= 0 || balance < amount) return false;",
+    category: "Security & Guard Clauses",
   },
   {
     id: "fee-calculation",
     nameKey: "fintechVictoryModal.skills.feeCalculation",
-    codeExample: "totalAmount = amount + fee; balance -= totalAmount;",
-    category: "State Mutation & Fee Calculation",
+    codeExample: "decimal total = amount + (amount * feePercent / 100m);",
+    category: "Financial Mutation",
   },
   {
     id: "pin-lockout",
     nameKey: "fintechVictoryModal.skills.pinLockout",
-    codeExample: 'if (failedAttempts >= 3) { isLocked = true; status = "BLOCKED"; }',
-    category: "State Machine & Defense",
+    codeExample: "if (++attempts >= 3) isLocked = true;",
+    category: "Anti-Bruteforce & Locking",
   },
   {
     id: "batch-settlement",
     nameKey: "fintechVictoryModal.skills.batchSettlement",
-    codeExample: "for (int i = 0; i < transactions.Length; i++) { ... }",
-    category: "Batch Processing & Settlement",
+    codeExample: "for (int i = 0; i < transactions.Length; i++)",
+    category: "Batch Settlement",
   },
   {
     id: "gateway-interface",
     nameKey: "fintechVictoryModal.skills.gatewayInterface",
-    codeExample: "bool approved = gateway.Charge(totalAmount);",
+    codeExample: "public interface IPaymentGateway { bool Charge(); }",
     category: "Polymorphism & Contracts",
   },
   {
     id: "dependency-injection",
     nameKey: "fintechVictoryModal.skills.dependencyInjection",
-    codeExample: "services.AddScoped<IPaymentGateway, DankortGateway>();",
-    category: "Inversion of Control & DI",
+    codeExample: "services.AddScoped<IPaymentGateway, VisaProcessor>();",
+    category: "Inversion of Control",
   },
   {
-    id: "idempotency-defense",
+    id: "double-deduction-defense",
     nameKey: "fintechVictoryModal.skills.idempotencyDefense",
-    codeExample: "totalAmount = amount + fee; balance -= totalAmount; // No double fee deduction",
-    category: "Idempotency & Bugfix",
+    codeExample: "if (state.IsProcessed) return; state.Balance -= amount; // Atomic Single Source of Truth",
+    category: "Idempotency & Atomic State Defense",
   },
 ];
 
@@ -86,9 +87,13 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
 }) => {
   const { t } = useTranslation();
   const setCurrentStationId = useWorkbenchStore((s) => s.setCurrentStationId);
+  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isMatrixExpanded, setIsMatrixExpanded] = useState(false);
+
+  const currentPosStars = FINTECH_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
+  const maxPosStars = FINTECH_TASKS.length * 4;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -174,7 +179,7 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
         <div className="text-center space-y-2 pt-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-600/30 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
             <ShieldCheck size={14} className="text-emerald-700" />
-            <span>3-Star Mastery Certified</span>
+            <span>{currentPosStars} / {maxPosStars} ★ • 4-Star Mastery Certified</span>
           </div>
 
           <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-[#1A1D20] tracking-tight">
@@ -203,9 +208,19 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/20 font-mono text-xs font-bold text-[#1A1D20]">
-            <CreditCard size={14} className="text-emerald-600" />
-            <span>EMV / DANKORT READY</span>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/70">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-amber-700">
+                {currentPosStars} / {maxPosStars} ★
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/20 font-mono text-xs font-bold text-[#1A1D20]">
+              <CreditCard size={14} className="text-emerald-600" />
+              <span>EMV / DANKORT READY</span>
+            </div>
           </div>
         </div>
 

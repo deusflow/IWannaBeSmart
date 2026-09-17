@@ -151,7 +151,7 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
                   ? "bg-[#1E2024] border-[#1E2024] text-white shadow-sm"
                   : "bg-paper/70 hover:bg-paper border-paper-border text-ink hover:border-accent-blue/40"
               }`}
-              title={`${t(task.titleKey)} (${taskStars}/3 ★)`}
+              title={`${t(task.titleKey)} (${taskStars}/4 ★)`}
             >
               <div className="text-[10px] font-mono font-bold uppercase">
                 <span className={isCurrent ? "text-amber-400" : "text-ink-muted"}>
@@ -159,10 +159,16 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
                 </span>
               </div>
               <div className="flex items-center justify-center gap-0.5 text-[9px] mt-0.5">
-                {[1, 2, 3].map((s) => (
+                {[1, 2, 3, 4].map((s) => (
                   <span
                     key={s}
-                    className={taskStars >= s ? "text-amber-400" : "text-gray-300 opacity-40"}
+                    className={
+                      taskStars >= s
+                        ? s === 4
+                          ? "text-cyan-400 font-bold"
+                          : "text-amber-400"
+                        : "text-gray-300 opacity-40"
+                    }
                   >
                     ★
                   </span>
@@ -182,7 +188,7 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-accent-blue/20 text-accent-blue border border-accent-blue/30">
-                Code Gym • 3-Star Mastery
+                Code Gym • 4-Star Mastery
               </span>
               <span className="text-xs font-mono font-bold text-ink-muted">
                 {t(currentTask.conceptKey)}

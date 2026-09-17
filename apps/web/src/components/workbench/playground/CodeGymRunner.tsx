@@ -437,10 +437,16 @@ export const CodeGymRunner: React.FC = () => {
                     #{idx + 1} POS
                   </span>
                   <div className="flex items-center gap-0.5">
-                    {[1, 2, 3].map((s) => (
+                    {[1, 2, 3, 4].map((s) => (
                       <span
                         key={s}
-                        className={taskStars >= s ? "text-amber-400 text-[10px]" : "text-gray-300 opacity-40 text-[10px]"}
+                        className={
+                          taskStars >= s
+                            ? s === 4
+                              ? "text-cyan-400 font-bold text-[10px]"
+                              : "text-amber-400 text-[10px]"
+                            : "text-gray-300 opacity-40 text-[10px]"
+                        }
                       >
                         ★
                       </span>

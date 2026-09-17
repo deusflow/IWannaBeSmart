@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { GIT_TASKS } from "@iw/sim-engine";
 
 interface GitStationVictoryModalProps {
   isOpen: boolean;
@@ -82,6 +83,10 @@ export const GitStationVictoryModal: React.FC<GitStationVictoryModalProps> = ({
   const [isMatrixExpanded, setIsMatrixExpanded] = useState<boolean>(true);
 
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
+  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+
+  const currentGitStars = GIT_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
+  const maxGitStars = GIT_TASKS.length * 4;
 
   // Close on Escape key
   useEffect(() => {
@@ -156,6 +161,9 @@ Verification Hash: IW-GIT-MASTER-${Math.random().toString(36).substring(2, 9).to
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
                 {t("git.certBadge", "Station 05 Completed")}
               </span>
+              <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+                {currentGitStars} / {maxGitStars} ★
+              </span>
               <span className="text-[10px] font-mono text-stone-400">
                 +{xp} Total XP
               </span>
@@ -199,7 +207,7 @@ Verification Hash: IW-GIT-MASTER-${Math.random().toString(36).substring(2, 9).to
                     >
                       <div className="flex items-center justify-between text-xs font-mono">
                         <span className="font-bold text-stone-200">
-                          {skill.category}
+                          {t(skill.nameKey, skill.category)}
                         </span>
                         <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
                       </div>

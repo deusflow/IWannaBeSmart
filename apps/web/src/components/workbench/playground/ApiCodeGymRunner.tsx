@@ -446,12 +446,14 @@ export const ApiCodeGymRunner: React.FC = () => {
                     #{idx + 1} API
                   </span>
                   <div className="flex items-center gap-0.5">
-                    {[1, 2, 3].map((s) => (
+                    {[1, 2, 3, 4].map((s) => (
                       <span
                         key={s}
                         className={
                           taskStars >= s
-                            ? "text-cyan-400 text-[10px]"
+                            ? s === 4
+                              ? "text-cyan-300 font-bold text-[10px] drop-shadow-[0_0_4px_rgba(6,182,212,0.8)]"
+                              : "text-cyan-500 text-[10px]"
                             : "text-gray-300 opacity-40 text-[10px]"
                         }
                       >

@@ -45,7 +45,7 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         title: t("hub.stations.pos.title", "Фінтех POS-термінал"),
         subtitle: t(
           "hub.stations.pos.subtitle",
-          "Code Gym: Захист балансу, Guard Clauses та 3-Star Mastery"
+          "Code Gym: Захист балансу, Guard Clauses та 4-Star Mastery"
         ),
         status: t("hub.stationAvailable", "Доступно"),
         icon: <CreditCard size={16} strokeWidth={2} />,
