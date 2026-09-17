@@ -47,6 +47,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     completedCodingTasks,
     taskMasteryStars,
     setTaskMastery,
+    saveTaskProgress,
     addXp,
     setStationVictoryModalOpen,
     resetBypasses,
@@ -62,17 +63,21 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       completedCodingTasks: s.completedCodingTasks,
       taskMasteryStars: s.taskMasteryStars,
       setTaskMastery: s.setTaskMastery,
+      saveTaskProgress: s.saveTaskProgress,
       addXp: s.addXp,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       resetBypasses: s.resetBypasses,
     }))
   );
 
-  const tierMeta = useMemo(() => ({
-    0: { label: t("codegym.tier0Label", "РАНГ 0: СТАРТ"), maxStars: 12, unlockAt: 0 },
-    1: { label: t("codegym.tier1Label", "РАНГ 1: ЛОГІКА"), maxStars: 32, unlockAt: 6 },
-    2: { label: t("codegym.tier2Label", "РАНГ 2: АРХІТЕКТУРА"), maxStars: 20, unlockAt: 12 },
-  }), [t]);
+  const tierMeta = useMemo(() => {
+    const countTasks = (tier: 0 | 1 | 2) => CODING_TASKS.filter((t) => (t.tier ?? 0) === tier).length;
+    return {
+      0: { label: t("codegym.tier0Label", "РАНГ 0: СТАРТ"), maxStars: countTasks(0) * 4, unlockAt: 0 },
+      1: { label: t("codegym.tier1Label", "РАНГ 1: ЛОГІКА"), maxStars: countTasks(1) * 4, unlockAt: 6 },
+      2: { label: t("codegym.tier2Label", "РАНГ 2: АРХІТЕКТУРА"), maxStars: countTasks(2) * 4, unlockAt: 12 },
+    };
+  }, [t]);
   const tierKeys = [0, 1, 2] as const;
 
   const [selectedTier, setSelectedTier] = useState<0 | 1 | 2>(0);
@@ -202,6 +207,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     starsEarned,
     onRoundComplete: async (_round, code) => {
       setTaskMastery(currentTask.id, 1);
+      saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
       addXp(15);
       await runTvExecution(code);
@@ -307,6 +313,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 2);
+      saveTaskProgress(currentTask.id, 2);
       completeCodingTask(currentTask.id);
       addXp(20);
       setFeedback(t(currentTask.successKey));
@@ -321,7 +328,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
 
   const handleRunSprint = useCallback(async () => {
     const isMatch = typedCode.trim() === targetCode.trim();
@@ -343,6 +350,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 3, calculatedWpm);
+      saveTaskProgress(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
       addXp(30);
       setFeedback(t("codegym.round3Complete", "🏆 Спринт пройдено! Ідеальна швидкість та точність."));
@@ -377,6 +385,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     setRoundCompleted,
     setRoundStats,
     setTaskMastery,
+    saveTaskProgress,
     completeCodingTask,
     addXp,
     setFeedback,
@@ -403,6 +412,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 4);
+      saveTaskProgress(currentTask.id, 4);
       completeCodingTask(currentTask.id);
       addXp(40);
       setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
@@ -429,6 +439,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     setRoundCompleted,
     setRoundStats,
     setTaskMastery,
+    saveTaskProgress,
     completeCodingTask,
     addXp,
     setFeedback,
@@ -448,6 +459,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
       setTaskMastery(currentTask.id, 1);
+      saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
       addXp(30);
       setFeedback(
@@ -466,7 +478,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
 
   const handleVerify = useCallback(() => {
     if (currentTask.isBugfixTask && activeRound === 1) {

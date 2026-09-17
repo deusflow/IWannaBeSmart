@@ -1,0 +1,204 @@
+/**
+ * @file apps/web/src/components/workbench/hub/StationShowcaseCard.tsx
+ * @description Tactile Station Showcase Card with blueprint illustration, star metrics, and certificate triggers.
+ */
+
+import React from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Lock,
+  ArrowRight,
+  Trophy,
+  Sparkles,
+} from "lucide-react";
+
+export interface StationShowcaseCardProps {
+  stationId: string;
+  codeLabel: string;
+  title: string;
+  subtitle: string;
+  blueprint: React.ReactNode;
+  specs: string;
+  currentStars: number;
+  maxStars: number;
+  statusType: "mastered" | "completed" | "available" | "locked";
+  isRecommended?: boolean;
+  accentBorderClass?: string;
+  starColorClass?: string;
+  lockCriteria?: {
+    conditionText: string;
+    progressText: string;
+    percent: number;
+    badgeText: string;
+  };
+  onEnter?: () => void;
+  onViewCert?: () => void;
+  certTooltip?: string;
+}
+
+export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
+  codeLabel,
+  title,
+  subtitle,
+  blueprint,
+  specs,
+  currentStars,
+  maxStars,
+  statusType,
+  isRecommended = false,
+  accentBorderClass = "hover:border-[#1A1D20]/50",
+  starColorClass = "text-amber-700",
+  lockCriteria,
+  onEnter,
+  onViewCert,
+  certTooltip,
+}) => {
+  const { t } = useTranslation();
+
+  if (statusType === "locked") {
+    return (
+      <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#EBE5D8]/70 border-2 border-dashed border-[#1A1D20]/30 space-y-4 relative overflow-hidden">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]/60">
+              {codeLabel}
+            </span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-stone-500/15 border border-stone-600/30 text-stone-700">
+              <Lock size={10} />
+              <span>{t("hub.stationLocked", "ЗАБЛОКОВАНО")}</span>
+            </span>
+          </div>
+
+          <div>
+            <h3 className="font-display font-bold text-lg text-[#1A1D20]/70 flex items-center gap-2">
+              <span>{title}</span>
+            </h3>
+            <p className="text-xs font-balsamiq text-[#1A1D20]/60 mt-0.5 leading-relaxed">
+              {subtitle}
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-[#DFD7C5]/50 border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden opacity-60">
+            <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
+            {blueprint}
+          </div>
+
+          {lockCriteria && (
+            <div className="p-3 rounded-xl bg-[#DFD7C5]/60 border border-[#1A1D20]/15 space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] font-mono text-[#1A1D20]/70">
+                <span>{lockCriteria.conditionText}</span>
+                <span className="font-bold">{lockCriteria.progressText}</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-amber-600 transition-all duration-300"
+                  style={{ width: `${lockCriteria.percent}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {lockCriteria && (
+          <div className="pt-2">
+            <div className="w-full py-2 px-3 rounded-xl bg-[#DFD7C5]/70 border border-[#1A1D20]/20 text-[#1A1D20]/60 font-mono font-bold text-[11px] text-center flex items-center justify-center gap-1.5">
+              <Lock size={12} />
+              <span>{lockCriteria.badgeText}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 transition-all space-y-4 shadow-paper-sm hover:shadow-paper-md ${
+        isRecommended
+          ? "border-amber-500/60 shadow-paper-md ring-2 ring-amber-500/20"
+          : `border-[#1A1D20]/25 ${accentBorderClass}`
+      }`}
+    >
+      <div className="space-y-3">
+        {/* Recommended Beacon */}
+        {isRecommended && (
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-900 text-xs font-mono font-bold animate-pulse">
+            <Sparkles size={13} className="text-amber-700 shrink-0" />
+            <span>{t("hub.recommendedStart", "🌟 Рекомендований старт для новачків")}</span>
+          </div>
+        )}
+
+        {/* Badge & Status */}
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]">
+            {codeLabel}
+          </span>
+          <span
+            className={`text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
+              statusType === "mastered"
+                ? "bg-amber-500/15 border-amber-600/30 text-amber-900"
+                : statusType === "completed"
+                ? "bg-emerald-500/15 border-emerald-600/30 text-emerald-900"
+                : "bg-blue-500/15 border-blue-600/30 text-blue-900"
+            }`}
+          >
+            {statusType === "mastered"
+              ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${maxStars}/${maxStars} ★)`
+              : statusType === "completed"
+              ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${currentStars}/${maxStars} ★)`
+              : `${t("hub.stationAvailable", "ДОСТУПНО")} (${currentStars}/${maxStars} ★)`}
+          </span>
+        </div>
+
+        {/* Title & Subtitle */}
+        <div>
+          <h3 className="font-display font-bold text-lg text-[#1A1D20]">
+            {title}
+          </h3>
+          <p className="text-xs font-balsamiq text-[#1A1D20]/70 mt-0.5 leading-relaxed">
+            {subtitle}
+          </p>
+        </div>
+
+        {/* Blueprint Diagram */}
+        <div className="p-4 rounded-2xl bg-[#EFEAE1] border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden">
+          <div className="absolute inset-0 bg-notebook-grid opacity-40 pointer-events-none" />
+          {blueprint}
+        </div>
+
+        {/* Specs & Task Progress */}
+        <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
+          <span>{specs}</span>
+          <span className={`font-bold ${starColorClass}`}>
+            {currentStars}/{maxStars} ★
+          </span>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="pt-2 flex items-center gap-2">
+        <button
+          onClick={onEnter}
+          className={`flex-1 py-2.5 px-4 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm ${
+            isRecommended
+              ? "bg-accent-blue hover:bg-blue-600 text-white ring-2 ring-blue-500/40"
+              : "bg-[#1A1D20] hover:bg-black text-white"
+          }`}
+        >
+          <span>{t("hub.enterStation", "Увійти на станцію")}</span>
+          <ArrowRight size={14} />
+        </button>
+
+        {onViewCert && (
+          <button
+            onClick={onViewCert}
+            className="p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-600/40 text-amber-800 transition-colors cursor-pointer"
+            title={certTooltip || t("hub.viewCertTooltip", "Переглянути сертифікат")}
+          >
+            <Trophy size={16} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
