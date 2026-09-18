@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 import { getTaskDidacticInfo } from "./taskDidacticContext";
-import { theoryUa, type TaskTheory } from "@iw/i18n";
+import { theoryUa, theoryEn, theoryDa, type TaskTheory } from "@iw/i18n";
 import { getWorkedExample, type WorkedExample } from "@iw/sim-engine";
 import { GuidedSolutionLayer } from "./guided/GuidedSolutionLayer";
 import { GuidedArchitectureLayer } from "./guided/GuidedArchitectureLayer";
@@ -61,6 +61,8 @@ interface GuidedStepBarProps {
   onToggleExpand?: (expanded: boolean) => void;
   isTheoryUnlocked?: boolean;
   onUnlockPractice?: () => void;
+  onOpenArchitectureStudio?: () => void;
+  className?: string;
 }
 
 export type TutorialLayer = "solution" | "simple" | "engineering" | "tokens" | "architecture";
@@ -76,6 +78,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   onToggleExpand,
   isTheoryUnlocked = true,
   onUnlockPractice,
+  onOpenArchitectureStudio,
+  className = "",
 }) => {
   const { t, i18n } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
@@ -97,6 +101,15 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
 
   if (dismissed && !persistent) return null;
 
+  const currentLang = (i18n.language?.startsWith("da")
+    ? "da"
+    : i18n.language?.startsWith("en")
+    ? "en"
+    : "ua") as "ua" | "en" | "da";
+
+  const theoryDict =
+    currentLang === "da" ? theoryDa : currentLang === "en" ? theoryEn : theoryUa;
+
   const codeLang = data.codeLang || "csharp";
   const taskId = data.taskId || "";
   const didactic = taskId ? getTaskDidacticInfo(taskId) : undefined;
@@ -107,16 +120,11 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   const theory: TaskTheory | undefined =
     translatedTheory && translatedTheory.tokens
       ? translatedTheory
-      : theoryUa.tasks[taskId] || (taskId.startsWith("task-0") ? theoryUa.tasks["task-0-1-power-on"] : undefined);
+      : theoryDict.tasks[taskId] || (taskId.startsWith("task-0") ? theoryDict.tasks["task-0-1-power-on"] : undefined);
 
   const simpleText = t(data.simpleKey, { defaultValue: "" });
   const engineeringText = t(data.engineeringKey, { defaultValue: "" });
 
-  const currentLang = (i18n.language?.startsWith("da")
-    ? "da"
-    : i18n.language?.startsWith("en")
-    ? "en"
-    : "ua") as "ua" | "en" | "da";
 
   const getLocStr = (val: any): string => {
     if (!val) return "";

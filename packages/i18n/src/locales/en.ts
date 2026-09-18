@@ -246,6 +246,8 @@ export const enTranslation = {
         keyTermsTitle: "Key Terms (Untranslated)",
       },
       architecture: {
+        traceGraphTooltip: "Click to build TraceGraph for {{name}}",
+        clickToPlaceNode: "click to add to canvas",
         title: "Architecture Studio",
         projectTree: "Project Tree",
         searchPlaceholder: "Search files and classes...",
@@ -469,6 +471,7 @@ export const enTranslation = {
         briefingLabel: "Briefing:",
       },
       playground: {
+        defectResolvedSuccess: "✅ Defect successfully resolved! Device is OPERATIONAL.",
         runCodeBtn: "Run Code",
         runDemoBtn: "▶ Run Demo",
         runPracticeBtn: "▶ Verify Code",
@@ -784,6 +787,7 @@ export const enTranslation = {
         },
       },
       codegym: {
+        secondsUnit: "s",
         round1Title: "Round 1: Blueprint Trace",
         round1Desc: "Type the code character-by-character over the ghost blueprint. Errors are highlighted immediately!",
         round2Title: "Round 2: Syntax Cloze",
@@ -966,6 +970,7 @@ export const enTranslation = {
         },
       },
       posDevice: {
+        cardholderName: "Olena Koval",
         title: "POS-7402 PRO",
         subtitle: "EMV / NFC Core",
         locked: "LOCKED",
@@ -1303,6 +1308,43 @@ export const enTranslation = {
             success: "✅ Defense in Depth verified! All simulated penetration attack vectors defeated.",
           },
         },
+      },
+      projectFiles: {
+        "interface-remote-command": {
+          role: "Remote command encapsulation contract",
+        },
+        "interface-tv-receiver": {
+          role: "State receiver device contract",
+        },
+        "class-power-command": {
+          role: "TV power toggle command",
+        },
+        "class-volume-up-command": {
+          role: "TV volume increase command (+10%)",
+        },
+        "class-volume-down-command": {
+          role: "TV volume decrease command (-10%)",
+        },
+        "class-channel-up-command": {
+          role: "Next TV channel selection command (+1)",
+        },
+        "class-tv-controller": {
+          role: "Central remote command dispatcher (IoC/DI host)",
+        },
+        "service-audio": {
+          role: "Sound synthesizer and volume DAC service",
+        },
+        "service-display": {
+          role: "Matrix and OSD management service",
+        },
+      },
+      terminalTheory: {
+        step01Title: "Contract (Interface)",
+        step01Desc: "IRemoteCommand defines the Execute() method — a universal contract for all remote commands.",
+        step02Title: "Implementation (Implements)",
+        step02Desc: "PowerCommand implements IRemoteCommand — concrete TV power toggle logic.",
+        step03Title: "Injection (DI)",
+        step03Desc: "TVController receives IRemoteCommand via the CommandHandler input port — connect them with a wire.",
       },
       theory: theoryEn,
 };

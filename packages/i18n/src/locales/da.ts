@@ -246,6 +246,8 @@ export const daTranslation = {
         keyTermsTitle: "Nøglebegreber (Uoversat)",
       },
       architecture: {
+        traceGraphTooltip: "Klik for at opbygge TraceGraph for {{name}}",
+        clickToPlaceNode: "klik for at tilføje til lærredet",
         title: "Architecture Studio",
         projectTree: "Projekttræ",
         searchPlaceholder: "Søg efter filer og klasser...",
@@ -469,6 +471,7 @@ export const daTranslation = {
         briefingLabel: "Briefing:",
       },
       playground: {
+        defectResolvedSuccess: "✅ Fejlen er rettet! Enheden fungerer i normal tilstand (OPERATIONAL).",
         runCodeBtn: "Kør kode",
         runDemoBtn: "▶ Kør demo",
         runPracticeBtn: "▶ Bekræft kode",
@@ -784,6 +787,7 @@ export const daTranslation = {
         },
       },
       codegym: {
+        secondsUnit: "s",
         round1Title: "Runde 1: Skabelonsporing (Trace)",
         round1Desc: "Tast koden tegn for tegn over den gennemsigtige skabelon. Fejl markeres øjeblikkeligt!",
         round2Title: "Runde 2: Udfyld huller (Cloze)",
@@ -966,6 +970,7 @@ export const daTranslation = {
         },
       },
       posDevice: {
+        cardholderName: "Olena Koval",
         title: "POS-7402 PRO",
         subtitle: "EMV / NFC Core",
         locked: "LÅST",
@@ -1303,6 +1308,43 @@ export const daTranslation = {
             success: "✅ Defense in Depth verificeret! Alle simulerede penetrationsangreb afvist.",
           },
         },
+      },
+      projectFiles: {
+        "interface-remote-command": {
+          role: "Fjernbetjeningskommando-indkapslingskontrakt",
+        },
+        "interface-tv-receiver": {
+          role: "Tilstandsmodtagende enhedskontrakt",
+        },
+        "class-power-command": {
+          role: "TV tænd/sluk-kommando",
+        },
+        "class-volume-up-command": {
+          role: "TV lydstyrkeøgning (+10%) kommando",
+        },
+        "class-volume-down-command": {
+          role: "TV lydstyrkesænkning (-10%) kommando",
+        },
+        "class-channel-up-command": {
+          role: "TV næste kanalvalg (+1) kommando",
+        },
+        "class-tv-controller": {
+          role: "Central fjernbetjeningskommandodispacher (IoC/DI vært)",
+        },
+        "service-audio": {
+          role: "Lydsynthesizer- og volumen-DAC-tjeneste",
+        },
+        "service-display": {
+          role: "Matrix- og OSD-styringstjeneste",
+        },
+      },
+      terminalTheory: {
+        step01Title: "Kontrakt (Interface)",
+        step01Desc: "IRemoteCommand definerer Execute() metoden — en universel kontrakt for alle fjernbetjeningskommandoer.",
+        step02Title: "Implementering (Implements)",
+        step02Desc: "PowerCommand implementerer IRemoteCommand — konkret logik til tænd/sluk af TV.",
+        step03Title: "Injektion (DI)",
+        step03Desc: "TVController modtager IRemoteCommand via CommandHandler indgangsporten — forbind dem med en ledning.",
       },
       theory: theoryDa,
 };

@@ -246,6 +246,8 @@ export const uaTranslation = {
         keyTermsTitle: "Ключові терміни (Без перекладу)",
       },
       architecture: {
+        traceGraphTooltip: "Клікніть для побудови TraceGraph для {{name}}",
+        clickToPlaceNode: "клікніть, щоб додати на полотно",
         title: "Architecture Studio",
         projectTree: "Дерево проекту",
         searchPlaceholder: "Пошук файлів та класів...",
@@ -469,6 +471,7 @@ export const uaTranslation = {
         briefingLabel: "Брифінг:",
       },
       playground: {
+        defectResolvedSuccess: "✅ Дефект успішно усунено! Прилад працює у штатному режимі (OPERATIONAL).",
         runCodeBtn: "Запустити код",
         runDemoBtn: "▶ Запустити демо",
         runPracticeBtn: "▶ Перевірити код",
@@ -784,6 +787,7 @@ export const uaTranslation = {
         },
       },
       codegym: {
+        secondsUnit: "с",
         round1Title: "Раунд 1: Сліпий трафарет (Trace)",
         round1Desc: "Надрукуйте код символ у символ поверх трафарету. Помилки фіксуються миттєво!",
         round2Title: "Раунд 2: Прогалини (Cloze)",
@@ -966,6 +970,7 @@ export const uaTranslation = {
         },
       },
       posDevice: {
+        cardholderName: "Олена Коваль",
         title: "POS-7402 PRO",
         subtitle: "EMV / NFC Core",
         locked: "LOCKED",
@@ -1303,6 +1308,43 @@ export const uaTranslation = {
             success: "✅ Ешелонована оборона збудована! Всі симульовані вектори атак успішно відбито.",
           },
         },
+      },
+      projectFiles: {
+        "interface-remote-command": {
+          role: "Контракт інкапсуляції команд пульта",
+        },
+        "interface-tv-receiver": {
+          role: "Контракт пристрою-отримувача стану",
+        },
+        "class-power-command": {
+          role: "Команда перемикання живлення телевізора",
+        },
+        "class-volume-up-command": {
+          role: "Команда збільшення гучності телевізора (+10%)",
+        },
+        "class-volume-down-command": {
+          role: "Команда зменшення гучності телевізора (-10%)",
+        },
+        "class-channel-up-command": {
+          role: "Команда перемикання наступного каналу телевізора (+1)",
+        },
+        "class-tv-controller": {
+          role: "Центральний диспетчер команд пульта (IoC/DI хост)",
+        },
+        "service-audio": {
+          role: "Сервіс звукового синтезатора та ЦАП гучності",
+        },
+        "service-display": {
+          role: "Сервіс керування матрицею та OSD",
+        },
+      },
+      terminalTheory: {
+        step01Title: "Контракт (Interface)",
+        step01Desc: "IRemoteCommand визначає метод Execute() — спільний контракт для всіх команд пульта.",
+        step02Title: "Реалізація (Implements)",
+        step02Desc: "PowerCommand реалізує IRemoteCommand — конкретна логіка вмикання TV.",
+        step03Title: "Впровадження (DI)",
+        step03Desc: "TVController отримує IRemoteCommand через вхідний порт CommandHandler — з'єднайте їх проводом.",
       },
       theory: theoryUa,
 };
