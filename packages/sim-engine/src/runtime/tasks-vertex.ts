@@ -10,20 +10,9 @@ import type {
   VirtualVertexState,
   VertexCommandResult,
   VertexHardwareType,
-  VertexEndpointConfig,
-  VertexIamConfig,
   VertexAuthPolicy,
-  VertexMonitoringConfig,
 } from "./vertexContext";
-import {
-  INITIAL_VERTEX_STATE,
-  connectGcsBucket,
-  setPreprocessingStep,
-  runTraining,
-  configureEndpoint,
-  configureIam,
-  checkMonitoring,
-} from "./vertexContext";
+import { INITIAL_VERTEX_STATE } from "./vertexContext";
 import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export interface VertexTask {

@@ -283,6 +283,14 @@ export function configureEndpoint(
       logs: [`[ENDPOINT] Invalid replica config: min=${config.minReplicas}, max=${config.maxReplicas}`],
     };
   }
+  if (config.minReplicas > config.maxReplicas) {
+    return {
+      success: false,
+      newState: state,
+      output: `ERROR: minReplicas (${config.minReplicas}) cannot be greater than maxReplicas (${config.maxReplicas}).`,
+      logs: [`[ENDPOINT] Invalid replica range: min=${config.minReplicas} > max=${config.maxReplicas}`],
+    };
+  }
   if (config.trafficSplitPercent < 0 || config.trafficSplitPercent > 100) {
     return {
       success: false,

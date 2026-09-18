@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server, GitBranch, Shield } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server, GitBranch, Shield, Cloud, Briefcase } from "lucide-react";
 
 interface StationOption {
   id: string;
@@ -85,6 +85,30 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         ),
         status: t("hub.stationAvailable", "Доступно"),
         icon: <Shield size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "vertex",
+        code: t("hub.stations.vertex.code", "Модуль 7"),
+        title: t("hub.stations.vertex.title", "Vertex AI Architect"),
+        subtitle: t(
+          "hub.stations.vertex.subtitle",
+          "Cloud MLOps: GCS пайплайни, GPU інференс, VPC Peering та Drift Sentinel"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <Cloud size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "fde",
+        code: t("hub.stations.fde.code", "Модуль 8"),
+        title: t("hub.stations.fde.title", "Field AI Deployer (FDE)"),
+        subtitle: t(
+          "hub.stations.fde.subtitle",
+          "Enterprise AI: Інтерв'ю стейкхолдерів, Legacy API, Агентні графи та Zero Trust"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <Briefcase size={16} strokeWidth={2} />,
         isAvailable: true,
       },
       {

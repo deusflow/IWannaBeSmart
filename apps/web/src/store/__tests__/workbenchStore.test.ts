@@ -12,6 +12,8 @@ import {
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
+  VERTEX_TASKS,
+  FDE_TASKS,
 } from "@iw/sim-engine";
 
 // Helper accessor to always inspect the fresh Zustand state
@@ -401,15 +403,17 @@ describe("WorkbenchStore Slices", () => {
   });
 
   describe("mentorSlice (Gamification, Mastery & Global Stars)", () => {
-    it("should compute TOTAL_MAX_STARS accurately across all 5 stations", () => {
+    it("should compute TOTAL_MAX_STARS accurately across all 7 stations", () => {
       const expectedTotal =
         CODING_TASKS.length * 4 +
         FINTECH_TASKS.length * 4 +
         API_FORGE_TASKS.length * 4 +
         GIT_TASKS.length * 4 +
-        BANDIT_TASKS.length * 4;
+        BANDIT_TASKS.length * 4 +
+        VERTEX_TASKS.length * 4 +
+        FDE_TASKS.length * 4;
       expect(TOTAL_MAX_STARS).toBe(expectedTotal);
-      expect(TOTAL_MAX_STARS).toBe(172);
+      expect(TOTAL_MAX_STARS).toBe(292);
     });
 
     it("should record task mastery stars and best WPM without downgrade", () => {

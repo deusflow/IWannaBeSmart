@@ -7,16 +7,7 @@
 
 import type { WorkedExample } from "./types";
 import type { FdeState, DiscoveryResult, IntegrationResult, PipelineResult, SecurityResult, HandoffResult } from "./fdeContext";
-import {
-  INITIAL_FDE_STATE,
-  makeDiscoveryChoice,
-  connectLegacyApi,
-  configureAuthToken,
-  connectAgentNode,
-  configureRag,
-  toggleSecurityCheck,
-  submitRunbook,
-} from "./fdeContext";
+import { INITIAL_FDE_STATE } from "./fdeContext";
 import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export interface FdeTask {
@@ -223,7 +214,7 @@ export const FDE_TASKS: FdeTask[] = [
       correctChoicesMade: 2,
       clientTrustScore: 70,
     },
-    validate: (_before, after, _result, code = "") => {
+    validate: (_before, _after, _result, code = "") => {
       const c = code.toLowerCase();
       const hasScope =
         c.includes("scope") || c.includes("problem") ||
@@ -312,7 +303,7 @@ export const FDE_TASKS: FdeTask[] = [
         { code: 400, message: "Bad Request: Missing X-API-Version header", hint: "fde.integration.hint400" },
       ],
     },
-    validate: (_before, after, _result, code = "") => {
+    validate: (_before, _after, _result, code = "") => {
       const c = code.toLowerCase();
       const hasVersion =
         c.includes("x-api-version") || c.includes("api_version") || c.includes("version");

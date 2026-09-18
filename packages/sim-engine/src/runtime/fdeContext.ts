@@ -157,7 +157,7 @@ export interface DiscoveryResult {
 
 export function makeDiscoveryChoice(
   state: FdeState,
-  choiceId: string,
+  _choiceId: string,
   isCorrect: boolean,
   xpGain: number,
   consequenceKey: string

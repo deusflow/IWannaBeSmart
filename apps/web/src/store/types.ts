@@ -15,6 +15,19 @@ import type {
   DefenseStatus,
   SqlInjectionResult,
   RateLimitResult,
+  VirtualVertexState,
+  VertexCommandResult,
+  VertexHardwareType,
+  VertexEndpointConfig,
+  VertexIamConfig,
+  VertexAuthPolicy,
+  VertexMonitoringConfig,
+  FdeState,
+  DiscoveryResult,
+  IntegrationResult,
+  PipelineResult,
+  SecurityResult,
+  HandoffResult,
 } from "@iw/sim-engine";
 
 /**
@@ -277,6 +290,33 @@ export interface BanditSlice {
   setBanditVictoryModalOpen: (open: boolean) => void;
 }
 
+export interface VertexSlice {
+  vertexState: VirtualVertexState;
+  isVertexVictoryModalOpen: boolean;
+  connectVertexGcsBucketAction: (bucketUri: string) => VertexCommandResult;
+  setVertexPreprocessingStepAction: (step: VirtualVertexState["preprocessingStep"]) => VertexCommandResult;
+  runVertexTrainingAction: (hardware: VertexHardwareType, batchSize: number, learningRate: number) => VertexCommandResult;
+  configureVertexEndpointAction: (config: VertexEndpointConfig) => VertexCommandResult;
+  configureVertexIamAction: (iamConfig: VertexIamConfig, authPolicy: VertexAuthPolicy) => VertexCommandResult;
+  checkVertexMonitoringAction: (monitoringConfig: VertexMonitoringConfig) => VertexCommandResult;
+  resetVertexState: (custom?: Partial<VirtualVertexState>) => void;
+  setVertexVictoryModalOpen: (open: boolean) => void;
+}
+
+export interface FdeSlice {
+  fdeState: FdeState;
+  isFdeVictoryModalOpen: boolean;
+  makeFdeDiscoveryChoiceAction: (choiceId: string, isCorrect: boolean, xpGain: number, consequenceKey: string) => DiscoveryResult;
+  connectFdeLegacyApiAction: (endpointUrl: string) => IntegrationResult;
+  configureFdeAuthTokenAction: (token: string) => IntegrationResult;
+  connectFdeAgentNodeAction: (nodeId: string) => PipelineResult;
+  configureFdeRagAction: (chunkSize: number, vectorDbUrl: string) => PipelineResult;
+  toggleFdeSecurityCheckAction: (checkId: string) => SecurityResult;
+  submitFdeRunbookAction: (markdownContent: string) => HandoffResult;
+  resetFdeState: (custom?: Partial<FdeState>) => void;
+  setFdeVictoryModalOpen: (open: boolean) => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -288,4 +328,6 @@ export type WorkbenchStore = TVStateSlice &
   ApiForgeSlice &
   GitSlice &
   BanditSlice &
+  VertexSlice &
+  FdeSlice &
   WorkbenchActions;

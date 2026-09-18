@@ -781,6 +781,20 @@ export const enTranslation = {
             specs: "6 tasks • Code Gym (4-Star) • C# / Go",
             progressStars: "mastery stars",
           },
+                    vertex: {
+            title: "Station 07: Vertex AI Architect",
+            subtitle: "Production ML pipelines, GPU autoscaling, VPC peering, and drift telemetry",
+            code: "Module 7",
+            specs: "15 tasks • Vertex AI & MLOps • Python / YAML",
+            progressStars: "mastery stars",
+          },
+          fde: {
+            title: "Station 08: Field AI Deployer (FDE)",
+            subtitle: "Client discovery, legacy API adapters, multi-agent state machines, and zero-trust handoffs",
+            code: "Module 8",
+            specs: "15 tasks • Applied AI • Python / TS",
+            progressStars: "mastery stars",
+          },
           iot: {
             title: "Station 03: IoT Garage Gate",
             subtitle: "Asynchronous EventBus, message brokers, event queues, and safety sensors",

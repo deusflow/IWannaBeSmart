@@ -781,6 +781,20 @@ export const uaTranslation = {
             specs: "6 завдань • Code Gym (4-Star) • C# / Go",
             progressStars: "зірок майстерності",
           },
+                    vertex: {
+            title: "Станція 07: Vertex AI Architect",
+            subtitle: "Пайплайни машинного навчання, GPU автоскейлінг, VPC Peering та моніторинг дрейфу",
+            code: "Модуль 7",
+            specs: "15 завдань • Vertex AI & MLOps • Python / YAML",
+            progressStars: "зірок майстерності",
+          },
+          fde: {
+            title: "Станція 08: Field AI Deployer (FDE)",
+            subtitle: "Інтерв'ю стейкхолдерів, адаптація legacy API, агентні графи та регламенти передачі",
+            code: "Модуль 8",
+            specs: "15 завдань • Applied AI • Python / TS",
+            progressStars: "зірок майстерності",
+          },
           iot: {
             title: "Станція 03: IoT Гаражні ворота",
             subtitle: "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори",

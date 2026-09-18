@@ -47,10 +47,7 @@ export function resolveLocalizedText(
 
 export interface WorkedExample {
   /** Такт 1: Готовий еталонний код */
-  sampleCode: {
-    csharp: string;
-    go: string;
-  } | string;
+  sampleCode: Record<string, string> | string;
   /** Такт 1: Лог у терміналі та реакція апаратного приладу */
   demonstrationLog: {
     terminal: string[];
@@ -59,18 +56,12 @@ export interface WorkedExample {
   /** Такт 1: Покрокове пояснення (1-2 речення, що сталося) */
   explanation: LocalizedText;
   /** Такт 2: Трафарет з пропусками */
-  clozeExercise: {
-    csharp: string;
-    go: string;
-  } | string;
+  clozeExercise: Record<string, string> | string;
   /** Такт 3: Бойове завдання зі зміненою умовою без підказок */
   finalChallenge: {
     prompt: LocalizedText;
     hint?: LocalizedText;
-    targetCode: {
-      csharp: string;
-      go: string;
-    } | string;
+    targetCode: Record<string, string> | string;
   };
 }
 

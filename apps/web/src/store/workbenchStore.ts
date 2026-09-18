@@ -31,6 +31,8 @@ import { createIrPipelineSlice } from "./slices/irPipeline";
 import { createApiForgeSlice } from "./slices/apiForgeSlice";
 import { createGitSlice } from "./slices/gitSlice";
 import { createBanditSlice } from "./slices/banditSlice";
+import { createVertexSlice } from "./slices/vertexSlice";
+import { createFdeSlice } from "./slices/fdeSlice";
 
 export const useWorkbenchStore = create<WorkbenchStore>((...a) => ({
   ...createTvSlice(...a),
@@ -44,6 +46,8 @@ export const useWorkbenchStore = create<WorkbenchStore>((...a) => ({
   ...createApiForgeSlice(...a),
   ...createGitSlice(...a),
   ...createBanditSlice(...a),
+  ...createVertexSlice(...a),
+  ...createFdeSlice(...a),
 }));
 
 export * from "./types";

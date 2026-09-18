@@ -18,6 +18,8 @@ import { GitBlueprintDevice } from "../components/workbench/GitBlueprintDevice";
 import { GitCodeGymRunner } from "../components/workbench/playground/GitCodeGymRunner";
 import { BanditBlueprintDevice } from "../components/workbench/BanditBlueprintDevice";
 import { BanditCodeGymRunner } from "../components/workbench/playground/BanditCodeGymRunner";
+import { VertexBlueprintDevice } from "../components/workbench/VertexBlueprintDevice";
+import { FdeBlueprintDevice } from "../components/workbench/FdeBlueprintDevice";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
 import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
@@ -392,6 +394,18 @@ export const WorkbenchScreen: React.FC = () => {
             <div className="flex-1 w-full min-w-0">
               <BanditCodeGymRunner />
             </div>
+          </div>
+        </main>
+      ) : currentStationId === "vertex" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full">
+            <VertexBlueprintDevice />
+          </div>
+        </main>
+      ) : currentStationId === "fde" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full">
+            <FdeBlueprintDevice />
           </div>
         </main>
       ) : (

@@ -781,6 +781,20 @@ export const daTranslation = {
             specs: "6 opgaver • Code Gym (4-Star) • C# / Go",
             progressStars: "mestringsstjerner",
           },
+                    vertex: {
+            title: "Station 07: Vertex AI Architect",
+            subtitle: "Produktions-ML-pipelines, GPU-autoskalering, VPC-peering og drift-telemetri",
+            code: "Modul 7",
+            specs: "15 opgaver • Vertex AI & MLOps • Python / YAML",
+            progressStars: "mestringsstjerner",
+          },
+          fde: {
+            title: "Station 08: Field AI Deployer (FDE)",
+            subtitle: "Interviews med interessenter, ældre API-adaptere, multi-agent-grafer og zero-trust overdragelse",
+            code: "Modul 8",
+            specs: "15 opgaver • Applied AI • Python / TS",
+            progressStars: "mestringsstjerner",
+          },
           iot: {
             title: "Station 03: IoT Garageport",
             subtitle: "Asynkron EventBus, beskedmæglere, hændelseskøer og sikkerhedssensorer",
