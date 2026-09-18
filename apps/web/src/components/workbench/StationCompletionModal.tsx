@@ -146,14 +146,14 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
   const handleExportSummary = () => {
     const summaryText = `═══════════════════════════════════════════════════════
   INTERACTIVE WORKBENCH: ENGINEERING CERTIFICATE
-  МОДУЛЬ 1: ТЕЛЕВІЗІЙНА СТАНЦІЯ — УСПІШНО ЗАВЕРШЕНО!
+  MODULE 1: TELEVISION STATION — FULLY CERTIFIED!
 ═══════════════════════════════════════════════════════
 
-Загальний досвід: ${xp} XP
-Виконано: ${CODING_TASKS.length}/${CODING_TASKS.length} завдань (4 Рівні: Трасування, Cloze, Спринт, Трансфер)
-Освоєні архітектурні патерни (11/11):
+Total Experience: ${xp} XP
+Completed Tasks: ${CODING_TASKS.length}/${CODING_TASKS.length} (4 Mastery Levels: Trace, Cloze, Sprint, Transfer)
+Mastered Software Architecture Patterns (11/11):
   1. [✓] Method Invocation & Direct Calling (tv.PowerOn())
-  2. [✓] Type Contracts & Signatures (int vs string)
+  2. [✓] Type Contracts & Parameter Signatures (int vs string)
   3. [✓] Sequential Execution Flow (Power → Channel → Volume)
   4. [✓] State & Mutation (tv.IsOn, tv.Channel)
   5. [✓] Control Flow & Guard Clauses (if/else, boundary checks)
@@ -164,7 +164,8 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
   10. [✓] Inversion of Control & DI Container (services.AddTransient)
   11. [✓] Command Registry & Extensibility (registry[button].Execute())
 
-Статус: CERTIFIED ARCHITECT GRADE I
+Status: CERTIFIED SYSTEMS ARCHITECT GRADE I
+Verification Hash: IW-TV-ARCH-${Math.random().toString(36).substring(2, 9).toUpperCase()}
 ═══════════════════════════════════════════════════════`;
 
     if (navigator.clipboard) {

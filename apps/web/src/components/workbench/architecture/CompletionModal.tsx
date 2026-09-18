@@ -27,6 +27,16 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
   const [langTab, setLangTab] = useState<"csharp" | "go">("csharp");
   const xp = useWorkbenchStore((s) => s.xp);
 
+  // Close on Escape key
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -115,7 +125,9 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
             <div className="p-3.5 bg-[#141517] border border-[#2B2D33] rounded-xl font-mono text-xs text-[#E5E7EB] overflow-x-auto leading-relaxed">
               {langTab === "csharp" ? (
                 <pre className="space-y-0.5">
-                  <span className="text-[#6B7280]">// 1. Реєструємо реалізацію під контрактом IRemoteCommand</span>
+                  <span className="text-[#6B7280]">
+                    {t("architecture.csharpComment1", "// 1. Register implementation under IRemoteCommand contract")}
+                  </span>
                   {"\n"}
                   <span className="text-[#93C5FD]">services</span>
                   <span className="text-white">.AddTransient&lt;</span>
@@ -124,7 +136,9 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
                   <span className="text-[#93C5FD] font-bold">PowerCommand</span>
                   <span className="text-white">&gt;();</span>
                   {"\n\n"}
-                  <span className="text-[#6B7280]">// 2. Контролер телевізора автоматично отримує інтерфейс через конструктор</span>
+                  <span className="text-[#6B7280]">
+                    {t("architecture.csharpComment2", "// 2. TV controller automatically receives interface via constructor injection")}
+                  </span>
                   {"\n"}
                   <span className="text-[#93C5FD]">services</span>
                   <span className="text-white">.AddSingleton&lt;</span>
@@ -133,14 +147,18 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
                 </pre>
               ) : (
                 <pre className="space-y-0.5">
-                  <span className="text-[#6B7280]">// 1. Створюємо команду, що задовольняє IRemoteCommand interface</span>
+                  <span className="text-[#6B7280]">
+                    {t("architecture.goComment1", "// 1. Instantiate command implementing IRemoteCommand interface")}
+                  </span>
                   {"\n"}
                   <span className="text-[#93C5FD]">powerCmd</span>
                   <span className="text-white"> := commands.</span>
                   <span className="text-[#93C5FD] font-bold">NewPowerCommand</span>
                   <span className="text-white">(receiver)</span>
                   {"\n\n"}
-                  <span className="text-[#6B7280]">// 2. Впроваджуємо команду у контролер</span>
+                  <span className="text-[#6B7280]">
+                    {t("architecture.goComment2", "// 2. Inject command into controller")}
+                  </span>
                   {"\n"}
                   <span className="text-[#FCD34D]">controller</span>
                   <span className="text-white"> := controllers.</span>

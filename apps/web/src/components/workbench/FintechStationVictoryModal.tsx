@@ -134,11 +134,12 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
   const handleExportSummary = () => {
     const summaryText = `═══════════════════════════════════════════════════════
   INTERACTIVE WORKBENCH: FINTECH ENGINEERING CERTIFICATE
-  МОДУЛЬ 2: ФІНТЕХ POS-ТЕРМІНАЛ — УСПІШНО ЗАВЕРШЕНО!
+  MODULE 2: FINTECH POS TERMINAL — FULLY CERTIFIED!
 ═══════════════════════════════════════════════════════
 
-Загальний досвід: ${xp} XP
-Освоєні комерційні архітектурні патерни (7/7):
+Total Experience: ${xp} XP
+Completed Tasks: ${FINTECH_TASKS.length}/${FINTECH_TASKS.length} (4-Star Mastery: Trace, Cloze, Sprint, Transfer)
+Mastered Commercial Architecture Patterns (7/7):
   1. [✓] Guard Clauses & Balance Protection
   2. [✓] Fee Calculation & Balance Mutation
   3. [✓] State Locking & Anti-Bruteforce PIN Counter
@@ -147,7 +148,8 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
   6. [✓] Provider Injection & IoC Container (services.AddScoped)
   7. [✓] Atomic Single-Source Mutation & Double Deduction Defense
 
-Кваліфікація: CERTIFIED FINTECH PROCESSOR ARCHITECT GRADE I
+Status: CERTIFIED FINTECH PROCESSOR ARCHITECT GRADE I
+Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).toUpperCase()}
 ═══════════════════════════════════════════════════════`;
 
     if (navigator.clipboard) {

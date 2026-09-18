@@ -103,7 +103,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
                     ? "bg-emerald-600 hover:bg-emerald-500 text-white"
                     : "bg-amber-500 hover:bg-amber-400 text-black active:scale-95"
                 }`}
-                title="Запустити демонстрацію вчителя з апаратним ефектом та телеметрією"
+                title={t("guide.demoButtonTooltip", "Запустити демонстрацію вчителя з апаратним ефектом та телеметрією")}
               >
                 <Play size={12} className="fill-current" />
                 <span>

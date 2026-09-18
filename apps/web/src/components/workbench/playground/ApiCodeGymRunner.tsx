@@ -37,8 +37,8 @@ const TASK_DEFAULT_REQUESTS: Record<
     body: '{\n  "item": "NanoSensor",\n  "quantity": 5\n}',
   },
   "task-api-4-bearer-auth": { method: "GET", path: "/api/secure/stats", withAuth: true },
-  "task-api-5-rate-limit": { method: "GET", path: "/api/secure/stats", withAuth: true },
-  "task-api-6-resilience": { method: "GET", path: "/health" },
+  "task-api-5-client-consumer": { method: "GET", path: "/health" },
+  "task-api-6-resiliency-retry": { method: "GET", path: "/health" },
 };
 
 export const ApiCodeGymRunner: React.FC = () => {

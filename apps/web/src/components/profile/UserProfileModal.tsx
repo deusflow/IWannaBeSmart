@@ -190,7 +190,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {
         id: "tv",
         title: t("profile.badgeCertStation1", "Сертифікат Станції 01"),
-        spec: `${tvStatus.completedCount} / ${tvStatus.total} завдань`,
+        spec: t("profile.tasksCount", { completed: tvStatus.completedCount, total: tvStatus.total, defaultValue: `${tvStatus.completedCount} / ${tvStatus.total} tasks` }),
         icon: Tv,
         iconColor: "text-accent-blue",
         status: tvStatus,
@@ -202,7 +202,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {
         id: "pos",
         title: t("profile.badgeCertStation2", "Сертифікат Станції 02"),
-        spec: `${posStatus.completedCount} / ${posStatus.total} завдань`,
+        spec: t("profile.tasksCount", { completed: posStatus.completedCount, total: posStatus.total, defaultValue: `${posStatus.completedCount} / ${posStatus.total} tasks` }),
         icon: CreditCard,
         iconColor: "text-emerald-700",
         status: posStatus,
@@ -214,7 +214,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {
         id: "api",
         title: t("profile.badgeCertStation4", "Сертифікат Станції 04 (API Forge)"),
-        spec: `${apiStatus.completedCount} / ${apiStatus.total} завдань`,
+        spec: t("profile.tasksCount", { completed: apiStatus.completedCount, total: apiStatus.total, defaultValue: `${apiStatus.completedCount} / ${apiStatus.total} tasks` }),
         icon: Server,
         iconColor: "text-cyan-700",
         status: apiStatus,
@@ -226,7 +226,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {
         id: "git",
         title: t("profile.badgeCertStation5", "Сертифікат Станції 05 (Git)"),
-        spec: `${gitStatus.completedCount} / ${gitStatus.total} завдань`,
+        spec: t("profile.tasksCount", { completed: gitStatus.completedCount, total: gitStatus.total, defaultValue: `${gitStatus.completedCount} / ${gitStatus.total} tasks` }),
         icon: GitBranch,
         iconColor: "text-purple-700",
         status: gitStatus,
@@ -238,7 +238,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {
         id: "bandit",
         title: t("profile.badgeCertStation6", "Сертифікат Станції 06 (Cyber Bandit)"),
-        spec: `${banditStatus.completedCount} / ${banditStatus.total} завдань`,
+        spec: t("profile.tasksCount", { completed: banditStatus.completedCount, total: banditStatus.total, defaultValue: `${banditStatus.completedCount} / ${banditStatus.total} tasks` }),
         icon: ShieldAlert,
         iconColor: "text-rose-700",
         status: banditStatus,
