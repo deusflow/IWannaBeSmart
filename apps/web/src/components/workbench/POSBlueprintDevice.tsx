@@ -248,7 +248,7 @@ export const POSBlueprintDevice: React.FC = () => {
             </div>
 
             <span className={isBlocked ? "text-red-400 font-bold text-[10px]" : "text-gray-400 text-[10px]"}>
-              {posState.accountHolder || "Cardholder"}
+              {t("posDevice.cardholderName", posState.accountHolder || "Cardholder")}
             </span>
           </div>
 

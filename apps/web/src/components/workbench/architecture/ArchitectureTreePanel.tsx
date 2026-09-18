@@ -85,6 +85,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
       (f) =>
         f.name.toLowerCase().includes(q) ||
         f.role.toLowerCase().includes(q) ||
+        t(`projectFiles.${f.id}.role`, f.role).toLowerCase().includes(q) ||
         f.path.toLowerCase().includes(q)
     );
   }, [searchQuery]);
@@ -136,7 +137,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
         </div>
         <button
           onClick={() => setIsCollapsed(true)}
-          title="Згорнути панель"
+          title={t("architecture.collapsePanel", "Згорнути панель")}
           className="p-1 rounded-md hover:bg-[#2A2B2F] text-gray-500 hover:text-gray-300 cursor-pointer"
         >
           <PanelLeftClose size={14} />
@@ -204,7 +205,10 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
                             ? "bg-blue-950/40 border-blue-500/60 shadow-[0_0_12px_rgba(59,130,246,0.2)]"
                             : "bg-[#1E2024]/60 border-white/[0.04] hover:bg-[#252830] hover:border-white/10"
                         }`}
-                        title={`Клікніть для побудови TraceGraph для ${file.name}`}
+                        title={t("architecture.traceGraphTooltip", {
+                          name: file.name,
+                          defaultValue: `Клікніть для побудови TraceGraph для ${file.name}`,
+                        })}
                       >
                         <div className="flex items-center justify-between gap-1.5 min-w-0">
                           <div className="flex items-center gap-1.5 min-w-0">

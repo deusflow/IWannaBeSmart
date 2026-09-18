@@ -477,7 +477,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setFeedback(
         validation.messageKey
           ? t(validation.messageKey)
-          : "✅ Дефект успішно усунено! Прилад працює у штатному режимі (OPERATIONAL)."
+          : t("playground.defectResolvedSuccess", "✅ Дефект успішно усунено! Прилад працює у штатному режимі (OPERATIONAL).")
       );
     } else {
       setHasError(true);

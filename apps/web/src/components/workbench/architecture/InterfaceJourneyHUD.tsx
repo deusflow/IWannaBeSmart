@@ -35,7 +35,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationTitle: t("journey.ifaceStep1Title", "1. Оголошення"),
       stationSubtitle: "IRemoteCommand.cs",
       nodeId: "node-interface-remote-command",
-      code: `public interface IRemoteCommand {\n    void Execute(); // Загальний контракт для будь-якої кнопки\n}`,
+      code: `public interface IRemoteCommand {\n    void Execute(); // Universal contract for any remote button\n}`,
       desc: t(
         "journey.ifaceStep1Desc",
         "«Форма розетки». Визначає правила, які зобов'язані виконати всі команди пульта."
@@ -48,8 +48,8 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationSubtitle: isVolume ? "VolumeUpCommand.cs" : "PowerCommand.cs",
       nodeId: isVolume ? "node-class-volume-up-command" : "node-class-power-command",
       code: isVolume
-        ? `public class VolumeUpCommand : IRemoteCommand {\n    public void Execute() => _tv.SetVolume(+10); // Додає звук\n}`
-        : `public class PowerCommand : IRemoteCommand {\n    public void Execute() => _tv.TogglePower(); // Вмикає реле живлення\n}`,
+        ? `public class VolumeUpCommand : IRemoteCommand {\n    public void Execute() => _tv.SetVolume(+10); // Increases volume\n}`
+        : `public class PowerCommand : IRemoteCommand {\n    public void Execute() => _tv.TogglePower(); // Switches power relay\n}`,
       desc: isVolume
         ? t("journey.ifaceStep2DescVol", "Штекер гучності. Реалізує той самий метод Execute(), але регулює звук.")
         : t("journey.ifaceStep2DescPwr", "Штекер живлення. Реалізує той самий метод Execute(), але керує реле 220V."),
@@ -60,7 +60,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationTitle: t("journey.ifaceStep3Title", "3. Впровадження (DI)"),
       stationSubtitle: "TVController.cs",
       nodeId: "node-class-tv-controller",
-      code: `public class TVController {\n    private readonly IRemoteCommand _cmd;\n    // Конструктор приймає будь-що, що відповідає контракту:\n    public TVController(IRemoteCommand cmd) => _cmd = cmd;\n}`,
+      code: `public class TVController {\n    private readonly IRemoteCommand _cmd;\n    // Constructor accepts any contract implementation:\n    public TVController(IRemoteCommand cmd) => _cmd = cmd;\n}`,
       desc: t(
         "journey.ifaceStep3Desc",
         "Слот прийому. Телевізор не знає про Power чи Volume, він чекає контракт IRemoteCommand."
@@ -72,7 +72,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationTitle: t("journey.ifaceStep4Title", "4. Використання"),
       stationSubtitle: "TVController.Dispatch()",
       nodeId: "node-class-tv-controller",
-      code: `public void Dispatch() {\n    _cmd.Execute(); // Поліморфний виклик через інтерфейс!\n}`,
+      code: `public void Dispatch() {\n    _cmd.Execute(); // Polymorphic dispatch via interface!\n}`,
       desc: t(
         "journey.ifaceStep4Desc",
         "Точка виклику: контролер просто викликає .Execute(), а що саме станеться — залежить від вставленої деталі!"
@@ -89,8 +89,8 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationSubtitle: isVolume ? "new VolumeUpCommand()" : "new PowerCommand()",
       nodeId: isVolume ? "node-class-volume-up-command" : "node-class-power-command",
       code: isVolume
-        ? `// Створюємо екземпляр команди гучності окремо від телевізора:\nvar cmd = new VolumeUpCommand();`
-        : `// Створюємо екземпляр команди живлення окремо від телевізора:\nvar cmd = new PowerCommand();`,
+        ? `// Instantiate volume command outside the TV:\nvar cmd = new VolumeUpCommand();`
+        : `// Instantiate power command outside the TV:\nvar cmd = new PowerCommand();`,
       desc: t("journey.diStep1Desc", "Деталь створюється ззовні — телевізор НЕ створює її через new PowerCommand()."),
     },
     {
@@ -99,7 +99,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationTitle: t("journey.diStep2Title", "2. Впорскування (DI)"),
       stationSubtitle: "ctor(IRemoteCommand)",
       nodeId: "node-class-tv-controller",
-      code: `// Впорскуємо створену деталь у конструктор телевізора:\nvar tv = new TVController(cmd);`,
+      code: `// Inject instantiated component into TV constructor:\nvar tv = new TVController(cmd);`,
       desc: t("journey.diStep2Desc", "Готова деталь передається в конструктор через дріт залежності."),
     },
     {
@@ -108,7 +108,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationTitle: t("journey.diStep3Title", "3. Запис у RAM"),
       stationSubtitle: "TVController._cmd",
       nodeId: "node-class-tv-controller",
-      code: `// Внутрішнє поле контролера запам'ятовує посилання:\n_cmd = cmd; // [0x7F2A: ${isVolume ? "VolumeUpCommand" : "PowerCommand"}]`,
+      code: `// Internal controller field stores the reference:\n_cmd = cmd; // [0x7F2A: ${isVolume ? "VolumeUpCommand" : "PowerCommand"}]`,
       desc: t("journey.diStep3Desc", "Телевізор зберігає посилання у своє приватне поле _cmd для подальшого використання."),
     },
     {
@@ -117,7 +117,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
       stationTitle: t("journey.diStep4Title", "4. Виклик у роботі"),
       stationSubtitle: "tv.Dispatch()",
       nodeId: "node-class-tv-controller",
-      code: `// При натисканні пульта сигнал іде через збережене поле:\npublic void Dispatch() => _cmd.Execute();`,
+      code: `// Remote button press triggers signal via stored field:\npublic void Dispatch() => _cmd.Execute();`,
       desc: isVolume
         ? t("journey.diStep4DescVol", "Звуковий підсилювач збільшує гучність на +10%!")
         : t("journey.diStep4DescPwr", "Головне реле телевізора перемикає живлення (115V CRT Rail)!"),

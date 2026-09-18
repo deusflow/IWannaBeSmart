@@ -85,6 +85,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
       (f) =>
         f.name.toLowerCase().includes(q) ||
         f.role.toLowerCase().includes(q) ||
+        t(`projectFiles.${f.id}.role`, f.role).toLowerCase().includes(q) ||
         f.path.toLowerCase().includes(q)
     );
   }, [searchQuery]);
@@ -231,9 +232,10 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
                           onAddNode(file.id);
                           if (isTargetFile) setGuidedStep(3);
                         }}
-                        title={`${file.name}\n${file.role}\n(${t(
-                          "architecture.dragHint"
-                        )})`}
+                        title={`${file.name}\n${t(
+                          `projectFiles.${file.id}.role`,
+                          file.role
+                        )}\n(${t("architecture.dragHint")})`}
                         className={`group px-2 py-1.5 rounded-lg flex items-center justify-between gap-1.5 transition-all duration-150 cursor-grab active:cursor-grabbing border ${
                           isTargetFile
                             ? "bg-purple-950/40 border-purple-500/80 ring-2 ring-purple-400/80 shadow-[0_0_14px_rgba(168,85,247,0.7)] animate-pulse text-purple-200"
@@ -253,7 +255,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
                               {file.name}
                             </span>
                             <span className="font-balsamiq text-[9.5px] text-gray-500 block truncate">
-                              {file.role}
+                              {t(`projectFiles.${file.id}.role`, file.role)}
                             </span>
                           </div>
                         </div>

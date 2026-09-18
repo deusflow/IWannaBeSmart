@@ -334,8 +334,8 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
       {/* ── Role description (Footer) ── */}
       <div className="px-3 py-2 border-t border-white/[0.05] bg-white/[0.01] rounded-b-xl">
-        <p className="font-mono text-[9.5px] text-stone-400 leading-snug truncate" title={nodeData.role}>
-          {nodeData.role}
+        <p className="font-mono text-[9.5px] text-stone-400 leading-snug truncate" title={t(`projectFiles.${nodeData.fileId}.role`, nodeData.role)}>
+          {t(`projectFiles.${nodeData.fileId}.role`, nodeData.role)}
         </p>
       </div>
     </div>

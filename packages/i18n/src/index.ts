@@ -104,4 +104,6 @@ export {
   type TaskTheory,
   type TheoryDictionary,
 };
+export * from "./workedExamplesI18n";
+export * from "./didacticsData";
 export const I18N_PACKAGE_VERSION = "0.0.1";

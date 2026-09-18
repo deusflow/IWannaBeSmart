@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 import { getTaskDidacticInfo } from "./taskDidacticContext";
-import { theoryUa, theoryEn, theoryDa, type TaskTheory } from "@iw/i18n";
+import { theoryUa, theoryEn, theoryDa, type TaskTheory, getLocalizedWorkedExample } from "@iw/i18n";
 import { getWorkedExample, type WorkedExample } from "@iw/sim-engine";
 import { GuidedSolutionLayer } from "./guided/GuidedSolutionLayer";
 import { GuidedArchitectureLayer } from "./guided/GuidedArchitectureLayer";
@@ -112,8 +112,9 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
 
   const codeLang = data.codeLang || "csharp";
   const taskId = data.taskId || "";
-  const didactic = taskId ? getTaskDidacticInfo(taskId) : undefined;
-  const workedExample = data.workedExample || (taskId ? getWorkedExample(taskId) : undefined);
+  const didactic = taskId ? getTaskDidacticInfo(taskId, currentLang) : undefined;
+  const rawWorked = data.workedExample || (taskId ? getWorkedExample(taskId) : undefined);
+  const workedExample = getLocalizedWorkedExample(rawWorked, taskId, currentLang);
 
   // Retrieve theory tokens for syntax breakdown
   const translatedTheory = t(`theory.tasks.${taskId}`, { returnObjects: true }) as TaskTheory;
@@ -181,10 +182,12 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
     }
   };
 
+  const handleOpenStudio = onOpenArchitectureStudio || data.onOpenArchitectureStudio;
+
   return (
     <div
       id="guided-step-bar-container"
-      className={`w-full rounded-2xl transition-all duration-300 select-none overflow-hidden ${
+      className={`${className ? `${className} ` : ""}w-full rounded-2xl transition-all duration-300 select-none overflow-hidden ${
         !isTheoryUnlocked
           ? "border-2 border-amber-500 shadow-[0_0_24px_rgba(245,158,11,0.25)] ring-2 ring-amber-400/40 bg-[#EBE5D8]"
           : "border border-[#1A1D20]/20 bg-[#EBE5D8] shadow-[0_2px_14px_rgba(26,29,32,0.08)]"
@@ -341,7 +344,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               demoExecuted={demoExecuted}
               getLocStr={getLocStr}
               didactic={didactic}
-              onOpenArchitectureStudio={data.onOpenArchitectureStudio}
+              onOpenArchitectureStudio={handleOpenStudio}
             />
           )}
 
@@ -386,7 +389,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <GuidedArchitectureLayer
               didactic={didactic}
               t={t}
-              onOpenArchitectureStudio={data.onOpenArchitectureStudio}
+              onOpenArchitectureStudio={handleOpenStudio}
             />
           )}
 

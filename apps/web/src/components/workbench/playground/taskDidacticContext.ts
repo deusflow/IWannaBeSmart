@@ -4,6 +4,8 @@
  *              project file hierarchy, and Architecture Canvas node mappings for all tasks.
  */
 
+import { getLocalizedTaskDidactic } from "@iw/i18n";
+
 export interface SyntaxTokenItem {
   token: string;
   role: string;
@@ -627,8 +629,14 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
 };
 
 /**
- * Helper to retrieve didactic data for a task with fallback
+ * Helper to retrieve didactic data for a task with fallback and language support
  */
-export function getTaskDidacticInfo(taskId: string): TaskDidacticInfo | undefined {
-  return TASK_DIDACTIC_MAP[taskId];
+export function getTaskDidacticInfo(
+  taskId: string,
+  lang: string = "ua"
+): TaskDidacticInfo | undefined {
+  const base = TASK_DIDACTIC_MAP[taskId];
+  if (!base) return undefined;
+  if (lang === "ua") return base;
+  return getLocalizedTaskDidactic(base, taskId, lang);
 }
