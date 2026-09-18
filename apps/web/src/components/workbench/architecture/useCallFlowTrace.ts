@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import type { Node, Edge } from "@xyflow/react";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { audioFx } from "../../../utils/audioFx";
@@ -32,6 +33,7 @@ export function useCallFlowTrace({
   setEdges,
   onHotSwapInsight,
 }: UseCallFlowTraceParams) {
+  const { t } = useTranslation();
   const [isTracing, setIsTracing] = useState(false);
   const [currentTraceStep, setCurrentTraceStep] = useState<number>(0);
   const traceTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -253,9 +255,11 @@ export function useCallFlowTrace({
           type: "success",
           subsystem: "HARDWARE",
           operation: "VOLUME_INC",
-          message: `DSP Audio Amplifier -> Gain +10% (Рівень: ${updatedVol}%)`,
-          details:
-            "Гучність телевізора збільшено! TVController.cs виконав новий алгоритм без переписування коду.",
+          message: `DSP Audio Amplifier -> Gain +10% (${t("architecture.levelLabel", "Рівень")}: ${updatedVol}%)`,
+          details: t(
+            "architecture.dspGainDetails",
+            "Гучність телевізора збільшено! TVController.cs виконав новий алгоритм без переписування коду."
+          ),
         });
       } else {
         const currentPower = useWorkbenchStore.getState().power;

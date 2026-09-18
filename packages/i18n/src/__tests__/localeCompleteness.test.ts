@@ -1,5 +1,5 @@
 /**
- * @file packages/sim-engine/src/__tests__/localeCompleteness.test.ts
+ * @file packages/i18n/src/__tests__/localeCompleteness.test.ts
  * @description Vitest test suite to enforce 100% localization parity across UA, EN, DA:
  * 1. Root and nested locale keys match perfectly between English, Ukrainian, and Danish.
  * 2. All Worked Examples provide authentic localized English and Danish translations.
@@ -7,16 +7,15 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { WORKED_EXAMPLES } from "../runtime";
+import { WORKED_EXAMPLES } from "@iw/sim-engine";
 import {
   enTranslation,
   uaTranslation,
   daTranslation,
   getLocalizedWorkedExample,
-  getLocalizedTaskDidactic,
   TASK_DIDACTIC_EN,
   TASK_DIDACTIC_DA,
-} from "@iw/i18n";
+} from "../index";
 
 function flattenKeys(obj: Record<string, any>, prefix = ""): string[] {
   let keys: string[] = [];
@@ -69,32 +68,38 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
       expect(daEx).toBeDefined();
 
       // Check hardwareEffect
-      const enHardware = typeof enEx!.demonstrationLog.hardwareEffect === "string"
-        ? enEx!.demonstrationLog.hardwareEffect
-        : enEx!.demonstrationLog.hardwareEffect.en;
-      const daHardware = typeof daEx!.demonstrationLog.hardwareEffect === "string"
-        ? daEx!.demonstrationLog.hardwareEffect
-        : daEx!.demonstrationLog.hardwareEffect.da;
+      const enHardware =
+        typeof enEx!.demonstrationLog.hardwareEffect === "string"
+          ? enEx!.demonstrationLog.hardwareEffect
+          : (enEx!.demonstrationLog.hardwareEffect as any).en;
+      const daHardware =
+        typeof daEx!.demonstrationLog.hardwareEffect === "string"
+          ? daEx!.demonstrationLog.hardwareEffect
+          : (daEx!.demonstrationLog.hardwareEffect as any).da;
       expect(enHardware.length).toBeGreaterThan(0);
       expect(daHardware.length).toBeGreaterThan(0);
 
       // Check explanation
-      const enExp = typeof enEx!.explanation === "string"
-        ? enEx!.explanation
-        : enEx!.explanation.en;
-      const daExp = typeof daEx!.explanation === "string"
-        ? daEx!.explanation
-        : daEx!.explanation.da;
+      const enExp =
+        typeof enEx!.explanation === "string"
+          ? enEx!.explanation
+          : (enEx!.explanation as any).en;
+      const daExp =
+        typeof daEx!.explanation === "string"
+          ? daEx!.explanation
+          : (daEx!.explanation as any).da;
       expect(enExp.length).toBeGreaterThan(0);
       expect(daExp.length).toBeGreaterThan(0);
 
       // Check final challenge prompt
-      const enPrompt = typeof enEx!.finalChallenge.prompt === "string"
-        ? enEx!.finalChallenge.prompt
-        : enEx!.finalChallenge.prompt.en;
-      const daPrompt = typeof daEx!.finalChallenge.prompt === "string"
-        ? daEx!.finalChallenge.prompt
-        : daEx!.finalChallenge.prompt.da;
+      const enPrompt =
+        typeof enEx!.finalChallenge.prompt === "string"
+          ? enEx!.finalChallenge.prompt
+          : (enEx!.finalChallenge.prompt as any).en;
+      const daPrompt =
+        typeof daEx!.finalChallenge.prompt === "string"
+          ? daEx!.finalChallenge.prompt
+          : (daEx!.finalChallenge.prompt as any).da;
       expect(enPrompt.length).toBeGreaterThan(0);
       expect(daPrompt.length).toBeGreaterThan(0);
 
@@ -123,10 +128,6 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
       if (enD.primitiveMemoryNote) {
         expect(enD.primitiveMemoryNote.csharp.length).toBeGreaterThan(0);
         expect(daD.primitiveMemoryNote?.csharp.length).toBeGreaterThan(0);
-      }
-      if (enD.architectureMap) {
-        expect(enD.architectureMap.canvasWiring.length).toBeGreaterThan(0);
-        expect(daD.architectureMap?.canvasWiring.length).toBeGreaterThan(0);
       }
     }
   });

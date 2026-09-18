@@ -79,15 +79,19 @@ export function useInterfaceJourney({
         type: "info",
         subsystem: "VTABLE",
         operation: "INSPECT_INTERFACE",
-        message: `⬡ Повний шлях контракту: ${ifaceId || "IRemoteCommand"}`,
+        message: t("journey.inspectContractMsg", { iface: ifaceId || "IRemoteCommand", defaultValue: `⬡ Повний шлях контракту: ${ifaceId || "IRemoteCommand"}` }),
         targetNodeId: "node-interface-remote-command",
-        details:
-          "Оголошення контракту -> Реалізація класом -> Впровадження в TVController -> Виклик",
-        codeContext:
-          "public interface IRemoteCommand {\n    void Execute(); // Загальний контракт для всіх кнопок\n}",
+        details: t(
+          "journey.inspectContractDetails",
+          "Оголошення контракту -> Реалізація класом -> Впровадження в TVController -> Виклик"
+        ),
+        codeContext: t(
+          "journey.inspectContractCodeContext",
+          "public interface IRemoteCommand {\n    void Execute(); // Загальний контракт для всіх кнопок\n}"
+        ),
       });
     },
-    [isVolumeWired, getNode, addNodeByFileId, fitView, addLog]
+    [isVolumeWired, getNode, addNodeByFileId, fitView, addLog, t]
   );
 
   const handleInspectDi = useCallback(() => {
@@ -117,13 +121,15 @@ export function useInterfaceJourney({
       type: "info",
       subsystem: "IoC",
       operation: "INSPECT_DI",
-      message: "⚡ Повний шлях Dependency Injection: зовні -> конструктор -> RAM -> Dispatch",
+      message: t("journey.inspectDiMsg", "⚡ Повний шлях Dependency Injection: зовні -> конструктор -> RAM -> Dispatch"),
       targetNodeId: "node-class-tv-controller",
-      details: "Створення деталі зовні та передача в TVController.ctor(IRemoteCommand cmd)",
-      codeContext:
-        "public TVController(IRemoteCommand cmd) {\n    _cmd = cmd; // Збереження переданого об'єкта в пам'ять\n}",
+      details: t("journey.inspectDiDetails", "Створення деталі зовні та передача в TVController.ctor(IRemoteCommand cmd)"),
+      codeContext: t(
+        "journey.inspectDiCodeContext",
+        "public TVController(IRemoteCommand cmd) {\n    _cmd = cmd; // Збереження переданого об'єкта в пам'ять\n}"
+      ),
     });
-  }, [isVolumeWired, fitView, addLog]);
+  }, [isVolumeWired, fitView, addLog, t]);
 
   const handleChangeJourneyStep = useCallback(
     (step: number, targetNodeId: string) => {
@@ -178,12 +184,12 @@ export function useInterfaceJourney({
         type: "info",
         subsystem: "IoC",
         operation: "HOT_SWAP_SELECTION",
-        message: `Поліморфне перемикання на ${command}`,
+        message: t("journey.polymorphicSwitchMsg", { command, defaultValue: `Поліморфне перемикання на ${command}` }),
         targetNodeId: targetId,
-        details: "Контракт IRemoteCommand та TVController не змінено! Змінено лише реалізацію.",
+        details: t("journey.polymorphicSwitchDetails", "Контракт IRemoteCommand та TVController не змінено! Змінено лише реалізацію."),
       });
     },
-    [fitView, addLog]
+    [fitView, addLog, t]
   );
 
   const handleCloseJourney = useCallback(() => {
@@ -283,7 +289,7 @@ export function useInterfaceJourney({
       targetHandle: "in-contract",
       data: {
         isJourneyActive: true,
-        commandName: ":IRemoteCommand (Контракт)",
+        commandName: `:IRemoteCommand (${t("architecture.contract", "Контракт")})`,
         onInspectDi: handleInspectDi,
       },
     };
