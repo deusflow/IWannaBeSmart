@@ -20,7 +20,7 @@ import { theoryUa } from "@iw/i18n";
 
 interface SyntaxAnatomyCardProps {
   taskId: string;
-  codeLang?: "csharp" | "go";
+  codeLang?: "csharp" | "go" | "python" | "yaml" | "typescript";
   isOpen: boolean;
   onToggle: () => void;
   className?: string;

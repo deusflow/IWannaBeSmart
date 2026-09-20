@@ -321,12 +321,30 @@ export const createMentorSlice: StateCreator<
         }
       }
 
-      // Update local state and localStorage
-      set({ taskMasteryStars: localMap, taskBestWpm: localWpmMap });
+      // Update local state and localStorage, reconstructing completedCodingTasks & XP
+      const nextCompleted = { ...get().completedCodingTasks };
+      let computedMinXp = 0;
+      for (const [taskId, stars] of Object.entries(localMap)) {
+        if (stars > 0) {
+          nextCompleted[taskId] = true;
+          computedMinXp += (taskId === "task-command-registry" ? 50 : 25) + stars * 15;
+        }
+      }
+      const currentXp = get().xp;
+      const finalXp = Math.max(currentXp, computedMinXp);
+
+      set({
+        taskMasteryStars: localMap,
+        taskBestWpm: localWpmMap,
+        completedCodingTasks: nextCompleted,
+        xp: finalXp,
+      });
       try {
         if (typeof window !== "undefined") {
           localStorage.setItem("iw_mastery_stars", JSON.stringify(localMap));
           localStorage.setItem("iw_task_best_wpm", JSON.stringify(localWpmMap));
+          localStorage.setItem("iw_completed_tasks", JSON.stringify(nextCompleted));
+          localStorage.setItem("iw_user_xp", String(finalXp));
         }
       } catch {
         // Safe catch
@@ -350,15 +368,30 @@ export const createMentorSlice: StateCreator<
     }
   },
 
-  currentStationId: "tv",
-  setCurrentStationId: (id: string) =>
+  currentStationId:
+    typeof window !== "undefined"
+      ? localStorage.getItem("iw_current_station") || "tv"
+      : "tv",
+  setCurrentStationId: (id: string) => {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("iw_current_station", id);
+      }
+    } catch {
+      // Safe catch
+    }
     set({
       currentStationId: id,
       bypassedTraceNodes: [],
       isTraceBroken: false,
       traceFaultReason: undefined,
-    }),
+    });
+  },
 
   currentView: "HUB",
   setCurrentView: (view: "HUB" | "STATION") => set({ currentView: view }),
+
+  targetTaskId: null,
+  setTargetTaskId: (taskId: string | null) => set({ targetTaskId: taskId }),
 });
+

@@ -38,6 +38,8 @@ export const CodeGymRunner: React.FC = () => {
     completeCodingTask,
     addXp,
     setPosVictoryModalOpen,
+    targetTaskId,
+    setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
       posState: s.posState,
@@ -49,6 +51,8 @@ export const CodeGymRunner: React.FC = () => {
       completeCodingTask: s.completeCodingTask,
       addXp: s.addXp,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      targetTaskId: s.targetTaskId,
+      setTargetTaskId: s.setTargetTaskId,
     }))
   );
 
@@ -115,16 +119,16 @@ export const CodeGymRunner: React.FC = () => {
     handleResetRound,
     isTheoryUnlocked,
     unlockPractice,
-  } = useCodeGymSession({
+  } = useCodeGymSession<FintechTask, "csharp" | "go">({
     currentTask,
+    initialLang: "csharp",
     starsEarned,
-    onRoundComplete: async (round, code) => {
+    onRoundComplete: async (round) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);
       saveTaskProgress(currentTask.id, targetStars);
       completeCodingTask(currentTask.id);
       addXp(targetStars * 15);
-      await runPosExecution(code);
       const allCompleted = FINTECH_TASKS.every(
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
@@ -164,6 +168,16 @@ export const CodeGymRunner: React.FC = () => {
     },
     [selectedTaskId, resetPosState, setActiveRound, setShowTheory, setShowTooltip, setShowTransferHint]
   );
+
+  useEffect(() => {
+    if (targetTaskId) {
+      const exists = FINTECH_TASKS.some((t) => t.id === targetTaskId);
+      if (exists) {
+        handleSelectTask(targetTaskId);
+        setTargetTaskId(null);
+      }
+    }
+  }, [targetTaskId, handleSelectTask, setTargetTaskId]);
 
   const fileName = useMemo(
     () => (codeLang === "go" ? "pos_controller.go" : "POSController.cs"),

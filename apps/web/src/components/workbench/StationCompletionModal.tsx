@@ -98,6 +98,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
   xp,
 }) => {
   const { t } = useTranslation();
+  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -105,6 +106,7 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
 
   const currentTvStars = CODING_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
   const maxTvStars = CODING_TASKS.length * 4;
+
 
   useEffect(() => {
     if (!isOpen) return;
@@ -318,12 +320,17 @@ Verification Hash: IW-TV-ARCH-${Math.random().toString(36).substring(2, 9).toUpp
           </button>
 
           <button
-            onClick={onClose}
+            onClick={() => {
+              audioFx.playRelayClick();
+              onClose();
+              setCurrentView("HUB");
+            }}
             className="px-5 py-2.5 rounded-xl bg-[#1A1D20] hover:bg-black active:scale-95 text-white font-display font-bold text-xs flex items-center gap-2 shadow-lg shadow-black/25 transition-all cursor-pointer"
           >
             <span>{t("victoryModal.continueBtn", "Завершити модуль")}</span>
             <ArrowRight size={14} />
           </button>
+
         </div>
       </div>
     </div>

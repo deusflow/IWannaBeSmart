@@ -136,7 +136,10 @@ export interface MentorSlice {
   setCurrentStationId: (id: string) => void;
   currentView: "HUB" | "STATION";
   setCurrentView: (view: "HUB" | "STATION") => void;
+  targetTaskId: string | null;
+  setTargetTaskId: (taskId: string | null) => void;
 }
+
 
 export interface PosSlice {
   posState: VirtualPosState;

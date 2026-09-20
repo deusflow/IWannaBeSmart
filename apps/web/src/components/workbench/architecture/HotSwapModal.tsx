@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { X, Sparkles, Zap } from "lucide-react";
 
@@ -14,6 +14,15 @@ export const HotSwapModal: React.FC<HotSwapModalProps> = ({
   onTriggerTrace,
 }) => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

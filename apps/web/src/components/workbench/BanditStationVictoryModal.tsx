@@ -148,7 +148,7 @@ DATE: ${new Date().toLocaleDateString()}
           </div>
           <div className="space-y-1">
             <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold">
-              STATION 06 // LAB CONQUERED
+              {t("bandit.victory.badge", "STATION 06 // LAB CONQUERED")}
             </span>
             <h2 className="text-2xl font-bold tracking-tight text-white">
               {t("bandit.victory.title", "Certified Ethical Hacker & Defense Architect")}
@@ -170,12 +170,12 @@ DATE: ${new Date().toLocaleDateString()}
           </div>
           <div className="h-8 w-px bg-slate-800" />
           <div className="text-center">
-            <span className="text-[10px] text-slate-400 uppercase font-bold">TOTAL XP EARNED</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold">{t("victoryModal.totalXpLabel", "TOTAL XP EARNED")}</span>
             <div className="text-lg font-bold text-emerald-400">+{xp} XP</div>
           </div>
           <div className="h-8 w-px bg-slate-800" />
           <div className="text-center">
-            <span className="text-[10px] text-slate-400 uppercase font-bold">DEFCON SHIELD</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold">{t("bandit.victory.defconShield", "DEFCON SHIELD")}</span>
             <div className="text-lg font-bold text-cyan-400">LEVEL 5</div>
           </div>
         </div>

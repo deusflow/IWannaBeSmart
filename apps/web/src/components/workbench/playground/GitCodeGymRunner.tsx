@@ -35,6 +35,9 @@ export const GitCodeGymRunner: React.FC = () => {
     completeCodingTask,
     addXp,
     setGitVictoryModalOpen,
+    resetGitRepo,
+    targetTaskId,
+    setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
       gitRepoState: s.gitRepoState,
@@ -44,8 +47,12 @@ export const GitCodeGymRunner: React.FC = () => {
       completeCodingTask: s.completeCodingTask,
       addXp: s.addXp,
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
+      resetGitRepo: s.resetGitRepo,
+      targetTaskId: s.targetTaskId,
+      setTargetTaskId: s.setTargetTaskId,
     }))
   );
+
 
   const [selectedTaskId, setSelectedTaskId] = useState<string>(GIT_TASKS[0].id);
   const currentTask: GitTask = useMemo(
@@ -138,9 +145,21 @@ export const GitCodeGymRunner: React.FC = () => {
       setActiveRound(1);
       setShowTooltip(false);
       setShowTransferHint(false);
+      const nextT = GIT_TASKS.find((t) => t.id === taskId);
+      if (nextT) {
+        resetGitRepo(nextT.initialState);
+      }
     },
-    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint]
+    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint, resetGitRepo]
   );
+
+  // Auto-switch task if requested from profile analytics
+  useEffect(() => {
+    if (targetTaskId && GIT_TASKS.some((t) => t.id === targetTaskId)) {
+      handleSelectTask(targetTaskId);
+      setTargetTaskId(null);
+    }
+  }, [targetTaskId, setTargetTaskId, handleSelectTask]);
 
   const fileName = useMemo(
     () => (codeLang === "go" ? "git_automation.go" : "GitWorkflow.cs"),
@@ -176,6 +195,10 @@ export const GitCodeGymRunner: React.FC = () => {
       setHasError(false);
       setFeedback(t(validation.messageKey || currentTask.successKey));
       setRoundCompleted(true);
+      if (scriptRes?.finalState) {
+        useWorkbenchStore.setState({ gitRepoState: scriptRes.finalState });
+      }
+
 
       const targetStars = activeRound;
       let calculatedWpm: number | undefined;

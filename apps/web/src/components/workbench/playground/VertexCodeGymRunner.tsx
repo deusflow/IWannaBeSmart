@@ -4,7 +4,7 @@
  * Trace -> Cloze -> Sprint -> Architecture for 15 Tasks (Python & YAML).
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Star, Trophy, X, Cloud } from "lucide-react";
 import {
@@ -36,6 +36,9 @@ export const VertexCodeGymRunner: React.FC = () => {
     configureVertexEndpointAction,
     configureVertexIamAction,
     checkVertexMonitoringAction,
+    resetVertexState,
+    targetTaskId,
+    setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
       vertexState: s.vertexState,
@@ -51,8 +54,12 @@ export const VertexCodeGymRunner: React.FC = () => {
       configureVertexEndpointAction: s.configureVertexEndpointAction,
       configureVertexIamAction: s.configureVertexIamAction,
       checkVertexMonitoringAction: s.checkVertexMonitoringAction,
+      resetVertexState: s.resetVertexState,
+      targetTaskId: s.targetTaskId,
+      setTargetTaskId: s.setTargetTaskId,
     }))
   );
+
 
   const [selectedTaskId, setSelectedTaskId] = useState<string>(VERTEX_TASKS[0].id);
   const currentTask: VertexTask = useMemo(
@@ -139,9 +146,23 @@ export const VertexCodeGymRunner: React.FC = () => {
       setActiveRound(1);
       setShowTooltip(false);
       setShowTransferHint(false);
+      const nextT = VERTEX_TASKS.find((t) => t.id === taskId);
+      if (nextT) {
+        resetVertexState(nextT.initialState);
+      }
     },
-    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint]
+    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint, resetVertexState]
   );
+
+  useEffect(() => {
+    if (targetTaskId) {
+      const exists = VERTEX_TASKS.some((t) => t.id === targetTaskId);
+      if (exists) {
+        handleSelectTask(targetTaskId);
+        setTargetTaskId(null);
+      }
+    }
+  }, [targetTaskId, handleSelectTask, setTargetTaskId]);
 
   const fileName = useMemo(
     () => (codeLang === "yaml" ? "vertex_pipeline.yaml" : "pipeline.py"),
@@ -323,6 +344,33 @@ export const VertexCodeGymRunner: React.FC = () => {
       handleSelectTask(nextTask.id);
     }
   }, [activeRound, nextTask, handleSelectTask, setActiveRound]);
+
+  // Global keyboard shortcuts (Cmd/Ctrl+Enter, Escape)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (roundCompleted) {
+          if (activeRound < 4) {
+            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
+            audioFx.playRelayClick();
+          } else if (nextTask) {
+            handleSelectTask(nextTask.id);
+          }
+        } else {
+          handleVerify();
+        }
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleResetRound();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [roundCompleted, activeRound, nextTask, handleVerify, handleSelectTask, handleResetRound, setActiveRound]);
 
   return (
     <div className="flex flex-col gap-3 font-mono">

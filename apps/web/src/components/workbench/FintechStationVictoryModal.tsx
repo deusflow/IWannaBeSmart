@@ -86,7 +86,7 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
   xp,
 }) => {
   const { t } = useTranslation();
-  const setCurrentStationId = useWorkbenchStore((s) => s.setCurrentStationId);
+  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -162,8 +162,9 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
   const handleReturnToStations = () => {
     audioFx.playRelayClick();
     onClose();
-    setCurrentStationId("tv");
+    setCurrentView("HUB");
   };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">

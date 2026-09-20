@@ -36,7 +36,7 @@ export interface ProfileAnalyticsTabProps {
   xp: number;
   strengths: ProfileStrengthItem[];
   growthAreas: ProfileGrowthItem[];
-  onJumpToTask: (stationId: string) => void;
+  onJumpToTask: (stationId: string, taskId?: string) => void;
 }
 
 export const ProfileAnalyticsTab: React.FC<ProfileAnalyticsTabProps> = ({
@@ -171,7 +171,7 @@ export const ProfileAnalyticsTab: React.FC<ProfileAnalyticsTabProps> = ({
                 </div>
                 <button
                   type="button"
-                  onClick={() => onJumpToTask(item.stationId)}
+                  onClick={() => onJumpToTask(item.stationId, item.id)}
                   className="px-2.5 py-1 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 text-amber-900 border border-amber-600/40 text-[11px] font-display font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0 shadow-2xs"
                 >
                   <span>{t("profile.practiceTaskBtn", "Практикувати")}</span>

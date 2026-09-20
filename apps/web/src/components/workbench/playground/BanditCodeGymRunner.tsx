@@ -4,7 +4,7 @@
  * Trace -> Cloze -> Sprint -> Architecture for Tasks 1..6 (C# & Go)
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Star,
@@ -35,6 +35,10 @@ export const BanditCodeGymRunner: React.FC = () => {
     completeCodingTask,
     addXp,
     setBanditVictoryModalOpen,
+    submitFlagDirect,
+    resetBanditStationToLevel,
+    targetTaskId,
+    setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
       banditState: s.banditState,
@@ -44,8 +48,13 @@ export const BanditCodeGymRunner: React.FC = () => {
       completeCodingTask: s.completeCodingTask,
       addXp: s.addXp,
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
+      submitFlagDirect: s.submitFlagDirect,
+      resetBanditStationToLevel: s.resetBanditStationToLevel,
+      targetTaskId: s.targetTaskId,
+      setTargetTaskId: s.setTargetTaskId,
     }))
   );
+
 
   const [selectedTaskId, setSelectedTaskId] = useState<string>(BANDIT_TASKS[0].id);
   const currentTask: BanditTask = useMemo(
@@ -138,9 +147,21 @@ export const BanditCodeGymRunner: React.FC = () => {
       setActiveRound(1);
       setShowTooltip(false);
       setShowTransferHint(false);
+      const nextT = BANDIT_TASKS.find((t) => t.id === taskId);
+      if (nextT) {
+        resetBanditStationToLevel(nextT.order);
+      }
     },
-    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint]
+    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint, resetBanditStationToLevel]
   );
+
+  // Auto-switch task if requested from profile analytics
+  useEffect(() => {
+    if (targetTaskId && BANDIT_TASKS.some((t) => t.id === targetTaskId)) {
+      handleSelectTask(targetTaskId);
+      setTargetTaskId(null);
+    }
+  }, [targetTaskId, setTargetTaskId, handleSelectTask]);
 
   const fileName = useMemo(
     () => (codeLang === "go" ? "security_defense.go" : "SecurityMiddleware.cs"),
@@ -176,6 +197,10 @@ export const BanditCodeGymRunner: React.FC = () => {
       setHasError(false);
       setFeedback(t(validation.messageKey || currentTask.successKey));
       setRoundCompleted(true);
+
+      if (scriptRes.flagAwarded || currentTask.flag) {
+        submitFlagDirect(scriptRes.flagAwarded || currentTask.flag);
+      }
 
       const targetStars = activeRound;
       let calculatedWpm: number | undefined;
@@ -223,12 +248,42 @@ export const BanditCodeGymRunner: React.FC = () => {
     completeCodingTask,
     addXp,
     setBanditVictoryModalOpen,
+    submitFlagDirect,
     setHasError,
     setFeedback,
     setRoundCompleted,
     taskMasteryStars,
     t,
   ]);
+
+  // Keyboard shortcut listener (Ctrl/Cmd + Enter to verify / advance, Escape to reset)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (roundCompleted) {
+          if (activeRound < 4) {
+            audioFx.playRelayClick();
+            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
+          } else if (nextTask) {
+            audioFx.playRelayClick();
+            handleSelectTask(nextTask.id);
+          }
+        } else {
+          handleVerify();
+        }
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleResetRound();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [roundCompleted, activeRound, nextTask, handleVerify, handleSelectTask, handleResetRound, setActiveRound]);
+
 
   return (
     <div className="w-full flex flex-col gap-4 font-mono select-none">

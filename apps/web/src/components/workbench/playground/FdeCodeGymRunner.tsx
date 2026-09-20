@@ -4,7 +4,7 @@
  * Discovery -> Integration -> Agent Design -> Security -> Handoff (15 Tasks).
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Star, Trophy, X, Users, ShieldCheck } from "lucide-react";
 import {
@@ -36,6 +36,9 @@ export const FdeCodeGymRunner: React.FC = () => {
     configureFdeRagAction,
     toggleFdeSecurityCheckAction,
     submitFdeRunbookAction,
+    resetFdeState,
+    targetTaskId,
+    setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
       fdeState: s.fdeState,
@@ -52,6 +55,9 @@ export const FdeCodeGymRunner: React.FC = () => {
       configureFdeRagAction: s.configureFdeRagAction,
       toggleFdeSecurityCheckAction: s.toggleFdeSecurityCheckAction,
       submitFdeRunbookAction: s.submitFdeRunbookAction,
+      resetFdeState: s.resetFdeState,
+      targetTaskId: s.targetTaskId,
+      setTargetTaskId: s.setTargetTaskId,
     }))
   );
 
@@ -158,9 +164,23 @@ export const FdeCodeGymRunner: React.FC = () => {
       setActiveRound(1);
       setShowTooltip(false);
       setShowTransferHint(false);
+      const nextT = FDE_TASKS.find((t) => t.id === taskId);
+      if (nextT) {
+        resetFdeState(nextT.initialState);
+      }
     },
-    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint]
+    [selectedTaskId, setActiveRound, setShowTooltip, setShowTransferHint, resetFdeState]
   );
+
+  useEffect(() => {
+    if (targetTaskId) {
+      const exists = FDE_TASKS.some((t) => t.id === targetTaskId);
+      if (exists) {
+        handleSelectTask(targetTaskId);
+        setTargetTaskId(null);
+      }
+    }
+  }, [targetTaskId, handleSelectTask, setTargetTaskId]);
 
   const fileName = useMemo(
     () => (codeLang === "typescript" ? "agent_graph.ts" : "agent_graph.py"),
@@ -380,6 +400,33 @@ The production pipeline consists of a multi-agent system wired through LangGraph
       handleSelectTask(nextTask.id);
     }
   }, [activeRound, nextTask, handleSelectTask, setActiveRound]);
+
+  // Global keyboard shortcuts (Cmd/Ctrl+Enter, Escape)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (roundCompleted) {
+          if (activeRound < 4) {
+            setActiveRound((prev) => (prev + 1) as 1 | 2 | 3 | 4);
+            audioFx.playRelayClick();
+          } else if (nextTask) {
+            handleSelectTask(nextTask.id);
+          }
+        } else {
+          handleVerify();
+        }
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleResetRound();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [roundCompleted, activeRound, nextTask, handleVerify, handleSelectTask, handleResetRound, setActiveRound]);
 
   return (
     <div className="flex flex-col gap-3 font-mono">

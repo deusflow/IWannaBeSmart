@@ -743,6 +743,9 @@ export const enTranslation = {
         viewApiCertTooltip: "View backend & API architect certificate",
         viewGitCertTooltip: "View Git architect certificate",
         viewBanditCertTooltip: "View Cyber Defense architect certificate",
+        viewVertexCertTooltip: "View Vertex AI architect certificate",
+        viewFdeCertTooltip: "View Field AI specialist certificate",
+        stationStars: "Station Stars",
         stationCompleted: "COMPLETED",
         stationAvailable: "AVAILABLE",
         stationLocked: "LOCKED",
@@ -1288,6 +1291,8 @@ export const enTranslation = {
           defenseInDepth: "Defense in Depth Multi-Layer Reverse Proxy",
         },
         victory: {
+          badge: "STATION 06 // LAB CONQUERED",
+          defconShield: "DEFCON SHIELD",
           title: "Certified Cyber Defense Architect",
           desc: "You successfully intercepted wire packets, exploited insecure code, and engineered robust Blue Team defensive shields!",
           competencies: "Mastered Cyber Defense Competencies (6/6):",
@@ -1533,6 +1538,7 @@ export const enTranslation = {
                   "clientHandoff": "Round 5: Production Handoff"
             },
             "dialogue": {
+                  "title": "Customer Stakeholder Dialogue",
                   "task1": {
                         "opening": "Good afternoon! We are seeking an autonomous solution to automate invoice reconciliation. Our team is drowning in manual validation across 45,000 monthly invoices. How exactly will your AI agent solve this?",
                         "prompt1": "How will your system handle scenarios where an invoice contains discrepancies or line items don't match the master agreement?",

@@ -47,8 +47,18 @@ function checkClozeConsistency(input: string, target: string): { isComplete: boo
     return { isComplete: true, isValid: true };
   }
 
-  if (normInput.includes("___")) {
-    const escaped = normInput
+  // Detect any placeholder format: ___, /* ... */, or [[ ... ]]
+  const hasPlaceholders =
+    normInput.includes("___") ||
+    /\/\*[\s\S]*?\*\//.test(normInput) ||
+    /\[\[[\s\S]*?\]\]/.test(normInput);
+
+  if (hasPlaceholders) {
+    const placeholderNormalized = normInput
+      .replace(/\/\*[\s\S]*?\*\//g, "___")
+      .replace(/\[\[[\s\S]*?\]\]/g, "___");
+
+    const escaped = placeholderNormalized
       .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
       .replace(/(?:\\_\\_\\_)+/g, "[\\s\\S]*?");
     try {
@@ -68,6 +78,7 @@ function checkClozeConsistency(input: string, target: string): { isComplete: boo
 
   return { isComplete: false, isValid: false };
 }
+
 
 export function useCodeGymSession<
   TTask extends CodeGymTaskLike,

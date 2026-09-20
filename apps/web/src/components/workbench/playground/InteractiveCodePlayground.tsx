@@ -43,6 +43,8 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     addXp,
     setStationVictoryModalOpen,
     resetBypasses,
+    targetTaskId,
+    setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
       power: s.power,
@@ -59,6 +61,8 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       addXp: s.addXp,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       resetBypasses: s.resetBypasses,
+      targetTaskId: s.targetTaskId,
+      setTargetTaskId: s.setTargetTaskId,
     }))
   );
 
@@ -74,6 +78,19 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
 
   const [selectedTier, setSelectedTier] = useState<0 | 1 | 2>(0);
   const [selectedTaskId, setSelectedTaskId] = useState<string>("task-0-1-power-on");
+
+  // Auto-switch to target task when requested from profile/analytics
+  useEffect(() => {
+    if (targetTaskId) {
+      const task = CODING_TASKS.find((t) => t.id === targetTaskId);
+      if (task) {
+        const nextTier = (task.tier ?? 0) as 0 | 1 | 2;
+        setSelectedTier(nextTier);
+        setSelectedTaskId(task.id);
+        setTargetTaskId(null);
+      }
+    }
+  }, [targetTaskId, setTargetTaskId]);
 
   // Auto-reset architecture trace bypasses on task change to prevent state leaks
   useEffect(() => {

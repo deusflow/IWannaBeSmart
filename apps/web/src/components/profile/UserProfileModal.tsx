@@ -71,6 +71,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setBanditVictoryModalOpen,
     setVertexVictoryModalOpen,
     setFdeVictoryModalOpen,
+    setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -86,6 +87,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
       setVertexVictoryModalOpen: s.setVertexVictoryModalOpen,
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
+      setTargetTaskId: s.setTargetTaskId,
     }))
   );
 
@@ -405,9 +407,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     }
   };
 
-  const handleJumpToTask = (stationId: string) => {
+  const handleJumpToTask = (stationId: string, taskId?: string) => {
     setCurrentStationId(stationId);
     setCurrentView("STATION");
+    if (taskId) {
+      setTargetTaskId(taskId);
+    }
     onClose();
   };
 

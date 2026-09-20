@@ -743,6 +743,9 @@ export const uaTranslation = {
         viewApiCertTooltip: "Переглянути сертифікат бекенд & API архітектора",
         viewGitCertTooltip: "Переглянути сертифікат Git архітектора",
         viewBanditCertTooltip: "Переглянути сертифікат Cyber Defense архітектора",
+        viewVertexCertTooltip: "Переглянути сертифікат Vertex AI архітектора",
+        viewFdeCertTooltip: "Переглянути сертифікат Field AI спеціаліста",
+        stationStars: "Зірки станції",
         stationCompleted: "ЗАВЕРШЕНО",
         stationAvailable: "ДОСТУПНО",
         stationLocked: "ЗАБЛОКОВАНО",
@@ -1288,6 +1291,8 @@ export const uaTranslation = {
           defenseInDepth: "Ешелонований Захист (Defense in Depth Reverse Proxy)",
         },
         victory: {
+          badge: "СТАНЦІЯ 06 // ЛАБОРАТОРІЮ ПІДКОРЕНО",
+          defconShield: "DEFCON ЩИТ",
           title: "Сертифікат Cyber Defense Архітектора",
           desc: "Ви успішно перехопили незахищені пакети, зламали вразливий код та побудували багаторівневий Blue Team захист!",
           competencies: "Підтверджені Компетенції Кібербезпеки (6/6):",
@@ -1533,6 +1538,7 @@ export const uaTranslation = {
                   "clientHandoff": "Раунд 5: Production Handoff"
             },
             "dialogue": {
+                  "title": "Діалог зі стейкхолдерами замовника",
                   "task1": {
                         "opening": "Доброго дня! Ми в пошуку рішення для автоматизації звірки фінансових документів. Наша команда перевантажена рутинною перевіркою 45,000 рахунків на місяць. Чим саме ваш AI-агент може нам допомогти?",
                         "prompt1": "Як ви плануєте діяти у випадку, коли рахунок від постачальника містить розбіжності або ціни не збігаються з договором?",

@@ -743,6 +743,9 @@ export const daTranslation = {
         viewApiCertTooltip: "Vis backend- & API-arkitektcertifikat",
         viewGitCertTooltip: "Vis Git-arkitektcertifikat",
         viewBanditCertTooltip: "Vis Cyber Defense-arkitektcertifikat",
+        viewVertexCertTooltip: "Se Vertex AI arkitekt certifikat",
+        viewFdeCertTooltip: "Se Field AI specialist certifikat",
+        stationStars: "Stationsstjerner",
         stationCompleted: "GENNEMFØRT",
         stationAvailable: "TILGÆNGELIG",
         stationLocked: "LÅST",
@@ -1288,6 +1291,8 @@ export const daTranslation = {
           defenseInDepth: "Defense in Depth Flerlags Reverse Proxy",
         },
         victory: {
+          badge: "STATION 06 // LAB EROBRET",
+          defconShield: "DEFCON SKJOLD",
           title: "Certificeret Cyber Defense Arkitekt",
           desc: "Du har aflyttet netværkspakker, udnyttet usikker kode og bygget robuste Blue Team sikkerhedsskjolde!",
           competencies: "Bekræftede Cybersikkerhedskompetencer (6/6):",
@@ -1533,6 +1538,7 @@ export const daTranslation = {
                   "clientHandoff": "Runde 5: Production Handoff"
             },
             "dialogue": {
+                  "title": "Kundeinteressentdialog",
                   "task1": {
                         "opening": "Goddag! Vi leder efter en løsning til at automatisere fakturaafstemning. Vores team er overbelastet af manuel kontrol af 45.000 månedlige fakturaer. Hvordan vil jeres AI-agent hjælpe os?",
                         "prompt1": "Hvordan håndterer jeres system situationer, hvor en faktura indeholder uoverensstemmelser eller priser afviger fra aftalen?",
