@@ -6,8 +6,8 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  CheckCircle2,
   Download,
+  Copy,
   ArrowRight,
   X,
   Shield,
@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useAuthStore } from "../../store/authStore";
+import { downloadCertificateSvg } from "../../utils/certificateSvg";
 import { BANDIT_TASKS } from "@iw/sim-engine";
 
 interface BanditStationVictoryModalProps {
@@ -34,40 +36,40 @@ interface SkillItem {
 
 const BANDIT_SKILLS: SkillItem[] = [
   {
-    id: "unix-recon-perms",
+    id: "fs-permissions",
     nameKey: "bandit.skills.unixRecon",
-    codeExample: "chmod 0600 .secret_pass && cat .env",
-    category: "UNIX Recon & Safe Config Storage",
+    codeExample: "find / -user bandit7 -group bandit6 -size 33c 2>/dev/null",
+    category: "File Recon & Permissions (chmod 0600)",
   },
   {
-    id: "csprng-token",
+    id: "entropy-csprng",
     nameKey: "bandit.skills.csprngToken",
     codeExample: "RandomNumberGenerator.Fill(buffer); // Non-deterministic CSPRNG",
     category: "Cryptographic Entropy vs Obfuscation",
   },
   {
-    id: "hmac-integrity",
+    id: "hmac-transit",
     nameKey: "bandit.skills.hmacIntegrity",
-    codeExample: 'using var hmac = new HMACSHA256(key); hmac.ComputeHash(payload);',
-    category: "Man-In-The-Middle & HMAC-SHA256 Signatures",
+    codeExample: "using var hmac = new HMACSHA256(key); hmac.ComputeHash(payload);",
+    category: "HMAC-SHA256 Anti-Tamper & Signatures",
   },
   {
-    id: "sql-prepared-statements",
+    id: "sqli-prepared",
     nameKey: "bandit.skills.sqlPrepared",
-    codeExample: 'cmd.Parameters.AddWithValue("@username", userInput);',
-    category: "SQL Injection Neutralization (Parameterized Queries)",
+    codeExample: "cmd.Parameters.AddWithValue('@username', userInput);",
+    category: "Prepared Statements (SQLi Defeated)",
   },
   {
-    id: "token-bucket-rate-limit",
+    id: "rate-limiting",
     nameKey: "bandit.skills.rateLimit",
-    codeExample: 'context.Response.StatusCode = StatusCodes.Status429TooManyRequests;',
-    category: "Token Bucket Rate Limiter & Brute-Force Shield",
+    codeExample: "tokenBucket.consume(ip, cost=1) ? next() : res.status(429)",
+    category: "Token Bucket Rate Limiting (Brute-Force Guard)",
   },
   {
     id: "defense-in-depth",
     nameKey: "bandit.skills.defenseInDepth",
-    codeExample: 'app.UseHttpsRedirection(); app.UseRateLimiter(); app.UseAuthentication();',
-    category: "Defense in Depth & Fortified Reverse Proxy",
+    codeExample: "nginx.conf: rate_limit + proxy_hide_header Server + waf_filter",
+    category: "Defense-in-Depth Reverse Proxy Shield",
   },
 ];
 
@@ -79,6 +81,7 @@ export const BanditStationVictoryModal: React.FC<BanditStationVictoryModalProps>
   const { t } = useTranslation();
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+  const callsign = useAuthStore((s) => s.profile?.callsign);
   const [copied, setCopied] = useState(false);
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
 
@@ -101,6 +104,27 @@ export const BanditStationVictoryModal: React.FC<BanditStationVictoryModalProps>
     audioFx.playRelayClick();
     onClose();
     setCurrentView("HUB");
+  };
+
+  const handleDownloadSvg = () => {
+    audioFx.playSuccessFanfare();
+    downloadCertificateSvg({
+      stationCode: "BANDIT",
+      stationTitle: "Cyber Bandit Lab & Blue Team Shield",
+      credentialTitle: "Certified Ethical Hacker & Defense Architect",
+      callsign: callsign || "Operator",
+      stars: currentBanditStars,
+      maxStars: maxBanditStars,
+      xp,
+      competencies: [
+        "UNIX File Permissions & Secret Discovery (0600)",
+        "Cryptographic CSPRNG Entropy Tokens",
+        "HMAC-SHA256 Anti-Tamper Message Integrity",
+        "Parameterized Prepared Statements (SQLi Defeated)",
+        "Token Bucket Rate Limiting & Reverse Proxy Defense",
+      ],
+      themeColor: "#10B981",
+    });
   };
 
   const handleExportAscii = () => {
@@ -141,51 +165,34 @@ DATE: ${new Date().toLocaleDateString()}
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header Ribbon */}
-        <div className="flex flex-col items-center text-center gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-cyan-500 flex items-center justify-center text-slate-950 shadow-[0_0_25px_rgba(16,185,129,0.6)]">
-            <Shield className="w-9 h-9 animate-bounce" />
+        {/* Modal Header */}
+        <div className="flex items-center gap-4 border-b border-slate-800 pb-4">
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400">
+            <Shield className="w-8 h-8" />
           </div>
-          <div className="space-y-1">
-            <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold">
-              {t("bandit.victory.badge", "STATION 06 // LAB CONQUERED")}
-            </span>
-            <h2 className="text-2xl font-bold tracking-tight text-white">
-              {t("bandit.victory.title", "Certified Ethical Hacker & Defense Architect")}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
+                Station 06 Cleared
+              </span>
+              <span className="text-xs text-slate-400 font-mono">
+                {currentBanditStars}/{maxBanditStars} ⭐
+              </span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-wide mt-0.5">
+              {t("bandit.victory.title", "Cyber Defense Architect Certified")}
             </h2>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
-              {t(
-                "bandit.victory.desc",
-                "You have breached simulated vulnerabilities, tampered with transit wire packets, and engineered bulletproof Blue Team defensive shields."
-              )}
-            </p>
           </div>
         </div>
 
-        {/* XP Badge */}
-        <div className="flex items-center justify-around bg-emerald-950/40 border border-emerald-900/60 rounded-xl p-3">
-          <div className="text-center">
-            <span className="text-[10px] text-slate-400 uppercase font-bold">{t("hub.stationStars", "STATION STARS")}</span>
-            <div className="text-lg font-bold text-amber-400">{currentBanditStars} / {maxBanditStars} ★</div>
-          </div>
-          <div className="h-8 w-px bg-slate-800" />
-          <div className="text-center">
-            <span className="text-[10px] text-slate-400 uppercase font-bold">{t("victoryModal.totalXpLabel", "TOTAL XP EARNED")}</span>
-            <div className="text-lg font-bold text-emerald-400">+{xp} XP</div>
-          </div>
-          <div className="h-8 w-px bg-slate-800" />
-          <div className="text-center">
-            <span className="text-[10px] text-slate-400 uppercase font-bold">{t("bandit.victory.defconShield", "DEFCON SHIELD")}</span>
-            <div className="text-lg font-bold text-cyan-400">LEVEL 5</div>
-          </div>
-        </div>
-
-        {/* Competencies Matrix */}
-        <div className="space-y-2">
-          <h3 className="text-xs uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>{t("bandit.victory.competencies", "Mastered Cyber Defense Competencies:")}</span>
-          </h3>
+        {/* Modal Body */}
+        <div className="space-y-4">
+          <p className="text-slate-300 text-xs sm:text-sm bg-emerald-950/20 border border-emerald-800/40 p-3.5 rounded-xl">
+            {t(
+              "bandit.victory.desc",
+              "You have successfully identified attack vectors, patched cryptographic flaws, and architected defense-in-depth security perimeter!"
+            )}
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {BANDIT_SKILLS.map((skill) => {
@@ -217,17 +224,37 @@ DATE: ${new Date().toLocaleDateString()}
 
         {/* Footer Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800">
-          <button
-            onClick={handleExportAscii}
-            className="w-full sm:w-auto px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-xl border border-slate-700 transition-colors flex items-center justify-center gap-2"
-          >
-            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Download className="w-4 h-4" />}
-            <span>{copied ? t("common.copiedCert", "Certificate Copied!") : t("common.copyCert", "Copy Certificate")}</span>
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadSvg}
+              className="flex-1 sm:flex-initial px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            >
+              <Download className="w-4 h-4" />
+              <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
+            </button>
+
+            <button
+              onClick={handleExportAscii}
+              className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-xl border border-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              title={t("common.copyCert", "Copy Certificate")}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span className="hidden sm:inline">{t("common.copiedCert", "Certificate Copied!")}</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 text-slate-400" />
+                  <span className="hidden sm:inline">{t("common.copy", "Copy")}</span>
+                </>
+              )}
+            </button>
+          </div>
 
           <button
             onClick={handleReturnToHub}
-            className="w-full sm:w-auto px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
             <span>{t("bandit.victory.returnHub", "Return to Workshop Hub")}</span>
             <ArrowRight className="w-4 h-4" />

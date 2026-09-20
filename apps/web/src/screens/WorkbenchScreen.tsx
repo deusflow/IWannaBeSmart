@@ -30,8 +30,10 @@ import { BanditStationVictoryModal } from "../components/workbench/BanditStation
 import { VertexStationVictoryModal } from "../components/workbench/VertexStationVictoryModal";
 import { FdeStationVictoryModal } from "../components/workbench/FdeStationVictoryModal";
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
+import { CommandPaletteModal } from "../components/workbench/CommandPaletteModal";
+import { AudioVolumeWidget } from "../components/workbench/AudioVolumeWidget";
 import { audioFx } from "../utils/audioFx";
-import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Search } from "lucide-react";
 
 /**
  * Engineering Microchip XP icon — silicon die with contact pins.
@@ -73,7 +75,19 @@ export const WorkbenchScreen: React.FC = () => {
     return completedTvCount < CODING_TASKS.length;
   });
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
-  const [isMuted, setIsMuted] = useState(audioFx.isMuted());
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Global Command Palette Shortcut (Cmd/Ctrl + K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const {
     power,
@@ -135,13 +149,6 @@ export const WorkbenchScreen: React.FC = () => {
     }))
   );
 
-  const handleToggleSound = () => {
-    const nextMuted = audioFx.toggleMute();
-    setIsMuted(nextMuted);
-    if (!nextMuted) {
-      audioFx.playRelayClick();
-    }
-  };
 
   const completedTvCount = CODING_TASKS.filter(
     (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
@@ -249,7 +256,7 @@ export const WorkbenchScreen: React.FC = () => {
                   audioFx.playRelayClick();
                   setCurrentView("HUB");
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-[#1A1D20]/60 text-ink font-balsamiq font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-[#1A1D20]/60 text-ink font-display font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
                 title={t("hub.backToHub", "До верстака / Hub")}
               >
                 <LayoutGrid size={15} className="text-[#1A1D20] shrink-0" />
@@ -259,7 +266,7 @@ export const WorkbenchScreen: React.FC = () => {
               {activeView === "architecture" ? (
                 <button
                   onClick={() => setActiveView("device")}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink font-balsamiq font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink font-display font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
                   title={t("workbench.backToTv")}
                 >
                   <ArrowLeft size={15} className="text-accent-blue shrink-0" />
@@ -272,7 +279,7 @@ export const WorkbenchScreen: React.FC = () => {
                 />
               )}
 
-              <div className="hidden sm:flex items-center gap-2 text-xs font-balsamiq text-ink-muted whitespace-nowrap">
+              <div className="hidden sm:flex items-center gap-2 text-xs font-sans text-ink-muted whitespace-nowrap">
                 <span>•</span>
                 <span className="text-ink font-bold truncate max-w-[180px] lg:max-w-[320px]">
                   {activeView === "architecture"
@@ -298,20 +305,35 @@ export const WorkbenchScreen: React.FC = () => {
 
         {/* Right */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          {/* Sound Mute/Unmute Toggle [ 🔊 / 🔇 ] */}
+          {/* Command Palette Trigger [ ⌘K Search ] */}
           <button
-            id="btn-sound-toggle"
-            onClick={handleToggleSound}
-            className={`p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-paper-sm flex items-center justify-center active:scale-95 ${
-              isMuted
-                ? "bg-paper-muted border-paper-border text-ink-muted hover:text-ink"
-                : "bg-paper border-paper-border hover:border-accent-blue text-accent-blue"
-            }`}
-            title={isMuted ? t("workbench.soundOff") : t("workbench.soundOn")}
-            aria-label={isMuted ? t("workbench.soundOff") : t("workbench.soundOn")}
+            id="btn-command-palette"
+            onClick={() => setIsCommandPaletteOpen(true)}
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-ink/40 text-xs text-ink/80 hover:text-ink transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0"
+            title="Open Command Palette (Cmd + K / Ctrl + K)"
           >
-            {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            <Search size={13} className="text-ink-muted shrink-0" />
+            <span className="hidden md:inline font-bold text-xs">
+              {t("cmdPalette.hintSelect", "Search")}...
+            </span>
+            <kbd className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[10px] font-mono font-bold text-ink-muted">
+              ⌘K
+            </kbd>
           </button>
+
+          {/* Sim-Engine Telemetry Chip */}
+          <div
+            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono select-none"
+            title="Real-time Web Audio & Virtual State Engine Active • Latency <1ms"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.8)]" />
+            <span className="font-bold tracking-wider">SIM-ENGINE</span>
+            <span className="opacity-40">•</span>
+            <span className="opacity-80">&lt;1ms</span>
+          </div>
+
+          {/* Interactive Master Audio Synthesizer Widget */}
+          <AudioVolumeWidget />
 
           {/* Station Mastery Trophy (Re-opens Victory Modal if all station tasks passed) */}
           {isCurrentStationCompleted && (
@@ -334,7 +356,7 @@ export const WorkbenchScreen: React.FC = () => {
                   setStationVictoryModalOpen(true);
                 }
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-600/40 text-amber-800 hover:bg-amber-500/25 font-balsamiq font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-600/40 text-amber-800 hover:bg-amber-500/25 font-mono font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95"
               title={
                 currentStationId === "pos"
                   ? t("fintechVictoryModal.title", "Фінтех POS-термінал: Завершено")
@@ -365,8 +387,8 @@ export const WorkbenchScreen: React.FC = () => {
             title={t("workbench.xpTooltip")}
           >
             <EngineeringChipXpIcon className="text-accent-signal shrink-0" size={15} />
-            <span className="text-accent-signal font-balsamiq text-sm font-extrabold leading-none">{xp}</span>
-            <span className="text-ink-muted text-[10px] font-balsamiq font-bold uppercase tracking-wider">
+            <span className="text-accent-signal font-mono text-sm font-extrabold leading-none">{xp}</span>
+            <span className="text-ink-muted text-[10px] font-mono font-bold uppercase tracking-wider">
               {t("common.xp")}
             </span>
           </div>
@@ -496,7 +518,7 @@ export const WorkbenchScreen: React.FC = () => {
                       <TVBlueprintDevice compact={false} />
                     </div>
 
-                    <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-balsamiq text-ink-subtle px-1 relative w-24 shrink-0">
+                    <div className="hidden lg:flex flex-col items-center justify-center text-[10px] font-mono text-ink-subtle px-1 relative w-24 shrink-0">
                       <div className="relative w-full flex items-center justify-center h-2 overflow-visible">
                         <div className="w-full border-t border-dashed border-ink-subtle/50" />
                         {isBeamFlying && (
@@ -522,7 +544,7 @@ export const WorkbenchScreen: React.FC = () => {
                     <div className="w-full">
                       <TVBlueprintDevice compact={true} />
                     </div>
-                    <div className="flex items-center justify-center gap-3 text-[10px] font-balsamiq text-ink-subtle relative py-0.5">
+                    <div className="flex items-center justify-center gap-3 text-[10px] font-mono text-ink-subtle relative py-0.5">
                       <div className="relative h-6 flex flex-col items-center justify-center w-2 overflow-visible">
                         <div className="h-full border-l border-dashed border-ink-subtle/50" />
                         {isBeamFlying && (
@@ -545,7 +567,7 @@ export const WorkbenchScreen: React.FC = () => {
 
               {/* Bottom hint */}
               <div className="flex flex-wrap items-center justify-center gap-3 pt-1 w-full">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-subtle border border-paper-border font-balsamiq text-xs shadow-paper-sm text-ink-muted">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-paper-subtle border border-paper-border font-sans text-xs shadow-paper-sm text-ink-muted">
                   <span className="text-accent-blue font-bold">{t("workbench.hintTitle")}</span>
                   <span className="text-ink font-medium">
                     {power
@@ -602,7 +624,7 @@ export const WorkbenchScreen: React.FC = () => {
               group flex items-center gap-2 py-5 px-2.5
               rounded-l-2xl border-y-2 border-l-2
               [writing-mode:vertical-rl] rotate-180
-              font-balsamiq font-bold text-[11px] tracking-wider
+              font-mono font-bold text-[11px] tracking-wider
               transition-all duration-200 cursor-pointer active:scale-95
               shadow-[-4px_2px_12px_rgba(0,0,0,0.10)]
               ${
@@ -638,7 +660,7 @@ export const WorkbenchScreen: React.FC = () => {
               [writing-mode:vertical-rl] rotate-180
               bg-paper-subtle hover:bg-[#1E1E22] border-purple-500/40 hover:border-purple-500
               text-ink-muted hover:text-purple-300
-              font-balsamiq font-bold text-[11px] tracking-wider
+              font-mono font-bold text-[11px] tracking-wider
               transition-all duration-200 cursor-pointer active:scale-95
               shadow-[-4px_2px_12px_rgba(0,0,0,0.10)]
             "
@@ -700,6 +722,12 @@ export const WorkbenchScreen: React.FC = () => {
         isOpen={isFdeVictoryModalOpen}
         onClose={() => setFdeVictoryModalOpen(false)}
         xp={xp}
+      />
+
+      {/* Global Command Palette (Cmd + K) */}
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
       />
     </div>
   );

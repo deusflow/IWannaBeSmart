@@ -50,7 +50,7 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
               <Sparkles size={14} className="absolute -top-1 -right-1 text-yellow-200" />
             </div>
             <div>
-              <h2 className="font-balsamiq font-extrabold text-lg text-white">
+              <h2 className="font-display font-extrabold text-lg text-white">
                 {t("mentor.completedTitle")}
               </h2>
               <div className="flex items-center gap-2 mt-0.5">

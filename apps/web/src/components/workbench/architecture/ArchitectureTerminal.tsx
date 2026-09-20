@@ -386,7 +386,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
         {/* ── TAB: Theory (3-step guide) ─────── */}
         {activeTab === "theory" && (
           <div className="space-y-2 py-1">
-            <p className="font-balsamiq text-[9.5px] text-gray-500 mb-2">
+            <p className="font-sans text-[9.5px] text-gray-500 mb-2">
               {t("architecture.theoryStepsHeader", "Command Pattern & Dependency Injection (3 Steps):")}
             </p>
             {STEPS.map((step) => (
@@ -408,7 +408,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                     {t(`terminalTheory.step${step.num}Title`, step.title)}
                   </span>
                 </div>
-                <p className="font-balsamiq text-[9.5px] text-gray-400 leading-snug mb-1.5">
+                <p className="font-sans text-[9.5px] text-gray-400 leading-snug mb-1.5">
                   {t(`terminalTheory.step${step.num}Desc`, step.desc)}
                 </p>
                 <pre

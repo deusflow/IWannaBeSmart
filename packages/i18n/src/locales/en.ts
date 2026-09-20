@@ -22,6 +22,17 @@ export const enTranslation = {
         copied: "Copied",
         copyCert: "Copy Certificate",
         copiedCert: "Certificate Copied!",
+        downloadCertSvg: "Download Vector Certificate (SVG)",
+      },
+      audio: {
+        volume: "Volume",
+        unmutedToast: "Sound unmuted",
+        mutedToast: "Sound muted",
+        volumeSettings: "Audio synthesizer settings",
+        synthTitle: "Audio Synthesizer",
+        unmute: "ON",
+        mute: "MUTE",
+        masterGain: "Master Gain Level",
       },
       auth: {
         titleSignIn: "Engineer Authorization",
@@ -723,6 +734,13 @@ export const enTranslation = {
         code: "Module 2",
         subtitle: "Transaction Security, Guard Clauses, and Financial Validation",
         status: "Available",
+      },
+      cmdPalette: {
+        searchPlaceholder: "Search 73 tasks, stations, shortcuts... (e.g. 'git', 'rag', 'sql')",
+        noResults: "No results found for",
+        hintNavigate: "Navigate",
+        hintSelect: "Select",
+        hintClose: "Close",
       },
       hub: {
         title: "Workbench Engineering Hub",

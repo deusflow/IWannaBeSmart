@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Award,
   Download,
+  Copy,
   ArrowRight,
   X,
   Sparkles,
@@ -20,6 +21,8 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useAuthStore } from "../../store/authStore";
+import { downloadCertificateSvg } from "../../utils/certificateSvg";
 import { FINTECH_TASKS } from "@iw/sim-engine";
 
 interface FintechStationVictoryModalProps {
@@ -88,12 +91,34 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
   const { t } = useTranslation();
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+  const callsign = useAuthStore((s) => s.profile?.callsign);
   const [displayXp, setDisplayXp] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isMatrixExpanded, setIsMatrixExpanded] = useState(false);
 
   const currentPosStars = FINTECH_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
   const maxPosStars = FINTECH_TASKS.length * 4;
+
+  const handleDownloadSvg = () => {
+    audioFx.playSuccessFanfare();
+    downloadCertificateSvg({
+      stationCode: "FINTECH",
+      stationTitle: "Fintech POS Terminal & Transaction Engine",
+      credentialTitle: "Certified Fintech Systems Architect",
+      callsign: callsign || "Operator",
+      stars: currentPosStars,
+      maxStars: maxPosStars,
+      xp,
+      competencies: [
+        "Guard Clauses & Balance Overdraft Protection",
+        "Deterministic Fee Calculation & Balance Mutation",
+        "Anti-Bruteforce PIN Lockout & Security State",
+        "Batch Settlement Reconciliation & Audit Ledger",
+        "Gateway Interface Decoupling & Inversion of Control",
+      ],
+      themeColor: "#F59E0B",
+    });
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -290,15 +315,26 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
 
         {/* Action Controls */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#1A1D20]/20">
-          <button
-            onClick={handleExportSummary}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#FAF8F2] hover:bg-white border border-[#1A1D20]/30 text-[#1A1D20] font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
-          >
-            {copied ? <Check size={14} className="text-emerald-600" /> : <Download size={14} />}
-            <span>
-              {copied ? t("fintechVictoryModal.copiedBtn") : t("fintechVictoryModal.copyCertBtn")}
-            </span>
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadSvg}
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+            >
+              <Download size={14} />
+              <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
+            </button>
+
+            <button
+              onClick={handleExportSummary}
+              className="px-3.5 py-2.5 rounded-xl bg-[#FAF8F2] hover:bg-white border border-[#1A1D20]/30 text-[#1A1D20] font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+              title={t("fintechVictoryModal.copyCertBtn", "Скопіювати сертифікат (ASCII)")}
+            >
+              {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+              <span className="hidden sm:inline">
+                {copied ? t("fintechVictoryModal.copiedBtn") : t("common.copy", "Копіювати")}
+              </span>
+            </button>
+          </div>
 
           <button
             onClick={handleReturnToStations}

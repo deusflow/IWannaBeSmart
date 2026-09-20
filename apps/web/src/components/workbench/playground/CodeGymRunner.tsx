@@ -547,7 +547,7 @@ export const CodeGymRunner: React.FC = () => {
 
         {/* Parchment Tooltip popover */}
         {showTooltip && (
-          <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-balsamiq leading-relaxed shadow-sm animate-in fade-in flex items-start justify-between gap-2">
+          <div className="p-3 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/30 text-[#1A1D20] text-xs font-sans leading-relaxed shadow-sm animate-in fade-in flex items-start justify-between gap-2">
             <div className="flex-1">
               <div className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/70 mb-1">
                 {t("common.simpleExplanation", "Простими словами")}:

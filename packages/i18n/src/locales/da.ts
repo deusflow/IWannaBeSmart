@@ -22,6 +22,17 @@ export const daTranslation = {
         copied: "Kopieret",
         copyCert: "Kopier certifikat",
         copiedCert: "Certifikat kopieret!",
+        downloadCertSvg: "Download vektorcertifikat (SVG)",
+      },
+      audio: {
+        volume: "Lydstyrke",
+        unmutedToast: "Lyd slået til",
+        mutedToast: "Lyd slået fra",
+        volumeSettings: "Indstillinger for audiosynthesizer",
+        synthTitle: "Audiosynthesizer",
+        unmute: "TIL",
+        mute: "FRA",
+        masterGain: "Master Gain niveau",
       },
       auth: {
         titleSignIn: "Ingeniørautorisation",
@@ -723,6 +734,13 @@ export const daTranslation = {
         code: "Modul 2",
         subtitle: "Transaktionssikkerhed, Guard Clauses og finansiel validering",
         status: "Tilgængelig",
+      },
+      cmdPalette: {
+        searchPlaceholder: "Søg i 73 opgaver, stationer, genveje... (f.eks. 'git', 'rag', 'sql')",
+        noResults: "Ingen resultater fundet for",
+        hintNavigate: "Naviger",
+        hintSelect: "Vælg",
+        hintClose: "Luk",
       },
       hub: {
         title: "Workbench Ingeniørhub",

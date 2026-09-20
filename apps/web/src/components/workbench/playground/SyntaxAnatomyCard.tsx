@@ -135,7 +135,7 @@ export const SyntaxAnatomyCard: React.FC<SyntaxAnatomyCardProps> = ({
           {activeSubTab === "concept" && (
             <div className="space-y-2.5 animate-in fade-in duration-150">
               <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1 shadow-2xs">
-                <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-relaxed">
+                <p className="text-xs font-sans font-medium text-[#1A1D20] leading-relaxed">
                   {theory.concept}
                 </p>
               </div>
@@ -147,7 +147,7 @@ export const SyntaxAnatomyCard: React.FC<SyntaxAnatomyCardProps> = ({
                     <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70">
                       {t("theory.notesTitle", "Важливі інженерні нюанси")}:
                     </div>
-                    <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-relaxed">
+                    <p className="text-xs font-sans font-medium text-[#1A1D20] leading-relaxed">
                       {theory.notes}
                     </p>
                   </div>
@@ -173,7 +173,7 @@ export const SyntaxAnatomyCard: React.FC<SyntaxAnatomyCardProps> = ({
                         {item.role}
                       </span>
                     </div>
-                    <p className="text-xs font-balsamiq font-medium text-[#1A1D20] leading-snug">
+                    <p className="text-xs font-sans font-medium text-[#1A1D20] leading-snug">
                       {item.explanation}
                     </p>
                   </div>

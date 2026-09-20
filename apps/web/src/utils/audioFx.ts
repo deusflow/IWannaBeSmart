@@ -6,16 +6,30 @@
 
 class AudioFxEngine {
   private ctx: AudioContext | null = null;
+  private masterGain: GainNode | null = null;
   private _isMuted: boolean = false;
+  private _volume: number = 0.7;
 
   constructor() {
     // Read persisted sound setting if available
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem("iw_audio_muted");
-        this._isMuted = saved === "true";
+        const savedMute = localStorage.getItem("iw_audio_muted");
+        this._isMuted = savedMute === "true";
       } catch {
         this._isMuted = false;
+      }
+
+      try {
+        const savedVol = localStorage.getItem("iw_audio_volume");
+        if (savedVol !== null) {
+          const v = parseFloat(savedVol);
+          if (!isNaN(v) && v >= 0 && v <= 1) {
+            this._volume = v;
+          }
+        }
+      } catch {
+        this._volume = 0.7;
       }
     }
   }
@@ -45,6 +59,15 @@ class AudioFxEngine {
     return this.ctx;
   }
 
+  private getMasterDestination(ctx: AudioContext): AudioNode {
+    if (!this.masterGain) {
+      this.masterGain = ctx.createGain();
+      this.masterGain.gain.setValueAtTime(this._isMuted ? 0 : this._volume, ctx.currentTime);
+      this.masterGain.connect(ctx.destination);
+    }
+    return this.masterGain;
+  }
+
   public getMuted(): boolean {
     return this._isMuted;
   }
@@ -61,6 +84,34 @@ class AudioFxEngine {
       } catch {
         // Safe catch for iframe / storage quota / private browsing
       }
+    }
+    if (this.ctx && this.masterGain) {
+      const t = this.ctx.currentTime;
+      this.masterGain.gain.cancelScheduledValues(t);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, t);
+      this.masterGain.gain.linearRampToValueAtTime(muted ? 0 : this._volume, t + 0.05);
+    }
+  }
+
+  public getVolume(): number {
+    return this._volume;
+  }
+
+  public setVolume(volume: number): void {
+    const clamped = Math.max(0, Math.min(1, volume));
+    this._volume = clamped;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("iw_audio_volume", String(clamped));
+      } catch {
+        // Safe catch
+      }
+    }
+    if (this.ctx && this.masterGain) {
+      const t = this.ctx.currentTime;
+      this.masterGain.gain.cancelScheduledValues(t);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, t);
+      this.masterGain.gain.linearRampToValueAtTime(this._isMuted ? 0 : clamped, t + 0.05);
     }
   }
 
@@ -81,6 +132,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
 
     // 1. Initial mechanical high-frequency metallic transient (15ms)
@@ -94,7 +146,7 @@ class AudioFxEngine {
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.028);
 
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
     osc.start(t);
     osc.stop(t + 0.03);
 
@@ -109,7 +161,7 @@ class AudioFxEngine {
     thudGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
 
     thud.connect(thudGain);
-    thudGain.connect(ctx.destination);
+    thudGain.connect(dest);
     thud.start(t + 0.005);
     thud.stop(t + 0.055);
   }
@@ -122,6 +174,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
 
     // Degauss coil surge: 60Hz down to 40Hz with rich harmonic content
@@ -143,7 +196,7 @@ class AudioFxEngine {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.42);
@@ -157,6 +210,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -169,7 +223,7 @@ class AudioFxEngine {
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
 
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.04);
@@ -183,6 +237,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
     // C5 (523.25), E5 (659.25), G5 (783.99), C6 (1046.50)
     const notes = [523.25, 659.25, 783.99, 1046.5];
@@ -199,7 +254,7 @@ class AudioFxEngine {
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(startTime);
       osc.stop(startTime + 0.42);
@@ -214,6 +269,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const filter = ctx.createBiquadFilter();
@@ -231,7 +287,7 @@ class AudioFxEngine {
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.18);
@@ -245,6 +301,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
     const pulses = 10;
     const stepInterval = 0.07; // 70ms per line feed
@@ -270,7 +327,7 @@ class AudioFxEngine {
 
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(startTime);
       osc.stop(startTime + 0.045);
@@ -285,6 +342,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
     const tones = [880, 587, 880, 587, 880, 587];
 
@@ -300,7 +358,7 @@ class AudioFxEngine {
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.13);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(dest);
 
       osc.start(startTime);
       osc.stop(startTime + 0.135);
@@ -316,6 +374,7 @@ class AudioFxEngine {
     const ctx = this.getContext();
     if (!ctx) return;
 
+    const dest = this.getMasterDestination(ctx);
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -328,7 +387,7 @@ class AudioFxEngine {
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.014);
 
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(dest);
 
     osc.start(t);
     osc.stop(t + 0.015);

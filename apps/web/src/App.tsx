@@ -3,6 +3,8 @@ import { WorkbenchScreen } from "./screens/WorkbenchScreen";
 import { useAuthStore } from "./store/authStore";
 import { useWorkbenchStore } from "./store/workbenchStore";
 
+import { ToastContainer } from "./components/ui/ToastContainer";
+
 export const App: React.FC = () => {
   useEffect(() => {
     // 1. Initialize Supabase Auth session & listeners
@@ -26,5 +28,10 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  return <WorkbenchScreen />;
+  return (
+    <>
+      <WorkbenchScreen />
+      <ToastContainer />
+    </>
+  );
 };

@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Award,
   Download,
+  Copy,
   ArrowRight,
   X,
   Server,
@@ -19,6 +20,8 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useAuthStore } from "../../store/authStore";
+import { downloadCertificateSvg } from "../../utils/certificateSvg";
 import { API_FORGE_TASKS } from "@iw/sim-engine";
 
 interface ApiStationVictoryModalProps {
@@ -38,38 +41,38 @@ const API_SKILLS: SkillItem[] = [
   {
     id: "healthcheck",
     nameKey: "apiForge.skills.healthcheck",
-    codeExample: 'app.MapGet("/health", () => Results.Ok(new { status = "UP" }))',
-    category: "Monitoring & Healthchecks",
+    codeExample: "app.MapGet('/healthz', () => Results.Ok(new { status: 'alive' }));",
+    category: "Liveness & Health Probes",
   },
   {
-    id: "path-params-404",
-    nameKey: "apiForge.skills.pathParams",
-    codeExample: "repo.Find(id) != null ? Results.Ok(d) : Results.NotFound()",
-    category: "RESTful Routing & 404 Guarding",
+    id: "rest-routes",
+    nameKey: "apiForge.skills.restRoutes",
+    codeExample: "app.MapGet('/api/v1/users/{id}', (int id) => user is null ? Results.NotFound() : Results.Ok(user));",
+    category: "RESTful Routing & Guard Clauses",
   },
   {
-    id: "dto-validation-201",
+    id: "dto-validation",
     nameKey: "apiForge.skills.dtoValidation",
-    codeExample: "if (dto.Quantity <= 0) return Results.BadRequest(); return Results.Created()",
-    category: "DTO Validation & 201 Created",
+    codeExample: "if (string.IsNullOrWhiteSpace(dto.Name)) return Results.BadRequest(); return Results.Created($'/api/v1/orders/{id}', order);",
+    category: "Schema Validation & HTTP 201 Semantics",
   },
   {
-    id: "bearer-token-auth",
+    id: "bearer-auth",
     nameKey: "apiForge.skills.bearerAuth",
-    codeExample: 'if (!auth.StartsWith("Bearer ")) return Results.Unauthorized()',
-    category: "Authentication & Security Headers",
+    codeExample: "if (!authHeader.StartsWith('Bearer ')) return Results.Unauthorized();",
+    category: "Bearer Tokens & 401 Unauthorized Protection",
   },
   {
-    id: "client-consumer",
-    nameKey: "apiForge.skills.clientConsumer",
-    codeExample: "await client.GetAsync(url); response.EnsureSuccessStatusCode()",
-    category: "API Client Integration & Parsing",
+    id: "http-client",
+    nameKey: "apiForge.skills.httpClient",
+    codeExample: "var response = await httpClient.GetFromJsonAsync<WeatherDto>(url);",
+    category: "High-Throughput HTTP Consumers & JSON Deserialization",
   },
   {
-    id: "retry-resiliency",
-    nameKey: "apiForge.skills.retryResiliency",
-    codeExample: "for (int a = 1; a <= 3; a++) { ... await Task.Delay(100 * a); }",
-    category: "Resilience & Timeout Fault Tolerance",
+    id: "fault-tolerance",
+    nameKey: "apiForge.skills.faultTolerance",
+    codeExample: "Policy.Handle<HttpRequestException>().WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));",
+    category: "Fault Injection, 504 Gateway Timeouts & Exponential Backoff",
   },
 ];
 
@@ -85,6 +88,7 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
 
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+  const callsign = useAuthStore((s) => s.profile?.callsign);
 
   const currentApiStars = API_FORGE_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
   const maxApiStars = API_FORGE_TASKS.length * 4;
@@ -100,6 +104,27 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  const handleDownloadSvg = () => {
+    audioFx.playSuccessFanfare();
+    downloadCertificateSvg({
+      stationCode: "API",
+      stationTitle: "Backend & API Forge Architecture",
+      credentialTitle: "Certified Backend & API Architect",
+      callsign: callsign || "Operator",
+      stars: currentApiStars,
+      maxStars: maxApiStars,
+      xp,
+      competencies: [
+        "Heartbeat & Healthcheck Endpoints (HTTP 200)",
+        "RESTful Resource Routing & 404 Guard Clauses",
+        "DTO Schema Validation & HTTP 201 Created",
+        "Bearer Token Auth & 401 Protection",
+        "Fault Injection, 504 Timeout & Exponential Retries",
+      ],
+      themeColor: "#0EA5E9",
+    });
+  };
 
   const handleCopyCertificate = () => {
     audioFx.playRelayClick();
@@ -167,7 +192,7 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
             <h2 className="text-xl sm:text-2xl font-display font-extrabold text-[#1A1D20] tracking-tight mt-0.5">
               {t("apiForge.victoryModal.title", "Модуль 4: API Forge завершено!")}
             </h2>
-            <p className="text-xs sm:text-sm font-balsamiq text-[#1A1D20]/70 mt-0.5 leading-relaxed">
+            <p className="text-xs sm:text-sm font-sans text-[#1A1D20]/70 mt-0.5 leading-relaxed">
               {t(
                 "apiForge.victoryModal.subtitle",
                 "Ви побудували повний стек API: від Heartbeat та DTO валідації до Bearer токенів, клієнтських споживачів та повторних спроб при 504 Timeout."
@@ -274,21 +299,32 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
 
         {/* ── Action Buttons ── */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-          <button
-            onClick={handleCopyCertificate}
-            className={`w-full sm:w-auto py-2.5 px-4 rounded-xl border font-mono font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              copied
-                ? "bg-emerald-600 text-white border-emerald-600"
-                : "bg-[#EBE5D8] hover:bg-[#E2DBCB] text-[#1A1D20] border-[#1A1D20]/25 shadow-paper-xs"
-            }`}
-          >
-            {copied ? <Check size={14} /> : <Download size={14} />}
-            <span>
-              {copied
-                ? t("fintechVictoryModal.copiedBtn", "Сертифікат скопійовано!")
-                : t("fintechVictoryModal.copyCertBtn", "Скопіювати сертифікат (ASCII)")}
-            </span>
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadSvg}
+              className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-paper-xs active:scale-95"
+            >
+              <Download size={14} />
+              <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
+            </button>
+
+            <button
+              onClick={handleCopyCertificate}
+              className={`py-2.5 px-3.5 rounded-xl border font-mono font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                copied
+                  ? "bg-emerald-600 text-white border-emerald-600"
+                  : "bg-[#EBE5D8] hover:bg-[#E2DBCB] text-[#1A1D20] border-[#1A1D20]/25 shadow-paper-xs"
+              }`}
+              title={t("fintechVictoryModal.copyCertBtn", "Скопіювати сертифікат (ASCII)")}
+            >
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              <span className="hidden sm:inline">
+                {copied
+                  ? t("fintechVictoryModal.copiedBtn", "Скопійовано")
+                  : t("common.copy", "Копіювати")}
+              </span>
+            </button>
+          </div>
 
           <button
             onClick={handleSwitchToHub}

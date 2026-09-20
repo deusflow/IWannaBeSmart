@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
   Download,
+  Copy,
   ArrowRight,
   X,
   Users,
@@ -17,6 +18,8 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useAuthStore } from "../../store/authStore";
+import { downloadCertificateSvg } from "../../utils/certificateSvg";
 import { FDE_TASKS } from "@iw/sim-engine";
 
 interface FdeStationVictoryModalProps {
@@ -73,6 +76,7 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
   const { t } = useTranslation();
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+  const callsign = useAuthStore((s) => s.profile?.callsign);
   const [copied, setCopied] = useState(false);
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
 
@@ -97,6 +101,27 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
     audioFx.playRelayClick();
     onClose();
     setCurrentView("HUB");
+  };
+
+  const handleDownloadSvg = () => {
+    audioFx.playSuccessFanfare();
+    downloadCertificateSvg({
+      stationCode: "FDE",
+      stationTitle: "Forward Deployed AI Engineering & Field Ops",
+      credentialTitle: "Certified Forward Deployed AI Engineer (FDE)",
+      callsign: callsign || "Operator",
+      stars: currentStars,
+      maxStars: maxStars,
+      xp,
+      competencies: [
+        "Executive Stakeholder Discovery & Consensus",
+        "Air-Gapped Legacy API Reverse-Engineering",
+        "Deterministic Multi-Agent Graphs & Hybrid RAG",
+        "Zero Trust Scope Guardrails & SOC2 PII Masking",
+        "SRE Incident Runbook & Production Client Sign-off",
+      ],
+      themeColor: "#A855F7",
+    });
   };
 
   const handleCopyCertificate = () => {
@@ -137,7 +162,7 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
                 </span>
               </div>
               <h3 className="font-mono text-base font-bold text-slate-100 mt-0.5">
-                {t("fde.victory.title", "Сертифікований Forward Deployed Engineer (Applied AI)")}
+                {t("fde.victory.title", "Сертифікований Forward Deployed AI Engineer")}
               </h3>
             </div>
           </div>
@@ -157,13 +182,13 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
           <p className="text-slate-300 text-xs sm:text-sm bg-purple-950/20 border border-purple-800/40 p-3.5 rounded-xl">
             {t(
               "fde.victory.desc",
-              "Ви успішно закрили повний життєвий цикл впровадження ШІ: від першого дзвінка до захищеного бойового релізу та підписання акту!"
+              "Ви успішно розгорнули автономну агентну RAG-систему, інтегрували ізольовану legacy-інфраструктуру та передали бойові runbook замовнику!"
             )}
           </p>
 
           <div className="space-y-2">
             <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-purple-400">
-              {t("fde.victory.competencies", "Підтверджені компетенції інженера впровадження (5/5):")}
+              {t("fde.victory.competencies", "Підтверджені компетенції інженера впровадження AI (5/5):")}
             </h4>
 
             <div className="space-y-2">
@@ -212,27 +237,38 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-[#161D27]">
-          <button
-            onClick={handleCopyCertificate}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-200 transition-colors cursor-pointer shadow-sm"
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 text-purple-400" />
-                <span>{t("common.copiedCert", "Сертифікат скопійовано!")}</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4 text-slate-400" />
-                <span>{t("common.copyCert", "Скопіювати сертифікат")}</span>
-              </>
-            )}
-          </button>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-slate-800 bg-[#161D27]">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadSvg}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-bold text-white transition-all cursor-pointer shadow-md shadow-purple-600/30 active:scale-95"
+            >
+              <Download className="w-4 h-4" />
+              <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
+            </button>
+
+            <button
+              onClick={handleCopyCertificate}
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-200 transition-colors cursor-pointer shadow-sm"
+              title={t("common.copyCert", "Скопіювати сертифікат")}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 text-purple-400" />
+                  <span className="hidden sm:inline">{t("common.copiedCert", "Скопійовано")}</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 text-slate-400" />
+                  <span className="hidden sm:inline">{t("common.copy", "Копіювати")}</span>
+                </>
+              )}
+            </button>
+          </div>
 
           <button
             onClick={handleReturnToHub}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-bold text-slate-950 transition-all cursor-pointer shadow-md shadow-purple-600/30 active:scale-95"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-200 border border-slate-700 transition-all cursor-pointer active:scale-95"
           >
             <span>{t("fde.victory.returnHub", "Повернутися до Хабу")}</span>
             <ArrowRight className="w-4 h-4" />

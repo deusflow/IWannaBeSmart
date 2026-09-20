@@ -3,11 +3,12 @@
  * @description Unified Code Gym CodeMirror Editor with ghost text overlay, sprint timer, diagnostics & actions.
  */
 
-import { useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CodeMirror from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView } from "@codemirror/view";
+import type { Extension } from "@codemirror/state";
 import { cpp } from "@codemirror/lang-cpp";
 import { go } from "@codemirror/lang-go";
 import {
@@ -152,25 +153,39 @@ export function CodeGymEditor<
     );
   }, [currentTask, activeRound, i18n.language, t]);
 
+  const [fontSize, setFontSize] = useState<number>(13);
+  const [isWordWrap, setIsWordWrap] = useState<boolean>(true);
+
   const extensions = useMemo(() => {
     const langExt = codeLang === "go" ? go() : cpp();
-    if (activeRound === 1 && !currentTask.isBugfixTask) {
-      const transparentTheme = EditorView.theme({
-        "&": {
-          backgroundColor: "transparent !important",
-        },
-        ".cm-gutters": {
-          backgroundColor: "#18191C !important",
-          borderRight: "1px solid #2B2D33",
-        },
-        ".cm-content": {
-          caretColor: "#38bdf8",
-        },
-      });
-      return [langExt, transparentTheme];
+    const exts: Extension[] = [langExt];
+
+    if (isWordWrap) {
+      exts.push(EditorView.lineWrapping);
     }
-    return [langExt];
-  }, [codeLang, activeRound, currentTask.isBugfixTask]);
+
+    const dynamicTheme = EditorView.theme({
+      "&": {
+        fontSize: `${fontSize}px !important`,
+        backgroundColor: activeRound === 1 && !currentTask.isBugfixTask ? "transparent !important" : null,
+      },
+      ".cm-gutters": {
+        backgroundColor: "#18191C !important",
+        borderRight: "1px solid #2B2D33",
+        fontSize: `${fontSize}px !important`,
+      },
+      ".cm-content": {
+        caretColor: "#38bdf8",
+        fontFamily: "'JetBrains Mono', 'Fira Code', monospace !important",
+      },
+      ".cm-line": {
+        lineHeight: "1.6",
+      },
+    });
+    exts.push(dynamicTheme);
+
+    return exts;
+  }, [codeLang, isWordWrap, fontSize, activeRound, currentTask.isBugfixTask]);
 
   return (
     <div className="w-full rounded-2xl overflow-hidden border border-[#2B2D33] shadow-lg bg-[#1E1E22] flex flex-col">
@@ -208,6 +223,40 @@ export function CodeGymEditor<
           <span className="text-[11px] font-mono text-gray-400 font-bold ml-1">
             {fileName}
           </span>
+
+          {/* Editor QoL: Font Size & Word Wrap */}
+          <div className="ml-2 flex items-center gap-1 bg-[#23252B] p-0.5 rounded-lg border border-[#343842] text-[10px] font-mono">
+            <button
+              type="button"
+              onClick={() => setFontSize((f) => Math.max(11, f - 1))}
+              disabled={fontSize <= 11}
+              className="px-1.5 py-0.5 rounded text-gray-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+              title="Decrease Font Size (A-)"
+            >
+              A-
+            </button>
+            <span className="text-gray-400 font-bold px-0.5">{fontSize}px</span>
+            <button
+              type="button"
+              onClick={() => setFontSize((f) => Math.min(18, f + 1))}
+              disabled={fontSize >= 18}
+              className="px-1.5 py-0.5 rounded text-gray-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+              title="Increase Font Size (A+)"
+            >
+              A+
+            </button>
+            <div className="w-px h-3 bg-[#343842]" />
+            <button
+              type="button"
+              onClick={() => setIsWordWrap((w) => !w)}
+              className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+                isWordWrap ? "text-cyan-400 font-bold bg-cyan-950/50" : "text-gray-400 hover:text-white"
+              }`}
+              title={isWordWrap ? "Disable Line Wrap" : "Enable Line Wrap"}
+            >
+              Wrap
+            </button>
+          </div>
         </div>
 
         {/* Round-specific status display & stats */}

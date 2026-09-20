@@ -22,6 +22,17 @@ export const uaTranslation = {
         copied: "Скопійовано",
         copyCert: "Скопіювати сертифікат",
         copiedCert: "Сертифікат скопійовано!",
+        downloadCertSvg: "Завантажити векторний сертифікат (SVG)",
+      },
+      audio: {
+        volume: "Гучність",
+        unmutedToast: "Звук увімкнено",
+        mutedToast: "Звук вимкнено",
+        volumeSettings: "Налаштування аудіосинтезатора",
+        synthTitle: "Аудіосинтезатор",
+        unmute: "ВКЛ",
+        mute: "ВИМК",
+        masterGain: "Рівень Master Gain",
       },
       auth: {
         titleSignIn: "Авторизація інженера",
@@ -723,6 +734,13 @@ export const uaTranslation = {
         code: "Модуль 2",
         subtitle: "Захист транзакцій, Guard Clauses та фінансова валідація",
         status: "Доступно",
+      },
+      cmdPalette: {
+        searchPlaceholder: "Пошук 73 завдань, станцій, команд... (напр. 'git', 'rag', 'sql')",
+        noResults: "Нічого не знайдено за запитом",
+        hintNavigate: "Навігація",
+        hintSelect: "Обрати",
+        hintClose: "Закрити",
       },
       hub: {
         title: "Інженерний Хаб верстака",

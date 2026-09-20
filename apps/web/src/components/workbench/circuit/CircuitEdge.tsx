@@ -95,7 +95,7 @@ export const CircuitEdge: React.FC<EdgeProps> = ({
                     defaultValue: `Лінія «${edgeData.label}» справна. Натисніть, щоб змоделювати обрив.`,
                   })
             }
-            className={`group px-2 py-0.5 rounded-md border text-[9px] font-balsamiq font-bold flex items-center gap-1 shadow-xs transition-all duration-150 cursor-pointer ${
+            className={`group px-2 py-0.5 rounded-md border text-[9px] font-mono font-bold flex items-center gap-1 shadow-xs transition-all duration-150 cursor-pointer ${
               isBroken
                 ? "bg-[#FDF2F1] text-accent-break border-accent-break hover:bg-accent-break hover:text-white animate-pulse"
                 : "bg-paper hover:bg-paper-muted text-ink-muted hover:text-ink border-paper-border hover:border-ink-muted/60"

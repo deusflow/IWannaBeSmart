@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Award,
   Download,
+  Copy,
   ArrowRight,
   X,
   GitBranch,
@@ -18,6 +19,8 @@ import {
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { useAuthStore } from "../../store/authStore";
+import { downloadCertificateSvg } from "../../utils/certificateSvg";
 import { GIT_TASKS } from "@iw/sim-engine";
 
 interface GitStationVictoryModalProps {
@@ -84,6 +87,7 @@ export const GitStationVictoryModal: React.FC<GitStationVictoryModalProps> = ({
 
   const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+  const callsign = useAuthStore((s) => s.profile?.callsign);
 
   const currentGitStars = GIT_TASKS.reduce((acc, t) => acc + (taskMasteryStars[t.id] || 0), 0);
   const maxGitStars = GIT_TASKS.length * 4;
@@ -99,6 +103,27 @@ export const GitStationVictoryModal: React.FC<GitStationVictoryModalProps> = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  const handleDownloadSvg = () => {
+    audioFx.playSuccessFanfare();
+    downloadCertificateSvg({
+      stationCode: "GIT",
+      stationTitle: "Git Time Machine & Version Control",
+      credentialTitle: "Certified Git & DevOps Architect",
+      callsign: callsign || "Operator",
+      stars: currentGitStars,
+      maxStars: maxGitStars,
+      xp,
+      competencies: [
+        "DAG Directed Acyclic Graph Commit Topology",
+        "Branch Pointers, Reference Updates & Detached HEAD",
+        "Fast-Forward vs 3-Way Merge Resolution",
+        "3-Way Conflict Triaging & Clean State Restoration",
+        "Linear History Rebase & Pull Request CI Gates",
+      ],
+      themeColor: "#8B5CF6",
+    });
+  };
 
   const handleCopyCertificate = () => {
     audioFx.playRelayClick();
@@ -224,26 +249,37 @@ Verification Hash: IW-GIT-MASTER-${Math.random().toString(36).substring(2, 9).to
 
         {/* Action Buttons */}
         <div className="pt-2 border-t border-[#30363D] flex flex-col sm:flex-row items-center justify-between gap-3">
-          <button
-            onClick={handleCopyCertificate}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#161B22] hover:bg-[#21262D] border border-[#30363D] text-stone-200 font-mono text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
-          >
-            {copied ? (
-              <>
-                <Check size={14} className="text-emerald-400" />
-                <span className="text-emerald-400">{t("git.certCopied", "Certificate Copied!")}</span>
-              </>
-            ) : (
-              <>
-                <Download size={14} />
-                <span>{t("git.copyCert", "Copy ASCII Certificate")}</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadSvg}
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-lg shadow-purple-600/25"
+            >
+              <Download size={14} />
+              <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
+            </button>
+
+            <button
+              onClick={handleCopyCertificate}
+              className="px-3.5 py-2.5 rounded-xl bg-[#161B22] hover:bg-[#21262D] border border-[#30363D] text-stone-200 font-mono text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+              title={t("git.copyCert", "Copy ASCII Certificate")}
+            >
+              {copied ? (
+                <>
+                  <Check size={14} className="text-emerald-400" />
+                  <span className="hidden sm:inline text-emerald-400">{t("git.certCopied", "Certificate Copied!")}</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={14} />
+                  <span className="hidden sm:inline">{t("common.copy", "Copy")}</span>
+                </>
+              )}
+            </button>
+          </div>
 
           <button
             onClick={handleReturnToHub}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-lg shadow-purple-600/25"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#21262D] hover:bg-[#30363D] text-white border border-[#30363D] font-mono text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer"
           >
             <span>{t("git.returnToHub", "Return to Workshop Hub")}</span>
             <ArrowRight size={14} />

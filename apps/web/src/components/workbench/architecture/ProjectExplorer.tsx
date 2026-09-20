@@ -166,7 +166,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
         className="px-3 py-1.5 border-b"
         style={{ background: "#1D1E20", borderColor: "#2A2B2F" }}
       >
-        <p className="font-balsamiq text-[10px] text-gray-500 leading-tight">
+        <p className="font-sans text-[10px] text-gray-500 leading-tight">
           {t("architecture.dragHint")}
         </p>
       </div>
@@ -254,7 +254,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
                             <span className="font-mono text-[11.5px] font-medium block truncate leading-tight">
                               {file.name}
                             </span>
-                            <span className="font-balsamiq text-[9.5px] text-gray-500 block truncate">
+                            <span className="font-sans text-[9.5px] text-gray-500 block truncate">
                               {t(`projectFiles.${file.id}.role`, file.role)}
                             </span>
                           </div>
@@ -283,7 +283,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
         })}
 
         {filteredFiles.length === 0 && (
-          <div className="p-4 text-center text-xs font-balsamiq text-gray-500">
+          <div className="p-4 text-center text-xs font-sans text-gray-500">
             {t("architecture.noFilesFound", "Файлів не знайдено")}
           </div>
         )}

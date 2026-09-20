@@ -107,7 +107,7 @@ export const HardwareNode: React.FC<NodeProps> = ({ data, selected }) => {
         </div>
 
         {/* Ukrainian Role description */}
-        <p className="font-balsamiq text-[10px] text-ink-muted leading-tight line-clamp-2">
+        <p className="font-sans text-[10px] text-ink-muted leading-tight line-clamp-2">
           {nodeData.role}
         </p>
 
@@ -128,7 +128,7 @@ export const HardwareNode: React.FC<NodeProps> = ({ data, selected }) => {
               }`}
             />
             <span
-              className={`font-balsamiq font-bold text-[9px] ${
+              className={`font-mono font-bold text-[9px] ${
                 isFault
                   ? "text-accent-break"
                   : isLive

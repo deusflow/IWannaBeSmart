@@ -111,7 +111,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
             <Lightbulb size={12} className="text-amber-700 shrink-0" />
             <span>{t("guide.simpleLabel", "Простими словами (Intuition Analogy)")}</span>
           </div>
-          <p className="font-balsamiq text-xs text-[#1A1D20] leading-relaxed">
+          <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
             {simpleText}
           </p>
         </div>

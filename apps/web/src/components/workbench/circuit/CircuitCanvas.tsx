@@ -299,14 +299,14 @@ export const CircuitCanvas: React.FC = () => {
               <Badge
                 variant={brokenCount > 0 ? "broken" : "ok"}
                 size="sm"
-                className="font-balsamiq text-[10px]"
+                className="font-mono font-bold text-[10px]"
               >
                 {brokenCount > 0
                   ? t("circuit.breakCount", { count: brokenCount, defaultValue: `${brokenCount} обрив(и)` })
                   : t("circuit.allCircuitsOk", "Всі ланцюги замкнені")}
               </Badge>
             </div>
-            <p className="font-balsamiq text-[10px] text-ink-muted">
+            <p className="font-sans text-[10px] text-ink-muted">
               {t("circuit.clickHint", "Клікніть на будь-яку доріжку для моделювання фізичного обриву зв'язку")}
             </p>
           </div>
@@ -316,7 +316,7 @@ export const CircuitCanvas: React.FC = () => {
         <button
           onClick={resetCircuit}
           title={t("circuit.resetTooltip", "Скинути всі обриви та відновити доріжки до стану OK")}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-paper border border-paper-border hover:border-accent-blue/40 text-ink text-xs font-balsamiq font-bold transition-all duration-150 cursor-pointer shadow-xs active:scale-95"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-paper-subtle hover:bg-paper border border-paper-border hover:border-accent-blue/40 text-ink text-xs font-sans font-bold transition-all duration-150 cursor-pointer shadow-xs active:scale-95"
         >
           <RotateCcw size={12} className="text-accent-blue" />
           <span>{t("circuit.resetButton", "Скинути схему")}</span>

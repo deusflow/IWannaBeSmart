@@ -9,25 +9,26 @@ export default {
     extend: {
       fontFamily: {
         display: [
-          '"Balsamiq Sans"',
-          '"Sniglet"',
-          '"Comfortaa"',
+          '"Plus Jakarta Sans"',
+          '"Inter Tight"',
           "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
           "sans-serif",
         ],
         balsamiq: [
-          '"Balsamiq Sans"',
-          '"Sniglet"',
-          "cursive",
+          '"Plus Jakarta Sans"',
+          '"Inter Tight"',
+          "Inter",
           "sans-serif",
         ],
         sniglet: [
-          '"Sniglet"',
-          '"Balsamiq Sans"',
-          "cursive",
+          '"Plus Jakarta Sans"',
+          "Inter",
           "sans-serif",
         ],
         sans: [
+          '"Plus Jakarta Sans"',
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",

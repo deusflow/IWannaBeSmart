@@ -194,7 +194,7 @@ export const WorkshopHubScreen: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#1A1D20] tracking-tight">
             {t("hub.title", "Інженерний Хаб верстака")}
           </h1>
-          <p className="text-xs sm:text-sm font-balsamiq text-[#1A1D20]/70 max-w-2xl mt-0.5">
+          <p className="text-xs sm:text-sm font-sans text-[#1A1D20]/70 max-w-2xl mt-0.5">
             {t(
               "hub.subtitle",
               "Оберіть прилад для тренування архітектурних патернів, логіки та м'язової пам'яті коду"

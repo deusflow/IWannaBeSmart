@@ -88,7 +88,7 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
           <div className="w-6 h-6 rounded-lg bg-purple-600/30 border border-purple-500/50 flex items-center justify-center text-purple-300 shadow-xs">
             <GraduationCap size={14} />
           </div>
-          <span className="font-balsamiq font-bold text-xs text-white">
+          <span className="font-display font-bold text-xs text-white">
             {t("mentor.title")}
           </span>
           <span
@@ -128,7 +128,7 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-balsamiq font-bold text-xs text-white tracking-wide">
+              <span className="font-display font-bold text-xs text-white tracking-wide">
                 {t("mentor.title")}
               </span>
               <span

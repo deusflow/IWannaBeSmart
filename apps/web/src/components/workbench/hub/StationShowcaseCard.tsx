@@ -73,7 +73,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
             <h3 className="font-display font-bold text-lg text-[#1A1D20]/70 flex items-center gap-2">
               <span>{title}</span>
             </h3>
-            <p className="text-xs font-balsamiq text-[#1A1D20]/60 mt-0.5 leading-relaxed">
+            <p className="text-xs font-sans text-[#1A1D20]/60 mt-0.5 leading-relaxed">
               {subtitle}
             </p>
           </div>
@@ -155,7 +155,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
           <h3 className="font-display font-bold text-lg text-[#1A1D20]">
             {title}
           </h3>
-          <p className="text-xs font-balsamiq text-[#1A1D20]/70 mt-0.5 leading-relaxed">
+          <p className="text-xs font-sans text-[#1A1D20]/70 mt-0.5 leading-relaxed">
             {subtitle}
           </p>
         </div>
