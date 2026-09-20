@@ -22,9 +22,12 @@ import {
   BookOpen,
   HelpCircle,
   Wrench,
+  Copy,
 } from "lucide-react";
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import type { CodeGymTaskLike } from "./useCodeGymSession";
+import { audioFx } from "../../../utils/audioFx";
+import { toast } from "../../../store/toastStore";
 
 interface CodeGymEditorProps<
   TTask extends CodeGymTaskLike,
@@ -95,6 +98,19 @@ export function CodeGymEditor<
   onOpenTheory,
 }: CodeGymEditorProps<TTask, TLang>) {
   const { t, i18n } = useTranslation();
+
+  const handleCopyCode = () => {
+    const codeToCopy = typedCode || targetCode;
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(codeToCopy).then(() => {
+        audioFx.playKeyClick();
+        toast.success(
+          t("common.copied", "Скопійовано!"),
+          `${codeToCopy.length} ${t("codegym.charsShort", "симв.")}`
+        );
+      });
+    }
+  };
 
   // Flow State Keyboard Navigation: When a round is completed, Enter or Tab automatically advances
   useEffect(() => {
@@ -255,6 +271,16 @@ export function CodeGymEditor<
               title={isWordWrap ? "Disable Line Wrap" : "Enable Line Wrap"}
             >
               Wrap
+            </button>
+            <div className="w-px h-3 bg-[#343842]" />
+            <button
+              type="button"
+              onClick={handleCopyCode}
+              className="px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+              title={t("common.copy", "Копіювати код")}
+            >
+              <Copy size={11} />
+              <span>Copy</span>
             </button>
           </div>
         </div>

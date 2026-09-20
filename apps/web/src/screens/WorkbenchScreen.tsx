@@ -31,6 +31,7 @@ import { VertexStationVictoryModal } from "../components/workbench/VertexStation
 import { FdeStationVictoryModal } from "../components/workbench/FdeStationVictoryModal";
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { CommandPaletteModal } from "../components/workbench/CommandPaletteModal";
+import { KeyboardShortcutsModal } from "../components/workbench/KeyboardShortcutsModal";
 import { AudioVolumeWidget } from "../components/workbench/AudioVolumeWidget";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Search } from "lucide-react";
@@ -76,13 +77,21 @@ export const WorkbenchScreen: React.FC = () => {
   });
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
-  // Global Command Palette Shortcut (Cmd/Ctrl + K)
+  // Global Shortcuts: Cmd/Ctrl + K (Palette) and '?' (Cheatsheet)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
+      } else if (e.key === "?" && !e.metaKey && !e.ctrlKey) {
+        const target = e.target as HTMLElement | null;
+        const isInput = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+        if (!isInput) {
+          e.preventDefault();
+          setIsShortcutsOpen((prev) => !prev);
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -319,6 +328,20 @@ export const WorkbenchScreen: React.FC = () => {
             <kbd className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[10px] font-mono font-bold text-ink-muted">
               ⌘K
             </kbd>
+          </button>
+
+          {/* Keyboard Shortcuts Trigger Button */}
+          <button
+            id="btn-shortcuts-helper"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsShortcutsOpen(true);
+            }}
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-ink/40 text-ink/70 hover:text-ink font-mono font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0"
+            title={t("shortcuts.title", "Гарячі клавіші (?)")}
+            aria-label={t("shortcuts.title", "Гарячі клавіші (?)")}
+          >
+            ?
           </button>
 
           {/* Sim-Engine Telemetry Chip */}
@@ -728,6 +751,12 @@ export const WorkbenchScreen: React.FC = () => {
       <CommandPaletteModal
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
+      />
+
+      {/* Keyboard Shortcuts Cheatsheet Modal (?) */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
       />
     </div>
   );

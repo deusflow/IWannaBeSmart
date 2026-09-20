@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, Tv, CreditCard, Warehouse, Lock, Server, GitBranch, Shield, Cloud, Briefcase } from "lucide-react";
+import { audioFx } from "../../utils/audioFx";
+import { toast } from "../../store/toastStore";
 
 interface StationOption {
   id: string;
@@ -204,8 +206,12 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
                 disabled={!station.isAvailable}
                 onClick={() => {
                   if (station.isAvailable) {
+                    audioFx.playRelayClick();
                     onSelectStation(station.id);
                     setIsOpen(false);
+                    if (station.id !== currentStationId) {
+                      toast.info(t("workbench.stationSwitched", "Станцію активовано"), station.title);
+                    }
                   }
                 }}
                 className={`w-full text-left p-2.5 rounded-xl flex items-start gap-3 transition-all duration-150 select-none outline-none ${

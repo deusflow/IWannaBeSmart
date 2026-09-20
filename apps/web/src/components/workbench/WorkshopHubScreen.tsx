@@ -4,7 +4,7 @@
  *              Decomposed into modular subcomponents (EngineerDossierBar, StationShowcaseCard, StationBlueprintIllustrations).
  */
 
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Award,
@@ -68,6 +68,18 @@ export const WorkshopHubScreen: React.FC = () => {
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
     }))
   );
+
+  type StationCategory = "all" | "systems" | "security" | "ai" | "iot";
+  const [selectedCategory, setSelectedCategory] = useState<StationCategory>("all");
+
+  const showTv = selectedCategory === "all" || selectedCategory === "systems" || selectedCategory === "iot";
+  const showPos = selectedCategory === "all" || selectedCategory === "security";
+  const showIot = selectedCategory === "all" || selectedCategory === "iot";
+  const showApi = selectedCategory === "all" || selectedCategory === "systems";
+  const showGit = selectedCategory === "all" || selectedCategory === "systems";
+  const showBandit = selectedCategory === "all" || selectedCategory === "security";
+  const showVertex = selectedCategory === "all" || selectedCategory === "ai";
+  const showFde = selectedCategory === "all" || selectedCategory === "ai";
 
   // Helper for computing module completion & stars
   const getStationStats = (tasks: Array<{ id: string }>, starsPerTask: number) => {
@@ -243,223 +255,275 @@ export const WorkshopHubScreen: React.FC = () => {
         station3ProgressPercent={station3ProgressPercent}
       />
 
-      {/* ── Station Showcase Cards Grid (6 Stations) ── */}
+      {/* ── Interactive Category Filter Bar ── */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none">
+        {[
+          { id: "all" as const, label: t("hub.categories.all", "Всі станції"), count: 8 },
+          { id: "systems" as const, label: t("hub.categories.systems", "Системи & Бекенд"), count: 3 },
+          { id: "security" as const, label: t("hub.categories.security", "Фінтех & Безпека"), count: 2 },
+          { id: "ai" as const, label: t("hub.categories.ai", "AI & MLOps"), count: 2 },
+          { id: "iot" as const, label: t("hub.categories.iot", "Апаратні & IoT"), count: 2 },
+        ].map((cat) => {
+          const isActive = selectedCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => {
+                audioFx.playKeyClick();
+                setSelectedCategory(cat.id);
+              }}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-display text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 shrink-0 ${
+                isActive
+                  ? "bg-[#1A1D20] text-white shadow-sm"
+                  : "bg-paper-subtle hover:bg-paper border border-paper-border text-ink-muted hover:text-ink"
+              }`}
+            >
+              <span>{cat.label}</span>
+              <span
+                className={`px-1.5 py-0.2 rounded-full font-mono text-[10px] ${
+                  isActive ? "bg-white/20 text-white" : "bg-black/5 text-ink-muted"
+                }`}
+              >
+                {cat.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Station Showcase Cards Grid ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-5">
         {/* Station 01: TV Station */}
-        <StationShowcaseCard
-          stationId="tv"
-          codeLabel={`${t("hub.stations.tv.code", "Модуль 1")} • 01`}
-          title={t("hub.stations.tv.title", "Станція 01: Телевізійна станція")}
-          subtitle={t(
-            "hub.stations.tv.subtitle",
-            "Фундаментальні патерни, змінні, інкапсуляція та диспетчеризація команд"
-          )}
-          blueprint={<TvBlueprintSvg />}
-          specs={t("hub.stations.tv.specs", `${CODING_TASKS.length} tasks • Smart TV • C# / Go`)}
-          currentStars={tvStats.current}
-          maxStars={tvStats.max}
-          statusType={tvStats.statusType}
-          isRecommended={!tvStats.isCompleted || xp < 100}
-          onEnter={() => handleEnterStation("tv")}
-          onViewCert={
-            tvStats.isEligible
-              ? () => {
-                  audioFx.playSuccessFanfare();
-                  setStationVictoryModalOpen(true);
-                }
-              : undefined
-          }
-          certTooltip={t("hub.viewTvCertTooltip", "Переглянути матрицю навичок та сертифікат")}
-        />
+        {showTv && (
+          <StationShowcaseCard
+            stationId="tv"
+            codeLabel={`${t("hub.stations.tv.code", "Модуль 1")} • 01`}
+            title={t("hub.stations.tv.title", "Станція 01: Телевізійна станція")}
+            subtitle={t(
+              "hub.stations.tv.subtitle",
+              "Фундаментальні патерни, змінні, інкапсуляція та диспетчеризація команд"
+            )}
+            blueprint={<TvBlueprintSvg />}
+            specs={t("hub.stations.tv.specs", `${CODING_TASKS.length} tasks • Smart TV • C# / Go`)}
+            currentStars={tvStats.current}
+            maxStars={tvStats.max}
+            statusType={tvStats.statusType}
+            isRecommended={!tvStats.isCompleted || xp < 100}
+            onEnter={() => handleEnterStation("tv")}
+            onViewCert={
+              tvStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setStationVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewTvCertTooltip", "Переглянути матрицю навичок та сертифікат")}
+          />
+        )}
 
         {/* Station 02: Fintech POS Terminal */}
-        <StationShowcaseCard
-          stationId="pos"
-          codeLabel={`${t("hub.stations.pos.code", "Модуль 2")} • 02`}
-          title={t("hub.stations.pos.title", "Станція 02: Фінтех POS-термінал")}
-          subtitle={t(
-            "hub.stations.pos.subtitle",
-            "Фінансова безпека, Guard Clauses, поліморфізм шлюзів та Dependency Injection"
-          )}
-          blueprint={<PosBlueprintSvg />}
-          specs={t("hub.stations.pos.specs", `${FINTECH_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
-          currentStars={posStats.current}
-          maxStars={posStats.max}
-          statusType={posStats.statusType}
-          starColorClass="text-amber-700"
-          onEnter={() => handleEnterStation("pos")}
-          onViewCert={
-            posStats.isEligible
-              ? () => {
-                  audioFx.playSuccessFanfare();
-                  setPosVictoryModalOpen(true);
-                }
-              : undefined
-          }
-          certTooltip={t("hub.viewFintechCertTooltip", "Переглянути комерційний сертифікат фінтех-інженера")}
-        />
+        {showPos && (
+          <StationShowcaseCard
+            stationId="pos"
+            codeLabel={`${t("hub.stations.pos.code", "Модуль 2")} • 02`}
+            title={t("hub.stations.pos.title", "Станція 02: Фінтех POS-термінал")}
+            subtitle={t(
+              "hub.stations.pos.subtitle",
+              "Фінансова безпека, Guard Clauses, поліморфізм шлюзів та Dependency Injection"
+            )}
+            blueprint={<PosBlueprintSvg />}
+            specs={t("hub.stations.pos.specs", `${FINTECH_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            currentStars={posStats.current}
+            maxStars={posStats.max}
+            statusType={posStats.statusType}
+            starColorClass="text-amber-700"
+            onEnter={() => handleEnterStation("pos")}
+            onViewCert={
+              posStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setPosVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewFintechCertTooltip", "Переглянути комерційний сертифікат фінтех-інженера")}
+          />
+        )}
 
         {/* Station 03: IoT Garage Gate (Locked Preview) */}
-        <StationShowcaseCard
-          stationId="iot"
-          codeLabel={`${t("hub.stations.iot.code", "Модуль 3")} • 03`}
-          title={t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")}
-          subtitle={t(
-            "hub.stations.iot.subtitle",
-            "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
-          )}
-          blueprint={<IotBlueprintSvg />}
-          specs="EventBus • Async I/O • C# / Go"
-          currentStars={0}
-          maxStars={0}
-          statusType="locked"
-          lockCriteria={{
-            conditionText: t("hub.unlockCondition", "Потрібно 200+ XP або Модулі 1 та 2"),
-            progressText: isStation3Unlocked ? "200/200 XP ✓" : `${xp}/200 XP`,
-            percent: station3ProgressPercent,
-            badgeText: t("hub.stations.iot.badge", "НЕЗАБАРОМ: EventBus & Async I/O"),
-          }}
-        />
+        {showIot && (
+          <StationShowcaseCard
+            stationId="iot"
+            codeLabel={`${t("hub.stations.iot.code", "Модуль 3")} • 03`}
+            title={t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")}
+            subtitle={t(
+              "hub.stations.iot.subtitle",
+              "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
+            )}
+            blueprint={<IotBlueprintSvg />}
+            specs="EventBus • Async I/O • C# / Go"
+            currentStars={0}
+            maxStars={0}
+            statusType="locked"
+            lockCriteria={{
+              conditionText: t("hub.unlockCondition", "Потрібно 200+ XP або Модулі 1 та 2"),
+              progressText: isStation3Unlocked ? "200/200 XP ✓" : `${xp}/200 XP`,
+              percent: station3ProgressPercent,
+              badgeText: t("hub.stations.iot.badge", "НЕЗАБАРОМ: EventBus & Async I/O"),
+            }}
+          />
+        )}
 
         {/* Station 04: API Forge */}
-        <StationShowcaseCard
-          stationId="api"
-          codeLabel={`${t("hub.stations.api.code", "Модуль 4")} • 04`}
-          title={t("hub.stations.api.title", "Станція 04: API Кузня")}
-          subtitle={t(
-            "hub.stations.api.subtitle",
-            "Клієнт-серверний зв'язок, HTTP кабелі, DTO контракти, авторизація та 504 Retries"
-          )}
-          blueprint={<ApiForgeBlueprintSvg />}
-          specs={t("hub.stations.api.specs", `${API_FORGE_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
-          currentStars={apiStats.current}
-          maxStars={apiStats.max}
-          statusType={apiStats.statusType}
-          accentBorderClass="hover:border-cyan-600/60"
-          starColorClass="text-cyan-700"
-          onEnter={() => handleEnterStation("api")}
-          onViewCert={
-            apiStats.isEligible
-              ? () => {
-                  audioFx.playSuccessFanfare();
-                  setApiVictoryModalOpen(true);
-                }
-              : undefined
-          }
-          certTooltip={t("hub.viewApiCertTooltip", "Переглянути сертифікат бекенд & API архітектора")}
-        />
+        {showApi && (
+          <StationShowcaseCard
+            stationId="api"
+            codeLabel={`${t("hub.stations.api.code", "Модуль 4")} • 04`}
+            title={t("hub.stations.api.title", "Станція 04: API Кузня")}
+            subtitle={t(
+              "hub.stations.api.subtitle",
+              "Клієнт-серверний зв'язок, HTTP кабелі, DTO контракти, авторизація та 504 Retries"
+            )}
+            blueprint={<ApiForgeBlueprintSvg />}
+            specs={t("hub.stations.api.specs", `${API_FORGE_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            currentStars={apiStats.current}
+            maxStars={apiStats.max}
+            statusType={apiStats.statusType}
+            accentBorderClass="hover:border-cyan-600/60"
+            starColorClass="text-cyan-700"
+            onEnter={() => handleEnterStation("api")}
+            onViewCert={
+              apiStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setApiVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewApiCertTooltip", "Переглянути сертифікат бекенд & API архітектора")}
+          />
+        )}
 
         {/* Station 05: Git Time Machine */}
-        <StationShowcaseCard
-          stationId="git"
-          codeLabel={`${t("hub.stations.git.code", "Модуль 5")} • 05`}
-          title={t("hub.stations.git.title", "Станція 05: Git Time Machine")}
-          subtitle={t(
-            "hub.stations.git.subtitle",
-            "DAG дерево комітів, паралельні гілки, 3-Way злиття, вирішення конфліктів та rebase"
-          )}
-          blueprint={<GitBlueprintSvg />}
-          specs={t("hub.stations.git.specs", `${GIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
-          currentStars={gitStats.current}
-          maxStars={gitStats.max}
-          statusType={gitStats.statusType}
-          accentBorderClass="hover:border-purple-600/60"
-          starColorClass="text-purple-800"
-          onEnter={() => handleEnterStation("git")}
-          onViewCert={
-            gitStats.isEligible
-              ? () => {
-                  audioFx.playSuccessFanfare();
-                  setGitVictoryModalOpen(true);
-                }
-              : undefined
-          }
-          certTooltip={t("hub.viewGitCertTooltip", "Переглянути сертифікат Git архітектора")}
-        />
+        {showGit && (
+          <StationShowcaseCard
+            stationId="git"
+            codeLabel={`${t("hub.stations.git.code", "Модуль 5")} • 05`}
+            title={t("hub.stations.git.title", "Станція 05: Git Time Machine")}
+            subtitle={t(
+              "hub.stations.git.subtitle",
+              "DAG дерево комітів, паралельні гілки, 3-Way злиття, вирішення конфліктів та rebase"
+            )}
+            blueprint={<GitBlueprintSvg />}
+            specs={t("hub.stations.git.specs", `${GIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            currentStars={gitStats.current}
+            maxStars={gitStats.max}
+            statusType={gitStats.statusType}
+            accentBorderClass="hover:border-purple-600/60"
+            starColorClass="text-purple-800"
+            onEnter={() => handleEnterStation("git")}
+            onViewCert={
+              gitStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setGitVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewGitCertTooltip", "Переглянути сертифікат Git архітектора")}
+          />
+        )}
 
         {/* Station 06: Cyber Bandit Lab */}
-        <StationShowcaseCard
-          stationId="bandit"
-          codeLabel={`${t("hub.stations.bandit.code", "Модуль 6")} • 06`}
-          title={t("hub.stations.bandit.title", "Станція 06: Cyber Bandit Lab")}
-          subtitle={t(
-            "hub.stations.bandit.subtitle",
-            "Етичний хакінг, перехоплення пакетів, підміна параметрів, SQL-ін'єкції та Rate Limiting"
-          )}
-          blueprint={<BanditBlueprintSvg />}
-          specs={t("hub.stations.bandit.specs", `${BANDIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
-          currentStars={banditStats.current}
-          maxStars={banditStats.max}
-          statusType={banditStats.statusType}
-          accentBorderClass="hover:border-emerald-600/60"
-          starColorClass="text-emerald-800"
-          onEnter={() => handleEnterStation("bandit")}
-          onViewCert={
-            banditStats.isEligible
-              ? () => {
-                  audioFx.playSuccessFanfare();
-                  setBanditVictoryModalOpen(true);
-                }
-              : undefined
-          }
-          certTooltip={t("hub.viewBanditCertTooltip", "Переглянути сертифікат Cyber Defense архітектора")}
-        />
+        {showBandit && (
+          <StationShowcaseCard
+            stationId="bandit"
+            codeLabel={`${t("hub.stations.bandit.code", "Модуль 6")} • 06`}
+            title={t("hub.stations.bandit.title", "Станція 06: Cyber Bandit Lab")}
+            subtitle={t(
+              "hub.stations.bandit.subtitle",
+              "Етичний хакінг, перехоплення пакетів, підміна параметрів, SQL-ін'єкції та Rate Limiting"
+            )}
+            blueprint={<BanditBlueprintSvg />}
+            specs={t("hub.stations.bandit.specs", `${BANDIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            currentStars={banditStats.current}
+            maxStars={banditStats.max}
+            statusType={banditStats.statusType}
+            accentBorderClass="hover:border-emerald-600/60"
+            starColorClass="text-emerald-800"
+            onEnter={() => handleEnterStation("bandit")}
+            onViewCert={
+              banditStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setBanditVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewBanditCertTooltip", "Переглянути сертифікат Cyber Defense архітектора")}
+          />
+        )}
 
         {/* Station 07: Vertex AI Architect */}
-        <StationShowcaseCard
-          stationId="vertex"
-          codeLabel={`${t("hub.stations.vertex.code", "Модуль 7")} • 07`}
-          title={t("hub.stations.vertex.title", "Станція 07: Vertex AI Architect")}
-          subtitle={t(
-            "hub.stations.vertex.subtitle",
-            "Хмарний MLOps: GCS пайплайни, GPU інференс, VPC Peering та моніторинг дрейфу"
-          )}
-          blueprint={<VertexBlueprintSvg />}
-          specs={t("hub.stations.vertex.specs", `${VERTEX_TASKS.length} tasks • Vertex AI & MLOps • Python / YAML`)}
-          currentStars={vertexStats.current}
-          maxStars={vertexStats.max}
-          statusType={vertexStats.statusType}
-          accentBorderClass="hover:border-blue-600/60"
-          starColorClass="text-blue-800"
-          onEnter={() => handleEnterStation("vertex")}
-          onViewCert={
-            vertexStats.isEligible
-              ? () => {
-                  audioFx.playSuccessFanfare();
-                  setVertexVictoryModalOpen(true);
-                }
-              : undefined
-          }
-          certTooltip={t("hub.viewVertexCertTooltip", "Переглянути сертифікат Vertex AI архітектора")}
-        />
+        {showVertex && (
+          <StationShowcaseCard
+            stationId="vertex"
+            codeLabel={`${t("hub.stations.vertex.code", "Модуль 7")} • 07`}
+            title={t("hub.stations.vertex.title", "Станція 07: Vertex AI Architect")}
+            subtitle={t(
+              "hub.stations.vertex.subtitle",
+              "Хмарний MLOps: GCS пайплайни, GPU інференс, VPC Peering та моніторинг дрейфу"
+            )}
+            blueprint={<VertexBlueprintSvg />}
+            specs={t("hub.stations.vertex.specs", `${VERTEX_TASKS.length} tasks • Vertex AI & MLOps • Python / YAML`)}
+            currentStars={vertexStats.current}
+            maxStars={vertexStats.max}
+            statusType={vertexStats.statusType}
+            accentBorderClass="hover:border-blue-600/60"
+            starColorClass="text-blue-800"
+            onEnter={() => handleEnterStation("vertex")}
+            onViewCert={
+              vertexStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setVertexVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewVertexCertTooltip", "Переглянути сертифікат Vertex AI архітектора")}
+          />
+        )}
 
         {/* Station 08: Field AI Deployer (FDE) */}
-        <StationShowcaseCard
-          stationId="fde"
-          codeLabel={`${t("hub.stations.fde.code", "Модуль 8")} • 08`}
-          title={t("hub.stations.fde.title", "Станція 08: Field AI Deployer (FDE)")}
-          subtitle={t(
-            "hub.stations.fde.subtitle",
-            "Інтерв'ю стейкхолдерів, адаптація legacy API, агентні графи та регламенти передачі"
-          )}
-          blueprint={<FdeBlueprintSvg />}
-          specs={t("hub.stations.fde.specs", `${FDE_TASKS.length} tasks • Applied AI • Python / TS`)}
-          currentStars={fdeStats.current}
-          maxStars={fdeStats.max}
-          statusType={fdeStats.statusType}
-          accentBorderClass="hover:border-purple-600/60"
-          starColorClass="text-purple-800"
-          onEnter={() => handleEnterStation("fde")}
-          onViewCert={
-            fdeStats.isEligible
-              ? () => {
-                  audioFx.playSuccessFanfare();
-                  setFdeVictoryModalOpen(true);
-                }
-              : undefined
-          }
-          certTooltip={t("hub.viewFdeCertTooltip", "Переглянути сертифікат Field AI Deployer")}
-        />
+        {showFde && (
+          <StationShowcaseCard
+            stationId="fde"
+            codeLabel={`${t("hub.stations.fde.code", "Модуль 8")} • 08`}
+            title={t("hub.stations.fde.title", "Станція 08: Field AI Deployer (FDE)")}
+            subtitle={t(
+              "hub.stations.fde.subtitle",
+              "Інтерв'ю стейкхолдерів, адаптація legacy API, агентні графи та регламенти передачі"
+            )}
+            blueprint={<FdeBlueprintSvg />}
+            specs={t("hub.stations.fde.specs", `${FDE_TASKS.length} tasks • Applied AI • Python / TS`)}
+            currentStars={fdeStats.current}
+            maxStars={fdeStats.max}
+            statusType={fdeStats.statusType}
+            accentBorderClass="hover:border-purple-600/60"
+            starColorClass="text-purple-800"
+            onEnter={() => handleEnterStation("fde")}
+            onViewCert={
+              fdeStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setFdeVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewFdeCertTooltip", "Переглянути сертифікат Field AI Deployer")}
+          />
+        )}
       </div>
     </div>
   );
