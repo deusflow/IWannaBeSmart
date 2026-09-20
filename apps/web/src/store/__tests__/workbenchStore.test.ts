@@ -402,6 +402,181 @@ describe("WorkbenchStore Slices", () => {
     });
   });
 
+  describe("vertexSlice (Station 07: Vertex AI Architect)", () => {
+    beforeEach(() => {
+      getStore().resetVertexState();
+    });
+
+    it("should connect GCS bucket and validate URI format", () => {
+      const invalid = getStore().connectVertexGcsBucketAction("https://invalid-bucket/path");
+      expect(invalid.success).toBe(false);
+      expect(getStore().vertexState.gcsBucket).toBeNull();
+
+      const valid = getStore().connectVertexGcsBucketAction("gs://vertex-training-lake-prod/data.parquet");
+      expect(valid.success).toBe(true);
+      expect(getStore().vertexState.gcsBucket).toBe("gs://vertex-training-lake-prod/data.parquet");
+    });
+
+    it("should set Kubeflow preprocessing pipeline step after connecting bucket", () => {
+      getStore().connectVertexGcsBucketAction("gs://vertex-training-lake-prod/data.parquet");
+      const res = getStore().setVertexPreprocessingStepAction("both");
+      expect(res.success).toBe(true);
+      expect(getStore().vertexState.preprocessingStep).toBe("both");
+    });
+
+    it("should run distributed training on TPU or GPU cluster", () => {
+      getStore().connectVertexGcsBucketAction("gs://vertex-training-lake-prod/data.parquet");
+      const res = getStore().runVertexTrainingAction("tpu-v4-8", 256, 0.0001);
+      expect(res.success).toBe(true);
+      expect(getStore().vertexState.hardwareType).toBe("tpu-v4-8");
+      expect(getStore().vertexState.batchSize).toBe(256);
+      expect(getStore().vertexState.learningRate).toBe(0.0001);
+      expect(getStore().vertexState.modelVersion).toBe(1);
+    });
+
+    it("should configure autoscaling endpoint and traffic split after training", () => {
+      getStore().connectVertexGcsBucketAction("gs://vertex-training-lake-prod/data.parquet");
+      getStore().runVertexTrainingAction("tpu-v4-8", 256, 0.0001);
+      const res = getStore().configureVertexEndpointAction({
+        autoscalingEnabled: true,
+        minReplicas: 2,
+        maxReplicas: 10,
+        trafficSplitPercent: 80,
+      });
+      expect(res.success).toBe(true);
+      expect(getStore().vertexState.endpointConfig.minReplicas).toBe(2);
+      expect(getStore().vertexState.endpointConfig.trafficSplitPercent).toBe(80);
+      expect(getStore().vertexState.pipelineStatus).toBe("serving");
+    });
+
+    it("should configure IAM least privilege and VPC peering", () => {
+      const res = getStore().configureVertexIamAction(
+        {
+          vpcPeeringEnabled: true,
+          serviceAccountEmail: "sa-vertex-prod@gcp-ml-project.iam.gserviceaccount.com",
+          deniedRoles: ["roles/owner"],
+          dataResidencyRegion: "eu-west1",
+        },
+        "service-account"
+      );
+      expect(res.success).toBe(true);
+      expect(getStore().vertexState.authPolicy).toBe("service-account");
+      expect(getStore().vertexState.iamConfig.vpcPeeringEnabled).toBe(true);
+    });
+
+    it("should monitor drift and trigger sentinel alert when serving", () => {
+      getStore().connectVertexGcsBucketAction("gs://vertex-training-lake-prod/data.parquet");
+      getStore().runVertexTrainingAction("tpu-v4-8", 256, 0.0001);
+      getStore().configureVertexEndpointAction({
+        autoscalingEnabled: true,
+        minReplicas: 2,
+        maxReplicas: 10,
+        trafficSplitPercent: 100,
+      });
+      const res = getStore().checkVertexMonitoringAction({
+        driftThreshold: 0.15,
+        latencySloMs: 50,
+        alertEmail: "sre-mlops@google.cloud",
+        retrainingTriggerEnabled: true,
+      });
+      expect(res.success).toBe(true);
+      expect(getStore().vertexState.monitoringConfig.alertEmail).toBe("sre-mlops@google.cloud");
+      expect(getStore().vertexState.driftScore).toBe(0.22);
+      expect(getStore().vertexState.alerts.length).toBeGreaterThan(0);
+    });
+
+    it("should toggle Vertex Victory Modal", () => {
+      getStore().setVertexVictoryModalOpen(true);
+      expect(getStore().isVertexVictoryModalOpen).toBe(true);
+      getStore().setVertexVictoryModalOpen(false);
+      expect(getStore().isVertexVictoryModalOpen).toBe(false);
+    });
+  });
+
+  describe("fdeSlice (Station 08: Field AI Deployer - FDE)", () => {
+    beforeEach(() => {
+      getStore().resetFdeState();
+    });
+
+    it("should record stakeholder discovery choices and dynamically adjust trust score", () => {
+      const initialTrust = getStore().fdeState.clientTrustScore;
+      const res = getStore().makeFdeDiscoveryChoiceAction("choice-1", true, 20, "cfo_approved");
+      expect(res.trustDelta).toBe(15);
+      expect(getStore().fdeState.clientTrustScore).toBe(initialTrust + 15);
+      expect(getStore().fdeState.correctChoicesMade).toBe(1);
+    });
+
+    it("should connect legacy enterprise system endpoint and configure mTLS token", () => {
+      const connRes = getStore().connectFdeLegacyApiAction("https://sap-legacy.corp.internal/soap/v1/billing");
+      expect(connRes.success).toBe(true);
+      expect(getStore().fdeState.legacyApiConnected).toBe(true);
+
+      const authRes = getStore().configureFdeAuthTokenAction("Bearer mtls_secure_vault_token_4096");
+      expect(authRes.success).toBe(true);
+      expect(getStore().fdeState.authTokenConfigured).toBe(true);
+    });
+
+    it("should connect agent pipeline nodes and configure RAG retrieval parameters", () => {
+      const nodeRes = getStore().connectFdeAgentNodeAction("retriever");
+      expect(nodeRes.success).toBe(true);
+      const retrieverNode = getStore().fdeState.agentPipeline.nodes.find((n) => n.id === "retriever");
+      expect(retrieverNode?.connected).toBe(true);
+
+      const ragRes = getStore().configureFdeRagAction(512, "https://qdrant.cluster.internal:6333");
+      expect(ragRes.success).toBe(true);
+      expect(getStore().fdeState.ragConfigured).toBe(true);
+      expect(getStore().fdeState.vectorDbConnected).toBe(true);
+    });
+
+    it("should toggle zero-trust SOC2 security guardrails", () => {
+      const secRes = getStore().toggleFdeSecurityCheckAction("pii-masking");
+      expect(secRes.posture).toBeDefined();
+      const piiCheck = getStore().fdeState.securityChecks.find((c) => c.id === "pii-masking");
+      expect(piiCheck?.passed).toBe(true);
+
+      getStore().toggleFdeSecurityCheckAction("pii-masking");
+      const piiCheckAfter = getStore().fdeState.securityChecks.find((c) => c.id === "pii-masking");
+      expect(piiCheckAfter?.passed).toBe(false);
+    });
+
+    it("should validate and submit SRE incident runbook", () => {
+      const invalid = getStore().submitFdeRunbookAction("Too short");
+      expect(invalid.success).toBe(false);
+
+      const validMarkdown = `
+# SRE Incident Runbook: Field AI Deployer (FDE)
+## Architecture and Pipeline Overview
+This document specifies the end-to-end architecture and pipeline lifecycle for our enterprise LLM integration.
+The pipeline consists of a sequential planner, RAG retriever, tool caller, output validator, and responder.
+Traffic is routed across private interconnects to prevent external interception.
+
+## Operations and Production Runbook
+- Alert Triaging & Degradation Thresholds
+- P99 latency threshold > 800ms triggers automatic scale-up
+- Error budget burn rate: 5% in 1 hour alerts on-call SRE engineer
+- Fallback Protocol: route traffic to deterministic cached responses
+- Failover from hybrid vector index to primary relational datastore
+
+## Troubleshooting and Error Resolution Guide
+- If HTTP 401 Unauthorized occurs, rotate mTLS certificates via HashiCorp Vault.
+- If HTTP 503 Service Unavailable occurs, verify SOAP legacy bridge proxy health.
+- If prompt injection is detected, quarantine session and inspect audit logs.
+- Post-mortem template: document root cause, blast radius, error timeline, and remediation items.
+      `;
+      const valid = getStore().submitFdeRunbookAction(validMarkdown);
+      expect(valid.success).toBe(true);
+      expect(valid.score).toBeGreaterThanOrEqual(70);
+      expect(getStore().fdeState.runbookWritten).toBe(true);
+    });
+
+    it("should toggle FDE Victory Modal", () => {
+      getStore().setFdeVictoryModalOpen(true);
+      expect(getStore().isFdeVictoryModalOpen).toBe(true);
+      getStore().setFdeVictoryModalOpen(false);
+      expect(getStore().isFdeVictoryModalOpen).toBe(false);
+    });
+  });
+
   describe("mentorSlice (Gamification, Mastery & Global Stars)", () => {
     it("should compute TOTAL_MAX_STARS accurately across all 7 stations", () => {
       const expectedTotal =

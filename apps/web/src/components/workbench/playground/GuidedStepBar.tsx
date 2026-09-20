@@ -43,12 +43,9 @@ export interface GuidedStepData {
   /** Task ID for didactic lookup */
   taskId?: string;
   tier?: 0 | 1 | 2;
-  codeLang?: "csharp" | "go";
+  codeLang?: string;
   workedExample?: WorkedExample;
-  targetCode?: {
-    csharp: string;
-    go: string;
-  };
+  targetCode?: Record<string, string>;
   onOpenArchitectureStudio?: () => void;
 }
 
@@ -139,10 +136,21 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
       : workedExample.sampleCode[codeLang]
     : undefined;
 
+  const defaultFallbackCode =
+    codeLang === "python"
+      ? "# Implementation goes here\n"
+      : codeLang === "yaml"
+      ? "# Pipeline configuration\n"
+      : codeLang === "typescript"
+      ? "// Implementation\n"
+      : codeLang === "go"
+      ? "tv.PowerOn()"
+      : "tv.PowerOn();";
+
   const readyCode =
     sampleWorkedCode ||
     data.targetCode?.[codeLang] ||
-    (codeLang === "go" ? "tv.PowerOn()" : "tv.PowerOn();");
+    defaultFallbackCode;
 
   const hasArchitecture = Boolean(didactic?.architectureMap);
 

@@ -22,7 +22,7 @@ export interface GuidedSolutionLayerProps {
   t: (key: string, defaultVal?: any) => string;
   simpleText: string;
   workedExample?: WorkedExample;
-  codeLang: "csharp" | "go";
+  codeLang: "csharp" | "go" | "python" | "yaml" | "typescript" | string;
   readyCode: string;
   handleRunDemo: () => void;
   isDemoRunning: boolean;
@@ -31,6 +31,40 @@ export interface GuidedSolutionLayerProps {
   didactic?: any;
   onOpenArchitectureStudio?: () => void;
 }
+
+const getLangBadge = (lang: string) => {
+  switch (lang) {
+    case "csharp":
+      return "C# (.NET)";
+    case "go":
+      return "Go (Golang)";
+    case "python":
+      return "Python 3";
+    case "yaml":
+      return "YAML Config";
+    case "typescript":
+      return "TypeScript";
+    default:
+      return lang.toUpperCase();
+  }
+};
+
+const getFileName = (lang: string) => {
+  switch (lang) {
+    case "csharp":
+      return "Program.cs";
+    case "go":
+      return "main.go";
+    case "python":
+      return "main.py";
+    case "yaml":
+      return "pipeline.yaml";
+    case "typescript":
+      return "index.ts";
+    default:
+      return `${lang}.src`;
+  }
+};
 
 export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
   t,
@@ -116,14 +150,14 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
               </button>
             )}
             <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#1A1D20]/10 font-bold">
-              {codeLang === "csharp" ? "C# (.NET)" : "Go (Golang)"}
+              {getLangBadge(codeLang)}
             </span>
           </div>
         </div>
 
         <div className="rounded-xl bg-[#181A1E] border border-[#2B2E36] p-3 shadow-inner relative overflow-hidden font-mono text-xs text-white">
           <div className="absolute top-2 right-2.5 flex items-center gap-1 text-[9px] text-gray-500 uppercase font-mono font-bold">
-            <span>{codeLang === "csharp" ? "Program.cs" : "main.go"}</span>
+            <span>{getFileName(codeLang)}</span>
           </div>
           <pre className="overflow-x-auto text-emerald-300 font-bold whitespace-pre-wrap leading-relaxed selection:bg-emerald-500/30">
             <code>{readyCode}</code>

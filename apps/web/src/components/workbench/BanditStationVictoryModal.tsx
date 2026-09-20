@@ -222,7 +222,7 @@ DATE: ${new Date().toLocaleDateString()}
             className="w-full sm:w-auto px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-xl border border-slate-700 transition-colors flex items-center justify-center gap-2"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Download className="w-4 h-4" />}
-            <span>{copied ? "Copied Certificate!" : "Export ASCII Certificate"}</span>
+            <span>{copied ? t("common.copiedCert", "Certificate Copied!") : t("common.copyCert", "Copy Certificate")}</span>
           </button>
 
           <button

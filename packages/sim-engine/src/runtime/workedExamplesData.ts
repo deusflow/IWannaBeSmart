@@ -1255,7 +1255,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Підключіть бакет gs://analytics-vault-eu та завантажте об'єкт warehouse/transactions.csv у файл /tmp/transactions.csv.",
-      hint: "Використайте storage.Client() та зверніться до bucket('analytics-vault-eu') і blob('warehouse/transactions.csv').",
+      hint: "Ініціалізуйте клієнт Cloud Storage, отримайте бакет сховища та збережіть цільовий об'єкт на диск.",
       targetCode: {
         python: `client = storage.Client()\nbucket = client.bucket("analytics-vault-eu")\nblob = bucket.blob("warehouse/transactions.csv")\nblob.download_to_filename("/tmp/transactions.csv")`,
         yaml: `dataSource:\n  type: gcs\n  uri: gs://analytics-vault-eu\n  path: warehouse/transactions.csv`,
@@ -1311,7 +1311,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Створіть пайплайн з етапом 'eval', який залежить від 'train'.",
-      hint: "Викличте .after(train_op) у Python або додайте depends_on: [train] у YAML.",
+      hint: "Вкажіть залежність оператора від кроку тренування через метод after або директиву depends_on.",
       targetCode: {
         python: `eval_op = dsl.ContainerOp(name="eval", image="gcr.io/ml/eval:v1").after(train_op)`,
         yaml: `stages:\n  - name: eval\n    image: gcr.io/ml/eval:v1\n    depends_on: [train]`,
@@ -1339,7 +1339,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Сконфігуруйте вузол TPU v4 з 4 чіпами (accelerator_type: 'TPU_V4', count: 4, machine: 'ct4p-hightpu-4t').",
-      hint: "Вкажіть machine_type='ct4p-hightpu-4t' та accelerator_type='TPU_V4'.",
+      hint: "Передайте параметри типу машини, типу прискорювача та кількості чіпів TPU до запуску завдання.",
       targetCode: {
         python: `job.run(machine_type="ct4p-hightpu-4t", accelerator_type="TPU_V4", accelerator_count=4)`,
         yaml: `compute:\n  machineType: ct4p-hightpu-4t\n  acceleratorType: TPU_V4\n  acceleratorCount: 4`,
@@ -1424,7 +1424,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Створіть ендпоінт 'fraud-endpoint' і розгорніть модель із machine_type='e2-standard-4' та 100% трафіку.",
-      hint: "Викличте Endpoint.create() та model.deploy().",
+      hint: "Створіть точку доступу через клас Endpoint та опублікуйте на ній модель.",
       targetCode: {
         python: `endpoint = aiplatform.Endpoint.create(display_name="fraud-endpoint")\nmodel.deploy(endpoint=endpoint, machine_type="e2-standard-4", traffic_percentage=100)`,
         yaml: `endpoint:\n  displayName: fraud-endpoint\n  machineType: e2-standard-4\n  traffic: 100`,
@@ -1452,7 +1452,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Сконфігуруйте автоскейлінг з min_replica_count=3 та max_replica_count=15.",
-      hint: "Передайте min_replica_count=3 і max_replica_count=15 у метод deploy.",
+      hint: "Вкажіть мінімальну та максимальну кількість реплік у параметрах розгортання.",
       targetCode: {
         python: `model.deploy(endpoint=endpoint, min_replica_count=3, max_replica_count=15)`,
         yaml: `autoscaling:\n  minReplicas: 3\n  maxReplicas: 15`,
@@ -1536,7 +1536,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Підключіть ендпоінт до мережі 'projects/corp-net/global/networks/prod-vpc' з опцією PSC.",
-      hint: "Передайте network='projects/corp-net/global/networks/prod-vpc'.",
+      hint: "Вкажіть URI корпоративної VPC-мережі у параметрах підключення.",
       targetCode: {
         python: `endpoint = aiplatform.Endpoint.create(network="projects/corp-net/global/networks/prod-vpc")`,
         yaml: `network:\n  vpcPeering: projects/corp-net/global/networks/prod-vpc\n  pscEnabled: true`,
@@ -1564,7 +1564,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Ініціалізуйте aiplatform для регіону 'europe-west1' (Бельгія) з вимогами GDPR.",
-      hint: "Передайте location='europe-west1' у aiplatform.init().",
+      hint: "Вкажіть назву цільового регіону під час ініціалізації клієнтської платформи.",
       targetCode: {
         python: `aiplatform.init(location="europe-west1")`,
         yaml: `residency:\n  region: europe-west1\n  compliance: GDPR`,
@@ -1592,7 +1592,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Встановіть поріг дрейфу 0.03 з метрикою 'wasserstein_distance'.",
-      hint: "Задайте driftThreshold: 0.03 та назву метрики.",
+      hint: "Вкажіть числовий поріг відхилення розподілу та назву метрики розходження.",
       targetCode: {
         python: `drift_config = {"feature_drift_threshold": 0.03, "divergence_metric": "wasserstein_distance"}`,
         yaml: `monitoring:\n  driftThreshold: 0.03\n  metric: wasserstein_distance`,
@@ -1620,7 +1620,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Створіть SLO-політику з P99 < 100ms та P50 < 25ms.",
-      hint: "Задайте значення targetP99Ms: 100 та targetP50Ms: 25.",
+      hint: "Вкажіть часові ліміти затримки для квантилей P99 та P50.",
       targetCode: {
         python: `slo_policy = {"p99_latency_ms": 100, "p50_latency_ms": 25}`,
         yaml: `slo:\n  targetP99Ms: 100\n  targetP50Ms: 25`,
@@ -1707,7 +1707,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     },
     finalChallenge: {
       prompt: "Зафіксуйте вузьке місце: система 'Oracle CRM', проблема 'Таймаут API > 30с', втрати: $50,000.",
-      hint: "Сформуйте об'єкт із полями system, issue та business_impact_usd.",
+      hint: "Сформуйте об'єкт із полями назви системи, суті проблеми та фінансових втрат.",
       targetCode: {
         python: `point = {"system": "Oracle CRM", "issue": "API timeout > 30s", "business_impact_usd": 50000}`,
         typescript: `const point = { system: "Oracle CRM", issue: "API timeout > 30s", businessImpactUsd: 50000 };`,
@@ -2068,7 +2068,7 @@ export const WORKED_EXAMPLES: Record<string, WorkedExample> = {
     explanation: "Фінальний тріумф FDE: система працює в бойовому режимі, бізнес-метрики перевершили очікування, підписано фінальний сертифікат приймання.",
     clozeExercise: {
       python: `certificate = {"status": "___", "client_signoff": True, "accuracy_achieved": ___}`,
-      typescript: `const signoff = { productionReady: true, clientSigned: true };`,
+      typescript: `const signoff = { productionReady: ___, clientSigned: ___ };`,
     },
     finalChallenge: {
       prompt: "Створіть об'єкт фінального підписання з полями status: 'PRODUCTION' та approved: True.",

@@ -10,25 +10,13 @@ import type { WorkedExample } from "@iw/sim-engine";
 
 export interface CodeGymTaskLike {
   id: string;
-  targetCode: {
-    csharp: string;
-    go: string;
-  };
-  clozeTemplate: {
-    csharp: string;
-    go: string;
-  };
+  targetCode: Record<string, string>;
+  clozeTemplate?: Record<string, string> | string;
   workedExample?: WorkedExample;
   sprintTimeLimit?: number;
   isBugfixTask?: boolean;
-  initialCode?: {
-    csharp: string;
-    go: string;
-  };
-  initialBrokenCode?: {
-    csharp: string;
-    go: string;
-  };
+  initialCode?: Record<string, string>;
+  initialBrokenCode?: Record<string, string>;
   transferVariant?: {
     prompt: Record<string, string>;
     hint?: Record<string, string>;
@@ -36,8 +24,12 @@ export interface CodeGymTaskLike {
   descKey: string;
 }
 
-interface UseCodeGymSessionOptions<TTask extends CodeGymTaskLike> {
+interface UseCodeGymSessionOptions<
+  TTask extends CodeGymTaskLike,
+  TLang extends string = "csharp" | "go"
+> {
   currentTask: TTask;
+  initialLang?: TLang;
   starsEarned?: number;
   onRoundComplete?: (round: 1 | 2 | 3 | 4, code: string, stats?: { wpm: number; accuracy: number }) => Promise<void> | void;
 }
@@ -77,11 +69,15 @@ function checkClozeConsistency(input: string, target: string): { isComplete: boo
   return { isComplete: false, isValid: false };
 }
 
-export function useCodeGymSession<TTask extends CodeGymTaskLike>({
+export function useCodeGymSession<
+  TTask extends CodeGymTaskLike,
+  TLang extends string = "csharp" | "go"
+>({
   currentTask,
+  initialLang,
   starsEarned = 0,
   onRoundComplete,
-}: UseCodeGymSessionOptions<TTask>) {
+}: UseCodeGymSessionOptions<TTask, TLang>) {
   const { t } = useTranslation();
 
   const [isTheoryUnlocked, setIsTheoryUnlocked] = useState<boolean>(() => starsEarned > 0);
@@ -99,19 +95,19 @@ export function useCodeGymSession<TTask extends CodeGymTaskLike>({
     }, 50);
   }, []);
 
-  const [codeLang, setCodeLang] = useState<"csharp" | "go">("csharp");
+  const [codeLang, setCodeLang] = useState<TLang>((initialLang ?? ("csharp" as unknown)) as TLang);
   const [activeRound, setActiveRound] = useState<1 | 2 | 3 | 4>(1);
   const [showTransferHint, setShowTransferHint] = useState<boolean>(false);
 
-  const targetCode = currentTask.targetCode[codeLang];
+  const targetCode = currentTask.targetCode[codeLang] ?? "";
   const clozeTemplate = useMemo(() => {
     const workedCloze = currentTask.workedExample?.clozeExercise;
     if (workedCloze) {
-      return typeof workedCloze === "string" ? workedCloze : workedCloze[codeLang];
+      return typeof workedCloze === "string" ? workedCloze : workedCloze[codeLang] ?? "";
     }
     const raw = currentTask.clozeTemplate;
     if (!raw) return "";
-    return typeof raw === "string" ? raw : raw[codeLang];
+    return typeof raw === "string" ? raw : raw[codeLang] ?? "";
   }, [currentTask, codeLang]);
 
   const sprintLimit = Math.max(

@@ -26,7 +26,7 @@ import {
 
 interface ProjectExplorerBarProps {
   currentCode?: string;
-  codeLang?: "csharp" | "go";
+  codeLang?: "csharp" | "go" | "python" | "yaml" | "typescript";
   isFintech?: boolean;
   className?: string;
   stationId?: string;
@@ -99,11 +99,29 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
           <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
           <span className="text-slate-200 font-semibold flex items-center gap-1">
             <FileCode className="w-3.5 h-3.5 text-cyan-400" />
-            {primaryCodeFile?.name || (codeLang === "csharp" ? "Program.cs" : "main.go")}
+            {primaryCodeFile?.name ||
+              (codeLang === "csharp"
+                ? "Program.cs"
+                : codeLang === "go"
+                ? "main.go"
+                : codeLang === "python"
+                ? "main.py"
+                : codeLang === "yaml"
+                ? "config.yaml"
+                : "index.ts")}
           </span>
           <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />
           <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px]">
-            {primaryCodeFile?.badge || (codeLang === "csharp" ? "entrypoint" : "package main")}
+            {primaryCodeFile?.badge ||
+              (codeLang === "csharp"
+                ? "entrypoint"
+                : codeLang === "go"
+                ? "package main"
+                : codeLang === "python"
+                ? "python3"
+                : codeLang === "yaml"
+                ? "yaml config"
+                : "module")}
           </span>
         </div>
 
@@ -131,7 +149,15 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                   <h3 className="font-mono text-sm font-bold text-slate-100 flex items-center gap-2">
                     <span>{rootFolder?.name || "Solution"}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-semibold">
-                      {codeLang === "csharp" ? "C# (.NET 9.0)" : "Go 1.23"}
+                      {codeLang === "csharp"
+                        ? "C# (.NET 9.0)"
+                        : codeLang === "go"
+                        ? "Go 1.23"
+                        : codeLang === "python"
+                        ? "Python 3.11"
+                        : codeLang === "yaml"
+                        ? "YAML Spec"
+                        : "TypeScript 5.7"}
                     </span>
                   </h3>
                   <p className="text-xs text-slate-400 font-sans">
@@ -238,9 +264,13 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                 <div className="flex-1 p-4 overflow-y-auto font-mono text-xs leading-relaxed bg-[#05080E] text-emerald-300 select-text border-b border-slate-800">
                   <pre className="whitespace-pre-wrap">
                     <code>
-                      {codeLang === "csharp"
-                        ? selectedFile?.codeSnippet?.csharp ?? ""
-                        : selectedFile?.codeSnippet?.go ?? ""}
+                      {selectedFile?.codeSnippet?.[codeLang] ??
+                        selectedFile?.codeSnippet?.csharp ??
+                        selectedFile?.codeSnippet?.python ??
+                        selectedFile?.codeSnippet?.go ??
+                        selectedFile?.codeSnippet?.yaml ??
+                        selectedFile?.codeSnippet?.typescript ??
+                        ""}
                     </code>
                   </pre>
                 </div>

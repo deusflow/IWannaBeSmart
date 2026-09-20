@@ -12,8 +12,12 @@ export interface ProjectFile {
   children?: ProjectFile[];
   badge?: string;
   codeSnippet?: {
-    csharp: string;
-    go: string;
+    csharp?: string;
+    go?: string;
+    python?: string;
+    yaml?: string;
+    typescript?: string;
+    [lang: string]: string | undefined;
   };
   description?: {
     ua: string;
@@ -115,12 +119,46 @@ export const STATION_CALLOUTS: Record<
       da: "TV tv = new TV(); allokerer hukommelse på Heap, mens referencen lever på stakken (Stack).",
     },
   },
+  vertex: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (Google Vertex AI & Cloud MLOps):",
+      en: "Demystifying Magic Code (Google Vertex AI & Cloud MLOps):",
+      da: "Afmystificering af magisk kode (Google Vertex AI & Cloud MLOps):",
+    },
+    body: {
+      ua: "Усі кроки підготовки даних, навчання та інференсу оркеструються через Kubeflow DAG та ізольовані контейнери у VPC.",
+      en: "All data preprocessing, distributed training, and serving endpoints are orchestrated via Kubeflow DAGs and isolated VPC containers.",
+      da: "Alle dataforberedelses-, trænings- og udrulningstrin orkestreres via Kubeflow DAGs og isolerede VPC-containere.",
+    },
+    note: {
+      ua: "Артефакти фіксуються в GCS, а ваги моделі зберігаються у Vertex Model Registry з прив'язкою до Git SHA.",
+      en: "Artifacts are persisted in GCS buckets, and model weights are tracked in Vertex Model Registry tied to Git SHA.",
+      da: "Artefakter gemmes i GCS buckets, og modelvægte spores i Vertex Model Registry knyttet til Git SHA.",
+    },
+  },
+  fde: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (Applied AI & Forward Deployed Engineering):",
+      en: "Demystifying Magic Code (Applied AI & Forward Deployed Engineering):",
+      da: "Afmystificering af magisk kode (Applied AI & Forward Deployed Engineering):",
+    },
+    body: {
+      ua: "Бойовий агентний граф об'єднує клієнтські legacy системи, RAG векторні бази, семантичні бар'єри та Zero-Trust автентифікацію.",
+      en: "The production agent graph integrates client legacy systems, RAG vector indexes, semantic guardrails, and Zero-Trust auth.",
+      da: "Produktionsagentgrafen integrerer klientens legacy-systemer, RAG-vektorindekser, semantiske guardrails og Zero-Trust godkendelse.",
+    },
+    note: {
+      ua: "Кожен виклик інструмента валідується проти прав сесії, а чутливі дані (PII) хешуються у незмінному аудит-журналі.",
+      en: "Every tool invocation is validated against session claims, and PII is cryptographically masked in immutable audit trails.",
+      da: "Hvert værktøjskald valideres mod sessionsrettigheder, og PII maskeres kryptografisk i uforanderlige revisionsspor.",
+    },
+  },
 };
 
 export function getStationProjectFiles(
   activeStation: string,
   isFintech: boolean,
-  codeLang: "csharp" | "go",
+  codeLang: "csharp" | "go" | "python" | "yaml" | "typescript",
   currentCode: string
 ): ProjectFile[] {
   // TV project files
@@ -587,6 +625,192 @@ ${currentCode}`,
     },
   ];
 
+  // Vertex AI project files
+  const vertexFiles: ProjectFile[] = [
+    {
+      id: "solution-root",
+      name: "VertexMLSolution",
+      type: "folder",
+      children: [
+        {
+          id: "config-yaml",
+          name: "vertex_pipeline.yaml",
+          type: "file",
+          icon: "config",
+          badge: "Config",
+          codeSnippet: {
+            yaml: `pipeline:
+  name: retail-mlops-production
+  project: gcp-corp-prod
+  region: us-central1
+  gcs_bucket: gs://retail-training-data
+  compute:
+    machine_type: a2-highgpu-1g
+    accelerator: NVIDIA_TESLA_A100
+  serving:
+    min_replicas: 2
+    max_replicas: 10
+    drift_threshold: 0.10`,
+            python: `# Pipeline configuration mapping
+PIPELINE_CONFIG = {
+    "project": "gcp-corp-prod",
+    "region": "us-central1",
+    "gcs_bucket": "gs://retail-training-data",
+    "accelerator": "NVIDIA_TESLA_A100",
+}`,
+          },
+          description: {
+            ua: "Конфігурація MLOps конвеєра: декларативний опис ресурсів, параметрів прискорювачів та лімітів автоскейлінгу.",
+            en: "MLOps pipeline declaration: declarative hardware provisioning, accelerator sizing, and auto-scaling constraints.",
+            da: "MLOps pipeline-konfiguration: deklarativ ressourcetildeling og autoskalering.",
+          },
+        },
+        {
+          id: "requirements-txt",
+          name: "requirements.txt",
+          type: "file",
+          icon: "config",
+          badge: "Pip",
+          codeSnippet: {
+            python: `google-cloud-aiplatform>=1.38.0
+google-cloud-storage>=2.14.0
+kfp>=2.6.0
+scikit-learn>=1.4.0
+torch>=2.2.0`,
+            yaml: `dependencies:
+  - google-cloud-aiplatform>=1.38.0
+  - kfp>=2.6.0`,
+          },
+          description: {
+            ua: "Залежності контейнера: бібліотеки Google Cloud AI Platform, Kubeflow SDK та PyTorch.",
+            en: "Container dependencies: Google Cloud AI Platform SDK, Kubeflow Pipelines, and tensor runtimes.",
+            da: "Container-afhængigheder: Google Cloud AI Platform og Kubeflow Pipelines.",
+          },
+        },
+        {
+          id: "program-cs",
+          name: codeLang === "yaml" ? "vertex_pipeline.yaml" : "pipeline.py",
+          type: "file",
+          icon: "code",
+          badge: "Vertex ML",
+          codeSnippet: {
+            python: `import os
+from google.cloud import aiplatform
+from kfp import dsl
+
+# Google Vertex AI Cloud MLOps Architecture
+${currentCode}`,
+            yaml: `# Google Cloud Pipeline Spec
+apiVersion: vertex.ai/v1
+kind: PipelineJob
+metadata:
+  name: dynamic-training-run
+spec:
+${currentCode}`,
+          },
+          description: {
+            ua: "Головний файл конвеєра: завантаження даних з GCS, навчання на GPU/TPU, деплой на Endpoint та захист VPC.",
+            en: "Core pipeline script: GCS data lake ingestion, distributed GPU training, and secure serving deployment.",
+            da: "Hovedpipeline: GCS dataindlæsning, distribueret GPU-træning og sikker udrulning.",
+          },
+        },
+      ],
+    },
+  ];
+
+  // FDE project files
+  const fdeFiles: ProjectFile[] = [
+    {
+      id: "solution-root",
+      name: "AppliedAISolution",
+      type: "folder",
+      children: [
+        {
+          id: "package-json",
+          name: "package.json",
+          type: "file",
+          icon: "config",
+          badge: "npm",
+          codeSnippet: {
+            typescript: `{
+  "name": "enterprise-applied-ai-agent",
+  "version": "1.0.0",
+  "dependencies": {
+    "@langchain/core": "^0.3.0",
+    "axios": "^1.7.0",
+    "jose": "^5.2.0"
+  }
+}`,
+            python: `[project]
+name = "enterprise-applied-ai-agent"
+version = "1.0.0"
+dependencies = [
+    "langgraph>=0.2.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.6.0",
+]`,
+          },
+          description: {
+            ua: "Маніфест корпоративного ШІ агента: залежності інтеграції, безпеки та оркестрації агентних графів.",
+            en: "Enterprise AI Agent manifest: dependencies for legacy integration, zero-trust security, and agent workflows.",
+            da: "Enterprise AI Agent manifest: afhængigheder til legacy-integration og sikkerhed.",
+          },
+        },
+        {
+          id: "runbook-md",
+          name: "SRE_RUNBOOK.md",
+          type: "file",
+          icon: "interface",
+          badge: "Docs",
+          codeSnippet: {
+            python: `# SRE Emergency Playbook: AI Agent Incident Response
+## Incident 1: 5xx Spike on Legacy API
+- Action: Failover to fallback cache, inspect connection pool.
+## Incident 2: Prompt Injection Detected
+- Action: Quarantine session JWT, append hash to SOC2 audit log.`,
+            typescript: `# SRE Emergency Playbook: AI Agent Incident Response
+## Incident 1: 5xx Spike on Legacy API
+- Action: Failover to fallback cache, inspect connection pool.
+## Incident 2: Prompt Injection Detected
+- Action: Quarantine session JWT, append hash to SOC2 audit log.`,
+          },
+          description: {
+            ua: "Регламент аварій: інструкція для SRE чергових клієнта при збоях агентних ланцюжків та атаках.",
+            en: "SRE Runbook: step-by-step procedures for client on-call engineers during agent downtime or anomalies.",
+            da: "SRE Beredskabsplan: trinvise procedurer for fejlsøgning og gendannelse.",
+          },
+        },
+        {
+          id: "program-cs",
+          name: codeLang === "typescript" ? "agent_graph.ts" : "agent_graph.py",
+          type: "file",
+          icon: "code",
+          badge: "Agent Graph",
+          codeSnippet: {
+            python: `import httpx
+import hashlib
+from typing import Dict, Any
+
+# Enterprise Forward Deployed AI Agent System
+${currentCode}`,
+            typescript: `import axios from "axios";
+import * as crypto from "crypto";
+
+// Enterprise Forward Deployed AI Agent System
+${currentCode}`,
+          },
+          description: {
+            ua: "Бойовий агентний контур: адаптація legacy систем, RAG контекст, валідація прав JWT та запобіжники каскадних відмов.",
+            en: "Production agent architecture: legacy adapters, RAG indexing, JWT claim enforcement, and circuit breakers.",
+            da: "Produktionsagent: legacy-adaptere, RAG-kontekst og sikring mod kaskadefejl.",
+          },
+        },
+      ],
+    },
+  ];
+
+  if (activeStation === "vertex") return vertexFiles;
+  if (activeStation === "fde") return fdeFiles;
   if (activeStation === "api") return apiFiles;
   if (activeStation === "git") return gitFiles;
   if (activeStation === "bandit") return banditFiles;

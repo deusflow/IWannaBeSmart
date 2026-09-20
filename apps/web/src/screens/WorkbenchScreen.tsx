@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS } from "@iw/sim-engine";
+import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS, VERTEX_TASKS, FDE_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
@@ -19,12 +19,16 @@ import { GitCodeGymRunner } from "../components/workbench/playground/GitCodeGymR
 import { BanditBlueprintDevice } from "../components/workbench/BanditBlueprintDevice";
 import { BanditCodeGymRunner } from "../components/workbench/playground/BanditCodeGymRunner";
 import { VertexBlueprintDevice } from "../components/workbench/VertexBlueprintDevice";
+import { VertexCodeGymRunner } from "../components/workbench/playground/VertexCodeGymRunner";
 import { FdeBlueprintDevice } from "../components/workbench/FdeBlueprintDevice";
+import { FdeCodeGymRunner } from "../components/workbench/playground/FdeCodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
 import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
 import { GitStationVictoryModal } from "../components/workbench/GitStationVictoryModal";
 import { BanditStationVictoryModal } from "../components/workbench/BanditStationVictoryModal";
+import { VertexStationVictoryModal } from "../components/workbench/VertexStationVictoryModal";
+import { FdeStationVictoryModal } from "../components/workbench/FdeStationVictoryModal";
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Volume2, VolumeX, Trophy, LayoutGrid } from "lucide-react";
@@ -91,6 +95,10 @@ export const WorkbenchScreen: React.FC = () => {
     setGitVictoryModalOpen,
     isBanditVictoryModalOpen,
     setBanditVictoryModalOpen,
+    isVertexVictoryModalOpen,
+    setVertexVictoryModalOpen,
+    isFdeVictoryModalOpen,
+    setFdeVictoryModalOpen,
     currentStationId,
     setCurrentStationId,
     currentView,
@@ -116,6 +124,10 @@ export const WorkbenchScreen: React.FC = () => {
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
       isBanditVictoryModalOpen: s.isBanditVictoryModalOpen,
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
+      isVertexVictoryModalOpen: s.isVertexVictoryModalOpen,
+      setVertexVictoryModalOpen: s.setVertexVictoryModalOpen,
+      isFdeVictoryModalOpen: s.isFdeVictoryModalOpen,
+      setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
       currentStationId: s.currentStationId,
       setCurrentStationId: s.setCurrentStationId,
       currentView: s.currentView,
@@ -156,6 +168,16 @@ export const WorkbenchScreen: React.FC = () => {
   ).length;
   const isBanditCompleted = completedBanditCount >= BANDIT_TASKS.length;
 
+  const completedVertexCount = VERTEX_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isVertexCompleted = completedVertexCount >= VERTEX_TASKS.length;
+
+  const completedFdeCount = FDE_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isFdeCompleted = completedFdeCount >= FDE_TASKS.length;
+
   const isCurrentStationCompleted =
     currentStationId === "pos"
       ? isPosCompleted
@@ -165,6 +187,10 @@ export const WorkbenchScreen: React.FC = () => {
       ? isGitCompleted
       : currentStationId === "bandit"
       ? isBanditCompleted
+      : currentStationId === "vertex"
+      ? isVertexCompleted
+      : currentStationId === "fde"
+      ? isFdeCompleted
       : isTvCompleted;
 
   const currentStationProgressText =
@@ -176,6 +202,10 @@ export const WorkbenchScreen: React.FC = () => {
       ? `${completedGitCount}/${GIT_TASKS.length} ✓`
       : currentStationId === "bandit"
       ? `${completedBanditCount}/${BANDIT_TASKS.length} ✓`
+      : currentStationId === "vertex"
+      ? `${completedVertexCount}/${VERTEX_TASKS.length} ✓`
+      : currentStationId === "fde"
+      ? `${completedFdeCount}/${FDE_TASKS.length} ✓`
       : `${completedTvCount}/${CODING_TASKS.length} ✓`;
 
   useEffect(() => {
@@ -255,6 +285,10 @@ export const WorkbenchScreen: React.FC = () => {
                     ? t("git.title", "Git Time Machine: Visual DAG & CLI")
                     : currentStationId === "bandit"
                     ? t("bandit.title", "Cyber Bandit Lab: Ethical Security")
+                    : currentStationId === "vertex"
+                    ? t("hub.stations.vertex.title", "Vertex AI Architect: Cloud MLOps")
+                    : currentStationId === "fde"
+                    ? t("hub.stations.fde.title", "Field AI Deployer (FDE): Enterprise AI")
                     : t("level.level1Title", { defaultValue: tvLevel01.title })}
                 </span>
               </div>
@@ -292,6 +326,10 @@ export const WorkbenchScreen: React.FC = () => {
                   setGitVictoryModalOpen(true);
                 } else if (currentStationId === "bandit") {
                   setBanditVictoryModalOpen(true);
+                } else if (currentStationId === "vertex") {
+                  setVertexVictoryModalOpen(true);
+                } else if (currentStationId === "fde") {
+                  setFdeVictoryModalOpen(true);
                 } else {
                   setStationVictoryModalOpen(true);
                 }
@@ -306,6 +344,10 @@ export const WorkbenchScreen: React.FC = () => {
                   ? t("git.victoryTitle", "Git Time Machine: Завершено")
                   : currentStationId === "bandit"
                   ? t("bandit.victory.title", "Cyber Bandit Lab: Завершено")
+                  : currentStationId === "vertex"
+                  ? t("vertex.victory.title", "Vertex AI Architect: Завершено")
+                  : currentStationId === "fde"
+                  ? t("fde.victory.title", "Field AI Deployer: Завершено")
                   : t("victoryModal.title", "Телевізійна станція: Завершено")
               }
             >
@@ -398,14 +440,30 @@ export const WorkbenchScreen: React.FC = () => {
         </main>
       ) : currentStationId === "vertex" ? (
         <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
-          <div className="w-full">
-            <VertexBlueprintDevice />
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: Vertex AI Blueprint Device (Pipeline, Compute Cluster, Drift Sentinel) */}
+            <div className="w-full xl:w-[720px] 2xl:w-[780px] shrink-0 xl:sticky top-2">
+              <VertexBlueprintDevice />
+            </div>
+
+            {/* Right: Vertex Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <VertexCodeGymRunner />
+            </div>
           </div>
         </main>
       ) : currentStationId === "fde" ? (
         <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
-          <div className="w-full">
-            <FdeBlueprintDevice />
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: FDE Blueprint Device (Stakeholder Discovery, Legacy Bridge, SRE Playbook) */}
+            <div className="w-full xl:w-[720px] 2xl:w-[780px] shrink-0 xl:sticky top-2">
+              <FdeBlueprintDevice />
+            </div>
+
+            {/* Right: FDE Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <FdeCodeGymRunner />
+            </div>
           </div>
         </main>
       ) : (
@@ -627,6 +685,20 @@ export const WorkbenchScreen: React.FC = () => {
       <BanditStationVictoryModal
         isOpen={isBanditVictoryModalOpen}
         onClose={() => setBanditVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 7: Vertex AI Architect Station Victory Modal */}
+      <VertexStationVictoryModal
+        isOpen={isVertexVictoryModalOpen}
+        onClose={() => setVertexVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 8: Field AI Deployer Station Victory Modal */}
+      <FdeStationVictoryModal
+        isOpen={isFdeVictoryModalOpen}
+        onClose={() => setFdeVictoryModalOpen(false)}
         xp={xp}
       />
     </div>

@@ -131,4 +131,53 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
       }
     }
   });
+
+  it("should verify all static t('...') calls in apps/web/src exist in locales", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+
+    function getFiles(dir: string): string[] {
+      let results: string[] = [];
+      const list = fs.readdirSync(dir);
+      for (const file of list) {
+        const fullPath = path.join(dir, file);
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) {
+          results = results.concat(getFiles(fullPath));
+        } else if (file.endsWith(".tsx") || file.endsWith(".ts")) {
+          results.push(fullPath);
+        }
+      }
+      return results;
+    }
+
+    const webSrc = path.resolve(__dirname, "../../../../apps/web/src");
+    const files = getFiles(webSrc);
+    const regex = /\bt\(\s*["']([a-zA-Z0-9_.-]+)["']/g;
+    const missingKeys: { file: string; key: string }[] = [];
+
+    for (const file of files) {
+      if (file.includes("__tests__")) continue;
+      const content = fs.readFileSync(file, "utf-8");
+      let match;
+      while ((match = regex.exec(content)) !== null) {
+        const key = match[1];
+        // Dynamic or template keys or keys with prefix handled elsewhere
+        if (key.startsWith("task-") || key.includes("${")) continue;
+        if (!enFlat.includes(key)) {
+          // Check if key is a prefix for an object in enTranslation
+          const isPrefix = enFlat.some(k => k.startsWith(key + "."));
+          if (!isPrefix) {
+            missingKeys.push({ file: path.basename(file), key });
+          }
+        }
+      }
+    }
+
+    if (missingKeys.length > 0) {
+      console.warn("Missing locale keys in apps/web/src:", missingKeys);
+    }
+    expect(missingKeys).toEqual([]);
+  });
 });
+

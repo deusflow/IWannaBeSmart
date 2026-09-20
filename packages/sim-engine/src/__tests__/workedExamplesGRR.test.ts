@@ -11,6 +11,8 @@ import {
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
+  VERTEX_TASKS,
+  FDE_TASKS,
   WORKED_EXAMPLES,
   getWorkedExample,
   type WorkedExample,
@@ -23,11 +25,13 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
     { name: "API Forge (Station 04)", tasks: API_FORGE_TASKS, expectedCount: 6 },
     { name: "Git Time Machine (Station 05)", tasks: GIT_TASKS, expectedCount: 6 },
     { name: "Cyber Bandit Lab (Station 06)", tasks: BANDIT_TASKS, expectedCount: 6 },
+    { name: "Vertex AI Architect (Station 07)", tasks: VERTEX_TASKS, expectedCount: 15 },
+    { name: "Field AI Deployer (Station 08)", tasks: FDE_TASKS, expectedCount: 15 },
   ];
 
-  it("should cover all 43 total tasks across all 5 active stations", () => {
+  it("should cover all 73 total tasks across all 7 active stations", () => {
     const totalCount = allStations.reduce((sum, s) => sum + s.tasks.length, 0);
-    expect(totalCount).toBe(43);
+    expect(totalCount).toBe(73);
   });
 
   allStations.forEach(({ name, tasks, expectedCount }) => {
@@ -51,8 +55,11 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
             if (typeof worked.sampleCode === "string") {
               expect(worked.sampleCode.trim().length).toBeGreaterThan(0);
             } else {
-              expect(worked.sampleCode.csharp.trim().length).toBeGreaterThan(0);
-              expect(worked.sampleCode.go.trim().length).toBeGreaterThan(0);
+              const keys = Object.keys(worked.sampleCode);
+              expect(keys.length).toBeGreaterThan(0);
+              for (const k of keys) {
+                expect(worked.sampleCode[k].trim().length).toBeGreaterThan(0);
+              }
             }
 
             const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
@@ -74,8 +81,11 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
             if (typeof worked.clozeExercise === "string") {
               expect(worked.clozeExercise).toContain("___");
             } else {
-              expect(worked.clozeExercise.csharp).toContain("___");
-              expect(worked.clozeExercise.go).toContain("___");
+              const keys = Object.keys(worked.clozeExercise);
+              expect(keys.length).toBeGreaterThan(0);
+              for (const k of keys) {
+                expect(worked.clozeExercise[k]).toContain("___");
+              }
             }
           });
 
@@ -91,8 +101,11 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
             if (typeof worked.finalChallenge.targetCode === "string") {
               expect(worked.finalChallenge.targetCode.trim().length).toBeGreaterThan(0);
             } else {
-              expect(worked.finalChallenge.targetCode.csharp.trim().length).toBeGreaterThan(0);
-              expect(worked.finalChallenge.targetCode.go.trim().length).toBeGreaterThan(0);
+              const keys = Object.keys(worked.finalChallenge.targetCode);
+              expect(keys.length).toBeGreaterThan(0);
+              for (const k of keys) {
+                expect(worked.finalChallenge.targetCode[k].trim().length).toBeGreaterThan(0);
+              }
             }
           });
         });
@@ -142,6 +155,22 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
       const banditTask3 = getWorkedExample("task-bandit-3-wire-tap");
       expect(banditTask3?.demonstrationLog.terminal.some((l) => l.includes("HMAC"))).toBe(true);
     });
+
+    it("Vertex AI worked examples should reference GCS, pipelines, hyperparameters, or endpoints", () => {
+      const vertexTask1 = getWorkedExample("task-vertex-1-gcs-connect");
+      expect(toStr(vertexTask1?.demonstrationLog.hardwareEffect).toLowerCase()).toContain("gcs");
+
+      const vertexTask7 = getWorkedExample("task-vertex-7-deploy-endpoint");
+      expect(vertexTask7?.demonstrationLog.terminal.some((l) => l.includes("ENDPOINT") || l.includes("traffic"))).toBe(true);
+    });
+
+    it("FDE worked examples should reference discovery, legacy systems, multi-agent, or runbooks", () => {
+      const fdeTask1 = getWorkedExample("task-fde-1-initial-meeting");
+      expect(toStr(fdeTask1?.demonstrationLog.hardwareEffect).toLowerCase()).toContain("стейкхолдер");
+
+      const fdeTask13 = getWorkedExample("task-fde-13-runbook");
+      expect(fdeTask13?.demonstrationLog.terminal.some((l) => l.includes("RUNBOOK") || l.includes("INCIDENT"))).toBe(true);
+    });
   });
 
   describe("Anti-Leak Pedagogical Integrity", () => {
@@ -173,38 +202,33 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
         ...API_FORGE_TASKS,
         ...GIT_TASKS,
         ...BANDIT_TASKS,
+        ...VERTEX_TASKS,
+        ...FDE_TASKS,
       ];
 
+      const leaks: string[] = [];
       for (const task of allTasks) {
         const we = task.workedExample || WORKED_EXAMPLES[task.id] || getWorkedExample(task.id);
         expect(we).toBeDefined();
         const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
         const hintNorm = normalize(toStr(we.finalChallenge.hint));
-        const targetCs =
+        if (!hintNorm) continue;
+
+        const targetSnippets: string[] =
           typeof we.finalChallenge.targetCode === "string"
-            ? we.finalChallenge.targetCode
-            : we.finalChallenge.targetCode.csharp;
-        const targetGo =
-          typeof we.finalChallenge.targetCode === "string"
-            ? we.finalChallenge.targetCode
-            : we.finalChallenge.targetCode.go;
+            ? [we.finalChallenge.targetCode]
+            : Object.values(we.finalChallenge.targetCode);
 
-        const targetCsNorm = normalize(targetCs);
-        const targetGoNorm = normalize(targetGo);
-
-        const leakCs = findLongestCommonSubstring(hintNorm, targetCsNorm);
-        const leakGo = findLongestCommonSubstring(hintNorm, targetGoNorm);
-
-        expect(
-          leakCs.length,
-          `Hint for task [${task.id}] leaks C# target code substring: "${leakCs}"`
-        ).toBeLessThan(15);
-
-        expect(
-          leakGo.length,
-          `Hint for task [${task.id}] leaks Go target code substring: "${leakGo}"`
-        ).toBeLessThan(15);
+        for (const target of targetSnippets) {
+          const targetNorm = normalize(target);
+          const leak = findLongestCommonSubstring(hintNorm, targetNorm);
+          if (leak.length >= 15) {
+            leaks.push(`Task [${task.id}] leaks "${leak}" (${leak.length} chars)`);
+          }
+        }
       }
+
+      expect(leaks).toEqual([]);
     });
   });
 });

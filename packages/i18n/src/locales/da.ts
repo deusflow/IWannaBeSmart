@@ -20,6 +20,8 @@ export const daTranslation = {
         showAll: "Vis alle",
         copy: "Kopiér",
         copied: "Kopieret",
+        copyCert: "Kopier certifikat",
+        copiedCert: "Certifikat kopieret!",
       },
       auth: {
         titleSignIn: "Ingeniørautorisation",
@@ -101,6 +103,8 @@ export const daTranslation = {
         badgeCertStation4: "Station 04-certifikat (API Forge)",
         badgeCertStation5: "Station 05-certifikat (Git Time Machine)",
         badgeCertStation6: "Station 06-certifikat (Cyber Bandit Lab)",
+        badgeCertStation7: "Station 07-certifikat (Vertex AI Architect)",
+        badgeCertStation8: "Station 08-certifikat (Field AI Deployer)",
         certInProgress: "I GANG",
         certLocked: "IKKE STARTET",
         viewCertBtn: "Se certifikat",
@@ -1333,6 +1337,366 @@ export const daTranslation = {
             success: "✅ Defense in Depth verificeret! Alle simulerede penetrationsangreb afvist.",
           },
         },
+      },
+      vertex: {
+            "title": "Station 07: Vertex AI Architect",
+            "stationTitle": "Station 07: Vertex AI Architect",
+            "stationSubtitle": "Cloud MLOps: GCS-pipelines, GPU-inferens, VPC-peering og drift-telemetri",
+            "ui": {
+                  "title": "Produktions-ML-pipeline, GPU-autoskalering og datadrift-telemetri",
+                  "certButton": "Certifikat"
+            },
+            "skills": {
+                  "gcsDataLake": "Cloud Storage Data Lake & artefaktsporing",
+                  "distributedCompute": "Styring af GPU/TPU-acceleratorklynger",
+                  "autoscalingServing": "Autoskalering med P99 latenstid under 150ms",
+                  "vpcSecurity": "VPC Service Controls & Private Service Connect",
+                  "driftSentinel": "Kontinuerlig drift-detektion og automatisk genoptræning"
+            },
+            "victory": {
+                  "title": "Google Cloud Certified: Professional ML Engineer",
+                  "desc": "Du har designet en autonom, skalerbar ML-platform på Google Cloud med nul-tillid, autoskalering og drift-selvheling!",
+                  "competencies": "Mestrede Cloud MLOps kompetencer (5/5):",
+                  "returnHub": "Tilbage til Hub"
+            },
+            "rounds": {
+                  "dataPipeline": "Runde 1: Data Pipeline",
+                  "trainingJob": "Runde 2: Training Compute",
+                  "servingEndpoint": "Runde 3: Serving & Autoscaling",
+                  "securityIam": "Runde 4: Security & VPC",
+                  "driftMonitoring": "Runde 5: Drift Telemetry"
+            },
+            "tasks": {
+                  "task1": {
+                        "title": "Opgave 1: Forbindelse til GCS Data Lake",
+                        "concept": "Google Cloud Storage objektlagring (gs://)",
+                        "desc": "Forbind en sikker Cloud Storage-bucket og bekræft indlæsning af træningsdatasæt.",
+                        "hint": "Brug URI-formatet gs://retail-training-data med storage.Client().",
+                        "simple": "AI kan ikke lære uden rådata. Vi forbinder et pålideligt GCS cloud-lager.",
+                        "engineering": "Dataisolering via Cloud IAM og MD5-tjeksumverifikation på store datasæt.",
+                        "success": "✅ GCS-bucket monteret, datasæt verificeret og klar til pipeline!"
+                  },
+                  "task2": {
+                        "title": "Opgave 2: Rensning og normalisering af features",
+                        "concept": "Feature Engineering & StandardScaler",
+                        "desc": "Normaliser kontinuerlige numeriske features med StandardScaler og gem som Parquet.",
+                        "hint": "Anvend scaler.fit_transform på numeriske kolonner.",
+                        "simple": "Hvis priser er i millioner og alder i tiere, bliver modellen forvirret. Vi skalerer det ensartet.",
+                        "engineering": "Z-score-standardisering forhindrer eksploderende gradienter under vægtoptimering.",
+                        "success": "✅ Features normaliseret, gradientnedstigning vil være stabil!"
+                  },
+                  "task3": {
+                        "title": "Opgave 3: Kubeflow Pipeline DAG-kompilering",
+                        "concept": "Kubeflow Pipelines (KFP v2 SDK)",
+                        "desc": "Deklarer en MLOps pipeline rettet acyklisk graf (DAG) med isolerede containere.",
+                        "hint": "Brug @dsl.pipeline-dekoratøren og kæd trin via .after(prep_op).",
+                        "simple": "Vi definerer en opskrift: først dataforberedelse og derefter træning.",
+                        "engineering": "Deterministisk reproducerbarhed og artefaktsporing i Vertex ML Metadata.",
+                        "success": "✅ Pipeline DAG kompileret uden cykliske afhængigheder!"
+                  },
+                  "task4": {
+                        "title": "Opgave 4: Hardware-accelerator dimensionering",
+                        "concept": "NVIDIA A100 & Google TPU v4",
+                        "desc": "Vælg den optimale beregningsaccelerator (A100 eller TPU v4) ud fra VRAM og omkostninger.",
+                        "hint": "Angiv machine_type='a2-highgpu-2g' og accelerator_type='NVIDIA_TESLA_A100'.",
+                        "simple": "Træning på en CPU tager år. Vi vælger kraftfulde GPU'er eller TPU'er.",
+                        "engineering": "NVLink 600 GB/s båndbredde til forsinkelsesfri dataparallellisering.",
+                        "success": "✅ Beregningsknude med accelerator klynge allokeret!"
+                  },
+                  "task5": {
+                        "title": "Opgave 5: Hyperparameter-indstilling",
+                        "concept": "Learning Rate, Batch Size, Weight Decay",
+                        "desc": "Konfigurer learning rate, batchstørrelse og weight decay for stabil konvergens.",
+                        "hint": "Indstil learning_rate: 0.0001 og batch_size: 64.",
+                        "simple": "For store skridt overser optimum. For små tager evigheder. Vi kalibrerer balancen.",
+                        "engineering": "AdamW optimering med Cosine Annealing forhindrer overfitting.",
+                        "success": "✅ Hyperparametre valideret, tabskonvergens optimeret!"
+                  },
+                  "task6": {
+                        "title": "Opgave 6: Kørsel af Vertex Training Job",
+                        "concept": "aiplatform.CustomTrainingJob",
+                        "desc": "Eksekver distribueret træning på Vertex AI og overvåg valideringstab.",
+                        "hint": "Kald job.run(model_display_name='...', sync=True).",
+                        "simple": "Starter træningsprocessen: millioner af eksempler passerer gennem netværket.",
+                        "engineering": "Synkron modelgemning i Model Registry med commit-tags til revision.",
+                        "success": "✅ Model trænet og registreret i Vertex Model Registry!"
+                  },
+                  "task7": {
+                        "title": "Opgave 7: Endpoint-udrulning og servering",
+                        "concept": "Vertex AI Prediction Endpoint",
+                        "desc": "Opret et online Vertex-endpoint og udrul modellen til at håndtere forudsigelser.",
+                        "hint": "Kald Endpoint.create(...) efterfulgt af model.deploy(...).",
+                        "simple": "Modellen går live. Vi åbner et server-interface, hvor apps kan sende forespørgsler.",
+                        "engineering": "Containeriseret servering via Triton/TF-Serving med gRPC for lav latenstid.",
+                        "success": "✅ Model udrullet, online endpoint svarer med 200 OK!"
+                  },
+                  "task8": {
+                        "title": "Opgave 8: Horisontal pod-autoskalering",
+                        "concept": "Min/Max Replicas & Mål CPU/GPU",
+                        "desc": "Beskyt mod spidsbelastninger: konfigurer replikaer (min 2, max 10) og CPU-tærskel.",
+                        "hint": "Angiv min_replica_count=2 og max_replica_count=10 i deploy().",
+                        "simple": "I rolige perioder kører 2 servere. Ved spidsbelastning skaleres automatisk op til 10.",
+                        "engineering": "Multi-Zone High Availability sikrer 99.99% oppetid selv ved datacenterfejl.",
+                        "success": "✅ Autoskalering aktiv: infrastrukturen modstår belastning op til 500 req/s!"
+                  },
+                  "task9": {
+                        "title": "Opgave 9: Canary trafikopdeling",
+                        "concept": "A/B Testing & Canary Deployment (80/20)",
+                        "desc": "Opdel trafik: send 80% til stabil baseline v1 og 20% til canary kandidat v2.",
+                        "hint": "Brug endpoint.set_traffic_split({'deployed_model_v1': 80, 'deployed_model_v2': 20}).",
+                        "simple": "Vi risikerer ikke alle kunder på én gang: den nye model testes først på 20% af trafikken.",
+                        "engineering": "Statistisk evaluering af latenstid og fejlrater før fuld udrulning.",
+                        "success": "✅ Canary-routing konfigureret: 20% af trafikken tester sikkert den nye model!"
+                  },
+                  "task10": {
+                        "title": "Opgave 10: Mindste privilegiums tjenestekonto",
+                        "concept": "Cloud IAM Least Privilege (PoLP)",
+                        "desc": "Styrk sikkerheden: fjern brede rettigheder og tildel specifikke roller.",
+                        "hint": "Bloker roles/owner og bind roles/aiplatform.user.",
+                        "simple": "Giv aldrig kokken nøglerne til pengeskabet. Tjenestekontoen får kun nødvendige adgange.",
+                        "engineering": "Begrænsning af skadesomfang der forhindrer eskalering af rettigheder.",
+                        "success": "✅ Cloud IAM sikret i henhold til princippet om mindste privilegium!"
+                  },
+                  "task11": {
+                        "title": "Opgave 11: VPC Peering & Private Service Connect",
+                        "concept": "VPC Peering & Private Service Connect",
+                        "desc": "Skjul endpointet fra internettet: diriger trafik via Private Service Connect i et VPC.",
+                        "hint": "Overfør netværksparameter med intern VPC URI til oprettelse af endpoint.",
+                        "simple": "Vi bygger en lukket tunnel: kun interne servere kan tilgå modellen.",
+                        "engineering": "Dataudtræksbeskyttelse ved at deaktivere offentlig IP og håndhæve VPC-SC.",
+                        "success": "✅ Model fuldt isoleret i internt VPC uden offentlig adgang!"
+                  },
+                  "task12": {
+                        "title": "Opgave 12: Databopæl & GDPR-grænser",
+                        "concept": "Geografisk databopæl & Access Context Manager",
+                        "desc": "Håndhæv databopæl inden for europe-west4 for at overholde GDPR.",
+                        "hint": "Initialiser aiplatform.init(location='europe-west4').",
+                        "simple": "Loven kræver at europæiske data bliver i Europa. Vi låser al beregning til EU-datacentre.",
+                        "engineering": "Datasuverænitet der forhindrer replikering på tværs af landegrænser.",
+                        "success": "✅ Regional grænse låst til EU, GDPR-overholdelse bekræftet!"
+                  },
+                  "task13": {
+                        "title": "Opgave 13: Datadrift-detektion",
+                        "concept": "Jensen-Shannon Divergence & Drift Sentinel",
+                        "desc": "Konfigurer overvågning til at registrere statistisk afvigelse fra baseline-data.",
+                        "hint": "Indstil driftThreshold: 0.05 med jensen_shannon divergensen.",
+                        "simple": "Verden ændrer sig: kundeadfærd ændrer sig over tid. Sensoren advarer mod forældede data.",
+                        "engineering": "Glidende vindue Jensen-Shannon-beregning der forhindrer usynlig nøjagtighedsforringelse.",
+                        "success": "✅ Drift-overvågning aktiv: statistisk dataafvigelse registreres straks!"
+                  },
+                  "task14": {
+                        "title": "Opgave 14: Latenstid SLO & fejlbudget",
+                        "concept": "P99 Latenstid & fejlbudget",
+                        "desc": "Etabler streng P99 latenstid (<150ms) og opsæt alarmer ved overskridelse af fejlbudgettet.",
+                        "hint": "Indstil targetP99Ms: 150 og targetP50Ms: 35.",
+                        "simple": "AI skal svare lynhurtigt. Hvis forudsigelser tager over 150ms, alarmeres vagten.",
+                        "engineering": "Google SRE Multi-Window-alarmering der minimerer falske alarmer.",
+                        "success": "✅ Latenstid SLO aktiv: P99 holdes stabilt på 112ms!"
+                  },
+                  "task15": {
+                        "title": "Opgave 15: Automatisk genoptræningsløkke",
+                        "concept": "Continuous Training (CT) & hændelsesdrevet genoptræning",
+                        "desc": "Luk MLOps-kredsløbet: udløs automatisk genoptræningspipeline ved datadrift-alarmer.",
+                        "hint": "Konfigurer alert_triggered trigger der peger på genoptræningspipelinen.",
+                        "simple": "Fuld autopilot: systemet opdager forældelse, henter friske data og opdaterer sig selv.",
+                        "engineering": "MLOps Level 2 arkitektur: autonom CI/CD/CT med automatiske kvalitetstjek.",
+                        "success": "✅ Lukket MLOps-kredsløb fuldført: selvhelende og kontinuerlig læring er aktiv!"
+                  }
+            }
+      },
+      fde: {
+            "title": "Station 08: Field AI Deployer (FDE)",
+            "stationTitle": "Station 08: Field AI Deployer (FDE)",
+            "stationSubtitle": "Enterprise AI: Interessentmøder, ældre systemer, multi-agent-grafer og driftsmanualer",
+            "ui": {
+                  "title": "Kundeopdagelse, ældre systemadapter og implementering af enterprise-agenter",
+                  "certButton": "Certifikat"
+            },
+            "skills": {
+                  "stakeholderAlignment": "Interessentinterview og forretningsmæssigt afkast (ROI)",
+                  "legacyIntegration": "Robuste adaptere og defensiv datavalidering",
+                  "agentOrchestration": "Styring af tilstandsbaserede agent-systemer",
+                  "zeroTrustSecurity": "Zero Trust-sikkerhed og forsvar mod injection",
+                  "clientRunbook": "Driftsmanualer og overdragelse til enterprise-drift"
+            },
+            "victory": {
+                  "title": "Certificeret Forward Deployed Engineer (Enterprise AI)",
+                  "desc": "Du har med succes bygget bro mellem moderne AI og komplekse virksomhedssystemer og leveret en sikker produktionsklar løsning!",
+                  "competencies": "Mestrede Forward Deployed kompetencer (5/5):",
+                  "returnHub": "Tilbage til Hub"
+            },
+            "rounds": {
+                  "discovery": "Runde 1: Discovery",
+                  "integration": "Runde 2: Integration",
+                  "agentDesign": "Runde 3: Agent Architecture",
+                  "securityAudit": "Runde 4: Zero Trust Security",
+                  "clientHandoff": "Runde 5: Production Handoff"
+            },
+            "dialogue": {
+                  "task1": {
+                        "opening": "Goddag! Vi leder efter en løsning til at automatisere fakturaafstemning. Vores team er overbelastet af manuel kontrol af 45.000 månedlige fakturaer. Hvordan vil jeres AI-agent hjælpe os?",
+                        "prompt1": "Hvordan håndterer jeres system situationer, hvor en faktura indeholder uoverensstemmelser eller priser afviger fra aftalen?",
+                        "option1a": "A) Vores AI er 100% autonom og retter automatisk tallene uden jeres medarbejderes indblanding.",
+                        "option1b": "B) Vi etablerer en Human-in-the-Loop proces: matcher tilliden under 95%, sendes sagen til en revisor.",
+                        "option1c": "C) Vi afviser og blokerer automatisk alle betalinger med uoverensstemmelser.",
+                        "consequence1a": "Interessenten er bekymret: 'Vi kan ikke lade en uigennemskuelig model ændre regnskabet. Det strider mod revisionsreglerne.' Tilliden faldt.",
+                        "consequence1b": "Interessenten nikker anerkendende: 'Præcis den gennemtænkte tilgang vi har brug for. Vi bevarer kontrollen hvor der er risiko.' Tilliden steg!",
+                        "consequence1c": "Interessenten rynker panden: 'Hvis vi blokerer nøgleleverandører, stopper produktionen.' Tilliden faldt.",
+                        "reactionGood": "Interessenten er imponeret over den professionelle tilgang.",
+                        "reactionBad": "Interessenten tvivler på løsningens modenhed og sikkerhed."
+                  }
+            },
+            "security": {
+                  "iamLeastPrivilege": "Mindste privilegium IAM",
+                  "promptInjection": "Prompt Injection-forsvar",
+                  "dataResidency": "Databopæl (GDPR)",
+                  "piiMasking": "PII-datamaskering",
+                  "rateLimiting": "Hastighedsbegrænsning",
+                  "auditLogging": "Uforanderlig auditlog"
+            },
+            "integration": {
+                  "hint401": "Medsend et gyldigt Bearer-token i Authorization-headeren.",
+                  "hint404": "Verificer den præcise API-sti i gateway-konfigurationen.",
+                  "hint503": "Sikkerhedskredsløb aktiveret på grund af timeout i upstream-systemet.",
+                  "hint400": "Inkluder den påkrævede X-API-Version-header i anmodningen."
+            },
+            "tasks": {
+                  "task1": {
+                        "title": "Opgave 1: Interessentmøde & forretningssmertepunkter",
+                        "concept": "Executive Discovery & Alignment",
+                        "desc": "Gennemfør et indledende interview med interessenter for at identificere flaskehalse og opbygge tillid.",
+                        "hint": "Vælg en Human-in-the-Loop tilgang frem for urealistiske løfter om magisk AI.",
+                        "simple": "En FDE koder ikke bare, men rådgiver ledelsen. Vi lytter og foreslår pålidelige løsninger.",
+                        "engineering": "Kvantificering af forretningsmæssigt afkast (ROI) og minimering af risici tidligt i projektet.",
+                        "success": "✅ Møde gennemført, interessentens tillidsscore er steget!"
+                  },
+                  "task2": {
+                        "title": "Opgave 2: Flaskehals-kvantificering",
+                        "concept": "Forretningsmæssig påvirkning og flaskehalse",
+                        "desc": "Kvantificer økonomiske tab forårsaget af ældre systemer og prioritér automatisering.",
+                        "hint": "Find systemet med de største omkostninger og noter dets ID.",
+                        "simple": "Vi beregner omkostninger: hvis manuelle processer koster $200k/år, er AI hurtigt tjent ind.",
+                        "engineering": "FMEA-fejlanalyse og beregning af nedetidsomkostninger i enterprise-arkitekturer.",
+                        "success": "✅ Flaskehals kvantificeret, topprioritet afstemt med kunden!"
+                  },
+                  "task3": {
+                        "title": "Opgave 3: Omfangsdefinition og grænser",
+                        "concept": "Scope of Work & operationelle grænser",
+                        "desc": "Definer klare projektgrænser: hvad agenten må automatisere, og hvad der er udelukket.",
+                        "hint": "Placer direkte bankoverførsler strengt uden for projektets omfang.",
+                        "simple": "Giv aldrig en agent direkte adgang til udbetalinger. Mennesker skal godkende udbetalinger.",
+                        "engineering": "Human-in-the-loop (HITL) arkitektur til højrisiko finansielle transaktioner.",
+                        "success": "✅ Projektomfang godkendt med klare grænser og nul uautoriserede handlinger!"
+                  },
+                  "task4": {
+                        "title": "Opgave 4: Robust ældre API-adapter",
+                        "concept": "Robust HTTP-klient og eksponentiel backoff",
+                        "desc": "Forbind til en skrøbelig ERP-gateway med automatisk genforsøg og bearer-token.",
+                        "hint": "Konfigurer genforsøgsstrategi for fejlkoder 500/502/503 med 10 sekunders timeout.",
+                        "simple": "Gamle servere fejler ofte kortvarigt. Vores adapter crasher ikke, men prøver pænt igen.",
+                        "engineering": "Forebyggelse af genforsøgsstorme ved brug af tilfældig backoff-jitter.",
+                        "success": "✅ Forbindelse til ældre server etableret og sikret mod timeouts!"
+                  },
+                  "task5": {
+                        "title": "Opgave 5: Reparation af beskadiget JSON",
+                        "concept": "Defensiv parsing og rensning af data",
+                        "desc": "Reparer beskadigede svar fra et gammelt system før det sendes videre til modellen.",
+                        "hint": "Fjern efterfølgende kommaer med regex før json.loads kaldes.",
+                        "simple": "Gamle systemer sender ugyldig JSON. Vi reparerer det automatisk, så agenten ikke crasher.",
+                        "engineering": "Defensiv valideringsgrænse der forhindrer parserfejl.",
+                        "success": "✅ Beskadiget JSON repareret og parset til typede objekter!"
+                  },
+                  "task6": {
+                        "title": "Opgave 6: Kanonisk skemanormalisering",
+                        "concept": "Pydantic-validering og kanonisk DTO",
+                        "desc": "Transformer vilkårlige feltnavne til en standardiseret CanonicalInvoice model.",
+                        "hint": "Brug Field(..., alias='inv_num') og gem valuta i hele øre/cent for at undgå afrundingsfejl.",
+                        "simple": "Forskellige databaser bruger forskellige navne. Vi oversætter dem til et fælles format.",
+                        "engineering": "Finansielle værdier i heltal eliminerer afrundingsfejl ved kommatal.",
+                        "success": "✅ Kanonisk skema verificeret med strenge typegarantier!"
+                  },
+                  "task7": {
+                        "title": "Opgave 7: Agent-tilstandsgraf-arkitektur",
+                        "concept": "Endelig tilstandsmaskine og StateGraph",
+                        "desc": "Design agenten som en deterministisk tilstandsmaskine frem for en ukontrolleret løkke.",
+                        "hint": "Angiv trinene FETCH_INVOICE, VALIDATE_PO, ESCALATE og inkluder en Output Validator.",
+                        "simple": "Agenten må ikke handle i blinde. Den følger en fast køreplan: trin 1, trin 2, validering.",
+                        "engineering": "Forebyggelse af uendelige løkker og garanti for kontrolleret standsning.",
+                        "success": "✅ Tilstandsmaskine samlet med alle obligatoriske sikkerhedsknuder!"
+                  },
+                  "task8": {
+                        "title": "Opgave 8: Enterprise RAG med rettighedsfiltrering",
+                        "concept": "Vektorlager og metadata-filtrering (RBAC)",
+                        "desc": "Implementer hybrid søgning med streng lejer-isolering og rollebaseret filtrering.",
+                        "hint": "Brug chunk_size=512 og medsend obligatorisk metadata-filter: {'org_id': client_org_id}.",
+                        "simple": "Når en revisor søger, må agenten aldrig vise fortrolige juridiske kontrakter.",
+                        "engineering": "Multi-tenant vektorisolering der forhindrer datalækager på tværs af organisationer.",
+                        "success": "✅ Vektorsøgning sikret: krydslækage af dokumenter er udelukket!"
+                  },
+                  "task9": {
+                        "title": "Opgave 9: Tool Calling & Circuit Breakers",
+                        "concept": "Tool Calling og Circuit Breaker",
+                        "desc": "Beskyt agent-værktøjer med Circuit Breaker for at forhindre systemnedbrud.",
+                        "hint": "Håndter timeouts og returner en cachet reserve med status: DEGRADED.",
+                        "simple": "Som en sikring: hvis en ekstern tjeneste fejler, slår sikringen fra uden at vælte hele systemet.",
+                        "engineering": "Robust fejlhåndtering med automatisk overgang tilbage til normal tilstand efter nedkøling.",
+                        "success": "✅ Agentværktøj beskyttet mod kaskaderende systemfejl!"
+                  },
+                  "task10": {
+                        "title": "Opgave 10: Forsvar mod Prompt Injection",
+                        "concept": "Input Guardrails & Jailbreak-beskyttelse",
+                        "desc": "Etabler et input-filter til at opdage og afvise prompt injection-angreb.",
+                        "hint": "Genkend mønstre som 'ignore previous instructions' og afvis straks forespørgslen.",
+                        "simple": "En hacker gemmer instruktioner i en fil. Vores sikkerhedsfilter stopper det før modellen ser det.",
+                        "engineering": "Dobbelt sikkerhed: deterministiske filtre før modellen og sikkerhedstjek efter svaret genereres.",
+                        "success": "✅ Forsøg på prompt injection afværget af sikkerhedsfilteret!"
+                  },
+                  "task11": {
+                        "title": "Opgave 11: Sikring af sessionsrettigheder",
+                        "concept": "Zero Trust & JWT-rettighedshåndhævelse",
+                        "desc": "Sikr at agenten kun udfører handlinger, der er tilladt i brugerens aktuelle JWT-token.",
+                        "hint": "Verificer at handlingen findes i claims.get('permissions').",
+                        "simple": "Agenten er ikke almægtig. Hvis en bruger ikke må slette, må agenten heller ikke.",
+                        "engineering": "Kontekstuel rettighedsdelegering: ingen master-nøgler i brugersessioner.",
+                        "success": "✅ Uautoriseret handling blokeret: sessionsrettigheder håndhævet!"
+                  },
+                  "task12": {
+                        "title": "Opgave 12: Krypto-auditlog & PII-maskering",
+                        "concept": "Kryptografisk sporbarhed & PII-maskering",
+                        "desc": "Byg en uforanderlig auditlog: hash følsomme prompts med SHA-256 uden at lække personoplysninger.",
+                        "hint": "Generer SHA-256 hash af prompten før den skrives til den strukturerede log.",
+                        "simple": "Vi logger alt til brug for revision, men erstatter personlige oplysninger med et digitalt fingeraftryk.",
+                        "engineering": "SOC2 og ISO 27001 overholdelse: ingen personhenførbare data i rå logfiler.",
+                        "success": "✅ Revisionslog skrevet med SHA-256 hash: personlige data er fuldt beskyttet!"
+                  },
+                  "task13": {
+                        "title": "Opgave 13: Driftsmanual for hændelser (Runbook)",
+                        "concept": "SRE standarddriftsprocedure og hændelsesmanual",
+                        "desc": "Forfat en udtømmende driftsmanual: konkrete trin ved 5xx-fejl og databaseoverbelastning.",
+                        "hint": "Inkluder sundhedstjek, analyse af forbindelsespuljer og genstartskommandoer.",
+                        "simple": "Når servere fejler midt om natten, skal vagten ikke gætte. De følger vores klare trin-for-trin guide.",
+                        "engineering": "Minimering af genetableringstid (MTTR): klare grænser for hvornår der skiftes til reserve.",
+                        "success": "✅ Driftsmanual godkendt: kundens SRE-team er klar til drift!"
+                  },
+                  "task14": {
+                        "title": "Opgave 14: Teknisk videnoverdragelse",
+                        "concept": "Kundeoplæring og operationelt ejerskab",
+                        "desc": "Gennemfør en teknisk workshop: lær kundens team at fejlfinde agenter og rotere hemmeligheder.",
+                        "hint": "Opbyg træningsprogrammet omkring håndtering af realistiske scenarier i et testmiljø.",
+                        "simple": "Den bedste FDE gør sig selv overflødig: kundens team kan trygt drive og videreudvikle systemet selv.",
+                        "engineering": "Validering af kompetencer via simulerede nedbrud i et testmiljø (GameDay).",
+                        "success": "✅ Videnoverdragelse gennemført: kundens ingeniører er fuldt klædt på til drift!"
+                  },
+                  "task15": {
+                        "title": "Opgave 15: Endelig produktionsgodkendelse & ROI-bevis",
+                        "concept": "Produktionsgodkendelse & værdirealisering",
+                        "desc": "Evaluer 30-dages pilotresultater: dokumenter 99.1% nøjagtighed og få godkendelse til fuld produktion.",
+                        "hint": "Udfyld den endelige overdragelsesattest med status GRADUATED_TO_PRODUCTION.",
+                        "simple": "Projektets afslutning: vi dokumenterer konkrete besparelser og opnår ledelsens godkendelse.",
+                        "engineering": "Formel SLA-godkendelse og overgang til løbende support og drift.",
+                        "success": "✅ Overdragelsesattest underskrevet: enterprise-agenten er i fuld produktion med dokumenteret ROI!"
+                  }
+            }
       },
       projectFiles: {
         "interface-remote-command": {

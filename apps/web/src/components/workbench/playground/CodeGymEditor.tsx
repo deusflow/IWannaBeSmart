@@ -25,10 +25,14 @@ import {
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import type { CodeGymTaskLike } from "./useCodeGymSession";
 
-interface CodeGymEditorProps<TTask extends CodeGymTaskLike> {
+interface CodeGymEditorProps<
+  TTask extends CodeGymTaskLike,
+  TLang extends string = "csharp" | "go"
+> {
   currentTask: TTask;
-  codeLang: "csharp" | "go";
-  onChangeLang: (lang: "csharp" | "go") => void;
+  codeLang: TLang;
+  onChangeLang: (lang: TLang) => void;
+  availableLangs?: { id: TLang; label: string }[];
   activeRound: 1 | 2 | 3 | 4;
   fileName: string;
   typedCode: string;
@@ -56,10 +60,14 @@ interface CodeGymEditorProps<TTask extends CodeGymTaskLike> {
   onOpenTheory?: () => void;
 }
 
-export function CodeGymEditor<TTask extends CodeGymTaskLike>({
+export function CodeGymEditor<
+  TTask extends CodeGymTaskLike,
+  TLang extends string = "csharp" | "go"
+>({
   currentTask,
   codeLang,
   onChangeLang,
+  availableLangs,
   activeRound,
   fileName,
   typedCode,
@@ -84,7 +92,7 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
   nextTaskAvailable,
   isTheoryUnlocked = true,
   onOpenTheory,
-}: CodeGymEditorProps<TTask>) {
+}: CodeGymEditorProps<TTask, TLang>) {
   const { t, i18n } = useTranslation();
 
   // Flow State Keyboard Navigation: When a round is completed, Enter or Tab automatically advances
@@ -175,28 +183,26 @@ export function CodeGymEditor<TTask extends CodeGymTaskLike>({
 
           {/* Language Switcher */}
           <div className="ml-2 flex items-center gap-1 bg-[#23252B] p-0.5 rounded-lg border border-[#343842]">
-            <button
-              type="button"
-              onClick={() => onChangeLang("csharp")}
-              className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors cursor-pointer ${
-                codeLang === "csharp"
-                  ? "bg-accent-blue text-white"
-                  : "text-gray-400 hover:text-white"
-              }`}
-            >
-              C#
-            </button>
-            <button
-              type="button"
-              onClick={() => onChangeLang("go")}
-              className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors cursor-pointer ${
-                codeLang === "go"
-                  ? "bg-accent-blue text-white"
-                  : "text-gray-400 hover:text-white"
-              }`}
-            >
-              Go
-            </button>
+            {(
+              availableLangs ??
+              ([
+                { id: "csharp", label: "C#" },
+                { id: "go", label: "Go" },
+              ] as unknown as { id: TLang; label: string }[])
+            ).map((lang) => (
+              <button
+                key={lang.id}
+                type="button"
+                onClick={() => onChangeLang(lang.id)}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors cursor-pointer ${
+                  codeLang === lang.id
+                    ? "bg-accent-blue text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
           </div>
 
           <span className="text-[11px] font-mono text-gray-400 font-bold ml-1">

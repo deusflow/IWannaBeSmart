@@ -176,3 +176,48 @@ export const BanditBlueprintSvg: React.FC = () => (
     <rect x="138" y="42" width="4" height="6" fill="#FAF8F2" />
   </svg>
 );
+
+export const VertexBlueprintSvg: React.FC = () => (
+  <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+    {/* Cloud Outline */}
+    <path d="M 25 45 C 20 45 15 40 15 35 C 15 28 22 24 28 25 C 32 18 42 16 48 22 C 54 18 64 22 65 28 C 70 28 75 32 75 38 C 75 45 68 45 65 45 Z" fill="#DBEAFE" stroke="#2563EB" strokeWidth="1.8" />
+    <text x="42" y="36" fill="#1E40AF" fontSize="5.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">GCS</text>
+
+    {/* DAG Connecting Line */}
+    <line x1="75" y1="36" x2="105" y2="36" stroke="#2563EB" strokeWidth="2" strokeDasharray="3 2" />
+    <circle cx="90" cy="36" r="4" fill="#2563EB" />
+
+    {/* TPU / GPU Accelerator Die */}
+    <rect x="105" y="18" width="45" height="45" rx="5" fill="#1E293B" stroke="#2563EB" strokeWidth="1.8" />
+    <rect x="112" y="25" width="31" height="31" rx="3" fill="#0F172A" stroke="#38BDF8" strokeWidth="1" />
+    <text x="127" y="42" fill="#38BDF8" fontSize="5.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">A100</text>
+    <text x="127" y="49" fill="#93C5FD" fontSize="4" fontFamily="monospace" textAnchor="middle">NVLINK</text>
+
+    {/* Inference Pulse Antenna */}
+    <path d="M 127 63 L 127 75" stroke="#2563EB" strokeWidth="1.5" />
+    <circle cx="127" cy="78" r="3" fill="#10B981" />
+  </svg>
+);
+
+export const FdeBlueprintSvg: React.FC = () => (
+  <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+    {/* Legacy System Tower */}
+    <rect x="15" y="20" width="35" height="50" rx="3" fill="#334155" stroke="#1E293B" strokeWidth="1.5" />
+    <line x1="20" y1="28" x2="45" y2="28" stroke="#94A3B8" strokeWidth="1.5" />
+    <line x1="20" y1="34" x2="45" y2="34" stroke="#94A3B8" strokeWidth="1.5" />
+    <circle cx="23" cy="55" r="2" fill="#22C55E" />
+    <circle cx="30" cy="55" r="2" fill="#EAB308" />
+    <text x="32" y="65" fill="#CBD5E1" fontSize="4" fontFamily="monospace">LEGACY</text>
+
+    {/* Modern Agentic Bridge / LangGraph */}
+    <line x1="50" y1="45" x2="85" y2="45" stroke="#A855F7" strokeWidth="2" strokeDasharray="2.5 2" />
+    <circle cx="68" cy="45" r="7" fill="#7E22CE" stroke="#1E1B4B" strokeWidth="1.5" />
+    <text x="68" y="47" fill="#FAF5FF" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">FDE</text>
+
+    {/* Enterprise Security Shield */}
+    <path d="M 125 18 L 155 24 L 155 50 C 155 65, 125 74, 125 74 C 125 74, 95 65, 95 50 L 95 24 Z" fill="#581C87" stroke="#3B0764" strokeWidth="1.8" />
+    <circle cx="125" cy="44" r="6" fill="#FAF5FF" />
+    <text x="125" y="46" fill="#581C87" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">AI</text>
+    <text x="125" y="62" fill="#E9D5FF" fontSize="4" fontFamily="monospace" textAnchor="middle">SECURED</text>
+  </svg>
+);

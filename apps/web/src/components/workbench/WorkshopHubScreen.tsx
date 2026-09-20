@@ -18,6 +18,8 @@ import {
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
+  VERTEX_TASKS,
+  FDE_TASKS,
   TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 import { UserNavBadge } from "../auth/UserNavBadge";
@@ -31,6 +33,8 @@ import {
   ApiForgeBlueprintSvg,
   GitBlueprintSvg,
   BanditBlueprintSvg,
+  VertexBlueprintSvg,
+  FdeBlueprintSvg,
 } from "./hub/StationBlueprintIllustrations";
 
 export const WorkshopHubScreen: React.FC = () => {
@@ -46,6 +50,8 @@ export const WorkshopHubScreen: React.FC = () => {
     setApiVictoryModalOpen,
     setGitVictoryModalOpen,
     setBanditVictoryModalOpen,
+    setVertexVictoryModalOpen,
+    setFdeVictoryModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -58,6 +64,8 @@ export const WorkshopHubScreen: React.FC = () => {
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
+      setVertexVictoryModalOpen: s.setVertexVictoryModalOpen,
+      setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
     }))
   );
 
@@ -93,9 +101,21 @@ export const WorkshopHubScreen: React.FC = () => {
   // 5. Cyber Bandit Lab (4 stars per task)
   const banditStats = useMemo(() => getStationStats(BANDIT_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
 
+  // 6. Vertex AI Architect (4 stars per task)
+  const vertexStats = useMemo(() => getStationStats(VERTEX_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+
+  // 7. Field AI Deployer (4 stars per task)
+  const fdeStats = useMemo(() => getStationStats(FDE_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+
   // Total stars across platform
   const totalStars =
-    tvStats.current + posStats.current + apiStats.current + gitStats.current + banditStats.current;
+    tvStats.current +
+    posStats.current +
+    apiStats.current +
+    gitStats.current +
+    banditStats.current +
+    vertexStats.current +
+    fdeStats.current;
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (tvStats.isCompleted && posStats.isEligible);
@@ -383,6 +403,62 @@ export const WorkshopHubScreen: React.FC = () => {
               : undefined
           }
           certTooltip={t("hub.viewBanditCertTooltip", "Переглянути сертифікат Cyber Defense архітектора")}
+        />
+
+        {/* Station 07: Vertex AI Architect */}
+        <StationShowcaseCard
+          stationId="vertex"
+          codeLabel={`${t("hub.stations.vertex.code", "Модуль 7")} • 07`}
+          title={t("hub.stations.vertex.title", "Станція 07: Vertex AI Architect")}
+          subtitle={t(
+            "hub.stations.vertex.subtitle",
+            "Хмарний MLOps: GCS пайплайни, GPU інференс, VPC Peering та моніторинг дрейфу"
+          )}
+          blueprint={<VertexBlueprintSvg />}
+          specs={t("hub.stations.vertex.specs", `${VERTEX_TASKS.length} tasks • Vertex AI & MLOps • Python / YAML`)}
+          currentStars={vertexStats.current}
+          maxStars={vertexStats.max}
+          statusType={vertexStats.statusType}
+          accentBorderClass="hover:border-blue-600/60"
+          starColorClass="text-blue-800"
+          onEnter={() => handleEnterStation("vertex")}
+          onViewCert={
+            vertexStats.isEligible
+              ? () => {
+                  audioFx.playSuccessFanfare();
+                  setVertexVictoryModalOpen(true);
+                }
+              : undefined
+          }
+          certTooltip={t("hub.viewVertexCertTooltip", "Переглянути сертифікат Vertex AI архітектора")}
+        />
+
+        {/* Station 08: Field AI Deployer (FDE) */}
+        <StationShowcaseCard
+          stationId="fde"
+          codeLabel={`${t("hub.stations.fde.code", "Модуль 8")} • 08`}
+          title={t("hub.stations.fde.title", "Станція 08: Field AI Deployer (FDE)")}
+          subtitle={t(
+            "hub.stations.fde.subtitle",
+            "Інтерв'ю стейкхолдерів, адаптація legacy API, агентні графи та регламенти передачі"
+          )}
+          blueprint={<FdeBlueprintSvg />}
+          specs={t("hub.stations.fde.specs", `${FDE_TASKS.length} tasks • Applied AI • Python / TS`)}
+          currentStars={fdeStats.current}
+          maxStars={fdeStats.max}
+          statusType={fdeStats.statusType}
+          accentBorderClass="hover:border-purple-600/60"
+          starColorClass="text-purple-800"
+          onEnter={() => handleEnterStation("fde")}
+          onViewCert={
+            fdeStats.isEligible
+              ? () => {
+                  audioFx.playSuccessFanfare();
+                  setFdeVictoryModalOpen(true);
+                }
+              : undefined
+          }
+          certTooltip={t("hub.viewFdeCertTooltip", "Переглянути сертифікат Field AI Deployer")}
         />
       </div>
     </div>

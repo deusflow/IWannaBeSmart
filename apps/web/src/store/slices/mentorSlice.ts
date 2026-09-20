@@ -29,6 +29,12 @@ function deriveStationAndTier(
   if (taskId.startsWith("task-bandit-")) {
     return { stationId: "bandit", tier: 0 };
   }
+  if (taskId.startsWith("task-vertex-")) {
+    return { stationId: "vertex", tier: 0 };
+  }
+  if (taskId.startsWith("task-fde-")) {
+    return { stationId: "fde", tier: 0 };
+  }
   const tvTask = CODING_TASKS.find((t) => t.id === taskId);
   if (tvTask) {
     return { stationId: "tv", tier: tvTask.tier ?? 0 };

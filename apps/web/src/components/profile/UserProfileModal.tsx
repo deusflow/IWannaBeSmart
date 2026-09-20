@@ -21,6 +21,8 @@ import {
   ShieldAlert,
   Zap,
   Layers,
+  Cloud,
+  Briefcase,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -31,6 +33,8 @@ import {
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
+  VERTEX_TASKS,
+  FDE_TASKS,
 } from "@iw/sim-engine";
 import { ProfileIdentityTab } from "./tabs/ProfileIdentityTab";
 import { ProfileAnalyticsTab } from "./tabs/ProfileAnalyticsTab";
@@ -65,6 +69,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setApiVictoryModalOpen,
     setGitVictoryModalOpen,
     setBanditVictoryModalOpen,
+    setVertexVictoryModalOpen,
+    setFdeVictoryModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -78,6 +84,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
+      setVertexVictoryModalOpen: s.setVertexVictoryModalOpen,
+      setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
     }))
   );
 
@@ -130,6 +138,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       { tasks: API_FORGE_TASKS, stationId: "api", stationName: "API Forge" },
       { tasks: GIT_TASKS, stationId: "git", stationName: "Git Time Machine" },
       { tasks: BANDIT_TASKS, stationId: "bandit", stationName: "Cyber Bandit" },
+      { tasks: VERTEX_TASKS, stationId: "vertex", stationName: "Vertex AI" },
+      { tasks: FDE_TASKS, stationId: "fde", stationName: "Field AI Deployer" },
     ];
 
     for (const group of stationGroups) {
@@ -185,6 +195,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const apiStatus = checkCert(API_FORGE_TASKS);
     const gitStatus = checkCert(GIT_TASKS);
     const banditStatus = checkCert(BANDIT_TASKS);
+    const vertexStatus = checkCert(VERTEX_TASKS);
+    const fdeStatus = checkCert(FDE_TASKS);
 
     return [
       {
@@ -247,6 +259,30 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           setBanditVictoryModalOpen(true);
         },
       },
+      {
+        id: "vertex",
+        title: t("profile.badgeCertStation7", "Сертифікат Станції 07 (Vertex AI)"),
+        spec: t("profile.tasksCount", { completed: vertexStatus.completedCount, total: vertexStatus.total, defaultValue: `${vertexStatus.completedCount} / ${vertexStatus.total} tasks` }),
+        icon: Cloud,
+        iconColor: "text-blue-600",
+        status: vertexStatus,
+        onViewCert: () => {
+          onClose();
+          setVertexVictoryModalOpen(true);
+        },
+      },
+      {
+        id: "fde",
+        title: t("profile.badgeCertStation8", "Сертифікат Станції 08 (Field AI Deployer)"),
+        spec: t("profile.tasksCount", { completed: fdeStatus.completedCount, total: fdeStatus.total, defaultValue: `${fdeStatus.completedCount} / ${fdeStatus.total} tasks` }),
+        icon: Briefcase,
+        iconColor: "text-purple-600",
+        status: fdeStatus,
+        onViewCert: () => {
+          onClose();
+          setFdeVictoryModalOpen(true);
+        },
+      },
     ];
   }, [
     taskMasteryStars,
@@ -258,6 +294,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setApiVictoryModalOpen,
     setGitVictoryModalOpen,
     setBanditVictoryModalOpen,
+    setVertexVictoryModalOpen,
+    setFdeVictoryModalOpen,
   ]);
 
   const badges: ProfileBadge[] = useMemo(() => {

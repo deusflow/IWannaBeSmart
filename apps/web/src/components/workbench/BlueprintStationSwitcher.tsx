@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Tv, CreditCard, Warehouse, Cpu, Lock, Server, GitBranch, Shield, Cloud, Briefcase } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Lock, Server, GitBranch, Shield, Cloud, Briefcase } from "lucide-react";
 
 interface StationOption {
   id: string;
@@ -50,6 +50,18 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         status: t("hub.stationAvailable", "Доступно"),
         icon: <CreditCard size={16} strokeWidth={2} />,
         isAvailable: true,
+      },
+      {
+        id: "iot",
+        code: t("hub.stations.iot.code", "Модуль 3"),
+        title: t("hub.stations.iot.title", "Гаражні ворота"),
+        subtitle: t(
+          "hub.stations.iot.subtitle",
+          "Ультразвуковий датчик та кінцеві автомати"
+        ),
+        status: t("hub.stationLocked", "Незабаром"),
+        icon: <Warehouse size={16} strokeWidth={2} />,
+        isAvailable: false,
       },
       {
         id: "api",
@@ -110,30 +122,6 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         status: t("hub.stationAvailable", "Доступно"),
         icon: <Briefcase size={16} strokeWidth={2} />,
         isAvailable: true,
-      },
-      {
-        id: "garage",
-        code: t("hub.stations.iot.code", "Модуль 3"),
-        title: t("hub.stations.iot.title", "Гаражні ворота"),
-        subtitle: t(
-          "hub.stations.iot.subtitle",
-          "Ультразвуковий датчик та кінцеві автомати"
-        ),
-        status: t("hub.stationLocked", "Незабаром"),
-        icon: <Warehouse size={16} strokeWidth={2} />,
-        isAvailable: false,
-      },
-      {
-        id: "pc",
-        code: t("hub.stations.pc.code", "Модуль 5"),
-        title: t("hub.stations.pc.title", "Робоча станція"),
-        subtitle: t(
-          "hub.stations.pc.subtitle",
-          "Регістри CPU, пам'ять та ОС"
-        ),
-        status: t("hub.stationLocked", "Незабаром"),
-        icon: <Cpu size={16} strokeWidth={2} />,
-        isAvailable: false,
       },
     ],
     [t]
