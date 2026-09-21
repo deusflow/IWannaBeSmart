@@ -4,6 +4,7 @@ import { useAuthStore } from "./store/authStore";
 import { useWorkbenchStore } from "./store/workbenchStore";
 
 import { ToastContainer } from "./components/ui/ToastContainer";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 
 export const App: React.FC = () => {
   useEffect(() => {
@@ -29,9 +30,9 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <WorkbenchScreen />
       <ToastContainer />
-    </>
+    </ErrorBoundary>
   );
 };

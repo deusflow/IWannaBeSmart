@@ -30,6 +30,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Static typecheck
+        run: npm run typecheck
+
+      - name: Run automated test suite
+        run: npm test
+
       - name: Build project
         run: npm run build
         env:

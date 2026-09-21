@@ -89,6 +89,16 @@ export const WorkbenchScreen: React.FC = () => {
     }
     return false;
   });
+  const [isMobileDismissed, setIsMobileDismissed] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return localStorage.getItem("iw_mobile_advisory_dismissed") === "true";
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
 
   // Global Shortcuts: Cmd/Ctrl + K (Palette) and '?' (Cheatsheet)
   useEffect(() => {
@@ -443,6 +453,40 @@ export const WorkbenchScreen: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Mobile Viewport Advisory Banner (<md displays) */}
+      {!isMobileDismissed && (
+        <aside
+          aria-label={t("mobileAdvisory.badge", "МОБІЛЬНИЙ ПЕРЕГЛЯД")}
+          className="md:hidden relative z-25 bg-amber-500/10 border-b border-amber-500/30 px-3.5 py-2 text-amber-950 flex items-center justify-between gap-2.5 animate-fade-in"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-900 font-mono text-[9px] font-bold tracking-wider uppercase shrink-0">
+              {t("mobileAdvisory.badge", "МОБІЛЬНИЙ ПЕРЕГЛЯД")}
+            </span>
+            <span className="text-[11px] font-sans truncate">
+              {t(
+                "mobileAdvisory.message",
+                "Для повноцінної роботи зі схемами, шинами даних та редактором коду рекомендуємо екран від 13\" (ПК або ноутбук)."
+              )}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileDismissed(true);
+              try {
+                localStorage.setItem("iw_mobile_advisory_dismissed", "true");
+              } catch {
+                // Ignore storage error
+              }
+            }}
+            className="px-2 py-0.5 rounded-lg bg-amber-500/25 hover:bg-amber-500/40 text-amber-950 font-mono font-bold text-[10px] shrink-0 cursor-pointer"
+          >
+            {t("mobileAdvisory.dismiss", "Зрозуміло")} ✕
+          </button>
+        </aside>
+      )}
 
       {/* ── Main content ── */}
       {currentView === "HUB" ? (

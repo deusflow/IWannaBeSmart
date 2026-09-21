@@ -66,6 +66,20 @@ export const enTranslation = {
         quotes: "Quotes '\" \"' enclose literal text. Without quotes, the computer tries to find a variable or command by that name.",
         tipTitle: "In plain words (ELI5):",
       },
+      errorBoundary: {
+        title: "Hardware Testbench Fault",
+        subtitle: "An unexpected runtime error occurred in the simulation engine",
+        errorDetails: "Technical Error Telemetry",
+        tryAgain: "Try Again",
+        returnToHub: "Return to Hub",
+        resetCache: "Reset Local State & Restart",
+        resetConfirm: "All local state cache will be cleared. Continue?",
+      },
+      mobileAdvisory: {
+        badge: "MOBILE VIEW",
+        message: "For optimal interaction with schematics, signal buses, and the code editor, we recommend a 13\"+ display (desktop or laptop).",
+        dismiss: "Got it",
+      },
       auth: {
         titleSignIn: "Engineer Authorization",
         titleSignUp: "Engineer Registration",

@@ -66,6 +66,20 @@ export const daTranslation = {
         quotes: "Anførselstegn '\" \"' angiver tekst. Uden anførselstegn vil computeren lede efter en variabel eller kommando med det navn.",
         tipTitle: "Enkelt forklaret (ELI5):",
       },
+      errorBoundary: {
+        title: "Hardware-testbænk fejl",
+        subtitle: "Der opstod en uventet runtime-fejl i simuleringsmotoren",
+        errorDetails: "Teknisk fejltelemetri",
+        tryAgain: "Prøv igen",
+        returnToHub: "Tilbage til Hub",
+        resetCache: "Nulstil lokal tilstand & genstart",
+        resetConfirm: "Al lokal fremskridtscache vil blive ryddet. Fortsæt?",
+      },
+      mobileAdvisory: {
+        badge: "MOBILVISNING",
+        message: "For optimal interaktion med diagrammer, signalbusser og kodeeditoren anbefaler vi en 13\"+ skærm (desktop eller bærbar).",
+        dismiss: "Forstået",
+      },
       auth: {
         titleSignIn: "Ingeniørautorisation",
         titleSignUp: "Profilregistrering",
