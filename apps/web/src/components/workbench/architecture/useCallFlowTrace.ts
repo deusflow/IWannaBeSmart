@@ -314,6 +314,7 @@ export function useCallFlowTrace({
     setNodes,
     setEdges,
     onHotSwapInsight,
+    t,
   ]);
 
   return {

@@ -1,6 +1,6 @@
 /**
  * @file packages/sim-engine/src/data/tv-level-01.ts
- * @description Data manifest for TV Station Level 01 (Items 3, 89–92)
+ * @description Data manifest for TV Station Level 01
  */
 
 import type { StationLevel } from "../types/level";

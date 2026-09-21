@@ -88,7 +88,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
         t(`projectFiles.${f.id}.role`, f.role).toLowerCase().includes(q) ||
         f.path.toLowerCase().includes(q)
     );
-  }, [searchQuery]);
+  }, [searchQuery, t]);
 
   const handleEntityClick = (file: ProjectFile) => {
     const entityKey = file.name.replace(".cs", "");

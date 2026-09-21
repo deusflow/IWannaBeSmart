@@ -393,5 +393,17 @@ export const createMentorSlice: StateCreator<
 
   targetTaskId: null,
   setTargetTaskId: (taskId: string | null) => set({ targetTaskId: taskId }),
+
+  isOnboardingOpen: (() => {
+    try {
+      if (typeof window !== "undefined") {
+        return !localStorage.getItem("iw_onboarding_seen");
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  })(),
+  setIsOnboardingOpen: (open: boolean) => set({ isOnboardingOpen: open }),
 });
 

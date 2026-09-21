@@ -533,7 +533,13 @@ export const WORKED_EXAMPLES_DA: Record<string, WorkedExampleTranslation> = {
   }
 };
 
-export function getLocalizedWorkedExample<T extends { demonstrationLog?: any; explanation?: any; finalChallenge?: any }>(
+export function getLocalizedWorkedExample<
+  T extends {
+    demonstrationLog?: { hardwareEffect?: unknown; [key: string]: unknown };
+    explanation?: unknown;
+    finalChallenge?: { prompt?: unknown; hint?: unknown; [key: string]: unknown };
+  }
+>(
   workedExample: T | undefined,
   taskId: string,
   lang: string = "ua"

@@ -116,7 +116,7 @@ export const SyntaxCodeBlock: React.FC<SyntaxCodeBlockProps> = ({
 
     // Trailing unparsed text if any
     if (lastIndex < line.length) {
-      elements.push(<span key={keyIdx++}>{line.slice(lastIndex)}</span>);
+      elements.push(<span key={keyIdx}>{line.slice(lastIndex)}</span>);
     }
 
     return elements;

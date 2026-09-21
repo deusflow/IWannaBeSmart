@@ -683,8 +683,8 @@ function parseForHeader(headerStr: string): ForLoopConfig {
   const limitVal = parseInt(condMatch[2], 10);
 
   // 3. Step part: i++ | ++i | i-- | --i | i += 1 | i -= 1 | i = i + 1
-  let stepOp: ForLoopConfig["stepOp"] = "++";
-  let stepVal = 1;
+  let stepOp: ForLoopConfig["stepOp"];
+  let stepVal: number;
 
   if (
     new RegExp(`^${varName}\\+\\+$`).test(stepPart) ||

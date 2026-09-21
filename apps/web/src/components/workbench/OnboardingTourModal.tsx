@@ -3,7 +3,7 @@
  * @description 2026 Engineering Cadet Onboarding Tour Modal with Endowed Progress Starter Grant (+25 XP)
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Compass,
@@ -33,7 +33,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
   const [currentStep, setCurrentStep] = useState<number>(0);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const grantStarterBonus = () => {
+  const grantStarterBonus = useCallback(() => {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem("iw_onboarding_seen", "true");
@@ -50,35 +50,35 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
     } catch {
       // safe fallback if storage unavailable
     }
-  };
+  }, [t]);
 
-  const handleFinish = () => {
+  const handleFinish = useCallback(() => {
     audioFx.playRelayClick();
     grantStarterBonus();
     onClose();
-  };
+  }, [grantStarterBonus, onClose]);
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     audioFx.playRelayClick();
     grantStarterBonus();
     onClose();
-  };
+  }, [grantStarterBonus, onClose]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     audioFx.playKeyClick();
     if (currentStep < 3) {
       setCurrentStep((prev) => prev + 1);
     } else {
       handleFinish();
     }
-  };
+  }, [currentStep, handleFinish]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     audioFx.playKeyClick();
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1);
     }
-  };
+  }, [currentStep]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -97,7 +97,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, currentStep]);
+  }, [isOpen, handleSkip, handleNext, handlePrev]);
 
   if (!isOpen) return null;
 

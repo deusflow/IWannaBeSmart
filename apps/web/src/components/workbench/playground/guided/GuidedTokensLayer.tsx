@@ -5,10 +5,11 @@
 
 import React from "react";
 import { Layers } from "lucide-react";
+import type { TFunction } from "i18next";
 
 export interface GuidedTokensLayerProps {
   tokens: Array<{ token: string; role: string; explanation: string }>;
-  t: (key: string, defaultVal?: any) => string;
+  t: TFunction;
 }
 
 export const GuidedTokensLayer: React.FC<GuidedTokensLayerProps> = ({

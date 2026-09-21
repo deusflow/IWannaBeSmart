@@ -124,7 +124,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   const engineeringText = t(data.engineeringKey, { defaultValue: "" });
 
 
-  const getLocStr = (val: any): string => {
+  const getLocStr = (val?: string | Record<string, string> | null): string => {
     if (!val) return "";
     if (typeof val === "string") return val;
     return val[currentLang] || val.ua || val.en || "";

@@ -79,16 +79,6 @@ export const WorkbenchScreen: React.FC = () => {
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        return !localStorage.getItem("iw_onboarding_seen");
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  });
   const [isMobileDismissed, setIsMobileDismissed] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -147,6 +137,8 @@ export const WorkbenchScreen: React.FC = () => {
     setCurrentStationId,
     currentView,
     setCurrentView,
+    isOnboardingOpen,
+    setIsOnboardingOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       power: s.power,
@@ -176,6 +168,8 @@ export const WorkbenchScreen: React.FC = () => {
       setCurrentStationId: s.setCurrentStationId,
       currentView: s.currentView,
       setCurrentView: s.setCurrentView,
+      isOnboardingOpen: s.isOnboardingOpen,
+      setIsOnboardingOpen: s.setIsOnboardingOpen,
     }))
   );
 
@@ -269,12 +263,15 @@ export const WorkbenchScreen: React.FC = () => {
         {/* Left */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {currentView === "HUB" ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 select-none">
               <div className="w-8 h-8 rounded-xl bg-[#1A1D20] text-white flex items-center justify-center font-bold text-sm shadow-xs">
                 📐
               </div>
-              <span className="font-display font-extrabold text-sm sm:text-base text-[#1A1D20]">
-                {t("hub.title", "Інженерний Хаб верстака")}
+              <span className="font-display font-extrabold text-sm sm:text-base text-[#1A1D20] tracking-tight">
+                IWannaBeSmart
+              </span>
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md bg-[#1A1D20]/10 text-[10px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/80">
+                WORKBENCH
               </span>
             </div>
           ) : (
@@ -363,7 +360,7 @@ export const WorkbenchScreen: React.FC = () => {
             aria-label={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
           >
             <Sparkles size={13} className="text-accent-blue shrink-0" />
-            <span className="hidden lg:inline">{t("onboarding.tourTitle", "Інструктаж")}</span>
+            <span className="hidden sm:inline">{t("onboarding.tourTitle", "Інструктаж")}</span>
           </button>
 
           {/* Keyboard Shortcuts Trigger Button */}

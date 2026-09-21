@@ -16,10 +16,12 @@ import {
   Activity,
   ExternalLink,
 } from "lucide-react";
+import type { TFunction } from "i18next";
 import type { WorkedExample } from "@iw/sim-engine";
+import type { TaskDidacticInfo } from "../taskDidacticContext";
 
 export interface GuidedSolutionLayerProps {
-  t: (key: string, defaultVal?: any) => string;
+  t: TFunction;
   simpleText: string;
   workedExample?: WorkedExample;
   codeLang: "csharp" | "go" | "python" | "yaml" | "typescript" | string;
@@ -27,8 +29,8 @@ export interface GuidedSolutionLayerProps {
   handleRunDemo: () => void;
   isDemoRunning: boolean;
   demoExecuted: boolean;
-  getLocStr: (val: any) => string;
-  didactic?: any;
+  getLocStr: (val?: string | Record<string, string> | null) => string;
+  didactic?: TaskDidacticInfo;
   onOpenArchitectureStudio?: () => void;
 }
 

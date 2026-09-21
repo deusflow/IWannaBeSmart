@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import type { TFunction } from "i18next";
 import type { Node, Edge } from "@xyflow/react";
 import type { ArchitectureNodeData, ActiveJourneyState, TerminalLogEntry } from "./types";
 import type { ArchitectureEdgeData } from "./ArchitectureEdge";
@@ -12,7 +13,7 @@ interface UseInterfaceJourneyParams {
   fitView: (options?: { nodes?: { id: string }[]; padding?: number; duration?: number }) => void;
   setCenter: (x: number, y: number, options?: { zoom?: number; duration?: number }) => void;
   addLog: (entry: Omit<TerminalLogEntry, "id" | "timestamp">) => void;
-  t: (key: string, defaultValue?: any) => string;
+  t: TFunction;
 }
 
 export function useInterfaceJourney({
@@ -321,7 +322,7 @@ export function useInterfaceJourney({
       }));
 
     return [contractEdge, diEdge, ...otherEdges];
-  }, [edges, activeJourney, handleInspectDi]);
+  }, [edges, activeJourney, handleInspectDi, t]);
 
   return {
     activeJourney,

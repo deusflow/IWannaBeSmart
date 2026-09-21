@@ -427,13 +427,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   const handleRunTransfer = useCallback(async () => {
     const { beforeState, res } = await runTvExecution(typedCode, 200);
 
-    let passed = false;
-    if (currentTask.transferVariant) {
-      passed = currentTask.transferVariant.validate(beforeState, res.newState, typedCode);
-    } else {
-      const validation = currentTask.validate(beforeState, res.newState, res, typedCode);
-      passed = validation.passed;
-    }
+    const passed = currentTask.transferVariant
+      ? currentTask.transferVariant.validate(beforeState, res.newState, typedCode)
+      : currentTask.validate(beforeState, res.newState, res, typedCode).passed;
 
     if (passed) {
       setHasError(false);

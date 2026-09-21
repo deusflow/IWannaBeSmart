@@ -102,13 +102,11 @@ export const GitBlueprintDevice: React.FC = () => {
       const depth = depths[c.id] ?? 0;
       const x = 50 + depth * 100;
 
-      let y = 110; // Default main lane
       const branchName = c.branch || "main";
-      if (branchLanes[branchName] !== undefined) {
-        y = branchLanes[branchName];
-      } else {
-        branchLanes[branchName] = nextAvailableLane;
+      let y = branchLanes[branchName];
+      if (y === undefined) {
         y = nextAvailableLane;
+        branchLanes[branchName] = nextAvailableLane;
         nextAvailableLane = nextAvailableLane === 50 ? 210 : nextAvailableLane + 50;
       }
 
@@ -130,14 +128,10 @@ export const GitBlueprintDevice: React.FC = () => {
         const parentPos = nodePositions[parentId];
         if (!parentPos) return;
 
-        let path = "";
-        if (parentPos.y === childPos.y) {
-          path = `M ${parentPos.x} ${parentPos.y} L ${childPos.x} ${childPos.y}`;
-        } else {
-          // Smooth S-curve bezier
-          const midX = (parentPos.x + childPos.x) / 2;
-          path = `M ${parentPos.x} ${parentPos.y} C ${midX} ${parentPos.y}, ${midX} ${childPos.y}, ${childPos.x} ${childPos.y}`;
-        }
+        const path =
+          parentPos.y === childPos.y
+            ? `M ${parentPos.x} ${parentPos.y} L ${childPos.x} ${childPos.y}`
+            : `M ${parentPos.x} ${parentPos.y} C ${(parentPos.x + childPos.x) / 2} ${parentPos.y}, ${(parentPos.x + childPos.x) / 2} ${childPos.y}, ${childPos.x} ${childPos.y}`;
 
         generatedLinks.push({
           id: `${parentId}->${c.id}`,

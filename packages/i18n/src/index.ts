@@ -1,7 +1,6 @@
 /**
  * @file packages/i18n/src/index.ts
  * @description react-i18next configuration and multilingual resources (UA, EN, DA)
- * (Interactive Workbench, Block A, Items 3, 5, 6; Block M, Item 99)
  */
 
 import i18n from "i18next";

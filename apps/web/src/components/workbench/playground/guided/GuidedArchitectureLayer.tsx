@@ -5,10 +5,12 @@
 
 import React from "react";
 import { Network } from "lucide-react";
+import type { TFunction } from "i18next";
+import type { TaskDidacticInfo } from "../taskDidacticContext";
 
 export interface GuidedArchitectureLayerProps {
-  didactic: any;
-  t: (key: string, defaultVal?: any) => string;
+  didactic?: TaskDidacticInfo;
+  t: TFunction;
   onOpenArchitectureStudio?: () => void;
 }
 

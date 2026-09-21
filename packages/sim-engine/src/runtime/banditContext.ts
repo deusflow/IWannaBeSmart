@@ -285,11 +285,11 @@ export function executeBanditCommand(
   const cmd = parts[0].toLowerCase();
   const args = parts.slice(1);
 
-  let output = "";
+  let output: string;
   let capturedFlag: string | undefined;
   const newFiles = { ...state.files };
   const newCapturedFlags = { ...state.capturedFlags };
-  let newCurrentDir = state.currentDir;
+  const newCurrentDir = state.currentDir;
 
   switch (cmd) {
     case "clear": {
@@ -571,8 +571,8 @@ export function forwardTransitPacket(state: BanditState): {
   const hmacEnforced = state.defenseState.hmacActive;
   const now = new Date().toLocaleTimeString();
 
-  let responseStatus = 200;
-  let message = "";
+  let responseStatus: number;
+  let message: string;
   const newLogs = [...state.securityLogs];
 
   if (isTampered && hmacEnforced) {

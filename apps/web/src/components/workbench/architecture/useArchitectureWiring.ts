@@ -26,6 +26,7 @@ import type {
   TerminalLogEntry,
 } from "./types";
 import type { ArchitectureEdgeData } from "./ArchitectureEdge";
+import type { MentorPhase } from "../../../store/types";
 
 interface UseArchitectureWiringParams {
   storedNodes: Node<ArchitectureNodeData>[];
@@ -33,8 +34,8 @@ interface UseArchitectureWiringParams {
   setArchNodes: (nodes: Node<ArchitectureNodeData>[]) => void;
   setArchEdges: (edges: Edge<ArchitectureEdgeData>[]) => void;
   diMode: "WITH_DI" | "WITHOUT_DI";
-  mentorPhase: string;
-  setMentorPhase: (phase: any) => void;
+  mentorPhase: MentorPhase;
+  setMentorPhase: (phase: MentorPhase) => void;
   setArchitecturePowerWired: (wired: boolean) => void;
   screenToFlowPosition: (pos: { x: number; y: number }) => { x: number; y: number };
   fitView: (options?: { padding?: number; duration?: number }) => void;

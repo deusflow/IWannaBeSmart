@@ -4,10 +4,10 @@
  *              Decomposed into modular subcomponents (EngineerDossierBar, StationShowcaseCard, StationBlueprintIllustrations).
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Award,
+  Sparkles,
   Cpu,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -22,7 +22,6 @@ import {
   FDE_TASKS,
   TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
-import { UserNavBadge } from "../auth/UserNavBadge";
 import { useShallow } from "zustand/react/shallow";
 import { EngineerDossierBar, PatternItem } from "./hub/EngineerDossierBar";
 import { StationShowcaseCard } from "./hub/StationShowcaseCard";
@@ -45,6 +44,7 @@ export const WorkshopHubScreen: React.FC = () => {
     taskMasteryStars,
     setCurrentStationId,
     setCurrentView,
+    setIsOnboardingOpen,
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
     setApiVictoryModalOpen,
@@ -59,6 +59,7 @@ export const WorkshopHubScreen: React.FC = () => {
       taskMasteryStars: s.taskMasteryStars,
       setCurrentStationId: s.setCurrentStationId,
       setCurrentView: s.setCurrentView,
+      setIsOnboardingOpen: s.setIsOnboardingOpen,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
@@ -82,42 +83,45 @@ export const WorkshopHubScreen: React.FC = () => {
   const showFde = selectedCategory === "all" || selectedCategory === "ai";
 
   // Helper for computing module completion & stars
-  const getStationStats = (tasks: Array<{ id: string }>, starsPerTask: number) => {
-    const max = tasks.length * starsPerTask;
-    const current = tasks.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
-    const isMastered = current >= max;
-    const isEligible = tasks.every(
-      (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
-    );
-    const isCompleted = isMastered || isEligible;
-    const statusType: "mastered" | "completed" | "available" = isMastered
-      ? "mastered"
-      : isCompleted
-      ? "completed"
-      : "available";
-    return { max, current, isMastered, isEligible, isCompleted, statusType };
-  };
+  const getStationStats = useCallback(
+    (tasks: Array<{ id: string }>, starsPerTask: number) => {
+      const max = tasks.length * starsPerTask;
+      const current = tasks.reduce((sum, task) => sum + (taskMasteryStars[task.id] || 0), 0);
+      const isMastered = current >= max;
+      const isEligible = tasks.every(
+        (task) => (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
+      );
+      const isCompleted = isMastered || isEligible;
+      const statusType: "mastered" | "completed" | "available" = isMastered
+        ? "mastered"
+        : isCompleted
+        ? "completed"
+        : "available";
+      return { max, current, isMastered, isEligible, isCompleted, statusType };
+    },
+    [taskMasteryStars, completedCodingTasks]
+  );
 
   // 1. Smart TV Station (4 stars per task: TRACE, COPY, SPEED, BUGFIX)
-  const tvStats = useMemo(() => getStationStats(CODING_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+  const tvStats = useMemo(() => getStationStats(CODING_TASKS, 4), [getStationStats]);
 
   // 2. Fintech POS Terminal (4 stars per task)
-  const posStats = useMemo(() => getStationStats(FINTECH_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+  const posStats = useMemo(() => getStationStats(FINTECH_TASKS, 4), [getStationStats]);
 
   // 3. API Forge (4 stars per task)
-  const apiStats = useMemo(() => getStationStats(API_FORGE_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+  const apiStats = useMemo(() => getStationStats(API_FORGE_TASKS, 4), [getStationStats]);
 
   // 4. Git Time Machine (4 stars per task)
-  const gitStats = useMemo(() => getStationStats(GIT_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+  const gitStats = useMemo(() => getStationStats(GIT_TASKS, 4), [getStationStats]);
 
   // 5. Cyber Bandit Lab (4 stars per task)
-  const banditStats = useMemo(() => getStationStats(BANDIT_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+  const banditStats = useMemo(() => getStationStats(BANDIT_TASKS, 4), [getStationStats]);
 
   // 6. Vertex AI Architect (4 stars per task)
-  const vertexStats = useMemo(() => getStationStats(VERTEX_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+  const vertexStats = useMemo(() => getStationStats(VERTEX_TASKS, 4), [getStationStats]);
 
   // 7. Field AI Deployer (4 stars per task)
-  const fdeStats = useMemo(() => getStationStats(FDE_TASKS, 4), [taskMasteryStars, completedCodingTasks]);
+  const fdeStats = useMemo(() => getStationStats(FDE_TASKS, 4), [getStationStats]);
 
   // Total stars across platform
   const totalStars =
@@ -214,33 +218,40 @@ export const WorkshopHubScreen: React.FC = () => {
           </p>
         </div>
 
-        {/* Global XP & Stars Quick Counter */}
+        {/* ── Onboarding Briefing & Stars Mastery Counter ── */}
         <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
-          <UserNavBadge />
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/25 shadow-paper-xs">
-            <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800">
-              <Award size={16} />
+          <button
+            id="btn-hub-onboarding"
+            type="button"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsOnboardingOpen(true);
+            }}
+            className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] hover:bg-[#FAF8F2] border-2 border-[#1A1D20]/20 hover:border-accent-blue/50 text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-95 group select-none"
+            title={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
+          >
+            <div className="w-7 h-7 rounded-xl bg-accent-blue/15 border border-accent-blue/35 text-accent-blue flex items-center justify-center group-hover:scale-105 group-hover:bg-accent-blue group-hover:text-white transition-all shadow-2xs shrink-0">
+              <Sparkles size={15} strokeWidth={2.2} />
             </div>
-            <div>
-              <div className="text-[9px] font-mono uppercase font-bold text-[#1A1D20]/60 leading-none">
-                {t("hub.totalXp", "Загальний досвід")}
+            <div className="text-left leading-none">
+              <div className="text-[9px] font-mono uppercase font-bold text-accent-blue">
+                +25 XP БОНУС
               </div>
-              <div className="font-display font-extrabold text-sm text-[#1A1D20] flex items-center gap-1">
-                <span>{xp}</span>
-                <span className="text-[10px] font-mono text-amber-800 font-bold">XP</span>
+              <div className="font-display font-extrabold text-xs text-[#1A1D20] mt-0.5">
+                {t("onboarding.tourTitle", "Інструктаж")}
               </div>
             </div>
-          </div>
+          </button>
 
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/25 shadow-paper-xs">
-            <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-500">
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border-2 border-[#1A1D20]/20 shadow-paper-xs select-none">
+            <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-500 shadow-2xs shrink-0">
               <span className="text-sm font-bold">★</span>
             </div>
-            <div>
-              <div className="text-[9px] font-mono uppercase font-bold text-[#1A1D20]/60 leading-none">
+            <div className="text-left leading-none">
+              <div className="text-[9px] font-mono uppercase font-bold text-[#1A1D20]/60">
                 {t("hub.totalStars", "Зірки майстерності")}
               </div>
-              <div className="font-display font-extrabold text-sm text-[#1A1D20]">
+              <div className="font-display font-extrabold text-xs sm:text-sm text-[#1A1D20] mt-0.5">
                 {totalStars} / {TOTAL_MAX_STARS}
               </div>
             </div>

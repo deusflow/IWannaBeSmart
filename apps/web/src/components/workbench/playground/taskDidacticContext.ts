@@ -19,21 +19,17 @@ export interface ArchitectureMapInfo {
   canvasNodeName: string;
   canvasWiring: string;
   architectureHint: string;
+  [key: string]: unknown;
 }
 
 export interface TaskDidacticInfo {
   taskId: string;
-  whyThisCode: {
-    csharp: string;
-    go: string;
-  };
+  whyThisCode: Record<string, string>;
   /** Deep explanation for primitive types (int vs string, memory allocation) */
-  primitiveMemoryNote?: {
-    csharp: string;
-    go: string;
-  };
+  primitiveMemoryNote?: Record<string, string>;
   /** Project structure and Architecture Canvas mapping (Tier 2 / architecture tasks) */
   architectureMap?: ArchitectureMapInfo;
+  [key: string]: unknown;
 }
 
 export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {

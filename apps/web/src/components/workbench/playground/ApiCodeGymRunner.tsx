@@ -188,7 +188,7 @@ export const ApiCodeGymRunner: React.FC = () => {
   // Synchronize HTTP Dispatcher draft on initial mount
   useEffect(() => {
     syncTaskDraft(selectedTaskId);
-  }, []);
+  }, [selectedTaskId, syncTaskDraft]);
 
   const handleSelectTask = useCallback(
     (taskId: string) => {

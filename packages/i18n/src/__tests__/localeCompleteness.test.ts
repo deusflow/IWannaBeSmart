@@ -17,7 +17,7 @@ import {
   TASK_DIDACTIC_DA,
 } from "../index";
 
-function flattenKeys(obj: Record<string, any>, prefix = ""): string[] {
+function flattenKeys(obj: Record<string, unknown>, prefix = ""): string[] {
   let keys: string[] = [];
   for (const [key, val] of Object.entries(obj)) {
     const newPrefix = prefix ? `${prefix}.${key}` : key;
@@ -71,11 +71,11 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
       const enHardware =
         typeof enEx!.demonstrationLog.hardwareEffect === "string"
           ? enEx!.demonstrationLog.hardwareEffect
-          : (enEx!.demonstrationLog.hardwareEffect as any).en;
+          : (enEx!.demonstrationLog.hardwareEffect as Record<string, string>).en;
       const daHardware =
         typeof daEx!.demonstrationLog.hardwareEffect === "string"
           ? daEx!.demonstrationLog.hardwareEffect
-          : (daEx!.demonstrationLog.hardwareEffect as any).da;
+          : (daEx!.demonstrationLog.hardwareEffect as Record<string, string>).da;
       expect(enHardware.length).toBeGreaterThan(0);
       expect(daHardware.length).toBeGreaterThan(0);
 
@@ -83,11 +83,11 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
       const enExp =
         typeof enEx!.explanation === "string"
           ? enEx!.explanation
-          : (enEx!.explanation as any).en;
+          : (enEx!.explanation as Record<string, string>).en;
       const daExp =
         typeof daEx!.explanation === "string"
           ? daEx!.explanation
-          : (daEx!.explanation as any).da;
+          : (daEx!.explanation as Record<string, string>).da;
       expect(enExp.length).toBeGreaterThan(0);
       expect(daExp.length).toBeGreaterThan(0);
 
@@ -95,11 +95,11 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
       const enPrompt =
         typeof enEx!.finalChallenge.prompt === "string"
           ? enEx!.finalChallenge.prompt
-          : (enEx!.finalChallenge.prompt as any).en;
+          : (enEx!.finalChallenge.prompt as Record<string, string>).en;
       const daPrompt =
         typeof daEx!.finalChallenge.prompt === "string"
           ? daEx!.finalChallenge.prompt
-          : (daEx!.finalChallenge.prompt as any).da;
+          : (daEx!.finalChallenge.prompt as Record<string, string>).da;
       expect(enPrompt.length).toBeGreaterThan(0);
       expect(daPrompt.length).toBeGreaterThan(0);
 

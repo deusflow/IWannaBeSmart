@@ -243,7 +243,7 @@ export const FdeCodeGymRunner: React.FC = () => {
     }
 
     const beforeState = fdeState;
-    let result: any = {
+    let result: Parameters<typeof currentTask.validate>[2] = {
       success: true,
       output: "FDE verification passed",
     };

@@ -62,7 +62,7 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
               }
             }
 
-            const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+            const toStr = (l: unknown): string => (typeof l === "string" ? l : (l as Record<string, string>)?.ua || "");
 
             // demonstrationLog check
             expect(worked.demonstrationLog).toBeDefined();
@@ -93,7 +93,7 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
             const worked = (task.workedExample || WORKED_EXAMPLES[task.id] || getWorkedExample(task.id)) as WorkedExample;
             expect(worked).toBeDefined();
 
-            const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+            const toStr = (l: unknown): string => (typeof l === "string" ? l : (l as Record<string, string>)?.ua || "");
 
             expect(worked.finalChallenge).toBeDefined();
             expect(toStr(worked.finalChallenge.prompt).trim().length).toBeGreaterThan(0);
@@ -114,7 +114,7 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
   });
 
   describe("Domain Authenticity & Separation", () => {
-    const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+    const toStr = (l: unknown): string => (typeof l === "string" ? l : (l as Record<string, string>)?.ua || "");
 
     it("TV worked examples should reference TV hardware (relays, volume, channels, cathode ray)", () => {
       const tvTask1 = getWorkedExample("task-0-1-power-on");
@@ -210,7 +210,7 @@ describe("Gradual Release of Responsibility (GRR) Worked Examples Specification"
       for (const task of allTasks) {
         const we = task.workedExample || WORKED_EXAMPLES[task.id] || getWorkedExample(task.id);
         expect(we).toBeDefined();
-        const toStr = (l: any): string => (typeof l === "string" ? l : l?.ua || "");
+        const toStr = (l: unknown): string => (typeof l === "string" ? l : (l as Record<string, string>)?.ua || "");
         const hintNorm = normalize(toStr(we.finalChallenge.hint));
         if (!hintNorm) continue;
 

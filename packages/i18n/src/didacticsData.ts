@@ -479,7 +479,18 @@ export const TASK_DIDACTIC_DA: Record<string, DidacticTranslation> = {
   }
 };
 
-export function getLocalizedTaskDidactic<T extends { whyThisCode?: any; primitiveMemoryNote?: any; architectureMap?: any }>(
+export interface LocalizableTaskDidactic {
+  whyThisCode?: Record<string, string>;
+  primitiveMemoryNote?: Record<string, string>;
+  architectureMap?: {
+    canvasWiring?: string;
+    architectureHint?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+export function getLocalizedTaskDidactic<T extends LocalizableTaskDidactic>(
   base: T | undefined,
   taskId: string,
   lang: string = "ua"
@@ -506,5 +517,5 @@ export function getLocalizedTaskDidactic<T extends { whyThisCode?: any; primitiv
       canvasWiring: translation.canvasWiring || base.architectureMap.canvasWiring,
       architectureHint: translation.architectureHint || base.architectureMap.architectureHint,
     } : undefined,
-  };
+  } as T;
 }

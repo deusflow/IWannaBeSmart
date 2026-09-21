@@ -31,7 +31,7 @@ import type {
 } from "@iw/sim-engine";
 
 /**
- * Physical animation & transmission timings (Item 56)
+ * Physical animation & transmission timings
  */
 export const TIMINGS = {
   BUTTON_PRESS_MS: 120,
@@ -95,7 +95,7 @@ export interface ArchitectureSlice {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setArchEdges: (edges: Edge<Record<string, any>>[]) => void;
 
-  // Trace-Chain Node System State (Items 0-5)
+  // Trace-Chain Node System State
   selectedTraceEntityId: string;
   setSelectedTraceEntityId: (id: string) => void;
   bypassedTraceNodes: string[];
@@ -138,6 +138,8 @@ export interface MentorSlice {
   setCurrentView: (view: "HUB" | "STATION") => void;
   targetTaskId: string | null;
   setTargetTaskId: (taskId: string | null) => void;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
 }
 
 

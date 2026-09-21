@@ -88,7 +88,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
         t(`projectFiles.${f.id}.role`, f.role).toLowerCase().includes(q) ||
         f.path.toLowerCase().includes(q)
     );
-  }, [searchQuery]);
+  }, [searchQuery, t]);
 
   if (isCollapsed) {
     return (

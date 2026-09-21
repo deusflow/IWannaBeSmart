@@ -63,7 +63,7 @@ export interface VirtualApiState {
   lastRequest?: HttpRequest;
   lastResponse?: HttpResponse;
   retryCount?: number;
-  clientReceivedData?: any;
+  clientReceivedData?: unknown;
   clientSuccess?: boolean;
 }
 

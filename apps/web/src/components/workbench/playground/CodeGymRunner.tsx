@@ -300,13 +300,9 @@ export const CodeGymRunner: React.FC = () => {
   const handleRunTransfer = useCallback(async () => {
     const res = await runPosExecution(typedCode);
 
-    let passed = false;
-    if (currentTask.transferVariant) {
-      passed = currentTask.transferVariant.validate(posState, res.newState, typedCode, res);
-    } else {
-      const validation = currentTask.validate(posState, res.newState, res, typedCode);
-      passed = validation.passed;
-    }
+    const passed = currentTask.transferVariant
+      ? currentTask.transferVariant.validate(posState, res.newState, typedCode, res)
+      : currentTask.validate(posState, res.newState, res, typedCode).passed;
 
     if (passed) {
       setHasError(false);
@@ -380,7 +376,7 @@ export const CodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, codeLang, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
 
   const handleVerify = useCallback(() => {
     if (currentTask.isBugfixTask && activeRound === 1) {

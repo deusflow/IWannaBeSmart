@@ -183,7 +183,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           <InteractiveCodePlayground onOpenArchitectureStudio={onOpenArchitectureStudio} />
         )}
 
-        {/* TAB 2: HARDWARE CIRCUIT SCHEMATIC (Block G, Items 59-64) */}
+        {/* TAB 2: HARDWARE CIRCUIT SCHEMATIC */}
         {activeTab === "hardware" && (
           <div className="w-full">
             <CircuitCanvas />

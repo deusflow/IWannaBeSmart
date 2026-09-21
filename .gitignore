@@ -43,3 +43,6 @@ lerna-debug.log*
 
 # Internal educational roadmap & architecture specs
 docs/ROADMAP_ARCHITECTURE.md
+
+# Scratch & temporary scripts
+scratch/
