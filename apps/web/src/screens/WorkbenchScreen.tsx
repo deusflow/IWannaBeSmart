@@ -32,9 +32,10 @@ import { FdeStationVictoryModal } from "../components/workbench/FdeStationVictor
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { CommandPaletteModal } from "../components/workbench/CommandPaletteModal";
 import { KeyboardShortcutsModal } from "../components/workbench/KeyboardShortcutsModal";
+import { OnboardingTourModal } from "../components/workbench/OnboardingTourModal";
 import { AudioVolumeWidget } from "../components/workbench/AudioVolumeWidget";
 import { audioFx } from "../utils/audioFx";
-import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Search } from "lucide-react";
+import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Search, Sparkles } from "lucide-react";
 
 /**
  * Engineering Microchip XP icon — silicon die with contact pins.
@@ -78,6 +79,16 @@ export const WorkbenchScreen: React.FC = () => {
   const [isDrawerPinned, setIsDrawerPinned] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return !localStorage.getItem("iw_onboarding_seen");
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
 
   // Global Shortcuts: Cmd/Ctrl + K (Palette) and '?' (Cheatsheet)
   useEffect(() => {
@@ -328,6 +339,21 @@ export const WorkbenchScreen: React.FC = () => {
             <kbd className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[10px] font-mono font-bold text-ink-muted">
               ⌘K
             </kbd>
+          </button>
+
+          {/* Engineering Onboarding Briefing Button */}
+          <button
+            id="btn-onboarding-tour"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsOnboardingOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink/80 hover:text-accent-blue font-display font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0"
+            title={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
+            aria-label={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
+          >
+            <Sparkles size={13} className="text-accent-blue shrink-0" />
+            <span className="hidden lg:inline">{t("onboarding.tourTitle", "Інструктаж")}</span>
           </button>
 
           {/* Keyboard Shortcuts Trigger Button */}
@@ -631,6 +657,17 @@ export const WorkbenchScreen: React.FC = () => {
           ══════════════════════════════════════════════ */}
       {currentView === "STATION" && activeView === "device" && currentStationId === "tv" && (
         <aside className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-end gap-0">
+          {/* Beginner Affordance Badge pointing to Code & Schematic Tab */}
+          {!isDrawerActive && !power && (
+            <div
+              className="absolute -left-44 top-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-blue text-white font-mono text-[11px] font-bold shadow-xl shadow-blue-500/30 animate-bounce pointer-events-none select-none z-50 border border-white/20"
+            >
+              <Sparkles size={13} className="text-amber-300" />
+              <span>{t("onboarding.drawerAffordanceHint", "Код та схема тут")}</span>
+              <span>→</span>
+            </div>
+          )}
+
           {/* Tab 1: Code & Schematic */}
           <button
             id="tab-code-schematic"
@@ -757,6 +794,12 @@ export const WorkbenchScreen: React.FC = () => {
       <KeyboardShortcutsModal
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      {/* Engineering Cadet Onboarding Tour Modal */}
+      <OnboardingTourModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
       />
     </div>
   );

@@ -23,6 +23,7 @@ import {
   HelpCircle,
   Wrench,
   Copy,
+  Lightbulb,
 } from "lucide-react";
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import type { CodeGymTaskLike } from "./useCodeGymSession";
@@ -168,6 +169,23 @@ export function CodeGymEditor<
       t(currentTask.descKey)
     );
   }, [currentTask, activeRound, i18n.language, t]);
+
+  const eli5Hint = useMemo(() => {
+    if (!hasError) return null;
+    if (targetCode.toLowerCase() === typedCode.toLowerCase() && targetCode !== typedCode) {
+      return t("eli5.caseSensitive");
+    }
+    if (targetCode.includes(";") && (!typedCode.includes(";") || (feedback && feedback.includes(";")))) {
+      return t("eli5.semicolon");
+    }
+    if ((targetCode.includes("{") || targetCode.includes("}")) && (!typedCode.includes("{") || !typedCode.includes("}"))) {
+      return t("eli5.braces");
+    }
+    if (targetCode.includes('"') && !typedCode.includes('"')) {
+      return t("eli5.quotes");
+    }
+    return null;
+  }, [hasError, targetCode, typedCode, feedback, t]);
 
   const [fontSize, setFontSize] = useState<number>(13);
   const [isWordWrap, setIsWordWrap] = useState<boolean>(true);
@@ -580,7 +598,20 @@ export function CodeGymEditor<
           ) : (
             <Sparkles size={16} className="text-amber-400 shrink-0 mt-0.5" />
           )}
-          <div className="flex-1 font-semibold">{feedback}</div>
+          <div className="flex-1 space-y-1">
+            <div className="font-semibold">{feedback}</div>
+            {hasError && eli5Hint && (
+              <div className="pt-1.5 border-t border-red-800/40 text-[11px] text-red-200/90 font-sans flex items-start gap-1.5">
+                <Lightbulb size={13} className="text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-amber-300 mr-1">
+                    {t("eli5.tipTitle", "Простими словами (ELI5):")}
+                  </span>
+                  <span>{eli5Hint}</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

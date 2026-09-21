@@ -309,6 +309,7 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={tvStats.max}
             statusType={tvStats.statusType}
             isRecommended={!tvStats.isCompleted || xp < 100}
+            beaconText={t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
             onEnter={() => handleEnterStation("tv")}
             onViewCert={
               tvStats.isEligible

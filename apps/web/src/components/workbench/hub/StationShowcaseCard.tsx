@@ -23,6 +23,7 @@ export interface StationShowcaseCardProps {
   maxStars: number;
   statusType: "mastered" | "completed" | "available" | "locked";
   isRecommended?: boolean;
+  beaconText?: string;
   accentBorderClass?: string;
   starColorClass?: string;
   lockCriteria?: {
@@ -46,6 +47,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
   maxStars,
   statusType,
   isRecommended = false,
+  beaconText,
   accentBorderClass = "hover:border-[#1A1D20]/50",
   starColorClass = "text-amber-700",
   lockCriteria,
@@ -124,7 +126,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         {isRecommended && (
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-900 text-xs font-mono font-bold animate-pulse">
             <Sparkles size={13} className="text-amber-700 shrink-0" />
-            <span>{t("hub.recommendedStart", "🌟 Рекомендований старт для новачків")}</span>
+            <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", "🌟 Рекомендований старт для новачків"))}</span>
           </div>
         )}
 

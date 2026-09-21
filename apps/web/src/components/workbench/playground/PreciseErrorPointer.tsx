@@ -18,6 +18,8 @@ interface TokenError {
   description: string;
   /** Engineering term (stays in English) */
   term: string;
+  /** Plain language ELI5 explanation */
+  eli5?: string;
 }
 
 interface PreciseErrorPointerProps {
@@ -53,6 +55,7 @@ function detectTokenError(
       token: "';'",
       description: t("errorPointer.semicolonExpected"),
       term: "Statement Terminator",
+      eli5: t("eli5.semicolon"),
     };
   }
 
@@ -64,6 +67,7 @@ function detectTokenError(
         actual: gotChar ?? "∅",
       }),
       term: "Case Sensitivity",
+      eli5: t("eli5.caseSensitive"),
     };
   }
 
@@ -83,11 +87,24 @@ function detectTokenError(
     };
   }
 
-  if (expectedChar === "{") {
+  if (expectedChar === "{" || expectedChar === "}") {
     return {
-      token: "'{'",
-      description: t("errorPointer.openBrace"),
-      term: "Opening Block Brace",
+      token: `'${expectedChar}'`,
+      description: expectedChar === "{" ? t("errorPointer.openBrace") : t("errorPointer.closeBrace"),
+      term: "Block Brace",
+      eli5: t("eli5.braces"),
+    };
+  }
+
+  if (expectedChar === '"' || expectedChar === "'") {
+    return {
+      token: `'${expectedChar}'`,
+      description: t("errorPointer.syntaxMismatch", {
+        expected: expectedChar,
+        actual: gotChar ?? "∅",
+      }),
+      term: "String Literal",
+      eli5: t("eli5.quotes"),
     };
   }
 
@@ -154,6 +171,12 @@ export const PreciseErrorPointer: React.FC<PreciseErrorPointerProps> = ({
         <p className="mt-1 text-[11px] font-mono text-red-300/90 leading-snug">
           {error.description}
         </p>
+        {error.eli5 && (
+          <div className="mt-2 pt-1.5 border-t border-red-500/20 flex items-start gap-1.5 text-[11px] font-sans text-amber-200/90">
+            <span className="font-bold text-amber-400 shrink-0">💡 {t("eli5.tipTitle", "Простими словами (ELI5):")}</span>
+            <span className="leading-snug">{error.eli5}</span>
+          </div>
+        )}
       </div>
     </div>
   );
