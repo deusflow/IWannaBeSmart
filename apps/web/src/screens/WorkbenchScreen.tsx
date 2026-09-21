@@ -281,6 +281,7 @@ export const WorkbenchScreen: React.FC = () => {
                 id="btn-back-to-hub"
                 onClick={() => {
                   audioFx.playRelayClick();
+                  setActiveView("device");
                   setCurrentView("HUB");
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-[#1A1D20]/60 text-ink font-display font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
@@ -290,7 +291,7 @@ export const WorkbenchScreen: React.FC = () => {
                 <span>{t("hub.backToHub", "До верстака / Hub")}</span>
               </button>
 
-              {activeView === "architecture" ? (
+              {activeView === "architecture" && currentStationId === "tv" ? (
                 <button
                   onClick={() => setActiveView("device")}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink font-display font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95"
@@ -302,7 +303,10 @@ export const WorkbenchScreen: React.FC = () => {
               ) : (
                 <BlueprintStationSwitcher
                   currentStationId={currentStationId}
-                  onSelectStation={setCurrentStationId}
+                  onSelectStation={(id) => {
+                    setActiveView("device");
+                    setCurrentStationId(id);
+                  }}
                 />
               )}
 
@@ -490,7 +494,7 @@ export const WorkbenchScreen: React.FC = () => {
         <main className="relative z-10 flex-1 w-full overflow-y-auto flex flex-col">
           <WorkshopHubScreen />
         </main>
-      ) : activeView === "architecture" ? (
+      ) : activeView === "architecture" && currentStationId === "tv" ? (
         <main className="relative z-10 flex-1 w-full h-[calc(100vh-3.5rem)] min-h-0 overflow-hidden flex flex-col">
           <ArchitectureCanvas onBackToTv={() => setActiveView("device")} />
         </main>

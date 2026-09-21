@@ -152,9 +152,10 @@ export const FdeCodeGymRunner: React.FC = () => {
 
   const handleOpenTheory = useCallback(() => {
     setForceTheoryExpanded(true);
+    unlockPractice();
     const el = document.getElementById("guided-step-bar-container");
     el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, []);
+  }, [unlockPractice]);
 
   const handleSelectTask = useCallback(
     (taskId: string) => {
@@ -717,6 +718,7 @@ The production pipeline consists of a multi-agent system wired through LangGraph
         nextTaskAvailable={Boolean(nextTask)}
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
+        onUnlockPractice={unlockPractice}
       />
     </div>
   );

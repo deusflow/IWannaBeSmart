@@ -38,6 +38,7 @@ import {
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { audioFx } from "../../utils/audioFx";
+import { toast } from "../../store/toastStore";
 
 interface PaletteItem {
   id: string;
@@ -94,12 +95,21 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   // Handle station jump
   const handleJumpStation = useCallback(
     (stationId: string) => {
+      if (stationId === "iot") {
+        audioFx.playRelayClick();
+        toast.info(
+          t("hub.stations.iot.badge", "НЕЗАБАРОМ: EventBus & Async I/O"),
+          t("hub.unlockCondition", "Потрібно 200+ XP або Модулі 1 та 2")
+        );
+        onClose();
+        return;
+      }
       audioFx.playRelayClick();
       setCurrentStationId(stationId);
       setCurrentView("STATION");
       onClose();
     },
-    [setCurrentStationId, setCurrentView, onClose]
+    [setCurrentStationId, setCurrentView, onClose, t]
   );
 
   // Handle task jump
@@ -123,6 +133,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: t("hub.stations.tv.specs", "18 tasks • Smart TV • C# / Go"),
         icon: Tv,
         color: "text-blue-400",
+        badge: "STATION",
       },
       {
         id: "pos",
@@ -130,13 +141,15 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: t("hub.stations.pos.specs", "7 tasks • Code Gym • C# / Go"),
         icon: CreditCard,
         color: "text-emerald-400",
+        badge: "STATION",
       },
       {
         id: "iot",
         title: t("hub.stations.iot.title", "Station 03: Embedded Hardware & IoT"),
-        subtitle: t("hub.stations.iot.specs", "Circuit Canvas • Virtual Hardware"),
+        subtitle: t("hub.stations.iot.specs", "EventBus • Async I/O • C# / Go"),
         icon: Radio,
         color: "text-amber-400",
+        badge: t("hub.stationLocked", "НЕЗАБАРОМ"),
       },
       {
         id: "api",
@@ -144,6 +157,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: t("hub.stations.api.specs", "6 tasks • HTTP Client & Server"),
         icon: Network,
         color: "text-cyan-400",
+        badge: "STATION",
       },
       {
         id: "git",
@@ -306,7 +320,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: s.subtitle,
         icon: s.icon,
         iconColor: s.color,
-        badge: "STATION",
+        badge: s.badge || "STATION",
         onSelect: () => handleJumpStation(s.id),
       }));
 

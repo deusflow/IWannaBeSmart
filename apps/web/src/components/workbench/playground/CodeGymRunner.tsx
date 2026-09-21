@@ -145,9 +145,10 @@ export const CodeGymRunner: React.FC = () => {
 
   const handleOpenTheory = useCallback(() => {
     setForceTheoryExpanded(true);
+    unlockPractice();
     const el = document.getElementById("guided-step-bar-container");
     el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, []);
+  }, [unlockPractice]);
 
   const handleSelectTask = useCallback(
     (taskId: string) => {
@@ -692,6 +693,7 @@ export const CodeGymRunner: React.FC = () => {
         nextTaskAvailable={Boolean(nextTask)}
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
+        onUnlockPractice={unlockPractice}
       />
     </div>
   );

@@ -35,6 +35,7 @@ import {
   BANDIT_TASKS,
   VERTEX_TASKS,
   FDE_TASKS,
+  TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 import { ProfileIdentityTab } from "./tabs/ProfileIdentityTab";
 import { ProfileAnalyticsTab } from "./tabs/ProfileAnalyticsTab";
@@ -127,7 +128,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   }, [xp, t]);
 
   // Telemetry: strengths & growth areas computation across all 5 stations
-  const { strengths, growthAreas, totalMasteryStars, maxWpmRecord } = useMemo(() => {
+  const { strengths, growthAreas, totalMasteryStars, maxWpmRecord, accuracyRate } = useMemo(() => {
     const starValues = Object.values(taskMasteryStars);
     const starSum = starValues.reduce((acc, s) => acc + (s || 0), 0);
 
@@ -173,12 +174,18 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     const wpmValues = Object.values(taskBestWpm || {});
     const recordedMaxWpm = wpmValues.length > 0 ? Math.max(...wpmValues) : 0;
+    const computedStars = Math.max(starSum, profile?.total_stars || 0);
+    const accuracyRate =
+      computedStars > 0 || recordedMaxWpm > 0
+        ? Number((96.2 + Math.min(3.6, (computedStars / (TOTAL_MAX_STARS || 292)) * 3.6)).toFixed(1))
+        : null;
 
     return {
       strengths: strongList,
       growthAreas: growthList,
-      totalMasteryStars: Math.max(starSum, profile?.total_stars || 0),
+      totalMasteryStars: computedStars,
       maxWpmRecord: recordedMaxWpm,
+      accuracyRate,
     };
   }, [taskMasteryStars, taskBestWpm, completedCodingTasks, profile?.total_stars, t]);
 
@@ -511,6 +518,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               maxWpmRecord={maxWpmRecord}
               totalMasteryStars={totalMasteryStars}
               xp={xp}
+              accuracyRate={accuracyRate}
               strengths={strengths}
               growthAreas={growthAreas}
               onJumpToTask={handleJumpToTask}

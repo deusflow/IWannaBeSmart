@@ -160,9 +160,10 @@ export const ApiCodeGymRunner: React.FC = () => {
 
   const handleOpenTheory = useCallback(() => {
     setForceTheoryExpanded(true);
+    unlockPractice();
     const el = document.getElementById("guided-step-bar-container");
     el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, []);
+  }, [unlockPractice]);
 
   const syncTaskDraft = useCallback(
     (taskId: string) => {
@@ -695,6 +696,7 @@ export const ApiCodeGymRunner: React.FC = () => {
         nextTaskAvailable={Boolean(nextTask)}
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
+        onUnlockPractice={unlockPractice}
       />
     </div>
   );

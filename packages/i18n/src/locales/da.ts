@@ -996,6 +996,7 @@ export const daTranslation = {
         theoryLockedTitle: "Praksis låst indtil teorien er gennemgået",
         theoryLockedDesc: "Gennemgå lærerens eksempel og analogi ovenfor for at forstå konceptet før indtastning.",
         openTheoryBtn: "📖 Åbn lærerens forklaring",
+        skipToPractice: "Direkte til kode →",
       },
       fintechTask1: {
         title: "Opgave 1: Guard Clause: Kontobeskyttelse",

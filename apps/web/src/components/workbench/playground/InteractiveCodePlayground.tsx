@@ -237,9 +237,10 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
 
   const handleOpenTheory = useCallback(() => {
     setForceTheoryExpanded(true);
+    unlockPractice();
     const el = document.getElementById("guided-step-bar-container");
     el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, []);
+  }, [unlockPractice]);
 
   // Handle task switching
   const handleSelectTask = useCallback((taskId: string) => {
@@ -633,6 +634,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         nextTaskAvailable={Boolean(nextTask && isNextTaskUnlocked)}
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
+        onUnlockPractice={unlockPractice}
       />
     </div>
   );

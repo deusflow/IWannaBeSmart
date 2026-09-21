@@ -63,6 +63,7 @@ interface CodeGymEditorProps<
   nextTaskAvailable: boolean;
   isTheoryUnlocked?: boolean;
   onOpenTheory?: () => void;
+  onUnlockPractice?: () => void;
 }
 
 export function CodeGymEditor<
@@ -97,6 +98,7 @@ export function CodeGymEditor<
   nextTaskAvailable,
   isTheoryUnlocked = true,
   onOpenTheory,
+  onUnlockPractice,
 }: CodeGymEditorProps<TTask, TLang>) {
   const { t, i18n } = useTranslation();
 
@@ -529,16 +531,30 @@ export function CodeGymEditor<
                 "Подивіться зразок вчителя та життєву аналогію вгорі, щоб зрозуміти сенс команди перед набором."
               )}
             </p>
-            {onOpenTheory && (
-              <button
-                type="button"
-                onClick={onOpenTheory}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-mono font-extrabold text-xs shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
-              >
-                <BookOpen size={14} />
-                <span>{t("codegym.openTheoryBtn", "📖 Відкрити пояснення вчителя")}</span>
-              </button>
-            )}
+            <div className="flex items-center gap-2.5 flex-wrap justify-center">
+              {onOpenTheory && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenTheory();
+                    onUnlockPractice?.();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-mono font-extrabold text-xs shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
+                >
+                  <BookOpen size={14} />
+                  <span>{t("codegym.openTheoryBtn", "📖 Відкрити пояснення вчителя")}</span>
+                </button>
+              )}
+              {onUnlockPractice && (
+                <button
+                  type="button"
+                  onClick={onUnlockPractice}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2A2E35] hover:bg-[#343A43] text-gray-200 font-mono font-bold text-xs border border-gray-600 transition-all cursor-pointer hover:scale-105 active:scale-95"
+                >
+                  <span>{t("codegym.skipToPractice", "Одразу до коду →")}</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
 

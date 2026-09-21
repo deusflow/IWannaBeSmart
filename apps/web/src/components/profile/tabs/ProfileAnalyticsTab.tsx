@@ -34,6 +34,7 @@ export interface ProfileAnalyticsTabProps {
   maxWpmRecord: number;
   totalMasteryStars: number;
   xp: number;
+  accuracyRate?: number | null;
   strengths: ProfileStrengthItem[];
   growthAreas: ProfileGrowthItem[];
   onJumpToTask: (stationId: string, taskId?: string) => void;
@@ -43,6 +44,7 @@ export const ProfileAnalyticsTab: React.FC<ProfileAnalyticsTabProps> = ({
   maxWpmRecord,
   totalMasteryStars,
   xp,
+  accuracyRate,
   strengths,
   growthAreas,
   onJumpToTask,
@@ -80,7 +82,7 @@ export const ProfileAnalyticsTab: React.FC<ProfileAnalyticsTabProps> = ({
             <span>{t("profile.accuracyLabel", "Точність синтаксису")}</span>
           </div>
           <div className="mt-1 font-display font-black text-xl text-[#1A1D20]">
-            98.4%
+            {accuracyRate !== undefined && accuracyRate !== null ? `${accuracyRate.toFixed(1)}%` : "—"}
           </div>
         </div>
 
