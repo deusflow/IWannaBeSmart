@@ -35,19 +35,19 @@ alter table public.profiles enable row level security;
 alter table public.user_progress enable row level security;
 
 -- 4. RLS Policies for Profiles
--- Users can view their own profile only
+drop policy if exists "Users can view own profile" on public.profiles;
 create policy "Users can view own profile"
   on public.profiles
   for select
   using (auth.uid() = id);
 
--- Users can insert their own profile only
+drop policy if exists "Users can insert own profile" on public.profiles;
 create policy "Users can insert own profile"
   on public.profiles
   for insert
   with check (auth.uid() = id);
 
--- Users can update their own profile only
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles
   for update
@@ -55,26 +55,26 @@ create policy "Users can update own profile"
   with check (auth.uid() = id);
 
 -- 5. RLS Policies for User Progress
--- Users can select ONLY their own progress records. Reading foreign progress is strictly forbidden.
+drop policy if exists "Users can select own progress" on public.user_progress;
 create policy "Users can select own progress"
   on public.user_progress
   for select
   using (auth.uid() = user_id);
 
--- Users can insert ONLY their own progress records
+drop policy if exists "Users can insert own progress" on public.user_progress;
 create policy "Users can insert own progress"
   on public.user_progress
   for insert
   with check (auth.uid() = user_id);
 
--- Users can update ONLY their own progress records
+drop policy if exists "Users can update own progress" on public.user_progress;
 create policy "Users can update own progress"
   on public.user_progress
   for update
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
--- Users can delete ONLY their own progress records
+drop policy if exists "Users can delete own progress" on public.user_progress;
 create policy "Users can delete own progress"
   on public.user_progress
   for delete

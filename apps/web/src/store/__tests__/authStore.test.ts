@@ -3,7 +3,8 @@
  * @description Comprehensive unit tests for self-healing, offline-first AuthStore
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { supabase } from "../../lib/supabaseClient";
 
 // Mock localStorage and window for Node test environment
 const storageMap = new Map<string, string>();
@@ -145,8 +146,15 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     });
   });
 
-  describe("signInWithGoogle (Instant Offline Google Cadet Fallback)", () => {
+  describe("signInWithGoogle (Online & Offline Resilience)", () => {
+    it("redirects to OAuth URL when Supabase is online", async () => {
+      const { error } = await useAuthStore.getState().signInWithGoogle();
+      expect(error).toBeNull();
+      expect(window.location.href).toContain("supabase.co");
+    });
+
     it("immediately authenticates cadet engineer when Google OAuth is triggered offline", async () => {
+      vi.spyOn(supabase.auth, "signInWithOAuth").mockRejectedValueOnce(new Error("fetch failed"));
       const { error } = await useAuthStore.getState().signInWithGoogle();
 
       expect(error).toBeNull();
@@ -165,6 +173,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
 
   describe("updateProfile & Session Persistence", () => {
     it("updates callsign and avatar locally and persists to session cache", async () => {
+      vi.spyOn(supabase.auth, "signInWithOAuth").mockRejectedValueOnce(new Error("fetch failed"));
       await useAuthStore.getState().signInWithGoogle();
 
       const { error } = await useAuthStore.getState().updateProfile({
@@ -205,6 +214,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     });
 
     it("clears local session on signOut", async () => {
+      vi.spyOn(supabase.auth, "signInWithOAuth").mockRejectedValueOnce(new Error("fetch failed"));
       await useAuthStore.getState().signInWithGoogle();
       expect(useAuthStore.getState().user).not.toBeNull();
       expect(localStorage.getItem("iw_active_session")).toBeTruthy();
