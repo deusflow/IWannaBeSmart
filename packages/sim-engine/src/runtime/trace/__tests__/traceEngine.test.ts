@@ -127,4 +127,41 @@ describe("TracePlaybackController (Execution Flow & POE Engine)", () => {
     const crumbs = controller.getBreadcrumbHistory();
     expect(crumbs[0].folder).toBe("VirtualTV.Solution");
   });
+
+  it("should fire onComplete callback when reaching the end of the timeline", () => {
+    let completed = false;
+    const testController = new TracePlaybackController({
+      timeline: SMART_TV_EXECUTION_TRACE,
+      enablePoe: false,
+      onComplete: () => {
+        completed = true;
+      },
+    });
+
+    // Advance to the end
+    for (let i = 0; i < SMART_TV_EXECUTION_TRACE.totalSteps; i++) {
+      testController.stepForward();
+    }
+
+    expect(completed).toBe(true);
+  });
+
+  it("should correctly handle exception unwinding steps and fault reasons", () => {
+    const banditTrace = API_FORGE_EXECUTION_TRACE;
+    const testController = new TracePlaybackController({
+      timeline: banditTrace,
+      enablePoe: false,
+    });
+
+    // Step to return_unwind step
+    const returnStepIndex = banditTrace.steps.findIndex((s) => s.type === "return_unwind");
+    expect(returnStepIndex).toBeGreaterThan(0);
+
+    testController.seekTo(returnStepIndex);
+    const currentStep = testController.getCurrentStep();
+    expect(currentStep?.type).toBe("return_unwind");
+    expect(currentStep?.returnValue).toBeDefined();
+    expect(currentStep?.returnValue?.type).toBeDefined();
+    expect(currentStep?.returnValue?.terminationReason).toBeDefined();
+  });
 });

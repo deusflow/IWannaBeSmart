@@ -7,7 +7,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { CornerDownLeft, Layers, Info } from "lucide-react";
+import { CornerDownLeft, Layers, Info, AlertOctagon } from "lucide-react";
 import type { ExecutionTraceReturnValue, TraceStepLocation } from "@iw/sim-engine";
 
 interface ReturnValueInspectorProps {
@@ -95,6 +95,11 @@ export const ReturnValueInspector: React.FC<ReturnValueInspectorProps> = ({
     );
   }
 
+  const isException =
+    returnValue.type.toLowerCase().includes("exception") ||
+    returnValue.type.toLowerCase().includes("error") ||
+    returnValue.type.toLowerCase().includes("fault");
+
   const localizedSummary =
     typeof returnValue.summary === "string"
       ? returnValue.summary
@@ -105,38 +110,71 @@ export const ReturnValueInspector: React.FC<ReturnValueInspectorProps> = ({
       ? returnValue.terminationReason
       : returnValue.terminationReason[currentLang] || returnValue.terminationReason.ua || "";
 
-  const returnPointLabel =
-    currentLang === "en"
-      ? "Stack Return Point"
+  const returnPointLabel = isException
+    ? currentLang === "en"
+      ? "Exception Stack Unwind"
       : currentLang === "da"
-      ? "Stak Returpunkt"
-      : "Точка повернення зі стеку";
+      ? "Undtagelse Stak-afvikling"
+      : "Розмотка стеку через виключення"
+    : currentLang === "en"
+    ? "Stack Return Point"
+    : currentLang === "da"
+    ? "Stak Returpunkt"
+    : "Точка повернення зі стеку";
 
-  const whyTerminatedLabel =
-    currentLang === "en"
-      ? "Why method terminated (Notional Machine):"
+  const whyTerminatedLabel = isException
+    ? currentLang === "en"
+      ? "Why exception was thrown (Notional Machine):"
       : currentLang === "da"
-      ? "Hvorfor metoden afsluttedes (Notional Machine):"
-      : "Чому метод завершився (Notional Machine):";
+      ? "Hvorfor undtagelsen opstod (Notional Machine):"
+      : "Чому виникло виключення (Notional Machine):"
+    : currentLang === "en"
+    ? "Why method terminated (Notional Machine):"
+    : currentLang === "da"
+    ? "Hvorfor metoden afsluttedes (Notional Machine):"
+    : "Чому метод завершився (Notional Machine):";
 
-  const returningToLabel =
-    currentLang === "en"
-      ? "Returning to:"
+  const returningToLabel = isException
+    ? currentLang === "en"
+      ? "Unwinding caught in:"
       : currentLang === "da"
-      ? "Returnerer til:"
-      : "Повернення у:";
+      ? "Afvikling fanget i:"
+      : "Перехоплено у:"
+    : currentLang === "en"
+    ? "Returning to:"
+    : currentLang === "da"
+    ? "Returnerer til:"
+    : "Повернення у:";
 
   return (
     <div
-      className={`p-3.5 rounded-xl border border-emerald-600/40 bg-gradient-to-br from-[#061510] to-[#0A1017] text-xs text-slate-200 shadow-md ${className}`}
+      className={`p-3.5 rounded-xl border text-xs text-slate-200 shadow-md ${
+        isException
+          ? "border-rose-600/50 bg-gradient-to-br from-[#1c080e] to-[#0a0507]"
+          : "border-emerald-600/40 bg-gradient-to-br from-[#061510] to-[#0A1017]"
+      } ${className}`}
       data-testid="return-value-inspector"
     >
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
-          <CornerDownLeft className="w-4 h-4 text-emerald-400" />
+        <div
+          className={`flex items-center gap-1.5 font-semibold text-xs ${
+            isException ? "text-rose-400" : "text-emerald-400"
+          }`}
+        >
+          {isException ? (
+            <AlertOctagon className="w-4 h-4 text-rose-400 shrink-0" />
+          ) : (
+            <CornerDownLeft className="w-4 h-4 text-emerald-400 shrink-0" />
+          )}
           <span className="uppercase tracking-wider">{returnPointLabel}</span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-mono text-[11px] font-bold">
+        <span
+          className={`px-2 py-0.5 rounded-full font-mono text-[11px] font-bold border ${
+            isException
+              ? "bg-rose-950/80 border-rose-500/50 text-rose-300"
+              : "bg-emerald-950/70 border-emerald-500/40 text-emerald-300"
+          }`}
+        >
           {returnValue.type}: {returnValue.value}
         </span>
       </div>
@@ -145,8 +183,18 @@ export const ReturnValueInspector: React.FC<ReturnValueInspectorProps> = ({
         <p className="text-slate-200 text-xs font-medium leading-relaxed">{localizedSummary}</p>
       </div>
 
-      <div className="p-2 rounded-lg bg-emerald-950/20 border border-emerald-800/30 text-[11px] leading-relaxed text-emerald-200/90 mb-2">
-        <div className="flex items-center gap-1 font-semibold text-emerald-300 mb-0.5">
+      <div
+        className={`p-2 rounded-lg border text-[11px] leading-relaxed mb-2 ${
+          isException
+            ? "bg-rose-950/30 border-rose-800/40 text-rose-200/90"
+            : "bg-emerald-950/20 border-emerald-800/30 text-emerald-200/90"
+        }`}
+      >
+        <div
+          className={`flex items-center gap-1 font-semibold mb-0.5 ${
+            isException ? "text-rose-300" : "text-emerald-300"
+          }`}
+        >
           <Info className="w-3.5 h-3.5 shrink-0" />
           <span>{whyTerminatedLabel}</span>
         </div>
@@ -154,9 +202,19 @@ export const ReturnValueInspector: React.FC<ReturnValueInspectorProps> = ({
       </div>
 
       {targetLocation && (
-        <div className="flex items-center justify-between pt-2 border-t border-emerald-900/30 text-[11px] text-slate-400 font-mono">
+        <div
+          className={`flex items-center justify-between pt-2 border-t text-[11px] font-mono ${
+            isException
+              ? "border-rose-900/40 text-rose-300/80"
+              : "border-emerald-900/30 text-slate-400"
+          }`}
+        >
           <span>{returningToLabel}</span>
-          <span className="text-emerald-300 font-semibold truncate max-w-[220px]">
+          <span
+            className={`font-semibold truncate max-w-[220px] ${
+              isException ? "text-rose-300" : "text-emerald-300"
+            }`}
+          >
             {targetLocation.fileName}:{targetLocation.lineStart} ({targetLocation.symbol})
           </span>
         </div>

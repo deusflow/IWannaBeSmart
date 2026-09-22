@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   Maximize2,
   Minimize2,
+  Trophy,
 } from "lucide-react";
 import {
   TracePlaybackController,
@@ -37,6 +38,8 @@ import {
   type TracePlayerState,
 } from "@iw/sim-engine";
 import { audioFx } from "../../../utils/audioFx";
+import { useWorkbenchStore } from "../../../store/workbenchStore";
+import { toast } from "../../../store/toastStore";
 import { ArchitecturalBreadcrumbTrail } from "./ArchitecturalBreadcrumbTrail";
 import { SyncedProjectFolderTree } from "./SyncedProjectFolderTree";
 import { ReturnValueInspector } from "./ReturnValueInspector";
@@ -82,6 +85,9 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
   }, [timeline]);
 
   const [playerState, setPlayerState] = useState<TracePlayerState>(() => controller.getState());
+  const addXp = useWorkbenchStore((s) => s.addXp);
+  const [hasCompleted, setHasCompleted] = useState(false);
+  const awardedRef = React.useRef(false);
 
   useEffect(() => {
     const unsubscribe = controller.subscribe((s) => setPlayerState(s));
@@ -90,6 +96,42 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
       unsubscribe();
     };
   }, [controller]);
+
+  useEffect(() => {
+    if (playerState.currentStepIndex === timeline.steps.length - 1 && !awardedRef.current) {
+      awardedRef.current = true;
+      setHasCompleted(true);
+      if (enablePoe && playerState.poeScore.total > 0) {
+        const bonus = playerState.poeScore.correct * 15;
+        const totalXp = 50 + bonus;
+        addXp(totalXp);
+        toast.success(
+          currentLang === "en"
+            ? `🎉 Flow Trace Mastered! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} predictions)`
+            : currentLang === "da"
+            ? `🎉 Flow Trace Mestret! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} forudsigelser)`
+            : `🎉 Потік виконання опановано! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} передбачень)`
+        );
+        audioFx.playSuccessFanfare();
+      } else {
+        addXp(10);
+        toast.info(
+          currentLang === "en"
+            ? "👁️ Demo Mode completed (+10 XP). Enable POE to earn full mastery stars!"
+            : currentLang === "da"
+            ? "👁️ Demo Mode fuldført (+10 XP). Aktiver POE for fuld mestring!"
+            : "👁️ Демо-перегляд завершено (+10 XP). Увімкніть POE для повних балів майстерності!"
+        );
+      }
+    }
+  }, [
+    playerState.currentStepIndex,
+    timeline.steps.length,
+    enablePoe,
+    playerState.poeScore,
+    addXp,
+    currentLang,
+  ]);
 
   const currentStep = controller.getCurrentStep();
   const breadcrumbs = controller.getBreadcrumbHistory();
@@ -144,6 +186,8 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
 
   const handleReset = () => {
     audioFx.playRelayClick();
+    awardedRef.current = false;
+    setHasCompleted(false);
     controller.reset();
   };
 
@@ -515,17 +559,113 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                       L{currentStep?.location.lineStart}–L{currentStep?.location.lineEnd}
                     </span>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded bg-blue-950/60 text-blue-300 font-semibold text-[10px] border border-blue-800/40 shrink-0">
-                    {currentStep?.location.symbol}
-                  </span>
+                  {currentStep?.type === "branch_eval" ? (
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold text-[10px] border border-amber-500/40 shrink-0">
+                      BRANCH: {currentStep.location.symbol}
+                    </span>
+                  ) : currentStep?.type === "return_unwind" ? (
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold text-[10px] border border-emerald-500/40 shrink-0">
+                      RETURN: {currentStep.location.symbol}
+                    </span>
+                  ) : currentStep?.type === "exception" ? (
+                    <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-semibold text-[10px] border border-rose-500/40 shrink-0">
+                      EXCEPTION: {currentStep.location.symbol}
+                    </span>
+                  ) : currentStep?.type === "folder_enter" ? (
+                    <span className="px-1.5 py-0.5 rounded bg-cyan-950/60 text-cyan-300 font-semibold text-[10px] border border-cyan-700/40 shrink-0">
+                      ENTRY: {currentStep.location.symbol}
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded bg-blue-950/60 text-blue-300 font-semibold text-[10px] border border-blue-800/40 shrink-0">
+                      {currentStep?.location.symbol}
+                    </span>
+                  )}
                 </div>
 
-                <div className={`p-2.5 font-mono text-xs text-slate-300 bg-[#06080D] overflow-x-auto leading-relaxed ${isDock ? "max-h-[140px]" : "max-h-[220px]"}`}>
-                  <pre className="whitespace-pre-wrap">
-                    {currentStep?.location.codeSnippet || "// Executing method instructions..."}
-                  </pre>
+                <div
+                  className={`font-mono text-xs text-slate-300 bg-[#06080D] overflow-x-auto overflow-y-auto leading-relaxed divide-y divide-slate-900/60 ${
+                    isDock ? "max-h-[140px]" : "max-h-[220px]"
+                  }`}
+                >
+                  {(currentStep?.location.codeSnippet || "// Executing method instructions...")
+                    .split("\n")
+                    .map((line, idx) => {
+                      const lineNum = (currentStep?.location.lineStart || 1) + idx;
+                      const isTargetLine = idx === 0;
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center px-2 py-0.5 transition-colors group ${
+                            isTargetLine
+                              ? "bg-blue-600/20 text-blue-100 font-medium border-l-2 border-cyan-400"
+                              : "hover:bg-slate-900/40 text-slate-300"
+                          }`}
+                        >
+                          <span
+                            className={`w-8 text-right pr-2 text-[10px] select-none shrink-0 font-mono ${
+                              isTargetLine ? "text-cyan-400 font-bold" : "text-slate-600"
+                            }`}
+                          >
+                            {lineNum}
+                          </span>
+                          <span className="w-4 text-center pr-1 text-[10px] shrink-0 select-none">
+                            {isTargetLine ? (
+                              <span className="text-cyan-400 animate-pulse font-bold">➔</span>
+                            ) : (
+                              <span className="text-slate-700">·</span>
+                            )}
+                          </span>
+                          <span className="whitespace-pre font-mono selection:bg-blue-600/40 text-[11px]">
+                            {line}
+                          </span>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
+
+              {/* Completion & Gamification Mastery Banner */}
+              {hasCompleted && (
+                <div className="p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/30 flex items-center justify-between text-xs text-emerald-200 shadow-sm animate-in fade-in duration-300">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 shrink-0">
+                      <Trophy className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block text-emerald-300">
+                        {currentLang === "en"
+                          ? "Execution Flow Mastered!"
+                          : currentLang === "da"
+                          ? "Eksekvering fuldført!"
+                          : "Ланцюг виконання опановано!"}
+                      </span>
+                      <span className="text-[11px] text-emerald-400/90">
+                        {enablePoe
+                          ? `${
+                              currentLang === "en"
+                                ? "POE Score:"
+                                : currentLang === "da"
+                                ? "POE Score:"
+                                : "Точність POE:"
+                            } ${playerState.poeScore.correct}/${playerState.poeScore.total} (${Math.round(
+                              (playerState.poeScore.correct / Math.max(1, playerState.poeScore.total)) * 100
+                            )}%)`
+                          : currentLang === "en"
+                          ? "Demo Mode (Observation)"
+                          : currentLang === "da"
+                          ? "Demo Mode"
+                          : "Демо-режим (Спостереження)"}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleReset}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-[11px] font-mono transition-all cursor-pointer shrink-0"
+                  >
+                    {currentLang === "en" ? "Replay Flow" : currentLang === "da" ? "Genspil" : "Повторити"}
+                  </button>
+                </div>
+              )}
 
               {/* Didactic Step Explanation */}
               <div className="p-2.5 rounded-xl border border-blue-900/40 bg-blue-950/15 text-xs text-blue-100 flex items-start gap-2.5">

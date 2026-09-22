@@ -6,6 +6,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronRight, CornerDownLeft, ArrowLeftRight } from "lucide-react";
 
 export interface BreadcrumbItem {
@@ -30,6 +31,18 @@ export const ArchitecturalBreadcrumbTrail: React.FC<ArchitecturalBreadcrumbTrail
   onSeek,
   className = "",
 }) => {
+  const { i18n } = useTranslation();
+  const currentLang = (i18n.language?.startsWith("da")
+    ? "da"
+    : i18n.language?.startsWith("en")
+    ? "en"
+    : "ua") as "ua" | "en" | "da";
+
+  const callTrailLabel =
+    currentLang === "en" ? "Call Trail:" : currentLang === "da" ? "Kaldespor:" : "Шлях викликів:";
+  const jumpToStepLabel =
+    currentLang === "en" ? "Jump to step" : currentLang === "da" ? "Hop til trin" : "Перейти до кроку";
+
   return (
     <div
       className={`flex items-center gap-1.5 overflow-x-auto py-2 px-3 bg-[#0c1017] border-b border-slate-800/80 select-none text-xs font-mono scrollbar-thin ${className}`}
@@ -37,7 +50,7 @@ export const ArchitecturalBreadcrumbTrail: React.FC<ArchitecturalBreadcrumbTrail
     >
       <div className="flex items-center gap-1 text-slate-400 shrink-0 font-medium mr-1">
         <ArrowLeftRight className="w-3.5 h-3.5 text-blue-400" />
-        <span className="text-[11px] uppercase tracking-wider text-slate-400">Call Trail:</span>
+        <span className="text-[11px] uppercase tracking-wider text-slate-400">{callTrailLabel}</span>
       </div>
 
       {breadcrumbs.map((item, idx) => {
@@ -60,7 +73,7 @@ export const ArchitecturalBreadcrumbTrail: React.FC<ArchitecturalBreadcrumbTrail
                   : "bg-slate-900/40 border border-slate-800/40 text-slate-500 hover:text-slate-400"
               }`}
               title={`Step ${item.stepIndex + 1}: ${pathDisplay} -> ${item.symbol} (Depth: ${item.depth})`}
-              aria-label={`Jump to step ${item.stepIndex + 1}`}
+              aria-label={`${jumpToStepLabel} ${item.stepIndex + 1}`}
             >
               {item.isReturn ? (
                 <CornerDownLeft className="w-3 h-3 text-emerald-400 shrink-0" />
