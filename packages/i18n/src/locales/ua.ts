@@ -733,6 +733,7 @@ export const uaTranslation = {
         taskDebugOverloadEngineering: "Defensive Invariant Validation запобігає виходу значень за межі допустимого діапазону (Buffer/Hardware Boundary Violation). Перевірка requestedBrightness <= 100 захищає апаратні регістри від перенапруги.",
         taskDebugOverloadCareer: "Більшість критичних багів та вразливостей в індустрії (включно з Heartbleed та вибухом ракети Ariane 5) були спричинені відсутністю перевірки меж чисел (Boundary/Overflow Violation).",
         solutionExplorer: "Оглядач проєкту",
+        flowTrace: "Flow Trace",
         inspectArchitecture: "Архітектура та файли проєкту",
         projectBreadcrumb: "SmartTvSolution",
         mainMethod: "static void Main(string[] args)",

@@ -9,20 +9,27 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FolderTree,
+  Folder,
+  FolderOpen,
   FileCode,
   FileText,
   ChevronRight,
+  ChevronDown,
   Layers,
   Cpu,
   X,
   Database,
+  Sparkles,
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import {
   STATION_CALLOUTS,
   getStationProjectFiles,
+  flattenProjectFiles,
+  type ProjectFile,
 } from "./stationProjectData";
+import { ExecutionFlowPlayer } from "../trace";
 
 interface ProjectExplorerBarProps {
   currentCode?: string;
@@ -48,7 +55,31 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
     : "ua") as "ua" | "en" | "da";
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isFlowPlayerOpen, setIsFlowPlayerOpen] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState<string>("program-cs");
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
+    root: true,
+    "solution-root": true,
+    "solution-root-api": true,
+    "solution-root-git": true,
+    commands: true,
+    "folder-commands": true,
+    hardware: true,
+    "folder-hardware": true,
+    controllers: true,
+    "folder-controllers": true,
+    services: true,
+    "folder-services": true,
+    repositories: true,
+    "folder-repositories": true,
+    middleware: true,
+    "folder-middleware": true,
+    cmd: true,
+    "folder-cmd": true,
+    "folder-storage": true,
+    "folder-refs": true,
+    client: true,
+  });
 
   // Close on Escape key
   useEffect(() => {
@@ -63,10 +94,13 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
   const activeStation = stationId || currentStationId;
   const projectFiles = getStationProjectFiles(activeStation, isFintech, codeLang, currentCode);
   const rootFolder = projectFiles[0];
-  const allFiles = rootFolder?.children || [];
+  const rawChildren = rootFolder?.children || [];
+  const allSelectableFiles = flattenProjectFiles(rawChildren);
 
   const selectedFile =
-    allFiles.find((f) => f.id === selectedFileId) || allFiles[1] || allFiles[0];
+    allSelectableFiles.find((f) => f.id === selectedFileId) ||
+    allSelectableFiles.find((f) => f.id === "program-cs") ||
+    allSelectableFiles[0];
 
   const handleOpenModal = () => {
     audioFx.playRelayClick();
@@ -83,7 +117,15 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
     setSelectedFileId(id);
   };
 
-  const primaryCodeFile = allFiles.find((f) => f.id === "program-cs") || allFiles[1] || allFiles[0];
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders((prev) => ({
+      ...prev,
+      [folderId]: !prev[folderId],
+    }));
+  };
+
+  const primaryCodeFile =
+    allSelectableFiles.find((f) => f.id === "program-cs") || allSelectableFiles[0];
 
   return (
     <>
@@ -125,14 +167,28 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
           </span>
         </div>
 
-        <button
-          onClick={handleOpenModal}
-          title={t("playground.solutionExplorer", "Оглядач проєкту")}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600/50 text-emerald-300 text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer ml-2 shrink-0 shadow-sm"
-        >
-          <FolderTree className="w-3.5 h-3.5 text-emerald-400" />
-          <span>{t("playground.solutionExplorer", "Оглядач проєкту")}</span>
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          <button
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsFlowPlayerOpen(true);
+            }}
+            title={t("playground.flowTrace", "Візуалізувати ланцюг виконання (POE)")}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-950/80 hover:bg-blue-900 border border-blue-600/50 text-blue-300 text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            <span>{t("playground.flowTrace", "Flow Trace")}</span>
+          </button>
+
+          <button
+            onClick={handleOpenModal}
+            title={t("playground.solutionExplorer", "Оглядач проєкту")}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600/50 text-emerald-300 text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer shadow-sm"
+          >
+            <FolderTree className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{t("playground.solutionExplorer", "Оглядач проєкту")}</span>
+          </button>
+        </div>
       </div>
 
       {/* ── Blueprint Solution Drawer / Modal (SOLID 100% OPAQUE BACKGROUND) ── */}
@@ -187,44 +243,79 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                 </div>
 
                 <div className="space-y-1 font-mono text-xs">
-                  {allFiles.map((file) => {
-                    const isSelected = file.id === selectedFile?.id;
-                    return (
-                      <button
-                        key={file.id}
-                        onClick={() => handleSelectFile(file.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all cursor-pointer ${
-                          isSelected
-                            ? "bg-emerald-950/70 text-emerald-300 font-bold border border-emerald-600/60 shadow-sm"
-                            : "hover:bg-[#161D27] text-slate-300 border border-transparent hover:border-slate-800"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          {file.icon === "config" ? (
-                            <FileText className="w-4 h-4 text-emerald-400 shrink-0" />
-                          ) : file.icon === "interface" ? (
-                            <Layers className="w-4 h-4 text-purple-400 shrink-0" />
-                          ) : file.icon === "data" ? (
-                            <Database className="w-4 h-4 text-amber-400 shrink-0" />
-                          ) : (
-                            <FileCode className="w-4 h-4 text-cyan-400 shrink-0" />
+                  {(() => {
+                    const renderItem = (item: ProjectFile, depth = 0): React.ReactNode => {
+                      if (item.type === "folder") {
+                        const isExpanded = expandedFolders[item.id] ?? true;
+                        return (
+                          <div key={item.id} className="space-y-0.5">
+                            <button
+                              onClick={() => toggleFolder(item.id)}
+                              className="w-full flex items-center gap-1.5 py-1.5 px-2 rounded-lg text-left text-xs font-mono text-slate-300 hover:bg-[#161D27] hover:text-white transition-colors cursor-pointer"
+                              style={{ paddingLeft: `${Math.max(8, depth * 14 + 8)}px` }}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                              ) : (
+                                <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                              )}
+                              {isExpanded ? (
+                                <FolderOpen className="w-4 h-4 text-amber-400 shrink-0" />
+                              ) : (
+                                <Folder className="w-4 h-4 text-amber-500/80 shrink-0" />
+                              )}
+                              <span className="truncate font-semibold text-slate-200">{item.name}</span>
+                            </button>
+                            {isExpanded && item.children && (
+                              <div className="space-y-0.5">
+                                {item.children.map((child) => renderItem(child, depth + 1))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      const isSelected = item.id === selectedFile?.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => handleSelectFile(item.id)}
+                          className={`w-full flex items-center justify-between py-1.5 px-2 rounded-xl text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-emerald-950/70 text-emerald-300 font-bold border border-emerald-600/60 shadow-sm"
+                              : "hover:bg-[#161D27] text-slate-300 border border-transparent hover:border-slate-800"
+                          }`}
+                          style={{ paddingLeft: `${Math.max(16, depth * 14 + 16)}px` }}
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            {item.icon === "config" ? (
+                              <FileText className="w-4 h-4 text-emerald-400 shrink-0" />
+                            ) : item.icon === "interface" ? (
+                              <Layers className="w-4 h-4 text-purple-400 shrink-0" />
+                            ) : item.icon === "data" ? (
+                              <Database className="w-4 h-4 text-amber-400 shrink-0" />
+                            ) : (
+                              <FileCode className="w-4 h-4 text-cyan-400 shrink-0" />
+                            )}
+                            <span className="truncate">{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <span
+                              className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase shrink-0 ${
+                                item.badge === "Main()" || item.badge === "Endpoints"
+                                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                                  : "bg-slate-800 text-slate-400"
+                              }`}
+                            >
+                              {item.badge}
+                            </span>
                           )}
-                          <span className="truncate">{file.name}</span>
-                        </div>
-                        {file.badge && (
-                          <span
-                            className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase shrink-0 ${
-                              file.badge === "Main()" || file.badge === "Endpoints"
-                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                                : "bg-slate-800 text-slate-400"
-                            }`}
-                          >
-                            {file.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                        </button>
+                      );
+                    };
+
+                    return rawChildren.map((item) => renderItem(item));
+                  })()}
                 </div>
 
                 {/* Educational Callout inside File Tree */}
@@ -292,6 +383,13 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
           </div>
         </div>
       )}
+
+      {/* ── Execution Flow Visualizer Player ── */}
+      <ExecutionFlowPlayer
+        stationId={activeStation || "tv"}
+        isOpen={isFlowPlayerOpen}
+        onClose={() => setIsFlowPlayerOpen(false)}
+      />
     </>
   );
 };

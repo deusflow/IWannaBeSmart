@@ -733,6 +733,7 @@ export const enTranslation = {
         taskDebugOverloadEngineering: "Defensive Invariant Validation guarantees inputs respect physical machine constraints (Buffer/Hardware Boundary Violation). requestedBrightness <= 100 protects output drivers from overvoltage.",
         taskDebugOverloadCareer: "Most catastrophic production outages in history (including Ariane 5 rocket explosion and Heartbleed) stemmed from unvalidated numeric boundary overflow.",
         solutionExplorer: "Solution Explorer",
+        flowTrace: "Flow Trace",
         inspectArchitecture: "Project Architecture & Files",
         projectBreadcrumb: "SmartTvSolution",
         mainMethod: "static void Main(string[] args)",

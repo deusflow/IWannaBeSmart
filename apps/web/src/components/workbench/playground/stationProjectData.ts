@@ -250,13 +250,65 @@ ${currentCode
           },
         },
         {
-          id: "tv-hardware-driver",
-          name: codeLang === "csharp" ? "TV.cs" : "tv.go",
-          type: "file",
-          icon: "driver",
-          badge: "Hardware",
-          codeSnippet: {
-            csharp: `namespace SmartTvApp.Hardware;
+          id: "folder-commands",
+          name: "Commands",
+          type: "folder",
+          children: [
+            {
+              id: "power-command-cs",
+              name: codeLang === "csharp" ? "PowerCommand.cs" : "power_command.go",
+              type: "file",
+              icon: "code",
+              badge: "ICommand",
+              codeSnippet: {
+                csharp: `namespace SmartTvApp.Commands;
+
+public class PowerCommand
+{
+    private readonly TvRelayDriver _driver;
+    public PowerCommand(TvRelayDriver driver) => _driver = driver;
+
+    public void Execute()
+    {
+        if (_driver != null)
+        {
+            _driver.CloseRelayContact(25_000);
+        }
+    }
+}`,
+                go: `package commands
+
+type PowerCommand struct {
+    driver *TvRelayDriver
+}
+
+func (c *PowerCommand) Execute() {
+    if c.driver != nil {
+        c.driver.CloseRelayContact(25000)
+    }
+}`,
+              },
+              description: {
+                ua: "Патерн Command: інкапсулює дію замикання реле живлення та розчіплює пульт від конкретного заліза.",
+                en: "Command Pattern: encapsulates the relay activation action, decoupling remote control from hardware specifics.",
+                da: "Command Pattern: indkapsler relæaktiveringen.",
+              },
+            },
+          ],
+        },
+        {
+          id: "folder-hardware",
+          name: "Hardware",
+          type: "folder",
+          children: [
+            {
+              id: "tv-hardware-driver",
+              name: codeLang === "csharp" ? "TV.cs" : "tv.go",
+              type: "file",
+              icon: "driver",
+              badge: "Chassis",
+              codeSnippet: {
+                csharp: `namespace SmartTvApp.Hardware;
 
 public class TV
 {
@@ -269,7 +321,7 @@ public class TV
     public void SetChannel(int ch) => Channel = ch;
     public void VolumeUp() => Volume++;
 }`,
-            go: `package hardware
+                go: `package hardware
 
 type TV struct {
     IsOn    bool
@@ -284,12 +336,54 @@ func NewTV() *TV {
 func (t *TV) PowerOn() { t.IsOn = true }
 func (t *TV) PowerOff() { t.IsOn = false }
 func (t *TV) SetChannel(ch int) { t.Channel = ch }`,
-          },
-          description: {
-            ua: "Клас апаратного контролера телевізора: інкапсулює внутрішній стан приладу та захищає поля від некоректних змін ззовні.",
-            en: "Hardware TV controller class: encapsulates internal state and protects fields from invalid external mutations.",
-            da: "Hardware TV-controller klasse: indkapsler intern tilstand og beskytter felter.",
-          },
+              },
+              description: {
+                ua: "Клас апаратного контролера телевізора: інкапсулює внутрішній стан приладу та захищає поля від некоректних змін ззовні.",
+                en: "Hardware TV controller class: encapsulates internal state and protects fields from invalid external mutations.",
+                da: "Hardware TV-controller klasse: indkapsler intern tilstand og beskytter felter.",
+              },
+            },
+            {
+              id: "tv-relay-driver-cs",
+              name: codeLang === "csharp" ? "TvRelayDriver.cs" : "relay_driver.go",
+              type: "file",
+              icon: "driver",
+              badge: "Relay 25kV",
+              codeSnippet: {
+                csharp: `namespace SmartTvApp.Hardware;
+
+public class TvRelayDriver
+{
+    public bool IsCoilEnergized { get; private set; }
+    public int ActualVoltage { get; private set; }
+
+    public bool CloseRelayContact(int targetAnodeVoltage)
+    {
+        this.IsCoilEnergized = true;
+        this.ActualVoltage = targetAnodeVoltage;
+        return true;
+    }
+}`,
+                go: `package hardware
+
+type TvRelayDriver struct {
+    IsCoilEnergized bool
+    ActualVoltage   int
+}
+
+func (d *TvRelayDriver) CloseRelayContact(voltage int) bool {
+    d.IsCoilEnergized = true
+    d.ActualVoltage = voltage
+    return true
+}`,
+              },
+              description: {
+                ua: "Драйвер високовольтного реле живлення кінескопа: керує подачею 25 кВ на анод.",
+                en: "Kinescope high-voltage relay driver: controls 25kV power feed to CRT anode.",
+                da: "Højspændingsrelædriver: styrer 25kV strøm til CRT anode.",
+              },
+            },
+          ],
         },
       ],
     },
@@ -378,6 +472,85 @@ ${currentCode
             en: "Cashier processing session entrypoint executing financial state transitions.",
             da: "Kassebehandlingssession startpunkt for finansielle transaktioner.",
           },
+        },
+        {
+          id: "folder-services",
+          name: "Services",
+          type: "folder",
+          children: [
+            {
+              id: "account-ledger-cs",
+              name: codeLang === "csharp" ? "AccountLedger.cs" : "ledger.go",
+              type: "file",
+              icon: "data",
+              badge: "Ledger",
+              codeSnippet: {
+                csharp: `namespace PosApp.Services;
+
+public class AccountLedger
+{
+    public decimal Balance { get; set; } = 1200m;
+
+    public bool Debit(decimal amount)
+    {
+        if (amount > this.Balance) return false;
+        this.Balance -= amount;
+        return true;
+    }
+}`,
+                go: `package services
+
+type AccountLedger struct {
+    Balance float64
+}
+
+func (l *AccountLedger) Debit(amount float64) bool {
+    if amount > l.Balance { return false }
+    l.Balance -= amount
+    return true
+}`,
+              },
+              description: {
+                ua: "Бухгалтерська книга рахунків: контролює інваріанти залишку коштів та запобігає несанкціонованому овердрафту.",
+                en: "Account Ledger: enforces balance invariant constraints against unauthorized overdraft.",
+                da: "Hovedbog: håndhæver saldobegrænsninger.",
+              },
+            },
+          ],
+        },
+        {
+          id: "folder-hardware",
+          name: "Hardware",
+          type: "folder",
+          children: [
+            {
+              id: "nfc-reader-cs",
+              name: codeLang === "csharp" ? "NfcReader.cs" : "nfc.go",
+              type: "file",
+              icon: "driver",
+              badge: "NFC EMV",
+              codeSnippet: {
+                csharp: `namespace PosApp.Hardware;
+
+public class NfcReader
+{
+    public string GenerateAuthCryptogram() => "ARQC-9182-APPROVED";
+}`,
+                go: `package hardware
+
+type NfcReader struct{}
+
+func (n *NfcReader) GenerateAuthCryptogram() string {
+    return "ARQC-9182-APPROVED"
+}`,
+              },
+              description: {
+                ua: "Безконтактний NFC рідер: обробляє криптографічні протоколи EMV банківських карток.",
+                en: "Contactless NFC Reader: processes EMV contactless cryptographic card transactions.",
+                da: "NFC-læser: håndterer kontaktløse transaktioner.",
+              },
+            },
+          ],
         },
         {
           id: "pos-gateway-contract",
@@ -485,6 +658,125 @@ ${currentCode}
           },
         },
         {
+          id: "folder-controllers",
+          name: "Controllers",
+          type: "folder",
+          children: [
+            {
+              id: "orders-controller-cs",
+              name: codeLang === "csharp" ? "OrdersController.cs" : "orders_controller.go",
+              type: "file",
+              icon: "code",
+              badge: "Controller",
+              codeSnippet: {
+                csharp: `namespace ApiForge.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class OrdersController : ControllerBase
+{
+    private readonly OrderService _orderService;
+    public OrdersController(OrderService svc) => _orderService = svc;
+
+    [HttpPost]
+    public async Task<IResult> CreateOrder([FromBody] OrderDto dto)
+    {
+        var result = await _orderService.PlaceOrderAsync(dto);
+        return Results.Created($"/api/orders/{result.Id}", result);
+    }
+}`,
+                go: `package controllers
+
+type OrdersController struct {
+    service *OrderService
+}`,
+              },
+              description: {
+                ua: "Контролер замовлень: перехоплює HTTP POST запити, десеріалізує JSON та делегує обробку сервісу.",
+                en: "Orders Controller: intercepts HTTP POST requests, deserializes JSON payload, and delegates to service.",
+                da: "Orders Controller: modtager HTTP POST anmodninger.",
+              },
+            },
+          ],
+        },
+        {
+          id: "folder-services",
+          name: "Services",
+          type: "folder",
+          children: [
+            {
+              id: "order-service-cs",
+              name: codeLang === "csharp" ? "OrderService.cs" : "order_service.go",
+              type: "file",
+              icon: "code",
+              badge: "Domain Service",
+              codeSnippet: {
+                csharp: `namespace ApiForge.Services;
+
+public class OrderService
+{
+    private readonly OrderRepository _repo;
+    public OrderService(OrderRepository repo) => _repo = repo;
+
+    public async Task<OrderResult> PlaceOrderAsync(OrderDto dto)
+    {
+        if (dto.Amount <= 0) throw new ArgumentException("Invalid amount");
+        var order = new Order(Guid.NewGuid(), dto.ItemId, dto.Amount);
+        await _repo.SaveAsync(order);
+        return new OrderResult(order.Id, "Confirmed");
+    }
+}`,
+                go: `package services
+
+type OrderService struct {
+    repo *OrderRepository
+}`,
+              },
+              description: {
+                ua: "Доменний сервіс замовлень: виконує бізнес-правила та валідацію інваріантів перед збереженням.",
+                en: "Domain Order Service: executes business invariants and domain validation before persisting.",
+                da: "Domæneservice: udfører forretningslogik.",
+              },
+            },
+          ],
+        },
+        {
+          id: "folder-repositories",
+          name: "Repositories",
+          type: "folder",
+          children: [
+            {
+              id: "order-repository-cs",
+              name: codeLang === "csharp" ? "OrderRepository.cs" : "order_repository.go",
+              type: "file",
+              icon: "data",
+              badge: "Repository",
+              codeSnippet: {
+                csharp: `namespace ApiForge.Repositories;
+
+public class OrderRepository
+{
+    private readonly Dictionary<Guid, Order> _inMemoryDb = new();
+
+    public async Task SaveAsync(Order order)
+    {
+        _inMemoryDb[order.Id] = order;
+        await Task.Yield();
+    }
+}`,
+                go: `package repositories
+
+type OrderRepository struct{}`,
+              },
+              description: {
+                ua: "Репозиторій замовлень: забезпечує абстракцію збереження даних у базі або сховищі.",
+                en: "Order Repository: abstracts persistence layer storage operations.",
+                da: "Order Repository: abstraherer datalagring.",
+              },
+            },
+          ],
+        },
+        {
           id: "order-dto",
           name: codeLang === "csharp" ? "OrderDto.cs" : "order_dto.go",
           type: "file",
@@ -509,6 +801,37 @@ type OrderDto struct {
             en: "Data Transfer Object (DTO): wire contract defining the JSON payload shape between client and server.",
             da: "Data Transfer Object (DTO): netværkskontrakt for JSON-nyttelast.",
           },
+        },
+        {
+          id: "client",
+          name: "Client",
+          type: "folder",
+          children: [
+            {
+              id: "curl-request",
+              name: "response.http",
+              type: "file",
+              icon: "data",
+              badge: "201 Created",
+              codeSnippet: {
+                csharp: `HTTP/1.1 201 Created
+Location: /api/orders/8f3b-4192
+Content-Type: application/json
+
+{"id":"8f3b-4192","status":"Confirmed"}`,
+                go: `HTTP/1.1 201 Created
+Location: /api/orders/8f3b-4192
+Content-Type: application/json
+
+{"id":"8f3b-4192","status":"Confirmed"}`,
+              },
+              description: {
+                ua: "Фінальна HTTP-відповідь 201 Created, отримана тестовим клієнтом через сокет після проходження повного ланцюга API.",
+                en: "Final HTTP 201 Created response received by client test runner over network socket after completing full API pipeline.",
+                da: "Endelig HTTP 201 Created respons modtaget af testklienten over netværkssokkel efter fuldførelse af API-pipelinen.",
+              },
+            },
+          ],
         },
       ],
     },
@@ -561,6 +884,106 @@ firmware_version=2.4.0`,
             da: "Sporet arbejdsfil: underlagt commits, forgreninger og flettekonflikter.",
           },
         },
+        {
+          id: "folder-cmd",
+          name: "cmd",
+          type: "folder",
+          children: [
+            {
+              id: "git-main-go",
+              name: "main.go",
+              type: "file",
+              icon: "code",
+              badge: "CLI",
+              codeSnippet: {
+                csharp: `// Git CLI wrapper`,
+                go: `package main
+
+import (
+    "fmt"
+    "github.com/iwannabesmart/git-core/storage"
+)
+
+func main() {
+    repo := storage.OpenRepository(".git")
+    commitSha := repo.Commit("Initial commit")
+    fmt.Printf("[main %s] %s\n", commitSha[:7], "Initial commit")
+}`,
+              },
+              description: {
+                ua: "Точка входу Git CLI: ініціює команду коміту та взаємодіє з графом репозиторію.",
+                en: "Git CLI entrypoint: initiates commit and coordinates graph mutations.",
+                da: "Git CLI startpunkt.",
+              },
+            },
+          ],
+        },
+        {
+          id: "folder-storage",
+          name: "storage",
+          type: "folder",
+          children: [
+            {
+              id: "git-object-store-go",
+              name: "object_store.go",
+              type: "file",
+              icon: "data",
+              badge: "Blobs",
+              codeSnippet: {
+                csharp: `// Object Store`,
+                go: `package storage
+
+import (
+    "crypto/sha1"
+    "encoding/hex"
+)
+
+type ObjectStore struct{}
+
+func (s *ObjectStore) WriteBlob(data []byte) string {
+    hash := sha1.Sum(data)
+    return hex.EncodeToString(hash[:])
+}`,
+              },
+              description: {
+                ua: "Сховище об'єктів (.git/objects): адресоване за вмістом сховище незмінних блобів та дерев.",
+                en: "Object Store (.git/objects): content-addressable storage for immutable blobs and trees.",
+                da: "Objektlager for uforanderlige blobs.",
+              },
+            },
+          ],
+        },
+        {
+          id: "folder-refs",
+          name: "refs",
+          type: "folder",
+          children: [
+            {
+              id: "git-ref-go",
+              name: "ref.go",
+              type: "file",
+              icon: "interface",
+              badge: "Branch Pointer",
+              codeSnippet: {
+                csharp: `// Ref Store`,
+                go: `package storage
+
+import "os"
+
+type RefStore struct{}
+
+func (r *RefStore) UpdateHead(newCommitSha string) error {
+    return os.WriteFile(".git/refs/heads/main", []byte(newCommitSha), 0644)
+}`,
+              },
+              description: {
+                ua: "Менеджер посилань (.git/refs): оновлює покажчик гілки на новий SHA коміту.",
+                en: "Reference manager (.git/refs): updates branch pointer to new commit SHA.",
+                da: "Referencehåndtering.",
+              },
+            },
+          ],
+        },
       ],
     },
   ];
@@ -589,6 +1012,52 @@ DATABASE_URL=Server=127.0.0.1;Port=5432;Database=bandit;`,
             en: "Environment secrets file: safe credential storage protected from source code repository commits.",
             da: "Miljøvariabler: sikker hemmelighedsopbevaring adskilt fra versionsstyring.",
           },
+        },
+        {
+          id: "folder-middleware",
+          name: "Middleware",
+          type: "folder",
+          children: [
+            {
+              id: "security-filter-cs",
+              name: codeLang === "csharp" ? "SecurityFilter.cs" : "filter.go",
+              type: "file",
+              icon: "driver",
+              badge: "Filter",
+              codeSnippet: {
+                csharp: `namespace BanditLab.Security;
+
+using System.Text.RegularExpressions;
+
+public class SecurityFilter
+{
+    public bool InspectPayload(string raw)
+    {
+        if (Regex.IsMatch(raw, @"OR\s+'1'='1'"))
+        {
+            throw new SecurityBreachException("SQL Injection detected");
+        }
+        return true;
+    }
+}`,
+                go: `package security
+
+import "regexp"
+
+type SecurityFilter struct{}
+
+func (f *SecurityFilter) InspectPayload(raw string) bool {
+    matched, _ := regexp.MatchString("OR\\s+'1'='1'", raw)
+    return !matched
+}`,
+              },
+              description: {
+                ua: "Фільтр безпеки: евристичний аналізатор вхідного трафіку на SQL Injection та XSS атаки.",
+                en: "Security Filter: heuristic analyzer detecting SQL Injection and XSS vectors.",
+                da: "Sikkerhedsfilter til inspektion af skadelig kode.",
+              },
+            },
+          ],
         },
         {
           id: "program-cs",
@@ -633,11 +1102,11 @@ ${currentCode}`,
       type: "folder",
       children: [
         {
-          id: "config-yaml",
-          name: "vertex_pipeline.yaml",
+          id: "pipeline-spec",
+          name: "pipeline_spec.yaml",
           type: "file",
           icon: "config",
-          badge: "Config",
+          badge: "YAML Spec",
           codeSnippet: {
             yaml: `pipeline:
   name: retail-mlops-production
@@ -817,3 +1286,20 @@ ${currentCode}`,
   if (isFintech || activeStation === "pos") return fintechFiles;
   return tvFiles;
 }
+
+/**
+ * Recursively collects all leaf file items from a hierarchical ProjectFile tree.
+ */
+export function flattenProjectFiles(items: ProjectFile[]): ProjectFile[] {
+  const result: ProjectFile[] = [];
+  for (const item of items) {
+    if (item.type === "file") {
+      result.push(item);
+    }
+    if (item.children && item.children.length > 0) {
+      result.push(...flattenProjectFiles(item.children));
+    }
+  }
+  return result;
+}
+

@@ -733,6 +733,7 @@ export const daTranslation = {
         taskDebugOverloadEngineering: "Defensiv invariantvalidering sikrer at input overholder hardwarebegrænsninger mod overspænding.",
         taskDebugOverloadCareer: "Mange kritiske fejl i historien skyldtes manglende grænsekontrol for tal og buffere.",
         solutionExplorer: "Projekt Stifinder",
+        flowTrace: "Flow Trace",
         inspectArchitecture: "Projektarkitektur og filer",
         projectBreadcrumb: "SmartTvSolution",
         mainMethod: "static void Main(string[] args)",

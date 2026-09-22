@@ -21,6 +21,7 @@ export * from "./tasks-vertex";
 export * from "./fdeContext";
 export * from "./tasks-fde";
 export * from "./workedExamplesData";
+export * from "./trace";
 
 import { CODING_TASKS } from "./tasks";
 import { FINTECH_TASKS } from "./tasks-fintech";
