@@ -153,7 +153,6 @@ describe("TracePlaybackController (Execution Flow & POE Engine)", () => {
       enablePoe: false,
     });
 
-    // Step to return_unwind step
     const returnStepIndex = banditTrace.steps.findIndex((s) => s.type === "return_unwind");
     expect(returnStepIndex).toBeGreaterThan(0);
 
@@ -163,5 +162,21 @@ describe("TracePlaybackController (Execution Flow & POE Engine)", () => {
     expect(currentStep?.returnValue).toBeDefined();
     expect(currentStep?.returnValue?.type).toBeDefined();
     expect(currentStep?.returnValue?.terminationReason).toBeDefined();
+  });
+
+  it("should mark isException and isReturn in breadcrumb history for exception events", () => {
+    const banditTrace = API_FORGE_EXECUTION_TRACE;
+    const testController = new TracePlaybackController({
+      timeline: banditTrace,
+      enablePoe: false,
+    });
+
+    const returnStepIndex = banditTrace.steps.findIndex((s) => s.type === "return_unwind");
+    testController.seekTo(returnStepIndex);
+
+    const crumbs = testController.getBreadcrumbHistory();
+    const returnCrumb = crumbs[returnStepIndex];
+    expect(returnCrumb.isReturn).toBe(true);
+    expect(returnCrumb.isException).toBe(false);
   });
 });

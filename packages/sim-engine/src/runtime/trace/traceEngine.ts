@@ -301,6 +301,7 @@ export class TracePlaybackController {
     folder?: string;
     depth: number;
     isReturn: boolean;
+    isException?: boolean;
   }> {
     const history: Array<{
       stepIndex: number;
@@ -309,18 +310,21 @@ export class TracePlaybackController {
       folder?: string;
       depth: number;
       isReturn: boolean;
+      isException?: boolean;
     }> = [];
 
     for (let i = 0; i <= this.state.currentStepIndex; i++) {
       const step = this.timeline.steps[i];
       if (!step) continue;
+      const isException = step.type === "exception";
       history.push({
         stepIndex: i,
         symbol: step.location.symbol,
         file: step.location.fileName,
         folder: step.location.folderName,
         depth: step.callStackDepth,
-        isReturn: step.type === "return_unwind",
+        isReturn: step.type === "return_unwind" || isException,
+        isException,
       });
     }
 

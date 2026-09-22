@@ -98,6 +98,18 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
   }, [controller]);
 
   useEffect(() => {
+    awardedRef.current = false;
+    setHasCompleted(false);
+  }, [timeline.id]);
+
+  useEffect(() => {
+    if (isOpen && playerState.currentStepIndex === 0) {
+      awardedRef.current = false;
+      setHasCompleted(false);
+    }
+  }, [isOpen, playerState.currentStepIndex]);
+
+  useEffect(() => {
     if (playerState.currentStepIndex === timeline.steps.length - 1 && !awardedRef.current) {
       awardedRef.current = true;
       setHasCompleted(true);

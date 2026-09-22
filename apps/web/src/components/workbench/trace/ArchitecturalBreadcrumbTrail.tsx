@@ -7,7 +7,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronRight, CornerDownLeft, ArrowLeftRight } from "lucide-react";
+import { ChevronRight, CornerDownLeft, ArrowLeftRight, AlertOctagon } from "lucide-react";
 
 export interface BreadcrumbItem {
   stepIndex: number;
@@ -16,6 +16,7 @@ export interface BreadcrumbItem {
   folder?: string;
   depth: number;
   isReturn: boolean;
+  isException?: boolean;
 }
 
 interface ArchitecturalBreadcrumbTrailProps {
@@ -75,7 +76,9 @@ export const ArchitecturalBreadcrumbTrail: React.FC<ArchitecturalBreadcrumbTrail
               title={`Step ${item.stepIndex + 1}: ${pathDisplay} -> ${item.symbol} (Depth: ${item.depth})`}
               aria-label={`${jumpToStepLabel} ${item.stepIndex + 1}`}
             >
-              {item.isReturn ? (
+              {item.isException ? (
+                <AlertOctagon className="w-3 h-3 text-rose-400 shrink-0" />
+              ) : item.isReturn ? (
                 <CornerDownLeft className="w-3 h-3 text-emerald-400 shrink-0" />
               ) : (
                 <span className="text-[10px] px-1 py-0.2 rounded bg-slate-700/50 text-slate-300 font-mono">
