@@ -35,7 +35,10 @@ describe("UX Integrity & Codebase Fixes", () => {
       expect(accuracyRate).not.toBeNull();
       expect(accuracyRate).toBeGreaterThanOrEqual(96.2);
       expect(accuracyRate).toBeLessThanOrEqual(100.0);
-      expect(accuracyRate).toBe(96.8);
+      const expectedAccuracy = Number(
+        (96.2 + Math.min(3.6, (computedStars / (TOTAL_MAX_STARS || 356)) * 3.6)).toFixed(1)
+      );
+      expect(accuracyRate).toBe(expectedAccuracy);
     });
   });
 

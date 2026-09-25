@@ -7,6 +7,13 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { audioFx } from "../../../utils/audioFx";
 import type { WorkedExample } from "@iw/sim-engine";
+import {
+  saveCodeDraft,
+  getCodeDraft,
+  clearCodeDraft,
+  saveStationCheckpoint,
+  getStationCheckpoint,
+} from "../../../utils/checkpointManager";
 
 export interface CodeGymTaskLike {
   id: string;
@@ -31,6 +38,7 @@ interface UseCodeGymSessionOptions<
   currentTask: TTask;
   initialLang?: TLang;
   starsEarned?: number;
+  stationId?: string;
   onRoundComplete?: (round: 1 | 2 | 3 | 4, code: string, stats?: { wpm: number; accuracy: number }) => Promise<void> | void;
 }
 
@@ -87,9 +95,14 @@ export function useCodeGymSession<
   currentTask,
   initialLang,
   starsEarned = 0,
+  stationId,
   onRoundComplete,
 }: UseCodeGymSessionOptions<TTask, TLang>) {
   const { t } = useTranslation();
+
+  const savedCheckpoint = useMemo(() => {
+    return stationId ? getStationCheckpoint(stationId) : null;
+  }, [stationId]);
 
   const [isTheoryUnlocked, setIsTheoryUnlocked] = useState<boolean>(() => starsEarned > 0);
 
@@ -106,8 +119,35 @@ export function useCodeGymSession<
     }, 50);
   }, []);
 
-  const [codeLang, setCodeLang] = useState<TLang>((initialLang ?? ("csharp" as unknown)) as TLang);
-  const [activeRound, setActiveRound] = useState<1 | 2 | 3 | 4>(1);
+  const [codeLang, setCodeLang] = useState<TLang>(() => {
+    if (savedCheckpoint?.lang) {
+      return savedCheckpoint.lang as TLang;
+    }
+    return (initialLang ?? ("csharp" as unknown)) as TLang;
+  });
+
+  const [activeRound, setActiveRound] = useState<1 | 2 | 3 | 4>(() => {
+    if (
+      savedCheckpoint &&
+      savedCheckpoint.taskId === currentTask.id &&
+      savedCheckpoint.round
+    ) {
+      return savedCheckpoint.round as 1 | 2 | 3 | 4;
+    }
+    return 1;
+  });
+
+  // Save station checkpoint whenever station, task, round, or language changes
+  useEffect(() => {
+    if (stationId) {
+      saveStationCheckpoint(stationId, {
+        taskId: currentTask.id,
+        round: activeRound,
+        lang: codeLang,
+      });
+    }
+  }, [stationId, currentTask.id, activeRound, codeLang]);
+
   const [showTransferHint, setShowTransferHint] = useState<boolean>(false);
 
   const targetCode = currentTask.targetCode[codeLang] ?? "";
@@ -180,6 +220,13 @@ export function useCodeGymSession<
     roundStartTimeRef.current = null;
     setShowTransferHint(false);
 
+    // If user has an in-progress draft saved for this task, language, and round, restore it!
+    const savedDraft = getCodeDraft(currentTask.id, codeLang, activeRound);
+    if (savedDraft !== null && savedDraft.length > 0) {
+      setTypedCode(savedDraft);
+      return;
+    }
+
     if (activeRound === 1) {
       if (currentTask.isBugfixTask) {
         setTypedCode(
@@ -198,6 +245,19 @@ export function useCodeGymSession<
       setTypedCode("");
     }
   }, [activeRound, codeLang, clozeTemplate, currentTask, sprintLimit]);
+
+  // Debounced auto-save for user's typed code draft
+  useEffect(() => {
+    if (roundCompleted) return;
+
+    const timer = setTimeout(() => {
+      if (typedCode !== undefined && typedCode !== null && typedCode.length > 0) {
+        saveCodeDraft(currentTask.id, codeLang, activeRound, typedCode);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [typedCode, currentTask.id, codeLang, activeRound, roundCompleted]);
 
   // Trace character progress
   const traceCharsMatched = useMemo(() => {
@@ -250,6 +310,7 @@ export function useCodeGymSession<
 
         if (input.trim() === targetCode.trim()) {
           setRoundCompleted(true);
+          clearCodeDraft(currentTask.id, codeLang, 1);
           const elapsedMinutes = Math.max(
             0.04,
             (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000
@@ -284,6 +345,7 @@ export function useCodeGymSession<
         setHasError(false);
         setFeedback(null);
         setRoundCompleted(true);
+        clearCodeDraft(currentTask.id, codeLang, 2);
         const elapsedMinutes = Math.max(
           0.04,
           (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000
@@ -311,7 +373,7 @@ export function useCodeGymSession<
         setFeedback(null);
       }
     },
-    [targetCode, playThrottledKeyClick, t, onRoundComplete]
+    [targetCode, playThrottledKeyClick, t, onRoundComplete, currentTask.id, codeLang]
   );
 
   // Handle general code input
@@ -360,6 +422,7 @@ export function useCodeGymSession<
   }, [activeRound, isTimerRunning, t]);
 
   const handleStartSprint = useCallback(() => {
+    clearCodeDraft(currentTask.id, codeLang, 3);
     setTypedCode("");
     setRoundCompleted(false);
     setFeedback(null);
@@ -372,10 +435,11 @@ export function useCodeGymSession<
       const cm = document.querySelector(".cm-content") as HTMLElement | null;
       cm?.focus();
     }, 50);
-  }, [sprintLimit]);
+  }, [currentTask.id, codeLang, sprintLimit]);
 
   const handleResetRound = useCallback(() => {
     audioFx.playRelayClick();
+    clearCodeDraft(currentTask.id, codeLang, activeRound);
     if (currentTask.isBugfixTask && activeRound === 1) {
       setTypedCode(
         currentTask.initialBrokenCode?.[codeLang] ||
@@ -392,7 +456,7 @@ export function useCodeGymSession<
     setTimeLeft(sprintLimit);
     setRoundStats(null);
     roundStartTimeRef.current = null;
-  }, [activeRound, codeLang, clozeTemplate, currentTask, sprintLimit]);
+  }, [currentTask.id, codeLang, activeRound, clozeTemplate, currentTask.isBugfixTask, currentTask.initialBrokenCode, currentTask.initialCode, sprintLimit]);
 
   return {
     codeLang,

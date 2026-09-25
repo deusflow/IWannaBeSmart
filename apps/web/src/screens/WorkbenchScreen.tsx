@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS, VERTEX_TASKS, FDE_TASKS } from "@iw/sim-engine";
+import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS, VERTEX_TASKS, FDE_TASKS, RAG_TASKS, CYBER_TASKS } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
@@ -22,6 +22,10 @@ import { VertexBlueprintDevice } from "../components/workbench/VertexBlueprintDe
 import { VertexCodeGymRunner } from "../components/workbench/playground/VertexCodeGymRunner";
 import { FdeBlueprintDevice } from "../components/workbench/FdeBlueprintDevice";
 import { FdeCodeGymRunner } from "../components/workbench/playground/FdeCodeGymRunner";
+import { RagAgentBlueprintDevice } from "../components/workbench/RagAgentBlueprintDevice";
+import { RagAgentCodeGymRunner } from "../components/workbench/playground/RagAgentCodeGymRunner";
+import { CyberBlueprintDevice } from "../components/workbench/CyberBlueprintDevice";
+import { CyberCodeGymRunner } from "../components/workbench/playground/CyberCodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
 import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
@@ -29,6 +33,8 @@ import { GitStationVictoryModal } from "../components/workbench/GitStationVictor
 import { BanditStationVictoryModal } from "../components/workbench/BanditStationVictoryModal";
 import { VertexStationVictoryModal } from "../components/workbench/VertexStationVictoryModal";
 import { FdeStationVictoryModal } from "../components/workbench/FdeStationVictoryModal";
+import { RagStationVictoryModal } from "../components/workbench/RagStationVictoryModal";
+import { CyberStationVictoryModal } from "../components/workbench/CyberStationVictoryModal";
 import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { CommandPaletteModal } from "../components/workbench/CommandPaletteModal";
 import { KeyboardShortcutsModal } from "../components/workbench/KeyboardShortcutsModal";
@@ -133,6 +139,10 @@ export const WorkbenchScreen: React.FC = () => {
     setVertexVictoryModalOpen,
     isFdeVictoryModalOpen,
     setFdeVictoryModalOpen,
+    isRagVictoryModalOpen,
+    setRagVictoryModalOpen,
+    isCyberVictoryModalOpen,
+    setCyberVictoryModalOpen,
     currentStationId,
     setCurrentStationId,
     currentView,
@@ -164,6 +174,10 @@ export const WorkbenchScreen: React.FC = () => {
       setVertexVictoryModalOpen: s.setVertexVictoryModalOpen,
       isFdeVictoryModalOpen: s.isFdeVictoryModalOpen,
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
+      isRagVictoryModalOpen: s.isRagVictoryModalOpen,
+      setRagVictoryModalOpen: s.setRagVictoryModalOpen,
+      isCyberVictoryModalOpen: s.isCyberVictoryModalOpen,
+      setCyberVictoryModalOpen: s.setCyberVictoryModalOpen,
       currentStationId: s.currentStationId,
       setCurrentStationId: s.setCurrentStationId,
       currentView: s.currentView,
@@ -209,6 +223,16 @@ export const WorkbenchScreen: React.FC = () => {
   ).length;
   const isFdeCompleted = completedFdeCount >= FDE_TASKS.length;
 
+  const completedRagCount = RAG_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isRagCompleted = completedRagCount >= RAG_TASKS.length;
+
+  const completedCyberCount = CYBER_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isCyberCompleted = completedCyberCount >= CYBER_TASKS.length;
+
   const isCurrentStationCompleted =
     currentStationId === "pos"
       ? isPosCompleted
@@ -222,6 +246,10 @@ export const WorkbenchScreen: React.FC = () => {
       ? isVertexCompleted
       : currentStationId === "fde"
       ? isFdeCompleted
+      : currentStationId === "rag"
+      ? isRagCompleted
+      : currentStationId === "cyber"
+      ? isCyberCompleted
       : isTvCompleted;
 
   const currentStationProgressText =
@@ -237,6 +265,10 @@ export const WorkbenchScreen: React.FC = () => {
       ? `${completedVertexCount}/${VERTEX_TASKS.length} ✓`
       : currentStationId === "fde"
       ? `${completedFdeCount}/${FDE_TASKS.length} ✓`
+      : currentStationId === "rag"
+      ? `${completedRagCount}/${RAG_TASKS.length} ✓`
+      : currentStationId === "cyber"
+      ? `${completedCyberCount}/${CYBER_TASKS.length} ✓`
       : `${completedTvCount}/${CODING_TASKS.length} ✓`;
 
   useEffect(() => {
@@ -412,6 +444,10 @@ export const WorkbenchScreen: React.FC = () => {
                   setVertexVictoryModalOpen(true);
                 } else if (currentStationId === "fde") {
                   setFdeVictoryModalOpen(true);
+                } else if (currentStationId === "rag") {
+                  setRagVictoryModalOpen(true);
+                } else if (currentStationId === "cyber") {
+                  setCyberVictoryModalOpen(true);
                 } else {
                   setStationVictoryModalOpen(true);
                 }
@@ -430,6 +466,10 @@ export const WorkbenchScreen: React.FC = () => {
                   ? t("vertex.victory.title", "Vertex AI Architect: Завершено")
                   : currentStationId === "fde"
                   ? t("fde.victory.title", "Field AI Deployer: Завершено")
+                  : currentStationId === "rag"
+                  ? t("rag.victory.title", "IBM RAG & Agentic AI: Завершено")
+                  : currentStationId === "cyber"
+                  ? t("cyber.victory.title", "Google Cybersecurity: Завершено")
                   : t("victoryModal.title", "Телевізійна станція: Завершено")
               }
             >
@@ -579,6 +619,34 @@ export const WorkbenchScreen: React.FC = () => {
             {/* Right: FDE Code Gym Runner */}
             <div className="flex-1 w-full min-w-0">
               <FdeCodeGymRunner />
+            </div>
+          </div>
+        </main>
+      ) : currentStationId === "rag" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: IBM RAG & Agentic AI Blueprint Device */}
+            <div className="w-full xl:w-[720px] 2xl:w-[780px] shrink-0 xl:sticky top-2">
+              <RagAgentBlueprintDevice />
+            </div>
+
+            {/* Right: RAG Agent Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <RagAgentCodeGymRunner />
+            </div>
+          </div>
+        </main>
+      ) : currentStationId === "cyber" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: Google Cybersecurity & SOC Blueprint Device */}
+            <div className="w-full xl:w-[720px] 2xl:w-[780px] shrink-0 xl:sticky top-2">
+              <CyberBlueprintDevice />
+            </div>
+
+            {/* Right: Cyber Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <CyberCodeGymRunner />
             </div>
           </div>
         </main>
@@ -826,6 +894,20 @@ export const WorkbenchScreen: React.FC = () => {
       <FdeStationVictoryModal
         isOpen={isFdeVictoryModalOpen}
         onClose={() => setFdeVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 9: IBM RAG & Agentic AI Station Victory Modal */}
+      <RagStationVictoryModal
+        isOpen={isRagVictoryModalOpen}
+        onClose={() => setRagVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 10: Google Cybersecurity Station Victory Modal */}
+      <CyberStationVictoryModal
+        isOpen={isCyberVictoryModalOpen}
+        onClose={() => setCyberVictoryModalOpen(false)}
         xp={xp}
       />
 

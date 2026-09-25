@@ -322,6 +322,52 @@ export interface FdeSlice {
   setFdeVictoryModalOpen: (open: boolean) => void;
 }
 
+export interface RagAgentSlice {
+  ragDocuments: Array<{ id: string; title: string; text: string }>;
+  ragChunkSize: number;
+  ragChunkOverlap: number;
+  ragActiveChunks: import("@iw/sim-engine").DocumentChunk[];
+  ragQueryInput: string;
+  ragSearchResults: import("@iw/sim-engine").HybridSearchResult[];
+  ragActiveTab: "chunking" | "react" | "ragas";
+  reActSteps: import("@iw/sim-engine").ReActTraceStep[];
+  isReActRunning: boolean;
+  reActFinalAnswer: string;
+  ragasEvaluation: import("@iw/sim-engine").RagasEvaluation | null;
+  guardrailAlert: string | null;
+  isRagVictoryModalOpen: boolean;
+
+  setRagChunkConfig: (chunkSize: number, chunkOverlap: number) => void;
+  setRagQueryInput: (query: string) => void;
+  executeRagQueryAction: (query: string, topK?: number) => import("@iw/sim-engine").HybridSearchResult[];
+  runReActAgentAction: (query: string) => Promise<import("@iw/sim-engine").ReActExecutionResult>;
+  resetReActAgentAction: () => void;
+  setRagActiveTabAction: (tab: "chunking" | "react" | "ragas") => void;
+  setRagVictoryModalOpen: (open: boolean) => void;
+  resetRagState: () => void;
+}
+
+export interface CyberSlice {
+  cyberLogs: import("@iw/sim-engine").CyberSecurityLogEntry[];
+  cyberLogQuery: string;
+  cyberFilteredLogs: import("@iw/sim-engine").CyberSecurityLogEntry[];
+  cyberPackets: import("@iw/sim-engine").NetworkPacket[];
+  cyberSelectedPacketId: number | null;
+  cyberActiveTab: "siem" | "wireshark" | "nist";
+  nistIncident: import("@iw/sim-engine").IncidentState;
+  containmentAuditLog: string[];
+  isCyberVictoryModalOpen: boolean;
+
+  setCyberActiveTab: (tab: "siem" | "wireshark" | "nist") => void;
+  setCyberLogQuery: (query: string) => void;
+  executeCyberLogQueryAction: () => void;
+  selectCyberPacketAction: (frameNumber: number | null) => void;
+  executeContainmentAction: (actionType: "ISOLATE_HOST" | "BLOCK_IP" | "REVOKE_TOKEN") => void;
+  advanceNistStageAction: () => void;
+  setCyberVictoryModalOpen: (open: boolean) => void;
+  resetCyberState: () => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -335,4 +381,6 @@ export type WorkbenchStore = TVStateSlice &
   BanditSlice &
   VertexSlice &
   FdeSlice &
+  RagAgentSlice &
+  CyberSlice &
   WorkbenchActions;

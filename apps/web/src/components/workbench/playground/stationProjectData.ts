@@ -34,6 +34,40 @@ export const STATION_CALLOUTS: Record<
     note: Record<"ua" | "en" | "da", string>;
   }
 > = {
+  cyber: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (Google Cybersecurity & SOC):",
+      en: "Demystifying Magic Code (Google Cybersecurity & SOC):",
+      da: "Afmystificering af magisk kode (Google Cybersecurity & SOC):",
+    },
+    body: {
+      ua: "Аналітика кібербезпеки не є таємницею. Це структурований парсинг Syslog, перевірка TCP-прапорців у PCAP пакетах та реагування за матрицею NIST CSF.",
+      en: "Cybersecurity analysis is not magic. It is structured Syslog parsing, TCP flag inspection in PCAP frames, and incident response via NIST CSF.",
+      da: "Cybersikkerhedsanalyse er ikke magi. Det er struktureret parsing af Syslog, TCP-flaginspektion i PCAP-frames og hændelseshåndtering via NIST CSF.",
+    },
+    note: {
+      ua: "Кожна атака залишає цифровий слід (TTP у MITRE ATT&CK), який можна детектувати та локалізувати правилами iptables.",
+      en: "Every cyberattack leaves a digital footprint (MITRE ATT&CK TTP) detectable and containable with iptables rules.",
+      da: "Hvert cyberangreb efterlader et digitalt fodaftryk (MITRE ATT&CK TTP), der kan isoleres med iptables-regler.",
+    },
+  },
+  rag: {
+    title: {
+      ua: "Зняття ілюзії магічного коду (IBM RAG & Agentic AI):",
+      en: "Demystifying Magic Code (IBM RAG & Agentic AI):",
+      da: "Afmystificering af magisk kode (IBM RAG & Agentic AI):",
+    },
+    body: {
+      ua: "Векторний пошук — це не магія, а звичайний розрахунок косинусного кута між векторами в R⁸. Агент ReAct — це детермінований скінченний автомат.",
+      en: "Vector search is not magic, but simple cosine angle calculations in R⁸. A ReAct agent is a deterministic finite state machine.",
+      da: "Vektorsøgning er ikke magi, men simpel cosinusvinkelberegning i R⁸. En ReAct-agent er en deterministisk endelig tilstandsmaskine.",
+    },
+    note: {
+      ua: "RAGAS перевіряє, чи кожен факт у відповіді має пряме цитування з чанків бази знань.",
+      en: "RAGAS verifies that every fact in the response has a direct citation from knowledge base chunks.",
+      da: "RAGAS verificerer, at hvert faktum i svaret har en direkte kildehenvisning fra vidensbasens chunks.",
+    },
+  },
   api: {
     title: {
       ua: "Зняття ілюзії магічного коду (ASP.NET / Go HTTP):",
@@ -1278,6 +1312,205 @@ ${currentCode}`,
     },
   ];
 
+  const ragFiles: ProjectFile[] = [
+    {
+      id: "rag-root",
+      name: "ibm-rag-agentic-suite",
+      type: "folder",
+      children: [
+        {
+          id: "rag-chunker",
+          name: "chunker.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# Recursive Document Chunker with Overlap
+def chunk_document(text: str, chunk_size: int = 256, overlap: int = 40) -> list[str]:
+    chunks = []
+    step = max(1, chunk_size - overlap)
+    start = 0
+    while start < len(text):
+        end = min(len(text), start + chunk_size)
+        chunk = text[start:end].strip()
+        if chunk:
+            chunks.append(chunk)
+        if end >= len(text):
+            break
+        start += step
+    return chunks`,
+            typescript: `// Recursive Document Chunker with Overlap
+export function chunkDocument(text: string, chunkSize = 256, overlap = 40): string[] {
+  const chunks: string[] = [];
+  const step = Math.max(1, chunkSize - overlap);
+  let start = 0;
+  while (start < text.length) {
+    const end = Math.min(text.length, start + chunkSize);
+    const chunk = text.slice(start, end).trim();
+    if (chunk.length > 0) chunks.push(chunk);
+    if (end >= text.length) break;
+    start += step;
+  }
+  return chunks;
+}`,
+          },
+          description: {
+            ua: "Алгоритм нарізки корпоративних документів на чанки з перекриттям контексту.",
+            en: "Algorithm slicing corporate documents into chunks with overlapping context.",
+            da: "Algoritme til opdeling af virksomhedsdokumenter i chunks med overlappende kontekst.",
+          },
+        },
+        {
+          id: "rag-vectorstore",
+          name: "vector_store.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# In-Memory Vector Store & Cosine Similarity
+import math
+
+def cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
+    dot_product = sum(a * b for a, b in zip(vec_a, vec_b))
+    mag_a = math.sqrt(sum(a * a for a in vec_a))
+    mag_b = math.sqrt(sum(b * b for b in vec_b))
+    if mag_a == 0 or mag_b == 0:
+        return 0.0
+    return dot_product / (mag_a * mag_b)`,
+            typescript: `// In-Memory Vector Store & Cosine Similarity
+export function cosineSimilarity(vecA: number[], vecB: number[]): number {
+  let dotProduct = 0, magA = 0, magB = 0;
+  for (let i = 0; i < vecA.length; i++) {
+    dotProduct += vecA[i] * vecB[i];
+    magA += vecA[i] * vecA[i];
+    magB += vecB[i] * vecB[i];
+  }
+  const denom = Math.sqrt(magA) * Math.sqrt(magB);
+  return denom === 0 ? 0 : dotProduct / denom;
+}`,
+          },
+          description: {
+            ua: "Математичне ядро векторного сховища: скалярний добуток та косинусний кут між ембеддингами.",
+            en: "Mathematical core of vector store: dot product and cosine angle between embeddings.",
+            da: "Matematisk kerne for vektorlager: prikprodukt og cosinusvinkel mellem embeddings.",
+          },
+        },
+        {
+          id: "rag-react-agent",
+          name: "react_agent.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# ReAct Loop State Machine: Thought -> Action -> Observation
+class ReActAgent:
+    def __init__(self, tool_registry: dict, max_steps: int = 3):
+        self.tools = tool_registry
+        self.max_steps = max_steps
+${currentCode}`,
+            typescript: `// ReAct Loop State Machine: Thought -> Action -> Observation
+export class ReActAgent {
+  constructor(private tools: Record<string, Function>, private maxSteps = 3) {}
+}
+${currentCode}`,
+          },
+          description: {
+            ua: "Агентний цикл міркування: декомпозиція запиту, виклик інструментів та синтез підтвердженої відповіді.",
+            en: "Agent reasoning loop: intent decomposition, tool calling, and grounded response synthesis.",
+            da: "Agent ræsonneringscyklus: dekomponering, værktøjskald og syntese af bekræftet svar.",
+          },
+        },
+      ],
+    },
+  ];
+
+  const cyberFiles: ProjectFile[] = [
+    {
+      id: "cyber-root",
+      name: "GoogleCyberSoc",
+      type: "folder",
+      children: [
+        {
+          id: "cyber-syslog-parser",
+          name: "syslog_parser.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# RFC 5424 / RFC 3164 Syslog Parser for Chronicle SIEM
+import re
+
+def parse_syslog(raw: str) -> dict:
+    ip_match = re.search(r"\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b", raw)
+    return {
+        "sourceIp": ip_match.group(0) if ip_match else "127.0.0.1",
+        "severity": "CRITICAL" if "exploit" in raw.lower() else "HIGH" if "failed" in raw.lower() else "INFO"
+    }`,
+            typescript: `// RFC 5424 / RFC 3164 Syslog Parser for Chronicle SIEM
+export function parseSyslog(raw: string) {
+  const ipMatch = raw.match(/\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b/);
+  return {
+    sourceIp: ipMatch ? ipMatch[0] : "127.0.0.1",
+    severity: raw.toLowerCase().includes("exploit") ? "CRITICAL" : raw.toLowerCase().includes("failed") ? "HIGH" : "INFO"
+  };
+}`,
+          },
+          description: {
+            ua: "Парсер журналів безпеки: структуризація сирих syslog-рядків для SIEM аналітики.",
+            en: "Security log parser: structures raw syslog lines for SIEM threat analysis.",
+            da: "Sikkerhedslogparser: strukturerer rå syslog-linjer til SIEM-trusselsanalyse.",
+          },
+        },
+        {
+          id: "cyber-packet-dissector",
+          name: "packet_dissector.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# Web-Wireshark Packet Dissector & Anomaly Detector
+def dissect_packet(frame: dict) -> dict:
+    flags = frame.get("flags", {})
+    is_syn = flags.get("syn", False) and not flags.get("ack", False)
+    return {
+        "sourceIp": frame.get("sourceIp"),
+        "isSynInitiation": is_syn,
+        "payloadLen": frame.get("length", 0)
+    }`,
+            typescript: `// Web-Wireshark Packet Dissector & Anomaly Detector
+export function dissectPacket(frame: any) {
+  const flags = frame.flags || {};
+  return {
+    sourceIp: frame.sourceIp,
+    isSynInitiation: Boolean(flags.syn && !flags.ack),
+    payloadLen: frame.length || 0
+  };
+}`,
+          },
+          description: {
+            ua: "Дисектор пакетів: перевірка заголовків Ethernet, IPv4, TCP прапорців та виявлення аномалій (SYN Flood).",
+            en: "Packet dissector: inspects Ethernet, IPv4, TCP flags, and flags anomalies like SYN Flood.",
+            da: "Pakkedissektor: inspicerer Ethernet, IPv4, TCP-flag og identificerer anomalier som SYN Flood.",
+          },
+        },
+        {
+          id: "cyber-nist-containment",
+          name: "incident_containment.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# NIST CSF Respond Phase: Dynamic Firewall Policy
+${currentCode}`,
+            typescript: `// NIST CSF Respond Phase: Dynamic Firewall Policy
+${currentCode}`,
+          },
+          description: {
+            ua: "Автоматизація локалізації загроз: генерація правил iptables та ізоляція скомпрометованих вузлів.",
+            en: "Threat containment automation: generates iptables DROP rules and isolates compromised endpoints.",
+            da: "Trusselsisolering: genererer iptables DROP-regler og isolerer kompromitterede værter.",
+          },
+        },
+      ],
+    },
+  ];
+
+  if (activeStation === "cyber") return cyberFiles;
+  if (activeStation === "rag") return ragFiles;
   if (activeStation === "vertex") return vertexFiles;
   if (activeStation === "fde") return fdeFiles;
   if (activeStation === "api") return apiFiles;

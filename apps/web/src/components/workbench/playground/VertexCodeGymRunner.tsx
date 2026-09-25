@@ -19,6 +19,7 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
+import { getStationCheckpoint } from "../../../utils/checkpointManager";
 
 export const VertexCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -61,7 +62,13 @@ export const VertexCodeGymRunner: React.FC = () => {
   );
 
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string>(VERTEX_TASKS[0].id);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(() => {
+    const cp = getStationCheckpoint("vertex");
+    if (cp?.taskId && VERTEX_TASKS.some((t) => t.id === cp.taskId)) {
+      return cp.taskId;
+    }
+    return VERTEX_TASKS[0].id;
+  });
   const currentTask: VertexTask = useMemo(
     () => VERTEX_TASKS.find((t) => t.id === selectedTaskId) || VERTEX_TASKS[0],
     [selectedTaskId]
@@ -112,6 +119,7 @@ export const VertexCodeGymRunner: React.FC = () => {
     currentTask,
     initialLang: "python",
     starsEarned,
+    stationId: "vertex",
     onRoundComplete: async (round) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);

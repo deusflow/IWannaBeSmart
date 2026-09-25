@@ -18,6 +18,7 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
+import { getStationCheckpoint } from "../../../utils/checkpointManager";
 
 export const FdeCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -61,7 +62,13 @@ export const FdeCodeGymRunner: React.FC = () => {
     }))
   );
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string>(FDE_TASKS[0].id);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(() => {
+    const cp = getStationCheckpoint("fde");
+    if (cp?.taskId && FDE_TASKS.some((t) => t.id === cp.taskId)) {
+      return cp.taskId;
+    }
+    return FDE_TASKS[0].id;
+  });
   const currentTask: FdeTask = useMemo(
     () => FDE_TASKS.find((t) => t.id === selectedTaskId) || FDE_TASKS[0],
     [selectedTaskId]
@@ -130,6 +137,7 @@ export const FdeCodeGymRunner: React.FC = () => {
     currentTask: adaptedTask,
     initialLang: "python",
     starsEarned,
+    stationId: "fde",
     onRoundComplete: async (round) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);

@@ -22,6 +22,10 @@ export * from "./fdeContext";
 export * from "./tasks-fde";
 export * from "./workedExamplesData";
 export * from "./trace";
+export * from "./ragEngine";
+export * from "./tasks-rag";
+export * from "./cyberEngine";
+export * from "./tasks-cyber";
 
 import { CODING_TASKS } from "./tasks";
 import { FINTECH_TASKS } from "./tasks-fintech";
@@ -30,6 +34,8 @@ import { GIT_TASKS } from "./tasks-git";
 import { BANDIT_TASKS } from "./tasks-bandit";
 import { VERTEX_TASKS } from "./tasks-vertex";
 import { FDE_TASKS } from "./tasks-fde";
+import { RAG_TASKS } from "./tasks-rag";
+import { CYBER_TASKS } from "./tasks-cyber";
 
 export const TOTAL_MAX_STARS =
   CODING_TASKS.length * 4 +
@@ -38,5 +44,7 @@ export const TOTAL_MAX_STARS =
   GIT_TASKS.length * 4 +
   BANDIT_TASKS.length * 4 +
   VERTEX_TASKS.length * 4 +
-  FDE_TASKS.length * 4;
+  FDE_TASKS.length * 4 +
+  RAG_TASKS.length * 4 +
+  CYBER_TASKS.length * 4;
 

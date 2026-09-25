@@ -7,6 +7,7 @@ import type { StateCreator } from "zustand";
 import { CODING_TASKS } from "@iw/sim-engine";
 import { supabase, isSupabaseConfigured } from "../../lib/supabaseClient";
 import { useAuthStore } from "../authStore";
+import { saveGlobalSession, getGlobalSession } from "../../utils/checkpointManager";
 import type {
   WorkbenchStore,
   MentorSlice,
@@ -368,15 +369,23 @@ export const createMentorSlice: StateCreator<
     }
   },
 
-  currentStationId:
-    typeof window !== "undefined"
-      ? localStorage.getItem("iw_current_station") || "tv"
-      : "tv",
+  currentStationId: (() => {
+    try {
+      const session = getGlobalSession();
+      if (session?.currentStationId) return session.currentStationId;
+      return typeof window !== "undefined"
+        ? localStorage.getItem("iw_current_station") || "tv"
+        : "tv";
+    } catch {
+      return "tv";
+    }
+  })(),
   setCurrentStationId: (id: string) => {
     try {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("iw_current_station", id);
-      }
+      saveGlobalSession({
+        currentStationId: id,
+        currentView: get().currentView,
+      });
     } catch {
       // Safe catch
     }
@@ -388,8 +397,28 @@ export const createMentorSlice: StateCreator<
     });
   },
 
-  currentView: "HUB",
-  setCurrentView: (view: "HUB" | "STATION") => set({ currentView: view }),
+  currentView: (() => {
+    try {
+      const session = getGlobalSession();
+      if (session?.currentView) return session.currentView;
+      return typeof window !== "undefined"
+        ? (localStorage.getItem("iw_current_view") as "HUB" | "STATION") || "HUB"
+        : "HUB";
+    } catch {
+      return "HUB";
+    }
+  })(),
+  setCurrentView: (view: "HUB" | "STATION") => {
+    try {
+      saveGlobalSession({
+        currentStationId: get().currentStationId,
+        currentView: view,
+      });
+    } catch {
+      // Safe catch
+    }
+    set({ currentView: view });
+  },
 
   targetTaskId: null,
   setTargetTaskId: (taskId: string | null) => set({ targetTaskId: taskId }),

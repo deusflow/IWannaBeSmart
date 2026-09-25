@@ -14,6 +14,8 @@ import {
   BANDIT_TASKS,
   VERTEX_TASKS,
   FDE_TASKS,
+  RAG_TASKS,
+  CYBER_TASKS,
 } from "@iw/sim-engine";
 
 // Helper accessor to always inspect the fresh Zustand state
@@ -577,8 +579,50 @@ Traffic is routed across private interconnects to prevent external interception.
     });
   });
 
+  describe("ragAgentSlice (Station 09: IBM RAG & Agentic AI)", () => {
+    it("should chunk documents and run hybrid search", () => {
+      const store = getStore();
+      expect(store.ragActiveChunks.length).toBeGreaterThan(0);
+
+      const results = store.executeRagQueryAction("Zero Trust SLA uptime");
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].rrfScore).toBeGreaterThan(0);
+      expect(results[0].text).toBeDefined();
+    });
+
+    it("should toggle RAG Victory Modal", () => {
+      getStore().setRagVictoryModalOpen(true);
+      expect(getStore().isRagVictoryModalOpen).toBe(true);
+      getStore().setRagVictoryModalOpen(false);
+      expect(getStore().isRagVictoryModalOpen).toBe(false);
+    });
+  });
+
+  describe("cyberSlice (Station 10: Google Cybersecurity & SOC)", () => {
+    it("should filter logs and execute containment action", () => {
+      const store = getStore();
+      expect(store.cyberLogs.length).toBeGreaterThan(0);
+
+      const initialAuditLen = store.containmentAuditLog.length;
+      store.executeContainmentAction("ISOLATE_HOST");
+      expect(getStore().containmentAuditLog.length).toBe(initialAuditLen + 1);
+      expect(getStore().containmentAuditLog[0]).toContain("Endpoint Isolated");
+      expect(getStore().nistIncident.isolatedHosts).toContain("srv-app01");
+
+      store.advanceNistStageAction();
+      expect(getStore().nistIncident.stage).toBe("RESPOND");
+    });
+
+    it("should toggle Cyber Victory Modal", () => {
+      getStore().setCyberVictoryModalOpen(true);
+      expect(getStore().isCyberVictoryModalOpen).toBe(true);
+      getStore().setCyberVictoryModalOpen(false);
+      expect(getStore().isCyberVictoryModalOpen).toBe(false);
+    });
+  });
+
   describe("mentorSlice (Gamification, Mastery & Global Stars)", () => {
-    it("should compute TOTAL_MAX_STARS accurately across all 7 stations", () => {
+    it("should compute TOTAL_MAX_STARS accurately across all stations", () => {
       const expectedTotal =
         CODING_TASKS.length * 4 +
         FINTECH_TASKS.length * 4 +
@@ -586,9 +630,11 @@ Traffic is routed across private interconnects to prevent external interception.
         GIT_TASKS.length * 4 +
         BANDIT_TASKS.length * 4 +
         VERTEX_TASKS.length * 4 +
-        FDE_TASKS.length * 4;
+        FDE_TASKS.length * 4 +
+        RAG_TASKS.length * 4 +
+        CYBER_TASKS.length * 4;
       expect(TOTAL_MAX_STARS).toBe(expectedTotal);
-      expect(TOTAL_MAX_STARS).toBe(292);
+      expect(TOTAL_MAX_STARS).toBe(356);
     });
 
     it("should record task mastery stars and best WPM without downgrade", () => {

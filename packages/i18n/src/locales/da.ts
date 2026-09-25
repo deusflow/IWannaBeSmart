@@ -70,6 +70,9 @@ export const daTranslation = {
         title: "Hardware-testbænk fejl",
         subtitle: "Der opstod en uventet runtime-fejl i simuleringsmotoren",
         errorDetails: "Teknisk fejltelemetri",
+        progressSafeTitle: "Dit fremskridt er helt sikkert!",
+        progressSafeDesc: "Optjente stjerner, XP og dit seneste kodeudkast er bevaret. Fejlen vil ikke nulstille dine resultater.",
+        restoreSaved: "🛡️ Gendan fra sidste kontrolpunkt",
         tryAgain: "Prøv igen",
         returnToHub: "Tilbage til Hub",
         resetCache: "Nulstil lokal tilstand & genstart",
@@ -162,6 +165,8 @@ export const daTranslation = {
         badgeCertStation6: "Station 06-certifikat (Cyber Bandit Lab)",
         badgeCertStation7: "Station 07-certifikat (Vertex AI Architect)",
         badgeCertStation8: "Station 08-certifikat (Field AI Deployer)",
+        badgeCertStation9: "Station 09-certifikat (IBM RAG & Agentic AI)",
+        badgeCertStation10: "Station 10-certifikat (Google Cybersecurity & SOC)",
         certInProgress: "I GANG",
         certLocked: "IKKE STARTET",
         viewCertBtn: "Se certifikat",
@@ -839,6 +844,8 @@ export const daTranslation = {
         viewBanditCertTooltip: "Vis Cyber Defense-arkitektcertifikat",
         viewVertexCertTooltip: "Se Vertex AI arkitekt certifikat",
         viewFdeCertTooltip: "Se Field AI specialist certifikat",
+        viewRagCertTooltip: "Se IBM RAG & Agentic AI specialist certifikat",
+        viewCyberCertTooltip: "Se Google Cybersecurity & SOC specialist certifikat",
         stationStars: "Stationsstjerner",
         stationCompleted: "GENNEMFØRT",
         stationAvailable: "TILGÆNGELIG",
@@ -894,6 +901,20 @@ export const daTranslation = {
             subtitle: "Interviews med interessenter, ældre API-adaptere, multi-agent-grafer og zero-trust overdragelse",
             code: "Modul 8",
             specs: "15 opgaver • Applied AI • Python / TS",
+            progressStars: "mestringsstjerner",
+          },
+          rag: {
+            title: "Station 09: IBM RAG & Agentic AI",
+            subtitle: "Vektor-indlejringer, Reciprocal Rank Fusion, ReAct-agentgrafer og RAGAS-validering",
+            code: "Modul 9",
+            specs: "8 opgaver • IBM RAG & Agentic AI • Python / TS",
+            progressStars: "mestringsstjerner",
+          },
+          cyber: {
+            title: "Station 10: Google Cybersecurity & SOC",
+            subtitle: "Chronicle SIEM, Web-Wireshark pakkedissektor, MITRE ATT&CK og NIST CSF respons",
+            code: "Modul 10",
+            specs: "8 opgaver • Google Cybersecurity • Python / TS",
             progressStars: "mestringsstjerner",
           },
           iot: {
@@ -1797,6 +1818,42 @@ export const daTranslation = {
                         "engineering": "Formel SLA-godkendelse og overgang til løbende support og drift.",
                         "success": "✅ Overdragelsesattest underskrevet: enterprise-agenten er i fuld produktion med dokumenteret ROI!"
                   }
+            }
+      },
+      rag: {
+            title: "IBM RAG & Agentic AI Systemarkitekt",
+            stationTitle: "Station 09: IBM RAG & Agentic AI",
+            stationSubtitle: "Vektor-opdeling, Reciprocal Rank Fusion, ReAct agent-tilstandsgrafer og RAGAS hallucineringsvalidering",
+            skills: {
+                  vectorMath: "Tæt vektorsøgning og normalisering (R^8)",
+                  hybridFusion: "Reciprocal Rank Fusion (RRF k=60)",
+                  reactAgent: "ReAct StateGraph cyklisk ræsonnement",
+                  toolCalling: "Struktureret JSON Schema Tool Calling",
+                  guardrails: "RAGAS anti-hallucination og jailbreak-forsvar"
+            },
+            victory: {
+                  title: "Certificeret IBM RAG & Agentic AI Specialist",
+                  desc: "Du har med succes designet en produktionsklar RAG-pipeline: vektor-chunking, hybrid søgefusion, ReAct agentgrafer og RAGAS kvalitetssikring!",
+                  competencies: "Mestrede RAG & Agentic AI kompetencer (5/5):",
+                  returnHub: "Vend tilbage til Hub"
+            }
+      },
+      cyber: {
+            title: "Google Cybersecurity & SOC Forsvarsanalytiker",
+            stationTitle: "Station 10: Google Cybersecurity & SOC",
+            stationSubtitle: "RFC 5424/3164 Syslog normalisering, Chronicle trusselsjagt, Web-Wireshark pakkeanalyse og NIST CSF hændelsesrespons",
+            skills: {
+                  syslogNorm: "RFC 5424/3164 Syslog & SIEM normalisering",
+                  chronicleQuery: "Google Chronicle / KQL trusselsjagt",
+                  packetDissection: "3-delt pakkeanalyse og Live Hex dump",
+                  anomalyDetection: "Netværksanomalidetektion (SYN Flood, ARP Spoof)",
+                  nistContainment: "NIST CSF 2.0 hændelsesindæmning & iptables"
+            },
+            victory: {
+                  title: "Certificeret Google SOC Sikkerhedsanalytiker",
+                  desc: "Du har med succes forsvaret virksomhedens netværk: normaliseret Syslog-strømme, sporet trusler i Chronicle SIEM, analyseret pakker i Wireshark og afværget angreb via NIST CSF 2.0!",
+                  competencies: "Mestrede Google SOC forsvarskompetencer (5/5):",
+                  returnHub: "Vend tilbage til Hub"
             }
       },
       projectFiles: {

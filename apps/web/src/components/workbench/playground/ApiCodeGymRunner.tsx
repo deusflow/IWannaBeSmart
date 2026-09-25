@@ -24,6 +24,7 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
+import { getStationCheckpoint } from "../../../utils/checkpointManager";
 
 const TASK_DEFAULT_REQUESTS: Record<
   string,
@@ -75,7 +76,13 @@ export const ApiCodeGymRunner: React.FC = () => {
     }))
   );
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string>(API_FORGE_TASKS[0].id);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(() => {
+    const cp = getStationCheckpoint("api");
+    if (cp?.taskId && API_FORGE_TASKS.some((t) => t.id === cp.taskId)) {
+      return cp.taskId;
+    }
+    return API_FORGE_TASKS[0].id;
+  });
   const currentTask: ApiForgeTask = useMemo(
     () => API_FORGE_TASKS.find((t) => t.id === selectedTaskId) || API_FORGE_TASKS[0],
     [selectedTaskId]
@@ -137,6 +144,7 @@ export const ApiCodeGymRunner: React.FC = () => {
   } = useCodeGymSession({
     currentTask,
     starsEarned,
+    stationId: "api",
     onRoundComplete: async (round, code) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);

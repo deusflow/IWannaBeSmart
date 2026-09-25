@@ -23,6 +23,7 @@ import {
   Layers,
   Cloud,
   Briefcase,
+  Bot,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -35,6 +36,8 @@ import {
   BANDIT_TASKS,
   VERTEX_TASKS,
   FDE_TASKS,
+  RAG_TASKS,
+  CYBER_TASKS,
   TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 import { ProfileIdentityTab } from "./tabs/ProfileIdentityTab";
@@ -72,6 +75,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setBanditVictoryModalOpen,
     setVertexVictoryModalOpen,
     setFdeVictoryModalOpen,
+    setRagVictoryModalOpen,
+    setCyberVictoryModalOpen,
     setTargetTaskId,
   } = useWorkbenchStore(
     useShallow((s) => ({
@@ -88,6 +93,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
       setVertexVictoryModalOpen: s.setVertexVictoryModalOpen,
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
+      setRagVictoryModalOpen: s.setRagVictoryModalOpen,
+      setCyberVictoryModalOpen: s.setCyberVictoryModalOpen,
       setTargetTaskId: s.setTargetTaskId,
     }))
   );
@@ -143,6 +150,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       { tasks: BANDIT_TASKS, stationId: "bandit", stationName: "Cyber Bandit" },
       { tasks: VERTEX_TASKS, stationId: "vertex", stationName: "Vertex AI" },
       { tasks: FDE_TASKS, stationId: "fde", stationName: "Field AI Deployer" },
+      { tasks: RAG_TASKS, stationId: "rag", stationName: "IBM RAG & Agentic AI" },
+      { tasks: CYBER_TASKS, stationId: "cyber", stationName: "Google Cybersecurity" },
     ];
 
     for (const group of stationGroups) {
@@ -206,6 +215,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const banditStatus = checkCert(BANDIT_TASKS);
     const vertexStatus = checkCert(VERTEX_TASKS);
     const fdeStatus = checkCert(FDE_TASKS);
+    const ragStatus = checkCert(RAG_TASKS);
+    const cyberStatus = checkCert(CYBER_TASKS);
 
     return [
       {
@@ -292,6 +303,30 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           setFdeVictoryModalOpen(true);
         },
       },
+      {
+        id: "rag",
+        title: t("profile.badgeCertStation9", "Сертифікат Станції 09 (IBM RAG & Agentic AI)"),
+        spec: t("profile.tasksCount", { completed: ragStatus.completedCount, total: ragStatus.total, defaultValue: `${ragStatus.completedCount} / ${ragStatus.total} tasks` }),
+        icon: Bot,
+        iconColor: "text-cyan-600",
+        status: ragStatus,
+        onViewCert: () => {
+          onClose();
+          setRagVictoryModalOpen(true);
+        },
+      },
+      {
+        id: "cyber",
+        title: t("profile.badgeCertStation10", "Сертифікат Станції 10 (Google Cybersecurity)"),
+        spec: t("profile.tasksCount", { completed: cyberStatus.completedCount, total: cyberStatus.total, defaultValue: `${cyberStatus.completedCount} / ${cyberStatus.total} tasks` }),
+        icon: ShieldCheck,
+        iconColor: "text-emerald-600",
+        status: cyberStatus,
+        onViewCert: () => {
+          onClose();
+          setCyberVictoryModalOpen(true);
+        },
+      },
     ];
   }, [
     taskMasteryStars,
@@ -305,6 +340,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setBanditVictoryModalOpen,
     setVertexVictoryModalOpen,
     setFdeVictoryModalOpen,
+    setRagVictoryModalOpen,
+    setCyberVictoryModalOpen,
   ]);
 
   const badges: ProfileBadge[] = useMemo(() => {

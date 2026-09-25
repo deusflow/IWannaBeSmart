@@ -20,6 +20,8 @@ import {
   BANDIT_TASKS,
   VERTEX_TASKS,
   FDE_TASKS,
+  RAG_TASKS,
+  CYBER_TASKS,
   TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 import { useShallow } from "zustand/react/shallow";
@@ -52,6 +54,8 @@ export const WorkshopHubScreen: React.FC = () => {
     setBanditVictoryModalOpen,
     setVertexVictoryModalOpen,
     setFdeVictoryModalOpen,
+    setRagVictoryModalOpen,
+    setCyberVictoryModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -67,6 +71,8 @@ export const WorkshopHubScreen: React.FC = () => {
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
       setVertexVictoryModalOpen: s.setVertexVictoryModalOpen,
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
+      setRagVictoryModalOpen: s.setRagVictoryModalOpen,
+      setCyberVictoryModalOpen: s.setCyberVictoryModalOpen,
     }))
   );
 
@@ -81,6 +87,8 @@ export const WorkshopHubScreen: React.FC = () => {
   const showBandit = selectedCategory === "all" || selectedCategory === "security";
   const showVertex = selectedCategory === "all" || selectedCategory === "ai";
   const showFde = selectedCategory === "all" || selectedCategory === "ai";
+  const showRag = selectedCategory === "all" || selectedCategory === "ai";
+  const showCyber = selectedCategory === "all" || selectedCategory === "security";
 
   // Helper for computing module completion & stars
   const getStationStats = useCallback(
@@ -123,6 +131,12 @@ export const WorkshopHubScreen: React.FC = () => {
   // 7. Field AI Deployer (4 stars per task)
   const fdeStats = useMemo(() => getStationStats(FDE_TASKS, 4), [getStationStats]);
 
+  // 8. IBM RAG & Agentic AI (4 stars per task)
+  const ragStats = useMemo(() => getStationStats(RAG_TASKS, 4), [getStationStats]);
+
+  // 9. Google Cybersecurity & SOC Analyst (4 stars per task)
+  const cyberStats = useMemo(() => getStationStats(CYBER_TASKS, 4), [getStationStats]);
+
   // Total stars across platform
   const totalStars =
     tvStats.current +
@@ -131,7 +145,9 @@ export const WorkshopHubScreen: React.FC = () => {
     gitStats.current +
     banditStats.current +
     vertexStats.current +
-    fdeStats.current;
+    fdeStats.current +
+    ragStats.current +
+    cyberStats.current;
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (tvStats.isCompleted && posStats.isEligible);
@@ -269,10 +285,10 @@ export const WorkshopHubScreen: React.FC = () => {
       {/* ── Interactive Category Filter Bar ── */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none">
         {[
-          { id: "all" as const, label: t("hub.categories.all", "Всі станції"), count: 8 },
+          { id: "all" as const, label: t("hub.categories.all", "Всі станції"), count: 9 },
           { id: "systems" as const, label: t("hub.categories.systems", "Системи & Бекенд"), count: 3 },
-          { id: "security" as const, label: t("hub.categories.security", "Фінтех & Безпека"), count: 2 },
-          { id: "ai" as const, label: t("hub.categories.ai", "AI & MLOps"), count: 2 },
+          { id: "security" as const, label: t("hub.categories.security", "Фінтех & Безпека"), count: 3 },
+          { id: "ai" as const, label: t("hub.categories.ai", "AI & MLOps"), count: 3 },
           { id: "iot" as const, label: t("hub.categories.iot", "Апаратні & IoT"), count: 2 },
         ].map((cat) => {
           const isActive = selectedCategory === cat.id;
@@ -534,6 +550,66 @@ export const WorkshopHubScreen: React.FC = () => {
                 : undefined
             }
             certTooltip={t("hub.viewFdeCertTooltip", "Переглянути сертифікат Field AI Deployer")}
+          />
+        )}
+
+        {/* Station 09: IBM RAG & Agentic AI Track */}
+        {showRag && (
+          <StationShowcaseCard
+            stationId="rag"
+            codeLabel={`${t("hub.stations.rag.code", "Модуль 9")} • 09`}
+            title={t("hub.stations.rag.title", "Станція 09: IBM RAG & Agentic AI")}
+            subtitle={t(
+              "hub.stations.rag.subtitle",
+              "Векторний пошук, Reciprocal Rank Fusion, ReAct агентні графи та RAGAS валідація"
+            )}
+            blueprint={<FdeBlueprintSvg />}
+            specs={t("hub.stations.rag.specs", `${RAG_TASKS.length} tasks • IBM RAG & Agentic AI • Python / TS`)}
+            currentStars={ragStats.current}
+            maxStars={ragStats.max}
+            statusType={ragStats.statusType}
+            accentBorderClass="hover:border-cyan-500/60"
+            starColorClass="text-cyan-800"
+            onEnter={() => handleEnterStation("rag")}
+            onViewCert={
+              ragStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setRagVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewRagCertTooltip", "Переглянути сертифікат IBM RAG & Agentic AI")}
+          />
+        )}
+
+        {/* Station 10: Google Cybersecurity & SOC Analyst Track */}
+        {showCyber && (
+          <StationShowcaseCard
+            stationId="cyber"
+            codeLabel={`${t("hub.stations.cyber.code", "Модуль 10")} • 10`}
+            title={t("hub.stations.cyber.title", "Станція 10: Google Cybersecurity & SOC")}
+            subtitle={t(
+              "hub.stations.cyber.subtitle",
+              "Chronicle SIEM, Web-Wireshark аналізатор пакетів, MITRE ATT&CK та NIST CSF"
+            )}
+            blueprint={<BanditBlueprintSvg />}
+            specs={t("hub.stations.cyber.specs", `${CYBER_TASKS.length} tasks • Google Cybersecurity • Python / TS`)}
+            currentStars={cyberStats.current}
+            maxStars={cyberStats.max}
+            statusType={cyberStats.statusType}
+            accentBorderClass="hover:border-emerald-500/60"
+            starColorClass="text-emerald-800"
+            onEnter={() => handleEnterStation("cyber")}
+            onViewCert={
+              cyberStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setCyberVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewCyberCertTooltip", "Переглянути сертифікат Google Cybersecurity & SOC")}
           />
         )}
       </div>

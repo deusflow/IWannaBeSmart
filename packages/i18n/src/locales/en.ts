@@ -70,6 +70,9 @@ export const enTranslation = {
         title: "Hardware Testbench Fault",
         subtitle: "An unexpected runtime error occurred in the simulation engine",
         errorDetails: "Technical Error Telemetry",
+        progressSafeTitle: "Your progress is completely safe!",
+        progressSafeDesc: "Earned mastery stars, XP, and your latest code draft are safe. The crash will not reset your accomplishments.",
+        restoreSaved: "🛡️ Restore from Last Checkpoint",
         tryAgain: "Try Again",
         returnToHub: "Return to Hub",
         resetCache: "Reset Local State & Restart",
@@ -162,6 +165,8 @@ export const enTranslation = {
         badgeCertStation6: "Station 06 Certificate (Cyber Bandit Lab)",
         badgeCertStation7: "Station 07 Certificate (Vertex AI Architect)",
         badgeCertStation8: "Station 08 Certificate (Field AI Deployer)",
+        badgeCertStation9: "Station 09 Certificate (IBM RAG & Agentic AI)",
+        badgeCertStation10: "Station 10 Certificate (Google Cybersecurity & SOC)",
         certInProgress: "IN PROGRESS",
         certLocked: "NOT STARTED",
         viewCertBtn: "View",
@@ -839,6 +844,8 @@ export const enTranslation = {
         viewBanditCertTooltip: "View Cyber Defense architect certificate",
         viewVertexCertTooltip: "View Vertex AI architect certificate",
         viewFdeCertTooltip: "View Field AI specialist certificate",
+        viewRagCertTooltip: "View IBM RAG & Agentic AI certificate",
+        viewCyberCertTooltip: "View Google Cybersecurity & SOC certificate",
         stationStars: "Station Stars",
         stationCompleted: "COMPLETED",
         stationAvailable: "AVAILABLE",
@@ -894,6 +901,20 @@ export const enTranslation = {
             subtitle: "Client discovery, legacy API adapters, multi-agent state machines, and zero-trust handoffs",
             code: "Module 8",
             specs: "15 tasks • Applied AI • Python / TS",
+            progressStars: "mastery stars",
+          },
+          rag: {
+            title: "Station 09: IBM RAG & Agentic AI",
+            subtitle: "Vector embeddings, Reciprocal Rank Fusion, ReAct agent state graphs, and RAGAS validation",
+            code: "Module 9",
+            specs: "8 tasks • IBM RAG & Agentic AI • Python / TS",
+            progressStars: "mastery stars",
+          },
+          cyber: {
+            title: "Station 10: Google Cybersecurity & SOC",
+            subtitle: "Chronicle SIEM, Web-Wireshark packet dissector, MITRE ATT&CK, and NIST CSF response",
+            code: "Module 10",
+            specs: "8 tasks • Google Cybersecurity • Python / TS",
             progressStars: "mastery stars",
           },
           iot: {
@@ -1797,6 +1818,42 @@ export const enTranslation = {
                         "engineering": "Contractual SLA ratification, continuous compliance auditing, and formal transition to L3 enterprise support.",
                         "success": "✅ Production handoff signed: enterprise AI agent live, achieving verified ROI benchmarks!"
                   }
+            }
+      },
+      rag: {
+            title: "IBM RAG & Agentic AI Systems Architect",
+            stationTitle: "Station 09: IBM RAG & Agentic AI",
+            stationSubtitle: "Vector chunking, Reciprocal Rank Fusion, ReAct agent state graphs, and RAGAS anti-hallucination validation",
+            skills: {
+                  vectorMath: "Dense Vector Search & Normalization (R^8)",
+                  hybridFusion: "Reciprocal Rank Fusion (RRF k=60)",
+                  reactAgent: "ReAct StateGraph Cyclic Reasoning",
+                  toolCalling: "Structured JSON Schema Tool Calling",
+                  guardrails: "RAGAS Anti-Hallucination & Jailbreak Defense"
+            },
+            victory: {
+                  title: "Certified IBM RAG & Agentic AI Specialist",
+                  desc: "You successfully architected a production RAG pipeline: vector chunking, hybrid search fusion, ReAct agent graphs, and RAGAS hallucination guardrails!",
+                  competencies: "Mastered RAG & Agentic AI Competencies (5/5):",
+                  returnHub: "Return to Workshop Hub"
+            }
+      },
+      cyber: {
+            title: "Google Cybersecurity & SOC Defense Analyst",
+            stationTitle: "Station 10: Google Cybersecurity & SOC",
+            stationSubtitle: "RFC 5424/3164 Syslog normalization, Chronicle threat hunting, Web-Wireshark packet dissection, and NIST CSF containment",
+            skills: {
+                  syslogNorm: "RFC 5424/3164 Syslog & SIEM Normalization",
+                  chronicleQuery: "Google Chronicle / KQL Threat Hunting",
+                  packetDissection: "3-Pane Packet Dissection & Live Hex Dump",
+                  anomalyDetection: "Network Anomaly Detection (SYN Flood, ARP Spoof)",
+                  nistContainment: "NIST CSF 2.0 Incident Containment & iptables"
+            },
+            victory: {
+                  title: "Certified Google SOC Security Analyst",
+                  desc: "You successfully defended the enterprise perimeter: normalized Syslog streams, hunted threats in Chronicle SIEM, analyzed packet captures in Wireshark, and contained attacks via NIST CSF 2.0!",
+                  competencies: "Mastered Google SOC Defense Competencies (5/5):",
+                  returnHub: "Return to Workshop Hub"
             }
       },
       projectFiles: {

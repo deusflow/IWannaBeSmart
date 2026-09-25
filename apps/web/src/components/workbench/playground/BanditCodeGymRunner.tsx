@@ -24,6 +24,7 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
+import { getStationCheckpoint } from "../../../utils/checkpointManager";
 
 export const BanditCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -56,7 +57,13 @@ export const BanditCodeGymRunner: React.FC = () => {
   );
 
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string>(BANDIT_TASKS[0].id);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(() => {
+    const cp = getStationCheckpoint("bandit");
+    if (cp?.taskId && BANDIT_TASKS.some((t) => t.id === cp.taskId)) {
+      return cp.taskId;
+    }
+    return BANDIT_TASKS[0].id;
+  });
   const currentTask: BanditTask = useMemo(
     () => BANDIT_TASKS.find((t) => t.id === selectedTaskId) || BANDIT_TASKS[0],
     [selectedTaskId]
@@ -113,6 +120,7 @@ export const BanditCodeGymRunner: React.FC = () => {
       clozeTemplate: currentTask.clozeTemplate,
     },
     starsEarned,
+    stationId: "bandit",
     onRoundComplete: async (round) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);

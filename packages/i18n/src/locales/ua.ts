@@ -70,6 +70,9 @@ export const uaTranslation = {
         title: "Аварійний стан стенда",
         subtitle: "Виникла непередбачена помилка виконання в симуляторі",
         errorDetails: "Технічна телеметрія помилки",
+        progressSafeTitle: "Ваш прогрес у повній безпеці!",
+        progressSafeDesc: "Зароблені зірки майстерності, XP та останній сейв коду збережені. Помилка не призведе до скидання результатів.",
+        restoreSaved: "🛡️ Відновити з останнього сейву",
         tryAgain: "Спробувати знову",
         returnToHub: "Повернутися до Хабу",
         resetCache: "Скинути кеш стану та перезапустити",
@@ -162,6 +165,8 @@ export const uaTranslation = {
         badgeCertStation6: "Сертифікат Станції 06 (Cyber Bandit)",
         badgeCertStation7: "Сертифікат Станції 07 (Vertex AI Architect)",
         badgeCertStation8: "Сертифікат Станції 08 (Field AI Deployer)",
+        badgeCertStation9: "Сертифікат Станції 09 (IBM RAG & Agentic AI)",
+        badgeCertStation10: "Сертифікат Станції 10 (Google Cybersecurity & SOC)",
         certInProgress: "В ПРОЦЕСІ",
         certLocked: "НЕ РОЗПОЧАТО",
         viewCertBtn: "Переглянути",
@@ -839,6 +844,8 @@ export const uaTranslation = {
         viewBanditCertTooltip: "Переглянути сертифікат Cyber Defense архітектора",
         viewVertexCertTooltip: "Переглянути сертифікат Vertex AI архітектора",
         viewFdeCertTooltip: "Переглянути сертифікат Field AI спеціаліста",
+        viewRagCertTooltip: "Переглянути сертифікат IBM RAG & Agentic AI спеціаліста",
+        viewCyberCertTooltip: "Переглянути сертифікат Google Cybersecurity & SOC аналітика",
         stationStars: "Зірки станції",
         stationCompleted: "ЗАВЕРШЕНО",
         stationAvailable: "ДОСТУПНО",
@@ -894,6 +901,20 @@ export const uaTranslation = {
             subtitle: "Інтерв'ю стейкхолдерів, адаптація legacy API, агентні графи та регламенти передачі",
             code: "Модуль 8",
             specs: "15 завдань • Applied AI • Python / TS",
+            progressStars: "зірок майстерності",
+          },
+          rag: {
+            title: "Станція 09: IBM RAG & Agentic AI",
+            subtitle: "Векторний пошук, Reciprocal Rank Fusion, ReAct агентні графи та RAGAS валідація",
+            code: "Модуль 9",
+            specs: "8 завдань • IBM RAG & Agentic AI • Python / TS",
+            progressStars: "зірок майстерності",
+          },
+          cyber: {
+            title: "Станція 10: Google Cybersecurity & SOC",
+            subtitle: "Chronicle SIEM, Web-Wireshark аналізатор пакетів, MITRE ATT&CK та NIST CSF",
+            code: "Модуль 10",
+            specs: "8 завдань • Google Cybersecurity • Python / TS",
             progressStars: "зірок майстерності",
           },
           iot: {
@@ -1797,6 +1818,42 @@ export const uaTranslation = {
                         "engineering": "Закріплення контрактного SLA, безперервний аудит відповідності та офіційний перехід на стадію підтримки.",
                         "success": "✅ Фінальний акт підписано: агент у бойовому проді, клієнт отримав рекордний ROI!"
                   }
+            }
+      },
+      rag: {
+            title: "Архітектор систем IBM RAG & Agentic AI",
+            stationTitle: "Станція 09: IBM RAG & Agentic AI",
+            stationSubtitle: "Векторне розбиття, Reciprocal Rank Fusion, ReAct агентні графи та анти-галюцинаційні RAGAS метрики",
+            skills: {
+                  vectorMath: "Векторні ембеддінги та нормалізація (R^8)",
+                  hybridFusion: "Reciprocal Rank Fusion (RRF k=60)",
+                  reactAgent: "ReAct StateGraph циклічні міркування",
+                  toolCalling: "Детермінований Tool Calling та JSON Schema",
+                  guardrails: "RAGAS захист від галюцинацій та jailbreak"
+            },
+            victory: {
+                  title: "Сертифікований IBM RAG & Agentic AI Спеціаліст",
+                  desc: "Ви успішно спроєктували багаторівневий RAG-конвеєр: векторне розбиття, RRF-гібридний пошук, ReAct агентні графи та анти-галюцинаційні RAGAS метрики!",
+                  competencies: "Підтверджені компетенції RAG & AI Агента (5/5):",
+                  returnHub: "Повернутися до Хабу"
+            }
+      },
+      cyber: {
+            title: "Аналітик безпеки Google Cybersecurity & SOC",
+            stationTitle: "Станція 10: Google Cybersecurity & SOC",
+            stationSubtitle: "Нормалізація RFC 5424/3164 Syslog, полювання за загрозами у Chronicle SIEM, дисекція пакетів у Wireshark та стримування за NIST CSF",
+            skills: {
+                  syslogNorm: "RFC 5424/3164 Syslog та SIEM нормалізація",
+                  chronicleQuery: "Google Chronicle / KQL полювання за загрозами",
+                  packetDissection: "3-віконна дисекція пакетів та Live Hex дамп",
+                  anomalyDetection: "Виявлення мережевих аномалій (SYN Flood, ARP Spoof)",
+                  nistContainment: "Стримування інцидентів NIST CSF 2.0 та iptables"
+            },
+            victory: {
+                  title: "Сертифікований Google SOC Аналітик Безпеки",
+                  desc: "Ви успішно захистили корпоративний периметр: нормалізували Syslog-потоки, провели розслідування у Chronicle SIEM, локалізували мережеві аномалії у Wireshark та відбили атаку за стандартом NIST CSF 2.0!",
+                  competencies: "Підтверджені компетенції кіберзахисника SOC (5/5):",
+                  returnHub: "Повернутися до Хабу"
             }
       },
       projectFiles: {

@@ -19,6 +19,7 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { TvPlaygroundHeader } from "./TvPlaygroundHeader";
+import { getStationCheckpoint, saveStationCheckpoint } from "../../../utils/checkpointManager";
 
 export interface InteractiveCodePlaygroundProps {
   onOpenArchitectureStudio?: () => void;
@@ -76,8 +77,26 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   }, [t]);
   const tierKeys = [0, 1, 2] as const;
 
-  const [selectedTier, setSelectedTier] = useState<0 | 1 | 2>(0);
-  const [selectedTaskId, setSelectedTaskId] = useState<string>("task-0-1-power-on");
+  const [selectedTier, setSelectedTier] = useState<0 | 1 | 2>(() => {
+    const cp = getStationCheckpoint("tv");
+    if (cp?.tier !== undefined && (cp.tier === 0 || cp.tier === 1 || cp.tier === 2)) {
+      return cp.tier as 0 | 1 | 2;
+    }
+    if (cp?.taskId) {
+      const task = CODING_TASKS.find((t) => t.id === cp.taskId);
+      if (task && task.tier !== undefined && (task.tier === 0 || task.tier === 1 || task.tier === 2)) {
+        return task.tier as 0 | 1 | 2;
+      }
+    }
+    return 0;
+  });
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(() => {
+    const cp = getStationCheckpoint("tv");
+    if (cp?.taskId && CODING_TASKS.some((t) => t.id === cp.taskId)) {
+      return cp.taskId;
+    }
+    return "task-0-1-power-on";
+  });
 
   // Auto-switch to target task when requested from profile/analytics
   useEffect(() => {
@@ -96,6 +115,14 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   useEffect(() => {
     resetBypasses();
   }, [selectedTaskId, resetBypasses]);
+
+  // Persist station checkpoint including tier
+  useEffect(() => {
+    saveStationCheckpoint("tv", {
+      taskId: selectedTaskId,
+      tier: selectedTier,
+    });
+  }, [selectedTaskId, selectedTier]);
 
   const currentTask: CodingTask = useMemo(
     () => CODING_TASKS.find((t) => t.id === selectedTaskId) || CODING_TASKS[0],
@@ -214,6 +241,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   } = useCodeGymSession({
     currentTask,
     starsEarned,
+    stationId: "tv",
     onRoundComplete: async (round, code) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);

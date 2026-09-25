@@ -25,6 +25,7 @@ import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
 import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
+import { getStationCheckpoint } from "../../../utils/checkpointManager";
 
 export const CodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -56,7 +57,13 @@ export const CodeGymRunner: React.FC = () => {
     }))
   );
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string>(FINTECH_TASKS[0].id);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(() => {
+    const cp = getStationCheckpoint("pos");
+    if (cp?.taskId && FINTECH_TASKS.some((t) => t.id === cp.taskId)) {
+      return cp.taskId;
+    }
+    return FINTECH_TASKS[0].id;
+  });
   const currentTask: FintechTask = useMemo(
     () => FINTECH_TASKS.find((t) => t.id === selectedTaskId) || FINTECH_TASKS[0],
     [selectedTaskId]
@@ -123,6 +130,7 @@ export const CodeGymRunner: React.FC = () => {
     currentTask,
     initialLang: "csharp",
     starsEarned,
+    stationId: "pos",
     onRoundComplete: async (round) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);

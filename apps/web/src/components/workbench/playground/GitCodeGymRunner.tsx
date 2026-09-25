@@ -24,6 +24,7 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
+import { getStationCheckpoint } from "../../../utils/checkpointManager";
 
 export const GitCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -54,7 +55,13 @@ export const GitCodeGymRunner: React.FC = () => {
   );
 
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string>(GIT_TASKS[0].id);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(() => {
+    const cp = getStationCheckpoint("git");
+    if (cp?.taskId && GIT_TASKS.some((t) => t.id === cp.taskId)) {
+      return cp.taskId;
+    }
+    return GIT_TASKS[0].id;
+  });
   const currentTask: GitTask = useMemo(
     () => GIT_TASKS.find((t) => t.id === selectedTaskId) || GIT_TASKS[0],
     [selectedTaskId]
@@ -111,6 +118,7 @@ export const GitCodeGymRunner: React.FC = () => {
       clozeTemplate: currentTask.clozeTemplate,
     },
     starsEarned,
+    stationId: "git",
     onRoundComplete: async (round) => {
       const targetStars = round ?? 1;
       setTaskMastery(currentTask.id, targetStars);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Tv, CreditCard, Warehouse, Lock, Server, GitBranch, Shield, Cloud, Briefcase } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Lock, Server, GitBranch, Shield, Cloud, Briefcase, Cpu, ShieldAlert } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { toast } from "../../store/toastStore";
 
@@ -123,6 +123,30 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         ),
         status: t("hub.stationAvailable", "Доступно"),
         icon: <Briefcase size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "rag",
+        code: t("hub.stations.rag.code", "Модуль 9"),
+        title: t("hub.stations.rag.title", "IBM RAG & Agentic AI"),
+        subtitle: t(
+          "hub.stations.rag.subtitle",
+          "Векторний пошук, Reciprocal Rank Fusion, ReAct агентні графи та RAGAS валідація"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <Cpu size={16} strokeWidth={2} />,
+        isAvailable: true,
+      },
+      {
+        id: "cyber",
+        code: t("hub.stations.cyber.code", "Модуль 10"),
+        title: t("hub.stations.cyber.title", "Google Cybersecurity & SOC"),
+        subtitle: t(
+          "hub.stations.cyber.subtitle",
+          "Chronicle SIEM, Web-Wireshark аналізатор пакетів, MITRE ATT&CK та NIST CSF"
+        ),
+        status: t("hub.stationAvailable", "Доступно"),
+        icon: <ShieldAlert size={16} strokeWidth={2} />,
         isAvailable: true,
       },
     ],
