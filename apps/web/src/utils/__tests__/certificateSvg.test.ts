@@ -26,9 +26,26 @@ describe("certificateSvg utility", () => {
     expect(svg).toContain("Certified Cloud MLOps Architect");
     expect(svg).toContain("20/20");
     expect(svg).toContain("+1500 TOTAL XP");
+    expect(svg).toContain("CAREER QUALIFICATION: L1: CODE APPRENTICE");
     expect(svg).toContain("Cloud Object Ingestion");
     expect(svg).toContain("#3B82F6");
     expect(svg).toContain("IW-VERTEX-");
+  });
+
+  it("should render custom careerRank when provided", () => {
+    const svg = generateCertificateSvg({
+      stationCode: "CYBER",
+      stationTitle: "Google Cybersecurity",
+      credentialTitle: "Certified Security Architect",
+      callsign: "NetStalker",
+      stars: 32,
+      maxStars: 32,
+      xp: 2400,
+      competencies: ["SIEM Triage", "Packet Analysis"],
+      careerRank: "L4: Solutions Architect",
+    });
+
+    expect(svg).toContain("CAREER QUALIFICATION: L4: SOLUTIONS ARCHITECT");
   });
 
   it("should escape special XML characters in competency items", () => {

@@ -15,6 +15,16 @@ import { audioFx } from "../../utils/audioFx";
 
 const defaultIncident = INCIDENT_SCENARIOS[0];
 
+const loadResolvedIncidents = (): string[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("iw_resolved_incidents");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
 export const createWarRoomSlice: StateCreator<
   WorkbenchStore,
   [],
@@ -45,6 +55,7 @@ export const createWarRoomSlice: StateCreator<
   isWarRoomAudioEnabled: true,
   isWarRoomVictoryModalOpen: false,
   isWarRoomFailureModalOpen: false,
+  resolvedIncidentIds: loadResolvedIncidents(),
 
   startIncidentDrill: (incidentId: string) => {
     const incident: IncidentScenario =
@@ -178,6 +189,14 @@ export const createWarRoomSlice: StateCreator<
       // Award SRE Incident Commander XP
       state.addXp(150);
 
+      const prevResolved = get().resolvedIncidentIds || [];
+      const updatedResolved = Array.from(new Set([...prevResolved, incident.id]));
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("iw_resolved_incidents", JSON.stringify(updatedResolved));
+        } catch {}
+      }
+
       set({
         warRoomStatus: "RESOLVED",
         warRoomErrorRate: 0.05,
@@ -186,6 +205,7 @@ export const createWarRoomSlice: StateCreator<
         warRoomHotfixLogs: result.logs,
         warRoomHotfixError: null,
         isWarRoomVictoryModalOpen: true,
+        resolvedIncidentIds: updatedResolved,
       });
       return true;
     } else {

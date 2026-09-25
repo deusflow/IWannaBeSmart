@@ -24,6 +24,7 @@ import {
   Sparkles,
   Code2,
   Layers,
+  Compass,
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 import { getTaskDidacticInfo } from "./taskDidacticContext";
@@ -32,6 +33,7 @@ import { getWorkedExample, type WorkedExample } from "@iw/sim-engine";
 import { GuidedSolutionLayer } from "./guided/GuidedSolutionLayer";
 import { GuidedArchitectureLayer } from "./guided/GuidedArchitectureLayer";
 import { GuidedTokensLayer } from "./guided/GuidedTokensLayer";
+import { GuidedDeepDiveCard } from "./guided/GuidedDeepDiveCard";
 
 // ─── Type definitions ─────────────────────────────────────────────────────────
 
@@ -62,7 +64,7 @@ interface GuidedStepBarProps {
   className?: string;
 }
 
-type TutorialLayer = "solution" | "simple" | "engineering" | "tokens" | "architecture";
+type TutorialLayer = "solution" | "simple" | "engineering" | "tokens" | "architecture" | "deepdive";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -153,6 +155,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
     defaultFallbackCode;
 
   const hasArchitecture = Boolean(didactic?.architectureMap);
+  const hasDeepDive = Boolean(didactic?.curatedResources && didactic.curatedResources.length > 0);
 
   const toggleExpanded = () => {
     audioFx.playRelayClick();
@@ -320,6 +323,25 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 <span>{t("guide.tokensTab", "🧩 Токени")}</span>
               </button>
             )}
+
+            {/* Tab 6: Deep Dive (Curated Primary Sources) */}
+            {hasDeepDive && (
+              <button
+                id="guided-step-tab-deepdive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  selectLayer("deepdive");
+                }}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                  activeLayer === "deepdive" && isExpanded
+                    ? "bg-[#1A1D20] text-white shadow-xs"
+                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                }`}
+              >
+                <Compass size={11} className={activeLayer === "deepdive" && isExpanded ? "text-indigo-400" : ""} />
+                <span>{t("guide.deepDiveTab", "🌐 Deep Dive")}</span>
+              </button>
+            )}
           </div>
 
           {!persistent && (
@@ -353,6 +375,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               getLocStr={getLocStr}
               didactic={didactic}
               onOpenArchitectureStudio={handleOpenStudio}
+              currentLang={currentLang}
             />
           )}
 
@@ -408,6 +431,17 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <GuidedTokensLayer
               tokens={theory.tokens}
               t={t}
+            />
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════════
+               LAYER 6: [ 🌐 Deep Dive ] (Curated Authoritative Sources)
+             ══════════════════════════════════════════════════════════════════ */}
+          {activeLayer === "deepdive" && didactic?.curatedResources && (
+            <GuidedDeepDiveCard
+              resources={didactic.curatedResources}
+              currentLang={currentLang}
+              defaultExpanded={true}
             />
           )}
 

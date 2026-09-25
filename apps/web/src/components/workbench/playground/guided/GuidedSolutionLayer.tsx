@@ -19,6 +19,7 @@ import {
 import type { TFunction } from "i18next";
 import type { WorkedExample } from "@iw/sim-engine";
 import type { TaskDidacticInfo } from "../taskDidacticContext";
+import { GuidedDeepDiveCard } from "./GuidedDeepDiveCard";
 
 export interface GuidedSolutionLayerProps {
   t: TFunction;
@@ -32,6 +33,7 @@ export interface GuidedSolutionLayerProps {
   getLocStr: (val?: string | Record<string, string> | null) => string;
   didactic?: TaskDidacticInfo;
   onOpenArchitectureStudio?: () => void;
+  currentLang?: "ua" | "en" | "da";
 }
 
 const getLangBadge = (lang: string) => {
@@ -80,6 +82,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
   getLocStr,
   didactic,
   onOpenArchitectureStudio,
+  currentLang = "ua",
 }) => {
   return (
     <div className="space-y-3">
@@ -316,6 +319,15 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
             </button>
           )}
         </div>
+      )}
+
+      {/* Primary Authoritative Sources (Deep Dive Collapsible Module) */}
+      {didactic?.curatedResources && didactic.curatedResources.length > 0 && (
+        <GuidedDeepDiveCard
+          resources={didactic.curatedResources}
+          currentLang={currentLang}
+          defaultExpanded={false}
+        />
       )}
     </div>
   );

@@ -47,6 +47,7 @@ import {
   ProfileCertCard,
   ProfileBadge,
 } from "./tabs/ProfileAchievementsTab";
+import { calculateCareerRank, countCompletedStations } from "../../utils/careerRank";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -78,6 +79,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setRagVictoryModalOpen,
     setCyberVictoryModalOpen,
     setTargetTaskId,
+    resolvedIncidentIds,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -96,6 +98,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setRagVictoryModalOpen: s.setRagVictoryModalOpen,
       setCyberVictoryModalOpen: s.setCyberVictoryModalOpen,
       setTargetTaskId: s.setTargetTaskId,
+      resolvedIncidentIds: s.resolvedIncidentIds,
     }))
   );
 
@@ -126,13 +129,22 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   // Google avatar fallback
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
-  // Rank title computation
-  const rank = useMemo(() => {
-    if (xp >= 600) return { title: t("profile.rankLead", "Головний системний архітектор"), level: "Level 4", color: "text-purple-800 border-purple-600/30 bg-purple-500/15" };
-    if (xp >= 300) return { title: t("profile.rankSenior", "Провідний архітектор мікросервісів"), level: "Level 3", color: "text-blue-800 border-blue-600/30 bg-blue-500/15" };
-    if (xp >= 100) return { title: t("profile.rankMid", "Системний інженер верстака"), level: "Level 2", color: "text-emerald-800 border-emerald-600/30 bg-emerald-500/15" };
-    return { title: t("profile.rankJunior", "Молодший інженер-дослідник"), level: "Level 1", color: "text-amber-800 border-amber-600/30 bg-amber-500/15" };
-  }, [xp, t]);
+  const completedStationsCount = useMemo(
+    () => countCompletedStations(taskMasteryStars, completedCodingTasks),
+    [taskMasteryStars, completedCodingTasks]
+  );
+
+  const careerRank = useMemo(
+    () => calculateCareerRank(xp, completedStationsCount, (resolvedIncidentIds || []).length),
+    [xp, completedStationsCount, resolvedIncidentIds]
+  );
+
+  // Rank title computation linked directly to Career Qualification Ladder (L1–L4)
+  const rank = useMemo(() => ({
+    title: t(careerRank.titleKey, careerRank.defaultTitle),
+    level: `${careerRank.grade} • Tier ${careerRank.tier}`,
+    color: careerRank.color,
+  }), [careerRank, t]);
 
   // Telemetry: strengths & growth areas computation across all 5 stations
   const { strengths, growthAreas, totalMasteryStars, maxWpmRecord, accuracyRate } = useMemo(() => {
@@ -567,6 +579,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               certCards={certCards}
               badges={badges}
               onJumpToTask={handleJumpToTask}
+              careerRank={careerRank}
+              completedStationsCount={completedStationsCount}
+              resolvedWarRoomCount={(resolvedIncidentIds || []).length}
+              xp={xp}
             />
           )}
         </div>

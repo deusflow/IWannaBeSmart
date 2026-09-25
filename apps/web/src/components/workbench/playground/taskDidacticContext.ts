@@ -16,6 +16,35 @@ interface ArchitectureMapInfo {
   [key: string]: unknown;
 }
 
+export type CuratedResourceAuthority =
+  | "Microsoft Learn"
+  | "Go.dev"
+  | "Google Cloud"
+  | "IBM Granite"
+  | "ByteByteGo"
+  | "MIT OCW"
+  | "NIST"
+  | "RFC"
+  | "Computerphile"
+  | "OWASP";
+
+export type CuratedResourceType =
+  | "documentation"
+  | "rfc"
+  | "architecture_paper"
+  | "video"
+  | "standard";
+
+export interface CuratedResource {
+  title: string;
+  source: CuratedResourceAuthority;
+  url: string;
+  type: CuratedResourceType;
+  targetGrade?: "Junior" | "Middle" | "Senior" | "Architect";
+  estimatedMinutes?: number;
+  whyRead: Record<string, string>;
+}
+
 export interface TaskDidacticInfo {
   taskId: string;
   whyThisCode: Record<string, string>;
@@ -23,10 +52,12 @@ export interface TaskDidacticInfo {
   primitiveMemoryNote?: Record<string, string>;
   /** Project structure and Architecture Canvas mapping (Tier 2 / architecture tasks) */
   architectureMap?: ArchitectureMapInfo;
+  /** Primary authoritative learning sources (Deep Dive module) */
+  curatedResources?: CuratedResource[];
   [key: string]: unknown;
 }
 
-const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
+export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
   // ── TV Module — Tier 0: Fundamentals ──────────────────────────────────────
   "task-0-1-power-on": {
     taskId: "task-0-1-power-on",
@@ -42,6 +73,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       go:
         "Структура `tv` передається за посиланням (вказівником). Виклик методу змінює внутрішнє поле живлення апаратної структури.",
     },
+    curatedResources: [
+      {
+        title: "C# Statements, Expressions, and Operators",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/statements-expressions-operators/",
+        type: "documentation",
+        targetGrade: "Junior",
+        estimatedMinutes: 6,
+        whyRead: {
+          ua: "Офіційне керівництво Microsoft: як процесор парсить крапку членства, виклики методів та чому крапка з комою є обов'язковою границею інструкції в C#.",
+          en: "Official Microsoft documentation on how the CLR parses member access dots, method invocations, and statement termination.",
+          da: "Officiel Microsoft-dokumentation om, hvordan CLR parser medlemsadgangs-prikken, metodekald og sætningsafslutning.",
+        },
+      },
+      {
+        title: "A Tour of Go: Exported Names & Packages",
+        source: "Go.dev",
+        url: "https://go.dev/tour/basics/3",
+        type: "documentation",
+        targetGrade: "Junior",
+        estimatedMinutes: 5,
+        whyRead: {
+          ua: "Першоджерело авторів мови Go (Роб Пайк, Кен Томпсон): чому публічні методи пишуться з великої літери (PowerOn) і як працює автоматична вставка крапки з комою.",
+          en: "Original source from Go creators: why public methods are capitalized and how automatic semicolon insertion operates.",
+          da: "Original kilde fra Go-skaberne: hvorfor offentlige metoder har stort begyndelsesbogstav, og hvordan automatisk semikolon fungerer.",
+        },
+      },
+    ],
   },
 
   "task-0-2-types": {
@@ -58,6 +117,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       go:
         "⚡ ПАМ'ЯТЬ ПРОЦЕСОРА:\n• `1` — числовий літерал `int`, займає прямий машинний стек/регістр.\n• `\"NEWS\"` — незмінний зріз байтів (immutable byte slice) у купі пам'яті.\n⚠️ Числа для обчислень — без лапок. Текст для людей — завжди у лапках.",
     },
+    curatedResources: [
+      {
+        title: "The C# Type System: Value Types vs Reference Types",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/",
+        type: "documentation",
+        targetGrade: "Junior",
+        estimatedMinutes: 8,
+        whyRead: {
+          ua: "Глибоке розуміння різниці між розміщенням чисел (Stack / Registers) та рядків (Heap). Чому компілятор C# захищає пам'ять від переповнення та несумісних присвоєнь.",
+          en: "Deep dive into value types vs reference types memory layout, stack frames, and type safety guarantees.",
+          da: "Dybdegående gennemgang af værdityper vs referencetyper, stakhukommelse og typesikkerhedsgarantier.",
+        },
+      },
+      {
+        title: "Effective Go: Data Types & Allocation",
+        source: "Go.dev",
+        url: "https://go.dev/doc/effective_go#data",
+        type: "documentation",
+        targetGrade: "Junior",
+        estimatedMinutes: 7,
+        whyRead: {
+          ua: "Стандарт ідіоматичного Go: як влаштовані незмінні зрізи байтів рядків (string headers) та машинне виділення числових типів.",
+          en: "Idiomatic Go standard: how immutable string byte headers work under the hood and memory allocation of numeric primitives.",
+          da: "Go-standarden for strengehoveder, immutable byte slices og maskinhukommelsesallokering.",
+        },
+      },
+    ],
   },
 
   "task-0-3-sequential": {
@@ -305,6 +392,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       architectureHint:
         "Контролер не знає, яка саме кнопка підключена. Він бачить лише універсальну розетку IRemoteCommand і тисне Execute().",
     },
+    curatedResources: [
+      {
+        title: "Interfaces - Define Behavior for Multiple Types",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/interfaces",
+        type: "documentation",
+        targetGrade: "Middle",
+        estimatedMinutes: 9,
+        whyRead: {
+          ua: "Фундамент SOLID: чому інженерний контракт відокремлений від реалізації, як працює віртуальна таблиця методів (vtable) і поліморфна диспетчеризація.",
+          en: "SOLID foundations: decoupling contracts from implementations, vtable layout, and runtime method dispatch.",
+          da: "SOLID fundament: adskillelse af kontrakter og implementationer, vtable og runtime dispatch.",
+        },
+      },
+      {
+        title: "Go by Example: Interfaces and Duck Typing",
+        source: "Go.dev",
+        url: "https://gobyexample.com/interfaces",
+        type: "documentation",
+        targetGrade: "Middle",
+        estimatedMinutes: 6,
+        whyRead: {
+          ua: "Структурна типізація Go: чому в Go немає ключового слова 'implements', і як компілятор автоматично перевіряє сигнатури методів під час збірки.",
+          en: "Go structural subtyping: why Go omits 'implements' keyword and how interface tables (itab) work at runtime.",
+          da: "Strukturel typisering i Go: hvorfor Go udelader 'implements', og hvordan itab fungerer.",
+        },
+      },
+    ],
   },
 
   "task-di-container": {
@@ -325,6 +440,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       architectureHint:
         "Dependency Injection усуває жорстку прив'язку (tight coupling): при зміні CalcCommand код пульта не чіпається взагалі.",
     },
+    curatedResources: [
+      {
+        title: "Dependency Injection in .NET Core & Modern Architectures",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection",
+        type: "architecture_paper",
+        targetGrade: "Middle",
+        estimatedMinutes: 12,
+        whyRead: {
+          ua: "Архітектурний стандарт інверсії керування (IoC): різниця між Transient, Scoped та Singleton часом життя сервісів у високонавантажених бекендах.",
+          en: "Inversion of Control (IoC) architectural standard: Transient, Scoped, and Singleton service lifetimes in backend services.",
+          da: "Inversion of Control (IoC) arkitekturstandard: Transient, Scoped og Singleton levetider i backend-tjenester.",
+        },
+      },
+      {
+        title: "System Design: Dependency Injection & Clean Microservices",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 10,
+        whyRead: {
+          ua: "Розбір Алекса Сю (ByteByteGo): як DI зменшує зв'язність мікросервісів та спрощує модульне тестування під час рефакторингу монолітів.",
+          en: "Alex Xu's architectural breakdown of decoupled services and testability in enterprise architectures.",
+          da: "Arkitektonisk gennemgang af afkobling og testbarhed i enterprise-arkitekturer.",
+        },
+      },
+    ],
   },
 
   "task-command-registry": {
@@ -363,6 +506,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       architectureHint:
         "Ранній вихід (Early Return) усуває глибоку вкладеність і гарантує непорушність фінансового балансу.",
     },
+    curatedResources: [
+      {
+        title: "Guard Clauses and Defensive Design Patterns",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/exceptions/exception-handling",
+        type: "documentation",
+        targetGrade: "Junior",
+        estimatedMinutes: 7,
+        whyRead: {
+          ua: "Захисне програмування: як уникнути сходів вкладених if-else (arrow antipattern) за допомогою раннього повернення помилок.",
+          en: "Defensive programming: preventing nested arrow anti-patterns via early returns and invariant validation.",
+          da: "Defensiv programmering: undgå indlejrede if-else konstruktioner med tidlige returns.",
+        },
+      },
+      {
+        title: "Design a Payment System: Invariants & Reconciliation",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 15,
+        whyRead: {
+          ua: "Як фінтех-системи обробляють мільярди транзакцій: правила валідації балансу, захист від від'ємних значень та запобігання фроду.",
+          en: "How financial systems process billions of transactions: balance validation, non-negative invariants, and fraud mitigation.",
+          da: "Hvordan finansielle systemer behandler milliarder af transaktioner med balance-invarianter.",
+        },
+      },
+    ],
   },
 
   "task-pos-fee-calculation": {
@@ -390,6 +561,21 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       architectureHint:
         "Захист від Brute Force: скінченний автомат (FSM) не дозволяє подальші спроби авторизації після 3 помилок.",
     },
+    curatedResources: [
+      {
+        title: "NIST Special Publication 800-63B: Digital Identity Guidelines",
+        source: "NIST",
+        url: "https://pages.nist.gov/800-63-3/sp800-63b.html",
+        type: "standard",
+        targetGrade: "Middle",
+        estimatedMinutes: 11,
+        whyRead: {
+          ua: "Офіційний стандарт кібербезпеки уряду США (NIST): ліміти спроб введення PIN-коду (Rate-Limiting) та обов'язкове блокування сесії після 3 помилок.",
+          en: "Official US government cybersecurity standard: PIN attempt thresholds and mandatory session lockout after consecutive failures.",
+          da: "Officiel cybersikkerhedsstandard: PIN-forsøgsgrænser og obligatorisk sessionsblokering efter fejl.",
+        },
+      },
+    ],
   },
 
   "task-pos-batch-settlement": {
@@ -509,6 +695,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       architectureHint:
         "У фінансових та банківських системах будь-яка мутація балансу має супроводжуватися перевіркою інваріантів у єдиній транзакційній точці (Single Point of Mutation).",
     },
+    curatedResources: [
+      {
+        title: "Payment Processing: Idempotency Keys and Double Mutation Prevention",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 14,
+        whyRead: {
+          ua: "Класична проблема подвійного списання у розподілених банках: як використовувати ідемпотентні ключі та атомарні транзакції для гарантії балансу.",
+          en: "Classic double-charge bug in distributed banking: leveraging idempotency keys and atomic ledger mutations.",
+          da: "Det klassiske dobbelttræk-problem i distribuerede betalingssystemer og idempotensnøgler.",
+        },
+      },
+      {
+        title: "ACID Transaction Guarantees & Isolation Levels in Distributed Ledgers",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/dotnet/framework/data/transactions/",
+        type: "documentation",
+        targetGrade: "Senior",
+        estimatedMinutes: 10,
+        whyRead: {
+          ua: "Атомарність та узгодженість (ACID) у .NET: чому мутація балансу має відбуватися строго в одній транзакційній точці.",
+          en: "ACID guarantees and isolation levels: ensuring single-point-of-mutation for mission-critical account ledgers.",
+          da: "ACID-garantier og isolationsniveauer: sikring af enkelt muteringspunkt i finansielle transaktioner.",
+        },
+      },
+    ],
   },
 
   // ── Station 04: API Forge ──────────────────────────────────────────
@@ -535,6 +749,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       architectureHint:
         "Healthcheck ендпоінти опитуються Kubernetes кожні 5-10 секунд для Liveness & Readiness проб.",
     },
+    curatedResources: [
+      {
+        title: "RFC 9110: HTTP Semantics (Status Codes & Status 200 OK)",
+        source: "RFC",
+        url: "https://datatracker.ietf.org/doc/html/rfc9110",
+        type: "rfc",
+        targetGrade: "Junior",
+        estimatedMinutes: 8,
+        whyRead: {
+          ua: "Офіційний стандарт IETF (RFC 9110): як клієнти та балансувальники навантаження інтерпретують статус 200 OK та структуру HTTP-відповідей.",
+          en: "Official IETF standard: how clients, reverse proxies, and ingress controllers interpret HTTP 200 OK semantics.",
+          da: "Officiel IETF standard: hvordan klienter og reverse proxies fortolker HTTP 200 OK.",
+        },
+      },
+      {
+        title: "Health Checks in ASP.NET Core and Kubernetes Liveness Probes",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks",
+        type: "documentation",
+        targetGrade: "Middle",
+        estimatedMinutes: 9,
+        whyRead: {
+          ua: "Як оркестратор Kubernetes використовує ендпоінти /healthz для перезапуску завислих контейнерів у хмарі.",
+          en: "How Kubernetes orchestrators leverage /healthz endpoints for liveness and readiness probe decisions in production.",
+          da: "Hvordan Kubernetes anvender /healthz endpoints til liveness- og readiness-prober.",
+        },
+      },
+    ],
   },
 
   "task-api-2-path-params": {
@@ -583,6 +825,34 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       go:
         "Схема Bearer означає, що пред'явник (bearer) токена має право доступу без збереження сесії на сервері.",
     },
+    curatedResources: [
+      {
+        title: "RFC 6750: The OAuth 2.0 Authorization Framework - Bearer Token Usage",
+        source: "RFC",
+        url: "https://datatracker.ietf.org/doc/html/rfc6750",
+        type: "rfc",
+        targetGrade: "Middle",
+        estimatedMinutes: 10,
+        whyRead: {
+          ua: "Глобальний стандарт RFC 6750: формат заголовка 'Authorization: Bearer <token>', захист від крадіжки токенів та правила повернення HTTP 401 Unauthorized.",
+          en: "Global RFC 6750 standard: Bearer header syntax, threat model, and standard HTTP 401 Unauthorized challenge responses.",
+          da: "Global RFC 6750 standard: Bearer header syntaks og HTTP 401 Unauthorized specifikation.",
+        },
+      },
+      {
+        title: "Overview of ASP.NET Core Authentication Middleware",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/aspnet/core/security/authentication/",
+        type: "documentation",
+        targetGrade: "Middle",
+        estimatedMinutes: 9,
+        whyRead: {
+          ua: "Архітектура Authentication Middleware у Kestrel: як перевіряється підпис JWT без звернення до бази даних на кожному запиті (Stateless Auth).",
+          en: "ASP.NET Core authentication pipeline: stateless cryptographically signed JWT validation without round-trips to the DB.",
+          da: "ASP.NET Core middleware: stateless JWT validering uden unødvendige databasekald.",
+        },
+      },
+    ],
   },
 
   "task-api-5-client-consumer": {
@@ -615,6 +885,404 @@ const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
       go:
         "Патерн Exponential Backoff разом із Circuit Breaker є золотим стандартом надійності хмарних мікросервісів.",
     },
+    curatedResources: [
+      {
+        title: "Exponential Backoff and Jitter in Distributed Microservices",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 12,
+        whyRead: {
+          ua: "Чому негайні повторні запити вбивають упалий сервіс (Retry Storm), і як рандомізований jitter розсіює пікові сплески навантаження.",
+          en: "Why immediate retries trigger devastating retry storms, and how randomized exponential jitter stabilizes struggling clusters.",
+          da: "Hvorfor øjeblikkelige retries kan forårsage retry storms, og hvordan exponential jitter stabiliserer klynger.",
+        },
+      },
+      {
+        title: "Implement Resilient HTTP Applications with Polly and .NET",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly",
+        type: "documentation",
+        targetGrade: "Senior",
+        estimatedMinutes: 11,
+        whyRead: {
+          ua: "Реалізація патернів Circuit Breaker та Retry за допомогою бібліотеки Polly: автоматичне розмикання ланцюга при збоях бекенду.",
+          en: "Production implementation of Circuit Breaker and Retry policies using Polly to protect upstream dependencies.",
+          da: "Produktionsimplementering af Circuit Breaker og Retry ved hjælp af Polly i .NET.",
+        },
+      },
+    ],
+  },
+
+  // ── Station 05: Git Time Machine ──────────────────────────────────
+  "task-git-1-genesis": {
+    taskId: "task-git-1-genesis",
+    whyThisCode: {
+      csharp: "Виконання команд Git через Process.Start: індексування змін (git add) та створення кореневого коміту з криптографічним хешем SHA-1.",
+      go: "Виклик exec.Command у Go для ініціалізації генезис-коміту телеметрії пристрою.",
+    },
+    curatedResources: [
+      {
+        title: "Git Internals - Plumbing and Porcelain: Objects, Trees, and Commits",
+        source: "Go.dev",
+        url: "https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain",
+        type: "documentation",
+        targetGrade: "Junior",
+        estimatedMinutes: 10,
+        whyRead: {
+          ua: "Фундаментальна архітектура Git: як об'єкти blob, tree і commit зберігаються у сховищі контенту за хешами SHA-1 / SHA-256.",
+          en: "Git internal architecture: how blob, tree, and commit objects are addressed in content-addressable storage.",
+          da: "Git intern arkitektur: hvordan blob-, tree- og commit-objekter gemmes med kryptografiske hashes.",
+        },
+      },
+    ],
+  },
+
+  "task-git-4-conflict": {
+    taskId: "task-git-4-conflict",
+    whyThisCode: {
+      csharp: "Вирішення конфлікту злиття (Merge Conflict): інженер узгоджує дві конфліктуючі зміни в єдиний працездатний стан файлу.",
+      go: "Усунення дивергенції гілок Git перед фінальним комітом злиття.",
+    },
+    curatedResources: [
+      {
+        title: "How Git Works Under the Hood: Directed Acyclic Graph (DAG) and 3-Way Merge",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Middle",
+        estimatedMinutes: 12,
+        whyRead: {
+          ua: "Математична модель Git (DAG): алгоритми 3-Way Merge, знаходження найближчого спільного предка (LCA) та природа конфліктів.",
+          en: "Mathematical graph model of Git: DAG structure, 3-way merge heuristics, and lowest common ancestor detection.",
+          da: "Matematisk grafmodel for Git: DAG-struktur, 3-vejs merge og løsning af modstridende ændringer.",
+        },
+      },
+      {
+        title: "Git Branching Strategies: Trunk-Based Development vs GitFlow",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/devops/develop/git/what-is-git",
+        type: "documentation",
+        targetGrade: "Middle",
+        estimatedMinutes: 8,
+        whyRead: {
+          ua: "Офіційні рекомендації Microsoft DevOps: чому сучасні високоефективні команди переходять на Trunk-Based Development з короткими гілками.",
+          en: "Microsoft DevOps recommendations: why high-performing teams adopt short-lived branches and Trunk-Based workflows.",
+          da: "Microsoft DevOps anbefalinger: hvorfor moderne teams skifter til Trunk-Based Development.",
+        },
+      },
+    ],
+  },
+
+  "task-git-5-rebase": {
+    taskId: "task-git-5-rebase",
+    whyThisCode: {
+      csharp: "Операція git rebase пересаджує коміти поточної гілки поверх оновленого main, формуючи чисту лінійну історію без сміттєвих merge-комітів.",
+      go: "Лінеаризація графа історії комітів за допомогою rebase.",
+    },
+    curatedResources: [
+      {
+        title: "Git Rebase vs Merge Workflow in Enterprise Teams",
+        source: "Microsoft Learn",
+        url: "https://learn.microsoft.com/en-us/devops/develop/git/merge-vs-rebase",
+        type: "documentation",
+        targetGrade: "Senior",
+        estimatedMinutes: 9,
+        whyRead: {
+          ua: "Інженерні правила вибору між rebase та merge: захист публічних гілок та чистота бісект-пошуку багів (git bisect).",
+          en: "Engineering trade-offs between rebase and merge: preserving public history vs keeping linear bisectable logs.",
+          da: "Tekniske afvejninger mellem rebase og merge i professionelle udviklingsteams.",
+        },
+      },
+    ],
+  },
+
+  // ── Station 06: Cyber Bandit (AppSec) ─────────────────────────────
+  "task-bandit-4-sql-injection": {
+    taskId: "task-bandit-4-sql-injection",
+    whyThisCode: {
+      csharp: "Захист від SQL Injection: заміна динамічної конкатенації рядків на параметризовані SQL-запити (Parameterized Queries).",
+      go: "Використання параметризованих плейсхолдерів ($1, ?) для запобігання підміні синтаксичного дерева бази даних.",
+    },
+    curatedResources: [
+      {
+        title: "OWASP Top 10: SQL Injection Prevention Cheat Sheet",
+        source: "OWASP",
+        url: "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html",
+        type: "standard",
+        targetGrade: "Middle",
+        estimatedMinutes: 12,
+        whyRead: {
+          ua: "Еталонне керівництво OWASP з безпеки баз даних: чому параметризація гарантує, що база ніколи не виконає вхідні дані користувача як SQL-команду.",
+          en: "Definitive OWASP cheat sheet: why parameterized queries guarantee user inputs cannot alter SQL AST structures.",
+          da: "OWASP standardvejledning: hvorfor parametrering garanterer mod SQL-injektionsangreb.",
+        },
+      },
+      {
+        title: "NIST SP 800-53 Rev. 5: SI-10 Information Input Validation",
+        source: "NIST",
+        url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final",
+        type: "standard",
+        targetGrade: "Senior",
+        estimatedMinutes: 14,
+        whyRead: {
+          ua: "Федеральний стандарт безпеки NIST: сувора типізація, білі списки дозволених символів та ізоляція виконання небезпечних команд.",
+          en: "NIST federal security controls: input validation, strict type enforcement, and execution boundaries.",
+          da: "NIST sikkerhedsstandard: inputvalidering, stærk typisering og afskærmning af eksekveringsmiljøer.",
+        },
+      },
+    ],
+  },
+
+  "task-bandit-5-rate-limiter": {
+    taskId: "task-bandit-5-rate-limiter",
+    whyThisCode: {
+      csharp: "Впровадження алгоритму Token Bucket для захисту бекенду від DoS-атак та автоматизованого підбору паролів.",
+      go: "Алгоритм обмеження частоти запитів через time.Ticker та буферизовані канали Go.",
+    },
+    curatedResources: [
+      {
+        title: "Design a Scalable Distributed Rate Limiter (Token Bucket Algorithm)",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 15,
+        whyRead: {
+          ua: "Архітектурний аналіз алгоритмів Rate Limiter (Token Bucket vs Leaky Bucket vs Sliding Window) з розподіленим кешем Redis.",
+          en: "System design of distributed rate limiters using Redis token buckets and sliding window counters.",
+          da: "Systemdesign af distribuerede rate limiters med Redis og token bucket algoritmer.",
+        },
+      },
+      {
+        title: "RFC 6585: Additional HTTP Status Codes - 429 Too Many Requests",
+        source: "RFC",
+        url: "https://datatracker.ietf.org/doc/html/rfc6585",
+        type: "rfc",
+        targetGrade: "Middle",
+        estimatedMinutes: 6,
+        whyRead: {
+          ua: "Стандарт RFC 6585: семантика коду 429 та використання заголовка 'Retry-After' для чемного інформування клієнтів про час очікування.",
+          en: "RFC 6585 specification of HTTP 429 and the Retry-After header for backpressure signaling.",
+          da: "RFC 6585 specifikation for HTTP 429 og Retry-After header til regulering af klientforespørgsler.",
+        },
+      },
+    ],
+  },
+
+  // ── Station 07: Vertex AI (ML Pipelines) ──────────────────────────
+  "task-vertex-3-pipeline-yaml": {
+    taskId: "task-vertex-3-pipeline-yaml",
+    whyThisCode: {
+      csharp: "Конфігурація декларативного ML пайплайну Kubeflow / Vertex AI Pipelines у форматі YAML.",
+      go: "Декларативний опис кроків навчання та валідації моделі.",
+    },
+    curatedResources: [
+      {
+        title: "Vertex AI Pipelines: Kubeflow Pipeline Specifications & Artifact Tracking",
+        source: "Google Cloud",
+        url: "https://cloud.google.com/vertex-ai/docs/pipelines/introduction",
+        type: "documentation",
+        targetGrade: "Middle",
+        estimatedMinutes: 12,
+        whyRead: {
+          ua: "Офіційна документація Google Cloud: як Kubeflow запускає ізольовані контейнери, фіксує артефакти та версіонує моделі.",
+          en: "Google Cloud official docs: running containerized pipeline components, tracking lineage, and artifact reproducibility.",
+          da: "Google Cloud dokumentation for containeriserede Kubeflow komponenter og artefaktsporing.",
+        },
+      },
+    ],
+  },
+
+  "task-vertex-13-drift-detection": {
+    taskId: "task-vertex-13-drift-detection",
+    whyThisCode: {
+      csharp: "Моніторинг дрейфу даних (Data Drift): порівняння статистичного розподілу вхідних ознак у проді з навчальною вибіркою за метрикою L-Infinity.",
+      go: "Виявлення відхилення розподілу ознак (Feature Skew) у режимі реального часу.",
+    },
+    curatedResources: [
+      {
+        title: "Vertex AI Model Monitoring: Feature Skew & Concept Drift Detection",
+        source: "Google Cloud",
+        url: "https://cloud.google.com/vertex-ai/docs/model-monitoring/overview",
+        type: "documentation",
+        targetGrade: "Senior",
+        estimatedMinutes: 14,
+        whyRead: {
+          ua: "Як Google Cloud Model Monitoring автоматично б'є на сполох, коли поведінка користувачів змінюється, викликаючи деградацію точності моделі.",
+          en: "How production model monitoring calculates Jensen-Shannon divergence to identify model degradation before outages occur.",
+          da: "Hvordan automatisk modelovervågning registrerer konceptdrift og dataskew i produktion.",
+        },
+      },
+    ],
+  },
+
+  // ── Station 08: Field AI Deployer (FDE) ───────────────────────────
+  "task-fde-7-agent-architecture": {
+    taskId: "task-fde-7-agent-architecture",
+    whyThisCode: {
+      csharp: "Архітектура автономного AI-агента: розбиття процесу на цикл сприйняття (Perception), планування (Planning) та виклику інструментів (Tool Calling).",
+      go: "Оркестрація агентного циклу ReAct для безпечної взаємодії з API клієнта.",
+    },
+    curatedResources: [
+      {
+        title: "IBM Granite 3.0: Enterprise Agentic Architectures and Tool Calling",
+        source: "IBM Granite",
+        url: "https://www.ibm.com/granite",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 16,
+        whyRead: {
+          ua: "Архітектурний пейпер IBM Granite: побудова стійких агентних систем для корпоративних даних з мінімальним галюцинуванням.",
+          en: "IBM Granite technical report: robust enterprise agent architectures with structured tool calling and guardrails.",
+          da: "IBM Granite teknisk rapport om robuste agentarkitekturer til enterprise-systemer.",
+        },
+      },
+      {
+        title: "LLM Agent System Design: Planning, Memory, Tools",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 13,
+        whyRead: {
+          ua: "Системний дизайн агентів: як короткострокова і довгострокова пам'ять дозволяють LLM виконувати багатоетапні інженерні завдання.",
+          en: "System design of agentic loops: memory management, reflection, and external tool execution patterns.",
+          da: "Systemdesign af LLM-agenter: hukommelsesstyring og sikker integration med eksterne værktøjer.",
+        },
+      },
+    ],
+  },
+
+  "task-fde-10-prompt-injection": {
+    taskId: "task-fde-10-prompt-injection",
+    whyThisCode: {
+      csharp: "Захист від Prompt Injection: ізоляція системних інструкцій та валідація відповідей моделі перед передачею в базу даних.",
+      go: "Фільтрація та семантичний аналіз запитів до LLM для запобігання взлому інструкцій.",
+    },
+    curatedResources: [
+      {
+        title: "OWASP Top 10 for LLM Applications: LLM01 Prompt Injection Defense",
+        source: "OWASP",
+        url: "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        type: "standard",
+        targetGrade: "Senior",
+        estimatedMinutes: 12,
+        whyRead: {
+          ua: "Офіційний каталог загроз безпеки штучного інтелекту OWASP: прямі та непрямі ін'єкції промптів та архітектурні бар'єри захисту (Guardrails).",
+          en: "OWASP Top 10 for LLMs: direct and indirect prompt injection vectors, boundary enforcement, and guardrail layers.",
+          da: "OWASP sikkerhedsstandard for LLM-applikationer: beskyttelse mod prompt injection og sikkerhedszoner.",
+        },
+      },
+    ],
+  },
+
+  // ── Station 09: IBM RAG & Agentic AI ──────────────────────────────
+  "task-rag-1-chunking-overlap": {
+    taskId: "task-rag-1-chunking-overlap",
+    whyThisCode: {
+      csharp: "Розбиття тексту на чанки з перекриттям (Sliding Window Chunking) для збереження семантичного контексту на границях речень.",
+      go: "Оптимальне сегментування документів для подальшої векторизації.",
+    },
+    curatedResources: [
+      {
+        title: "Optimal Chunking Strategies & Boundary Preservation in Enterprise RAG",
+        source: "IBM Granite",
+        url: "https://www.ibm.com/granite/docs",
+        type: "architecture_paper",
+        targetGrade: "Middle",
+        estimatedMinutes: 11,
+        whyRead: {
+          ua: "Дослідження IBM Research: як розмір чанка та коефіцієнт перекриття (overlap ratio) впливають на точність пошуку відповідей у RAG-системах.",
+          en: "IBM Research on text chunking trade-offs, semantic boundary preservation, and embedding retrieval fidelity.",
+          da: "IBM forskning om tekst-chunking strategier og præcision i enterprise RAG-systemer.",
+        },
+      },
+    ],
+  },
+
+  "task-rag-4-hybrid-rrf": {
+    taskId: "task-rag-4-hybrid-rrf",
+    whyThisCode: {
+      csharp: "Гібридний пошук: об'єднання результатів повнотекстового пошуку (BM25) та векторного пошуку через алгоритм Reciprocal Rank Fusion (RRF).",
+      go: "Ранжування документів за формулою RRF для досягнення максимальної релевантності.",
+    },
+    curatedResources: [
+      {
+        title: "Hybrid Search: Combining BM25 Keyword Search and Vector Embeddings via RRF",
+        source: "ByteByteGo",
+        url: "https://bytebytego.com",
+        type: "architecture_paper",
+        targetGrade: "Senior",
+        estimatedMinutes: 14,
+        whyRead: {
+          ua: "Чому векторний пошук сам по собі пропускає точні терміни та серійні номери, і як RRF гармонійно поєднує BM25 з щільними ембеддінгами.",
+          en: "Why vector retrieval alone fails on exact keywords, and how Reciprocal Rank Fusion fuses lexical and semantic rankings.",
+          da: "Hvorfor hybrid søgning med BM25 og vektor-embeddings via RRF giver de mest præcise søgeresultater.",
+        },
+      },
+    ],
+  },
+
+  // ── Station 10: Google Cybersecurity ──────────────────────────────
+  "task-cyber-4-syn-flood-detector": {
+    taskId: "task-cyber-4-syn-flood-detector",
+    whyThisCode: {
+      csharp: "Виявлення TCP SYN Flood атак: відстеження співвідношення незавершених рукостискань SYN-ACK та перевищення порогу черги беклогу.",
+      go: "Детекція аномальних спалахів TCP SYN пакетів у сирому сокеті.",
+    },
+    curatedResources: [
+      {
+        title: "RFC 4987: TCP SYN Flooding Attacks and Common Mitigations (SYN Cookies)",
+        source: "RFC",
+        url: "https://datatracker.ietf.org/doc/html/rfc4987",
+        type: "rfc",
+        targetGrade: "Middle",
+        estimatedMinutes: 12,
+        whyRead: {
+          ua: "Офіційний RFC 4987: механізм атаки на вичерпання черги TCP з'єднань та криптографічний захист за допомогою SYN Cookies.",
+          en: "RFC 4987 specification: TCP connection queue exhaustion attacks and cryptographic SYN Cookie defenses.",
+          da: "RFC 4987: TCP SYN Flood angrebsmekanisme og kryptografisk beskyttelse med SYN Cookies.",
+        },
+      },
+      {
+        title: "SYN Flood Attacks & TCP Handshake Mechanics",
+        source: "Computerphile",
+        url: "https://www.youtube.com/user/Computerphile",
+        type: "video",
+        targetGrade: "Junior",
+        estimatedMinutes: 9,
+        whyRead: {
+          ua: "Наочний відеорозбір професорів комп'ютерних наук: як триетапне рукопотискання TCP (SYN, SYN-ACK, ACK) стає мішенню зловмисників.",
+          en: "Clear video breakdown of TCP 3-way handshake vulnerability and kernel socket memory exhaustion.",
+          da: "Pædagogisk gennemgang af 3-vejs TCP håndtryk og netværkssårbarheder.",
+        },
+      },
+    ],
+  },
+
+  "task-cyber-8-nist-containment": {
+    taskId: "task-cyber-8-nist-containment",
+    whyThisCode: {
+      csharp: "Реалізація фази локалізації загрози за стандартом NIST SP 800-61: ізоляція скомпрометованого вузла на рівні міжмережевого екрана.",
+      go: "Блокування шкідливого трафіку та фіксація цифрових доказів у журналі інцидентів.",
+    },
+    curatedResources: [
+      {
+        title: "NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide",
+        source: "NIST",
+        url: "https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final",
+        type: "standard",
+        targetGrade: "Senior",
+        estimatedMinutes: 18,
+        whyRead: {
+          ua: "Золотий стандарт реагування на кіберінциденти: 4 фази (Preparation -> Detection -> Containment/Eradication -> Post-Incident Analysis).",
+          en: "The global gold standard in incident response: containment strategies, evidence preservation, and post-mortem analysis.",
+          da: "Den globale guldstandard for hændelseshåndtering: 4 faser fra detektering til genetablering.",
+        },
+      },
+    ],
   },
 };
 

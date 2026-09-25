@@ -389,6 +389,7 @@ export interface WarRoomSlice {
   isWarRoomAudioEnabled: boolean;
   isWarRoomVictoryModalOpen: boolean;
   isWarRoomFailureModalOpen: boolean;
+  resolvedIncidentIds: string[];
 
   startIncidentDrill: (incidentId: string) => void;
   abortIncidentDrill: () => void;

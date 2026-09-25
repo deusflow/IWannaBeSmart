@@ -9,8 +9,10 @@ import { User, LogOut, ChevronDown, ShieldCheck, Sparkles, LogIn, ArrowRight } f
 import { useAuthStore } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { TOTAL_MAX_STARS } from "@iw/sim-engine";
+import { useShallow } from "zustand/react/shallow";
 import { AuthModal } from "./AuthModal";
 import { UserProfileModal } from "../profile/UserProfileModal";
+import { calculateCareerRank, countCompletedStations } from "../../utils/careerRank";
 
 interface UserNavBadgeProps {
   className?: string;
@@ -19,7 +21,14 @@ interface UserNavBadgeProps {
 export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) => {
   const { t } = useTranslation();
   const { user, profile, signOut } = useAuthStore();
-  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+  const { taskMasteryStars, xp, completedCodingTasks, resolvedIncidentIds } = useWorkbenchStore(
+    useShallow((s) => ({
+      taskMasteryStars: s.taskMasteryStars,
+      xp: s.xp,
+      completedCodingTasks: s.completedCodingTasks,
+      resolvedIncidentIds: s.resolvedIncidentIds,
+    }))
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -32,6 +41,12 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
     const profileStars = profile?.total_stars || 0;
     return Math.max(localSum, profileStars);
   }, [taskMasteryStars, profile?.total_stars]);
+
+  // Compute engineer Career Rank (L1–L4)
+  const careerRank = useMemo(() => {
+    const stationsCount = countCompletedStations(taskMasteryStars, completedCodingTasks);
+    return calculateCareerRank(xp, stationsCount, (resolvedIncidentIds || []).length);
+  }, [xp, taskMasteryStars, completedCodingTasks, resolvedIncidentIds]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -117,6 +132,14 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
             </div>
           </div>
 
+          {/* Career Qualification Grade Pill */}
+          <span
+            className={`hidden sm:inline-flex items-center px-1.5 py-0.5 rounded font-mono font-bold text-[10px] border shadow-2xs ${careerRank.color}`}
+            title={`${careerRank.grade}: ${careerRank.codeName}`}
+          >
+            {careerRank.grade}
+          </span>
+
           {/* Star Balance Badge */}
           <div className="flex items-center gap-0.5 text-amber-900 font-bold text-[10px] font-mono bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-600/35 shadow-2xs">
             <span className="text-amber-600">★</span>
@@ -138,9 +161,16 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
         <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 shadow-paper-lg p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150 font-sans text-[#1A1D20] select-none">
           {/* User Details Header */}
           <div className="px-3.5 py-2.5 bg-[#EFE9DC] rounded-xl border border-[#1A1D20]/15 mb-2">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-accent-blue font-bold">
-              <ShieldCheck size={14} className="text-accent-blue shrink-0" />
-              <span>{t("auth.accreditation", "Акредитація інженера")}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-accent-blue font-bold">
+                <ShieldCheck size={14} className="text-accent-blue shrink-0" />
+                <span>{t("auth.accreditation", "Акредитація інженера")}</span>
+              </div>
+              <span
+                className={`px-1.5 py-0.5 rounded font-mono text-[9px] font-bold border ${careerRank.color}`}
+              >
+                {careerRank.grade}
+              </span>
             </div>
             <div className="font-display font-extrabold text-sm text-[#1A1D20] mt-1">
               {callsign}
@@ -152,6 +182,12 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
 
           {/* Cloud Sync & Mastery Overview */}
           <div className="px-3 py-2 text-[11px] font-mono border-b border-[#1A1D20]/10 space-y-1.5 text-[#1A1D20]/75">
+            <div className="flex items-center justify-between">
+              <span>{t("careerRank.label", "Кваліфікація:")}</span>
+              <span className="font-bold text-[#1A1D20] flex items-center gap-1">
+                <span>{careerRank.codeName}</span>
+              </span>
+            </div>
             <div className="flex items-center justify-between">
               <span>{t("auth.cloudSync", "Хмарна синхронізація:")}</span>
               <span className="text-emerald-700 font-bold flex items-center gap-1 bg-emerald-500/15 border border-emerald-600/30 px-1.5 py-0.5 rounded text-[10px]">
