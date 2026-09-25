@@ -372,6 +372,10 @@ export const WorkbenchScreen: React.FC = () => {
                     ? t("hub.stations.vertex.title", "Vertex AI Architect: Cloud MLOps")
                     : currentStationId === "fde"
                     ? t("hub.stations.fde.title", "Field AI Deployer (FDE): Enterprise AI")
+                    : currentStationId === "rag"
+                    ? t("hub.stations.rag.title", "IBM RAG & Agentic AI: Neural Retrieval")
+                    : currentStationId === "cyber"
+                    ? t("hub.stations.cyber.title", "Google Cybersecurity & SOC: Chronicle & Wireshark")
                     : t("level.level1Title", { defaultValue: tvLevel01.title })}
                 </span>
               </div>

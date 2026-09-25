@@ -267,7 +267,7 @@ export function useArchitectureWiring({
       if (existing) {
         const rfNode = getNode(nodeId);
         if (rfNode) {
-          const cx = rfNode.position.x + (rfNode.width ?? 276) / 2;
+          const cx = rfNode.position.x + (rfNode.width ?? 340) / 2;
           const cy = rfNode.position.y + (rfNode.measured?.height ?? 200) / 2;
           setCenter(cx, cy, { zoom: 1, duration: 420 });
         }
@@ -293,7 +293,7 @@ export function useArchitectureWiring({
         id: nodeId,
         type: "architectureNode",
         position: targetPos,
-        width: 290,
+        width: 340,
         data: {
           fileId: file.id, name: file.name, path: file.path,
           entityType: file.entityType, role: file.role,

@@ -24,6 +24,8 @@ import {
   X,
   Star,
   Terminal,
+  Cpu,
+  ShieldAlert,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -34,6 +36,8 @@ import {
   BANDIT_TASKS,
   VERTEX_TASKS,
   FDE_TASKS,
+  RAG_TASKS,
+  CYBER_TASKS,
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
@@ -98,8 +102,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       if (stationId === "iot") {
         audioFx.playRelayClick();
         toast.info(
-          t("hub.stations.iot.badge", "НЕЗАБАРОМ: EventBus & Async I/O"),
-          t("hub.unlockCondition", "Потрібно 200+ XP або Модулі 1 та 2")
+          t("hub.stations.iot.badge", "В РОЗРОБЦІ: EventBus & Async I/O"),
+          t("hub.stations.iot.releaseDate", "Реліз: Наступний семестр 2026")
         );
         onClose();
         return;
@@ -187,11 +191,25 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         icon: Briefcase,
         color: "text-purple-400",
       },
+      {
+        id: "rag",
+        title: t("hub.stations.rag.title", "Station 09: IBM RAG & Agentic AI"),
+        subtitle: t("hub.stations.rag.specs", "8 tasks • Neural Retrieval & ReAct"),
+        icon: Cpu,
+        color: "text-cyan-400",
+      },
+      {
+        id: "cyber",
+        title: t("hub.stations.cyber.title", "Station 10: Google Cybersecurity & SOC"),
+        subtitle: t("hub.stations.cyber.specs", "8 tasks • Chronicle & Wireshark"),
+        icon: ShieldAlert,
+        color: "text-red-400",
+      },
     ],
     [t]
   );
 
-  // All 73 tasks aggregated with station metadata
+  // All 89 tasks aggregated with station metadata
   const allTasks = useMemo(() => {
     const list: Array<{
       id: string;
@@ -221,6 +239,12 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     );
     FDE_TASKS.forEach((tk) =>
       list.push({ id: tk.id, title: t(tk.titleKey, tk.id), stationId: "fde", stationName: "Field AI", order: tk.order })
+    );
+    RAG_TASKS.forEach((tk) =>
+      list.push({ id: tk.id, title: t(tk.titleKey, tk.id), stationId: "rag", stationName: "IBM RAG", order: tk.order })
+    );
+    CYBER_TASKS.forEach((tk) =>
+      list.push({ id: tk.id, title: t(tk.titleKey, tk.id), stationId: "cyber", stationName: "Google SOC", order: tk.order })
     );
 
     return list;

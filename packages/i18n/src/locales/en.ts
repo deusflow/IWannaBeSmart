@@ -323,6 +323,9 @@ export const enTranslation = {
         projectTree: "Project Tree",
         searchPlaceholder: "Search files and classes...",
         dragHint: "Drag or click file to add to canvas",
+        dragOrClickToAdd: "Drag onto canvas or click to select {{name}}",
+        addNode: "Add",
+        addNodeTooltip: "Add {{name}} to canvas",
         level1Title: "Level 1: Architectural Wiring of Power Command",
         waitingConnection: "Awaiting connection",
         connectionActive: "✓ Connection active",
@@ -371,6 +374,9 @@ export const enTranslation = {
         clearLog: "Clear log",
         collapse: "Collapse",
         expand: "Expand",
+        expandTerminal: "Click to expand high-signal bus terminal",
+        events: "events",
+        clickToExpand: "⇧ Expand",
         currentGoal: "Current Goal",
         terminalEmpty: "Log is empty — wire nodes to observe architectural explanations",
         noCodeYet: "// No connections — drag wire between node ports",
@@ -850,6 +856,8 @@ export const enTranslation = {
         stationCompleted: "COMPLETED",
         stationAvailable: "AVAILABLE",
         stationLocked: "LOCKED",
+        stationInDevelopment: "IN DEVELOPMENT",
+        roadmapStatus: "Module Status",
         recommendedStart: "🌟 Recommended Start for Beginners",
         unlockCondition: "Requires 200+ XP or completing Stations 1 & 2",
         unlockProgress: "Unlock Progress",
@@ -921,8 +929,9 @@ export const enTranslation = {
             title: "Station 03: IoT Garage Gate",
             subtitle: "Asynchronous EventBus, message brokers, event queues, and safety sensors",
             code: "Module 3",
-            specs: "Coming Soon • Event-Driven Architecture",
-            badge: "COMING SOON: EventBus & Async I/O",
+            specs: "In Development • Event-Driven Architecture • C# / Go",
+            releaseDate: "Release: Next Semester 2026",
+            badge: "IN DEVELOPMENT: EventBus & Async I/O",
           },
           pc: {
             title: "Station 04: Workstation",
@@ -1836,6 +1845,80 @@ export const enTranslation = {
                   desc: "You successfully architected a production RAG pipeline: vector chunking, hybrid search fusion, ReAct agent graphs, and RAGAS hallucination guardrails!",
                   competencies: "Mastered RAG & Agentic AI Competencies (5/5):",
                   returnHub: "Return to Workshop Hub"
+            },
+            tasks: {
+                  task1: {
+                        title: "Task 1: Recursive Document Chunking & Chunk Overlap",
+                        concept: "Recursive Document Chunking & Chunk Overlap",
+                        desc: "Split corporate documentation into bounded chunks with a sliding overlap window to preserve semantic boundary context.",
+                        hint: "Calculate step size as max(1, chunk_size - overlap) and advance the start pointer across text.",
+                        simple: "How to slice a long article into digestible paragraphs without cutting important sentences in half: by creating a small overlap between adjacent chunks.",
+                        engineering: "Fixed sliding window chunking with semantic overlap prevents boundary context loss when indexing text nodes in HNSW vector graphs.",
+                        success: "✅ Document successfully chunked: all fragments retain boundary semantic context!"
+                  },
+                  task2: {
+                        title: "Task 2: Dense Vector Embeddings & L2 Normalization",
+                        concept: "Vector Embeddings & L2 Normalization",
+                        desc: "Project textual chunk tokens into an R^8 coordinate space and perform unit L2 normalization for fast scalar dot-product retrieval.",
+                        hint: "Compute vector magnitude as sqrt(sum(x_i^2)). If magnitude > 0, divide each component by this norm.",
+                        simple: "Computers don't read words, they read arrows in space (vectors). We convert text into coordinates and scale the arrow to exactly length 1.",
+                        engineering: "L2 normalization simplifies cosine distance calculations to a single SIMD-accelerated dot product operation in high-throughput vector databases.",
+                        success: "✅ Vector embedding generated and normalized to unit L2 sphere!"
+                  },
+                  task3: {
+                        title: "Task 3: Cosine Similarity Metric & Semantic Ranking",
+                        concept: "Cosine Similarity Distance Metric",
+                        desc: "Calculate cosine similarity distance between the search query embedding and knowledge base vector stores to rank top-k documents.",
+                        hint: "Compute dot product of vector_a and vector_b, then divide by product of their L2 norms.",
+                        simple: "We measure the angle between two idea arrows. The smaller the angle (closer to 1.0), the closer the topics are in meaning.",
+                        engineering: "Cosine similarity is length-invariant, enabling unbiased relevance scoring between brief user queries and lengthy enterprise knowledge documents.",
+                        success: "✅ Cosine similarity matrix computed: top relevant knowledge slice located!"
+                  },
+                  task4: {
+                        title: "Task 4: Hybrid Search Reciprocal Rank Fusion (RRF)",
+                        concept: "Reciprocal Rank Fusion (RRF k=60)",
+                        desc: "Combine sparse keyword search results (BM25) and dense semantic vector rankings using the Reciprocal Rank Fusion algorithm.",
+                        hint: "Accumulate 1.0 / (k + rank) for each document, where smoothing constant k defaults to 60.",
+                        simple: "When two search experts (one searching exact keywords, one searching meaning) provide lists, we boost documents appearing near the top of both.",
+                        engineering: "RRF neutralizes score magnitude disparities between BM25 and neural cosine scores without requiring costly hyperparameter tuning.",
+                        success: "✅ RRF hybrid search pipeline blended keyword and vector rank scores!"
+                  },
+                  task5: {
+                        title: "Task 5: ReAct Autonomous Agent Loop (Thought ➔ Action ➔ Observation)",
+                        concept: "ReAct Pattern: Reason and Act Loop",
+                        desc: "Implement an agentic reasoning loop: form a diagnostic Thought, execute a tool Action, and collect environment Observation.",
+                        hint: "If action equals 'FINAL_ANSWER', return payload; otherwise record output into state and proceed to next iteration.",
+                        simple: "An AI agent thinks like a human: first thinks 'I need to check the temperature', calls the thermometer, reads the degree, then gives the final answer.",
+                        engineering: "The ReAct loop mitigates generative hallucinations by anchoring intermediate reasoning steps to grounded external tool executions.",
+                        success: "✅ ReAct loop completed action trajectory and returned verified answer!"
+                  },
+                  task6: {
+                        title: "Task 6: Deterministic Tool Calling & JSON Schema Enforcement",
+                        concept: "Deterministic Function Calling & Schema Enforcement",
+                        desc: "Build a secure tool executor that validates agent arguments against strict JSON Schema parameters before dispatching API calls.",
+                        hint: "Validate required schema properties and parameter types prior to executing the tool handler.",
+                        simple: "Safety check: before the robot triggers an external calculator or database, we make sure all parameters are strictly valid.",
+                        engineering: "Enforcing strict JSON Schema contracts eliminates Type Confusion attacks and protects enterprise APIs from malformed model payloads.",
+                        success: "✅ Tool call schema strictly validated and deterministically executed!"
+                  },
+                  task7: {
+                        title: "Task 7: RAGAS Telemetry & Anti-Hallucination Guardrails",
+                        concept: "RAGAS Evaluation: Faithfulness & Groundedness",
+                        desc: "Calculate the Faithfulness metric score: verify what fraction of generated statements are strictly supported by the retrieved context.",
+                        hint: "Divide number of grounded factual statements by total statements generated by the agent.",
+                        simple: "Lie detector: we verify every single sentence against our internal documents. If the bot made something up, we block the answer.",
+                        engineering: "RAGAS Groundedness metrics establish quantifiable enterprise safety boundaries, preventing ungrounded hallucinations from reaching end users.",
+                        success: "✅ RAGAS evaluation passed: generated response is 100% grounded in sources!"
+                  },
+                  task8: {
+                        title: "Task 8: StateGraph Memory & Checkpointing Resilience",
+                        concept: "StateGraph Memory & Checkpointing",
+                        desc: "Implement persistent multi-turn agent state checkpoints to support conversation resume, replay debugging, and crash recovery.",
+                        hint: "Serialize current state dictionary with unique session_id and monotonic step_id to durable checkpointer.",
+                        simple: "Save point in a game: the agent saves the conversation history so you can resume tomorrow exactly where you left off.",
+                        engineering: "Immutable state snapshots ensure fault-tolerant multi-agent orchestrations, transaction rollback capability, and complete compliance auditability.",
+                        success: "✅ Agent state snapshot durably checkpointed into immutable ledger!"
+                  }
             }
       },
       cyber: {
@@ -1854,6 +1937,80 @@ export const enTranslation = {
                   desc: "You successfully defended the enterprise perimeter: normalized Syslog streams, hunted threats in Chronicle SIEM, analyzed packet captures in Wireshark, and contained attacks via NIST CSF 2.0!",
                   competencies: "Mastered Google SOC Defense Competencies (5/5):",
                   returnHub: "Return to Workshop Hub"
+            },
+            tasks: {
+                  task1: {
+                        title: "Task 1: SIEM Log Ingestion & RFC 5424/3164 Parsing",
+                        concept: "Syslog Ingestion & RFC Log Normalization",
+                        desc: "Normalize raw syslog text streams into structured security event records: extract timestamp, severity, source IP, and message.",
+                        hint: "Use regex patterns to locate IPv4 addresses and parse severity levels from log line prefix.",
+                        simple: "Servers output messy logs in different formats. We organize them into clean cards: who, when, where, and what happened.",
+                        engineering: "Standardizing raw logs to common schema (CEF/UDM) is the prerequisite for high-speed SIEM multi-source correlation engines.",
+                        success: "✅ Raw syslog stream parsed and normalized into structured SIEM events!"
+                  },
+                  task2: {
+                        title: "Task 2: OSI Layer Dissection (Ethernet, IPv4, TCP)",
+                        concept: "Web-Wireshark Packet Dissection",
+                        desc: "Dissect raw PCAP network frames across OSI layers: decode Layer 2 MAC addresses, Layer 3 IP headers, and Layer 4 TCP control flags.",
+                        hint: "Extract source/dest MAC, IPv4 addresses, ports, and verify flags (SYN, ACK, FIN, RST).",
+                        simple: "A network packet is like an envelope inside an envelope. We open each layer, read the addresses, and verify the postmark.",
+                        engineering: "Inspecting raw OSI headers identifies protocol anomalies (e.g. Christmas tree packets or invalid flag combinations) bypassed by simple proxies.",
+                        success: "✅ Network packet dissected across OSI stack and TCP flags verified!"
+                  },
+                  task3: {
+                        title: "Task 3: Threat Detection in Google Chronicle SIEM",
+                        concept: "Chronicle YARA-L & Rule-Based Detection",
+                        desc: "Write an automated security detection rule: alert when repeated authentication failures occur from a single IP within a short time window.",
+                        hint: "Filter events where auth_failed = True and test if count of attempts from source_ip exceeds threshold >= 5.",
+                        simple: "CCTV camera for servers: if someone tries to guess a password 5 times in a row, sound the red alarm immediately.",
+                        engineering: "Chronicle YARA-L rules operate across petabytes of telemetry at Google speed, detecting adversary TTPs in sub-second latency.",
+                        success: "✅ Chronicle SIEM rule fired: credential brute-force attack successfully detected!"
+                  },
+                  task4: {
+                        title: "Task 4: MITRE ATT&CK TTP Correlation",
+                        concept: "MITRE ATT&CK Tactic & Technique Mapping",
+                        desc: "Correlate detected anomalies against MITRE ATT&CK techniques (T1110 Brute Force, T1059 Command Injection) to assess incident severity.",
+                        hint: "Map event category and signature against MITRE knowledge matrix and set incident severity.",
+                        simple: "Criminal playbook: we classify exactly which known tactic the attacker used based on the international cyber encyclopedia.",
+                        engineering: "Mapping to MITRE ATT&CK standardizes incident taxonomy across SOC teams, automating selection of containment playbooks.",
+                        success: "✅ Security event successfully mapped to MITRE ATT&CK framework!"
+                  },
+                  task5: {
+                        title: "Task 5: Anomaly Detection & SYN Flood DDoS Mitigation",
+                        concept: "Network Anomaly Detection & SYN Flood Analysis",
+                        desc: "Analyze incoming traffic flows to detect TCP SYN Flood volumetric attacks by checking the ratio of unanswered SYN packets.",
+                        hint: "Evaluate syn_count versus ack_count. If syn_count / max(1, ack_count) > 10, flag as volumetric denial of service.",
+                        simple: "An attacker calls thousands of times and hangs up immediately to jam phone lines. We identify the caller and block the spam.",
+                        engineering: "Unanswered SYN requests exhaust the kernel TCP backlog queue. Tracking SYN/ACK ratios triggers SYN Cookie protections dynamically.",
+                        success: "✅ Volumetric SYN Flood attack detected and source vector isolated!"
+                  },
+                  task6: {
+                        title: "Task 6: Link-Layer Attack Detection (ARP Spoofing)",
+                        concept: "ARP Cache Poisoning & Man-in-the-Middle Detection",
+                        desc: "Identify ARP Cache Poisoning attempts by detecting conflicting IP-to-MAC address announcements on the local broadcast segment.",
+                        hint: "Maintain IP-to-MAC mapping. If a known IP claims a conflicting MAC without prior solicitation, raise an ARP attack alarm.",
+                        simple: "Someone in the room pretends to be the mail carrier to intercept letters. We inspect their badge and catch the imposter.",
+                        engineering: "Detecting gratuitous ARP anomalies prevents Man-in-the-Middle (MitM) packet sniffing and session hijacking in Zero-Trust intranets.",
+                        success: "✅ ARP Poisoning attempt identified: rogue MAC address flagged for isolation!"
+                  },
+                  task7: {
+                        title: "Task 7: Incident Response Lifecycle via NIST CSF 2.0",
+                        concept: "NIST Incident Response: Identification to Containment",
+                        desc: "Execute the NIST CSF incident response state machine: advance from Identification to Containment to neutralize the compromised host.",
+                        hint: "Transition incident state to 'CONTAINED' and append cryptographic transition timestamp to audit trail.",
+                        simple: "Fire drill protocol: we follow strict guidelines — identify the breach, isolate the machine, clean the virus, and restore the service.",
+                        engineering: "Adhering to NIST CSF 2.0 ensures legally compliant evidence preservation while minimizing operational downtime during active breaches.",
+                        success: "✅ Incident successfully contained following strict NIST CSF 2.0 protocol!"
+                  },
+                  task8: {
+                        title: "Task 8: Automated Perimeter Hardening via iptables",
+                        concept: "Firewall Hardening & Automated Rule Push",
+                        desc: "Synthesize and push kernel-level Netfilter rules (iptables) to drop all incoming packets from the malicious adversary IP address.",
+                        hint: "Generate command string 'iptables -A INPUT -s <IP> -j DROP' and commit rule to active firewall chain.",
+                        simple: "We lower the security gate: the attacker's computer can no longer send a single byte of data to our server.",
+                        engineering: "Automated Netfilter rule push applies immediate layer-3 packet filtering in kernel space with zero service restart overhead.",
+                        success: "✅ iptables firewall rule pushed: malicious IP permanently dropped at kernel boundary!"
+                  }
             }
       },
       projectFiles: {

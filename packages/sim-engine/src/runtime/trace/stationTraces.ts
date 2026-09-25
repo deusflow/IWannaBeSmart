@@ -1649,6 +1649,411 @@ export const FDE_EXECUTION_TRACE: ExecutionTraceTimeline = {
   ],
 };
 
+// ── Station 09: IBM RAG & Agentic AI Architecture Trace ───────────────────────
+export const RAG_EXECUTION_TRACE: ExecutionTraceTimeline = {
+  id: "trace-rag-neural-pipeline",
+  stationId: "rag",
+  title: {
+    ua: "Конвеєр нейронного пошуку: Chunker -> VectorStore -> RRF -> ReAct Loop",
+    en: "Neural Retrieval Pipeline: Chunker -> VectorStore -> RRF -> ReAct Loop",
+    da: "Neural Søgepipeline: Chunker -> VectorStore -> RRF -> ReAct Loop",
+  },
+  description: {
+    ua: "Покрокова трасировка проходження запиту через рекурсивний чанкінг, розрахунок косинусної схожості та цикл ReAct міркувань.",
+    en: "Step-by-step trace of query execution through recursive chunking, cosine distance computation, and the ReAct reasoning loop.",
+    da: "Trin-for-trin sporing af forespørgsel gennem rekursiv chunking, cosinus-beregning og ReAct ræsonnementsløkke.",
+  },
+  language: "python",
+  totalSteps: 5,
+  steps: [
+    {
+      stepIndex: 0,
+      type: "folder_enter",
+      location: {
+        folderId: "root",
+        folderName: "ibm-rag-agentic-suite",
+        fileId: "rag-chunker",
+        fileName: "document_chunker.py",
+        lineStart: 12,
+        lineEnd: 24,
+        symbol: "chunk_document()",
+        codeSnippet: "def chunk_document(text: str, chunk_size: int = 256, overlap: int = 40) -> list[str]:\n    step = max(1, chunk_size - overlap)\n    chunks = [text[i:i+chunk_size] for i in range(0, len(text), step)]\n    return chunks",
+      },
+      callStackDepth: 1,
+      callStack: ["chunk_document()"],
+      scopeVariables: {
+        chunk_size: "256 chars",
+        overlap: "40 chars",
+        step: "216 chars",
+      },
+      explanation: {
+        ua: "Текстовий документ нарізається на фрагменти фіксованого розміру з ковзним вікном перекриття для збереження контексту.",
+        en: "Document text is partitioned into bounded fragments with a sliding overlap window to preserve semantic boundary context.",
+        da: "Dokumentteksten opdeles i bidder med et glidende overlap for at bevare semantisk kontekst.",
+      },
+      poeQuestion: {
+        id: "poe-rag-01",
+        prompt: {
+          ua: "Чому перекриття (overlap) критично важливе при розбитті документів для RAG?",
+          en: "Why is chunk overlap critical when partitioning documents for RAG systems?",
+          da: "Hvorfor er chunk-overlap afgørende ved opdeling af dokumenter til RAG?",
+        },
+        options: [
+          {
+            id: "opt-context",
+            targetFileId: "rag-chunker",
+            targetFolderId: "root",
+            label: {
+              ua: "Запобігає розриву семантичного контексту важливих речень на стику блоків",
+              en: "Prevents semantic context loss across boundary sentences between adjacent chunks",
+              da: "Forhindrer tab af semantisk kontekst ved sætningsgrænser mellem bidder",
+            },
+            isCorrect: true,
+            feedback: {
+              ua: "Абсолютно вірно! Без перекриття речення, розрізане посередині, втрачає сенс при векторному пошуку.",
+              en: "Spot on! Sentences bisected at boundaries without overlap lose their contextual vector representation.",
+              da: "Korrekt! Uden overlap mister sætninger på kanten deres betydning.",
+            },
+          },
+          {
+            id: "opt-compression",
+            targetFileId: "rag-chunker",
+            targetFolderId: "root",
+            label: {
+              ua: "Стискає розмір бази даних у два рази",
+              en: "Compresses vector database footprint by 50%",
+              da: "Komprimerer databasestørrelsen med 50%",
+            },
+            isCorrect: false,
+            feedback: {
+              ua: "Хибно! Перекриття навпаки трохи збільшує загальну кількість токенів, але захищає якість пошуку.",
+              en: "Incorrect! Overlap slightly increases total indexed tokens, but strictly safeguards retrieval quality.",
+              da: "Forkert! Overlap øger mængden af tokens en smule for at sikre kvaliteten.",
+            },
+          },
+        ],
+        pedagogicalRationale: {
+          ua: "Розуміння дилеми чанкінгу: баланс між гранулярністю блоків та збереженням смислового контексту.",
+          en: "Grasping the chunking trade-off: balancing fragment granularity against semantic context retention.",
+          da: "Forståelse af afvejningen mellem fragmentstørrelse og kontekstbevarelse.",
+        },
+      },
+    },
+    {
+      stepIndex: 1,
+      type: "file_focus",
+      location: {
+        folderId: "root",
+        folderName: "ibm-rag-agentic-suite",
+        fileId: "rag-vectorstore",
+        fileName: "vector_store.py",
+        lineStart: 35,
+        lineEnd: 48,
+        symbol: "VectorStore.l2_normalize()",
+        codeSnippet: "def l2_normalize(vector: list[float]) -> list[float]:\n    norm = math.sqrt(sum(x ** 2 for x in vector))\n    return [x / norm for x in vector] if norm > 0 else vector",
+      },
+      callStackDepth: 2,
+      callStack: ["chunk_document()", "VectorStore.l2_normalize()"],
+      scopeVariables: {
+        dimensions: "R^8 coordinate space",
+        l2_norm: "1.000 (Unit Sphere)",
+      },
+      explanation: {
+        ua: "Векторні ембеддінги нормалізуються до одиничної довжини. Це дозволяє розраховувати косинусний зв'язок через швидкий скалярний добуток.",
+        en: "Vector embeddings are normalized to unit length, enabling fast cosine similarity ranking via hardware SIMD dot product.",
+        da: "Vektorer normaliseres til enhedslængde for lynhurtig skalarprodukt-beregning.",
+      },
+    },
+    {
+      stepIndex: 2,
+      type: "function_call",
+      location: {
+        folderId: "root",
+        folderName: "ibm-rag-agentic-suite",
+        fileId: "rag-vectorstore",
+        fileName: "vector_store.py",
+        lineStart: 60,
+        lineEnd: 74,
+        symbol: "reciprocal_rank_fusion()",
+        codeSnippet: "def reciprocal_rank_fusion(dense_ranks, sparse_ranks, k=60):\n    scores = {}\n    for doc_id, rank in dense_ranks.items():\n        scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rank)\n    return sorted(scores.items(), key=lambda x: x[1], reverse=True)",
+      },
+      callStackDepth: 2,
+      callStack: ["chunk_document()", "reciprocal_rank_fusion()"],
+      scopeVariables: {
+        rrf_constant_k: "60",
+        top_k: "3 documents",
+      },
+      explanation: {
+        ua: "Алгоритм RRF об'єднує результати семантичного векторного пошуку та пошуку за ключовими словами без необхідності ручного налаштування ваг.",
+        en: "RRF merges dense neural rankings and sparse keyword hits, neutralizing score disparities without manual weight tuning.",
+        da: "RRF-algoritmen forener tæt og spredt søgning for optimal præcision.",
+      },
+    },
+    {
+      stepIndex: 3,
+      type: "function_call",
+      location: {
+        folderId: "root",
+        folderName: "ibm-rag-agentic-suite",
+        fileId: "rag-react-agent",
+        fileName: "react_agent.py",
+        lineStart: 45,
+        lineEnd: 58,
+        symbol: "ReActAgent.step()",
+        codeSnippet: "def step(self, state: AgentState) -> AgentAction:\n    thought = self.reason(state.query, state.retrieved_context)\n    action = self.decide_tool(thought)\n    return AgentAction(thought=thought, action=action)",
+      },
+      callStackDepth: 2,
+      callStack: ["chunk_document()", "ReActAgent.step()"],
+      scopeVariables: {
+        loop_stage: "THOUGHT -> ACTION",
+        agent_role: "IBM ReAct Reasoning Agent",
+      },
+      explanation: {
+        ua: "Агент аналізує витягнуті документи, формулює гіпотезу міркування (Thought) та обирає виклик інструменту (Action).",
+        en: "Agent inspects retrieved facts, forms diagnostic hypothesis (Thought), and selects appropriate deterministic tool execution (Action).",
+        da: "Agenten analyserer kilderne, danner en hypotese og vælger værktøj.",
+      },
+    },
+    {
+      stepIndex: 4,
+      type: "return_unwind",
+      location: {
+        folderId: "root",
+        folderName: "ibm-rag-agentic-suite",
+        fileId: "rag-react-agent",
+        fileName: "react_agent.py",
+        lineStart: 85,
+        lineEnd: 92,
+        symbol: "ReActAgent.finalize_response()",
+      },
+      callStackDepth: 1,
+      callStack: ["ReActAgent.finalize_response()"],
+      returnValue: {
+        type: "GroundedAgentResponse",
+        value: "{ status: 'GROUNDED', faithfulness: 0.98, answer: 'Verified SLA...' }",
+        summary: {
+          ua: "Агент сформував верифіковану відповідь із цитуванням джерел знань.",
+          en: "Agent returned verified response grounded 100% in retrieved knowledge chunks.",
+          da: "Agenten returnerede verificeret svar med kildehenvisninger.",
+        },
+        terminationReason: {
+          ua: "Оцінка RAGAS Faithfulness склала 0.98, ризик галюцинацій усунуто.",
+          en: "RAGAS Faithfulness reached 0.98, generative hallucinations fully mitigated.",
+          da: "RAGAS pålidelighed nåede 0.98 uden hallucinationer.",
+        },
+      },
+      explanation: {
+        ua: "Конвеєр RAG успішно завершив роботу: користувач отримав достовірну відповідь з точними посиланнями на документи.",
+        en: "RAG pipeline successfully fulfilled query: verified answer returned with exact document references.",
+        da: "RAG-pipelinen fuldførte opgaven med verificerede kildehenvisninger.",
+      },
+    },
+  ],
+};
+
+// ── Station 10: Google Cybersecurity & SOC Defense Trace ───────────────────────
+export const CYBER_EXECUTION_TRACE: ExecutionTraceTimeline = {
+  id: "trace-cyber-soc-containment",
+  stationId: "cyber",
+  title: {
+    ua: "Ланцюг захисту периметра: Syslog Ingestion -> Wireshark -> Chronicle SIEM -> iptables DROP",
+    en: "Perimeter Defense Chain: Syslog Ingestion -> Wireshark -> Chronicle SIEM -> iptables DROP",
+    da: "Forsvarskæde: Syslog Ingestion -> Wireshark -> Chronicle SIEM -> iptables DROP",
+  },
+  description: {
+    ua: "Покрокова трасировка виявлення мережевої аномалії, дисекції пакетів у Wireshark, мапування на MITRE ATT&CK та ізоляції вузла за стандартом NIST CSF.",
+    en: "Step-by-step trace of network anomaly detection, Wireshark packet dissection, MITRE ATT&CK mapping, and host isolation via NIST CSF.",
+    da: "Trin-for-trin sporing af netværksanomali, Wireshark pakkeanalyse, MITRE ATT&CK kortlægning og NIST CSF hændelsesrespons.",
+  },
+  language: "python",
+  totalSteps: 5,
+  steps: [
+    {
+      stepIndex: 0,
+      type: "folder_enter",
+      location: {
+        folderId: "root",
+        folderName: "google-cybersecurity-soc",
+        fileId: "cyber-syslog",
+        fileName: "syslog_parser.py",
+        lineStart: 15,
+        lineEnd: 28,
+        symbol: "parse_syslog_line()",
+        codeSnippet: "def parse_syslog_line(raw_line: str) -> dict:\n    ip_match = re.search(r'\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', raw_line)\n    source_ip = ip_match.group(0) if ip_match else '127.0.0.1'\n    return {'source_ip': source_ip, 'severity': 'CRITICAL'}",
+      },
+      callStackDepth: 1,
+      callStack: ["parse_syslog_line()"],
+      scopeVariables: {
+        raw_stream: "RFC 5424 Syslog line",
+        extracted_ip: "192.168.1.105",
+        severity: "CRITICAL",
+      },
+      explanation: {
+        ua: "Сирий потік системних логів парситься регулярними виразами: витягується IP джерела та прапорець критичності події.",
+        en: "Raw syslog text stream is ingested and parsed via regex, extracting source IP and security severity level.",
+        da: "Rå syslog-tekst parses for at udtrække kilde-IP og hændelsens alvorsgrad.",
+      },
+      poeQuestion: {
+        id: "poe-cyber-01",
+        prompt: {
+          ua: "Чому нормалізація Syslog-логів є обов'язковим першим кроком у роботі SOC?",
+          en: "Why is Syslog normalization a mandatory prerequisite in SOC operations?",
+          da: "Hvorfor er Syslog-normalisering et obligatorisk første skridt i en SOC?",
+        },
+        options: [
+          {
+            id: "opt-correlation",
+            targetFileId: "cyber-syslog",
+            targetFolderId: "root",
+            label: {
+              ua: "Зводить різнорідні формати до єдиної схеми для швидкої кореляції алертерів у SIEM",
+              en: "Normalizes disparate log schemas into uniform events for cross-system SIEM correlation",
+              da: "Standardiserer forskellige logformater til SIEM-korrelation",
+            },
+            isCorrect: true,
+            feedback: {
+              ua: "Абсолютно вірно! Без нормалізації неможливо зіставити логи фаєрвола, веб-сервера та бази даних.",
+              en: "Correct! Cross-source correlation is impossible without mapping raw text to unified schema.",
+              da: "Præcis! Ensartede data er nødvendige for at sammenkoble hændelser.",
+            },
+          },
+          {
+            id: "opt-crypto",
+            targetFileId: "cyber-syslog",
+            targetFolderId: "root",
+            label: {
+              ua: "Шифрує жорсткий диск сервера",
+              en: "Encrypts the host operating system disk",
+              da: "Krypterer serverens harddisk",
+            },
+            isCorrect: false,
+            feedback: {
+              ua: "Хибно! Парсинг займається структуруванням тексту, а не шифруванням файлової системи.",
+              en: "Incorrect! Syslog parsing extracts metadata, it does not encrypt disk volumes.",
+              da: "Forkert! Parsing analyserer data, det krypterer ikke disken.",
+            },
+          },
+        ],
+        pedagogicalRationale: {
+          ua: "Формування розуміння архітектури SIEM: від сирих джерел до єдиного аналітичного озера подій.",
+          en: "Understanding SIEM architecture: from raw edge log streams to unified analytics data lakes.",
+          da: "Forståelse af SIEM-dataindsamling og analyse.",
+        },
+      },
+    },
+    {
+      stepIndex: 1,
+      type: "file_focus",
+      location: {
+        folderId: "root",
+        folderName: "google-cybersecurity-soc",
+        fileId: "cyber-wireshark",
+        fileName: "packet_dissector.py",
+        lineStart: 30,
+        lineEnd: 46,
+        symbol: "dissect_pcap_frame()",
+        codeSnippet: "def dissect_pcap_frame(raw_bytes: bytes) -> DissectedFrame:\n    eth = parse_ethernet(raw_bytes[:14])\n    ip = parse_ipv4(raw_bytes[14:34])\n    tcp = parse_tcp(raw_bytes[34:54])\n    return DissectedFrame(eth, ip, tcp)",
+      },
+      callStackDepth: 2,
+      callStack: ["parse_syslog_line()", "dissect_pcap_frame()"],
+      scopeVariables: {
+        ethernet_src: "00:1a:2b:3c:4d:5e",
+        ip_flags: "DF (Don't Fragment)",
+        tcp_flags: "SYN (0x002) - Port 80",
+      },
+      explanation: {
+        ua: "Web-Wireshark розбирає сирі байти кадру: аналізуються MAC-адреси, IP-заголовки та бітові прапорці TCP SYN.",
+        en: "Web-Wireshark dissects raw PCAP frames: verifying MAC addresses, IPv4 headers, and TCP SYN control flags.",
+        da: "Web-Wireshark analyserer rå netværksrammer og verificerer TCP SYN flag.",
+      },
+    },
+    {
+      stepIndex: 2,
+      type: "function_call",
+      location: {
+        folderId: "root",
+        folderName: "google-cybersecurity-soc",
+        fileId: "cyber-chronicle",
+        fileName: "chronicle_engine.py",
+        lineStart: 42,
+        lineEnd: 55,
+        symbol: "ChronicleEngine.evaluate_mitre()",
+        codeSnippet: "def evaluate_mitre(event: SecurityEvent) -> MitreTTP:\n    if event.syn_ratio > 10.0:\n        return MitreTTP(id='T1499', name='Endpoint Denial of Service')\n    return MitreTTP(id='T1110', name='Brute Force')",
+      },
+      callStackDepth: 2,
+      callStack: ["parse_syslog_line()", "ChronicleEngine.evaluate_mitre()"],
+      scopeVariables: {
+        mitre_tactic: "T1499 (Denial of Service)",
+        chronicle_query: "eventCategory = 'auth' AND severity = 'CRITICAL'",
+      },
+      explanation: {
+        ua: "Движок Chronicle зіставляє аномалію з матрицею MITRE ATT&CK: зафіксовано техніку T1499 (Denial of Service).",
+        en: "Chronicle rule engine maps anomaly to MITRE ATT&CK: adversary TTP identified as T1499 (Denial of Service).",
+        da: "Chronicle forbinder anomalien til MITRE ATT&CK T1499 taktikken.",
+      },
+    },
+    {
+      stepIndex: 3,
+      type: "function_call",
+      location: {
+        folderId: "root",
+        folderName: "google-cybersecurity-soc",
+        fileId: "cyber-nist",
+        fileName: "nist_containment.py",
+        lineStart: 25,
+        lineEnd: 38,
+        symbol: "NistContainmentMachine.advance_stage()",
+        codeSnippet: "def advance_stage(incident_id: str) -> NistStage:\n    stage = NistStage.CONTAINMENT\n    audit_log.append(f'Incident {incident_id} escalated to {stage}')\n    return stage",
+      },
+      callStackDepth: 2,
+      callStack: ["parse_syslog_line()", "NistContainmentMachine.advance_stage()"],
+      scopeVariables: {
+        nist_framework: "NIST CSF 2.0",
+        current_phase: "CONTAINMENT (Stage 2/5)",
+      },
+      explanation: {
+        ua: "SOC-аналітик активує протокол NIST CSF 2.0: інцидент переведено на стадію негайної локалізації (Containment).",
+        en: "SOC analyst executes NIST CSF 2.0 protocol: incident escalated to active host containment stage.",
+        da: "SOC-analytikeren aktiverer NIST CSF 2.0 indæmningsprotokol.",
+      },
+    },
+    {
+      stepIndex: 4,
+      type: "return_unwind",
+      location: {
+        folderId: "root",
+        folderName: "google-cybersecurity-soc",
+        fileId: "cyber-firewall",
+        fileName: "firewall_manager.py",
+        lineStart: 50,
+        lineEnd: 58,
+        symbol: "apply_iptables_drop()",
+      },
+      callStackDepth: 1,
+      callStack: ["apply_iptables_drop()"],
+      returnValue: {
+        type: "FirewallEnforcementResult",
+        value: "iptables -A INPUT -s 192.168.1.105 -j DROP (STATUS: 200 ENFORCED)",
+        summary: {
+          ua: "Правило Netfilter застосовано в ядрі: шкідливу IP-адресу заблоковано.",
+          en: "Netfilter firewall rule committed to kernel: adversary IP dropped unconditionally.",
+          da: "Netfilter firewall-regel aktiveret i kernen: angriberens IP blokeret.",
+        },
+        terminationReason: {
+          ua: "Загрозу нейтралізовано, периметр корпоративної мережі відновлено.",
+          en: "Threat permanently neutralized, enterprise perimeter integrity restored.",
+          da: "Truslen er neutraliseret og netværkssikkerheden genoprettet.",
+        },
+      },
+      explanation: {
+        ua: "Фінал реагування: команда iptables скидає всі вхідні пакети атакуючого вузла на рівні ядра Linux.",
+        en: "Response complete: iptables rule drops all inbound traffic from attacker IP at Linux kernel boundary.",
+        da: "Afslutning: iptables blokerer al trafik fra angriberens IP i kernen.",
+      },
+    },
+  ],
+};
+
 export const STATION_TRACES: Record<string, ExecutionTraceTimeline> = {
   tv: SMART_TV_EXECUTION_TRACE,
   api: API_FORGE_EXECUTION_TRACE,
@@ -1657,9 +2062,12 @@ export const STATION_TRACES: Record<string, ExecutionTraceTimeline> = {
   bandit: BANDIT_EXECUTION_TRACE,
   vertex: VERTEX_EXECUTION_TRACE,
   fde: FDE_EXECUTION_TRACE,
+  rag: RAG_EXECUTION_TRACE,
+  cyber: CYBER_EXECUTION_TRACE,
 };
 
 export function getStationTrace(stationId: string): ExecutionTraceTimeline {
   return STATION_TRACES[stationId] || SMART_TV_EXECUTION_TRACE;
 }
+
 

@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Trophy,
   Sparkles,
+  Construction,
 } from "lucide-react";
 
 export interface StationShowcaseCardProps {
@@ -21,7 +22,7 @@ export interface StationShowcaseCardProps {
   specs: string;
   currentStars: number;
   maxStars: number;
-  statusType: "mastered" | "completed" | "available" | "locked";
+  statusType: "mastered" | "completed" | "available" | "locked" | "roadmap";
   isRecommended?: boolean;
   beaconText?: string;
   accentBorderClass?: string;
@@ -31,6 +32,7 @@ export interface StationShowcaseCardProps {
     progressText: string;
     percent: number;
     badgeText: string;
+    isRoadmap?: boolean;
   };
   onEnter?: () => void;
   onViewCert?: () => void;
@@ -57,54 +59,90 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  if (statusType === "locked") {
+  if (statusType === "locked" || statusType === "roadmap") {
+    const isRoadmap = statusType === "roadmap" || lockCriteria?.isRoadmap;
     return (
-      <div className="flex flex-col justify-between p-5 rounded-3xl bg-[#EBE5D8]/70 border-2 border-dashed border-[#1A1D20]/30 space-y-4 relative overflow-hidden">
+      <div
+        className={`flex flex-col justify-between p-5 rounded-3xl border-2 border-dashed space-y-4 relative overflow-hidden ${
+          isRoadmap
+            ? "bg-[#EFE9DC]/80 border-amber-600/35"
+            : "bg-[#EBE5D8]/70 border-[#1A1D20]/30"
+        }`}
+      >
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]/60">
               {codeLabel}
             </span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-stone-500/15 border border-stone-600/30 text-stone-700">
-              <Lock size={10} />
-              <span>{t("hub.stationLocked", "ЗАБЛОКОВАНО")}</span>
+            <span
+              className={`inline-flex items-center gap-1 text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
+                isRoadmap
+                  ? "bg-amber-500/15 border-amber-600/30 text-amber-800"
+                  : "bg-stone-500/15 border-stone-600/30 text-stone-700"
+              }`}
+            >
+              {isRoadmap ? (
+                <>
+                  <Construction size={11} className="text-amber-700" />
+                  <span>{t("hub.stationInDevelopment", "В РОЗРОБЦІ")}</span>
+                </>
+              ) : (
+                <>
+                  <Lock size={10} />
+                  <span>{t("hub.stationLocked", "ЗАБЛОКОВАНО")}</span>
+                </>
+              )}
             </span>
           </div>
 
           <div>
-            <h3 className="font-display font-bold text-lg text-[#1A1D20]/70 flex items-center gap-2">
+            <h3 className="font-display font-bold text-lg text-[#1A1D20]/80 flex items-center gap-2">
               <span>{title}</span>
             </h3>
-            <p className="text-xs font-sans text-[#1A1D20]/60 mt-0.5 leading-relaxed">
+            <p className="text-xs font-sans text-[#1A1D20]/65 mt-0.5 leading-relaxed">
               {subtitle}
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#DFD7C5]/50 border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden opacity-60">
+          <div className="p-4 rounded-2xl bg-[#DFD7C5]/50 border border-[#1A1D20]/15 flex items-center justify-center py-6 relative overflow-hidden opacity-75">
             <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
             {blueprint}
           </div>
 
           {lockCriteria && (
-            <div className="p-3 rounded-xl bg-[#DFD7C5]/60 border border-[#1A1D20]/15 space-y-1.5">
-              <div className="flex items-center justify-between text-[10px] font-mono text-[#1A1D20]/70">
+            <div
+              className={`p-3 rounded-xl border space-y-1.5 ${
+                isRoadmap
+                  ? "bg-amber-500/10 border-amber-600/20"
+                  : "bg-[#DFD7C5]/60 border-[#1A1D20]/15"
+              }`}
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono text-[#1A1D20]/75">
                 <span>{lockCriteria.conditionText}</span>
-                <span className="font-bold">{lockCriteria.progressText}</span>
+                <span className="font-bold text-[#1A1D20]">{lockCriteria.progressText}</span>
               </div>
-              <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-amber-600 transition-all duration-300"
-                  style={{ width: `${lockCriteria.percent}%` }}
-                />
-              </div>
+              {!isRoadmap && (
+                <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-amber-600 transition-all duration-300"
+                    style={{ width: `${lockCriteria.percent}%` }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {lockCriteria && (
           <div className="pt-2">
-            <div className="w-full py-2 px-3 rounded-xl bg-[#DFD7C5]/70 border border-[#1A1D20]/20 text-[#1A1D20]/60 font-mono font-bold text-[11px] text-center flex items-center justify-center gap-1.5">
-              <Lock size={12} />
+            <div
+              className={`w-full py-2 px-3 rounded-xl border font-mono font-bold text-[11px] text-center flex items-center justify-center gap-1.5 ${
+                isRoadmap
+                  ? "bg-amber-500/15 border-amber-600/35 text-amber-900 shadow-2xs"
+                  : "bg-[#DFD7C5]/70 border-[#1A1D20]/20 text-[#1A1D20]/60"
+              }`}
+            >
+              {isRoadmap ? <Construction size={12} className="text-amber-700" /> : <Lock size={12} />}
               <span>{lockCriteria.badgeText}</span>
             </div>
           </div>

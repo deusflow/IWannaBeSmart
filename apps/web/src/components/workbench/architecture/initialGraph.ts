@@ -16,8 +16,8 @@ export const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-interface-remote-command",
       type: "architectureNode",
-      position: { x: 30, y: 150 },
-      width: 290,
+      position: { x: 40, y: 150 },
+      width: 340,
       data: {
         fileId: iface.id,
         name: iface.name,
@@ -32,8 +32,8 @@ export const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-class-power-command",
       type: "architectureNode",
-      position: { x: 390, y: 50 },
-      width: 290,
+      position: { x: 450, y: 50 },
+      width: 340,
       data: {
         fileId: pc.id,
         name: pc.name,
@@ -48,8 +48,8 @@ export const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-class-volume-up-command",
       type: "architectureNode",
-      position: { x: 390, y: 350 },
-      width: 290,
+      position: { x: 450, y: 350 },
+      width: 340,
       data: {
         fileId: vol.id,
         name: vol.name,
@@ -64,8 +64,8 @@ export const createInitialNodes = (): Node<ArchitectureNodeData>[] => {
     {
       id: "node-class-tv-controller",
       type: "architectureNode",
-      position: { x: 750, y: 140 },
-      width: 290,
+      position: { x: 860, y: 140 },
+      width: 340,
       data: {
         fileId: tv.id,
         name: tv.name,

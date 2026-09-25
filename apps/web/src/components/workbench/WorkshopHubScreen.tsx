@@ -419,7 +419,7 @@ export const WorkshopHubScreen: React.FC = () => {
           />
         )}
 
-        {/* Station 03: IoT Garage Gate (Locked Preview) */}
+        {/* Station 03: IoT Garage Gate (In Development / Roadmap) */}
         {showIot && (
           <StationShowcaseCard
             stationId="iot"
@@ -430,15 +430,16 @@ export const WorkshopHubScreen: React.FC = () => {
               "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
             )}
             blueprint={<IotBlueprintSvg />}
-            specs="EventBus • Async I/O • C# / Go"
+            specs={t("hub.stations.iot.specs", "В розробці • Event-Driven Architecture • C# / Go")}
             currentStars={0}
             maxStars={0}
-            statusType="locked"
+            statusType="roadmap"
             lockCriteria={{
-              conditionText: t("hub.unlockCondition", "Потрібно 200+ XP або Модулі 1 та 2"),
-              progressText: isStation3Unlocked ? "200/200 XP ✓" : `${xp}/200 XP`,
-              percent: station3ProgressPercent,
-              badgeText: t("hub.stations.iot.badge", "НЕЗАБАРОМ: EventBus & Async I/O"),
+              conditionText: t("hub.roadmapStatus", "Статус модуля"),
+              progressText: t("hub.stations.iot.releaseDate", "Реліз: Наступний семестр 2026"),
+              percent: 100,
+              badgeText: t("hub.stations.iot.badge", "В РОЗРОБЦІ: EventBus & Async I/O"),
+              isRoadmap: true,
             }}
           />
         )}

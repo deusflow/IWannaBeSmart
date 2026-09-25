@@ -22,6 +22,7 @@ import {
   Search,
   CheckCircle2,
   GitBranch,
+  Plus,
   type LucideIcon,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
@@ -49,8 +50,8 @@ const COLOR_MAP: Record<EntityType, string> = {
 };
 
 export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
-  onAddNode: _onAddNode,
-  activeFileIds: _activeFileIds = new Set(),
+  onAddNode,
+  activeFileIds = new Set(),
   selectedEntityId,
   onSelectEntity,
 }) => {
@@ -195,19 +196,25 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
                     const IconComponent = ICON_MAP[file.entityType] || FileCode;
                     const colorStyle = COLOR_MAP[file.entityType] || "text-gray-400";
                     const isSelected = activeEntity.includes(file.name.replace(".cs", ""));
+                    const isOnCanvas = activeFileIds.has(file.id);
 
                     return (
                       <div
                         key={file.id}
+                        draggable={true}
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("application/reactflow", file.id);
+                          e.dataTransfer.effectAllowed = "move";
+                        }}
                         onClick={() => handleEntityClick(file)}
-                        className={`p-1.5 rounded-lg border transition-all cursor-pointer flex flex-col gap-1 ${
+                        className={`p-1.5 rounded-lg border transition-all cursor-grab active:cursor-grabbing flex flex-col gap-1 group/file ${
                           isSelected
                             ? "bg-blue-950/40 border-blue-500/60 shadow-[0_0_12px_rgba(59,130,246,0.2)]"
                             : "bg-[#1E2024]/60 border-white/[0.04] hover:bg-[#252830] hover:border-white/10"
                         }`}
-                        title={t("architecture.traceGraphTooltip", {
+                        title={t("architecture.dragOrClickToAdd", {
                           name: file.name,
-                          defaultValue: `Клікніть для побудови TraceGraph для ${file.name}`,
+                          defaultValue: `Перетягніть на полотно або клікніть для вибору ${file.name}`,
                         })}
                       >
                         <div className="flex items-center justify-between gap-1.5 min-w-0">
@@ -224,12 +231,39 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
                             </span>
                           </div>
 
-                          {isSelected && (
-                            <span className="flex items-center gap-0.5 px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 text-[8px] font-mono font-bold shrink-0">
-                              <CheckCircle2 size={9} />
-                              <span>TRACE</span>
-                            </span>
-                          )}
+                          <div className="flex items-center gap-1 shrink-0">
+                            {isOnCanvas && (
+                              <span
+                                className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"
+                                title={t("architecture.placedOnBoard", "Розміщено на дошці")}
+                              />
+                            )}
+
+                            {isSelected && (
+                              <span className="flex items-center gap-0.5 px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 text-[8px] font-mono font-bold shrink-0">
+                                <CheckCircle2 size={9} />
+                                <span>TRACE</span>
+                              </span>
+                            )}
+
+                            {onAddNode && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onAddNode(file.id);
+                                }}
+                                title={t("architecture.addNodeTooltip", {
+                                  name: file.name,
+                                  defaultValue: `Додати ${file.name} на полотно`,
+                                })}
+                                className="opacity-0 group-hover/file:opacity-100 px-1.5 py-0.5 rounded bg-blue-600/30 hover:bg-blue-600/60 text-blue-200 border border-blue-400/40 text-[9px] font-mono font-bold flex items-center gap-0.5 transition-all cursor-pointer"
+                              >
+                                <Plus size={9} />
+                                <span>{t("architecture.addNode", "Додати")}</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         {/* Dependency links (Dashed indicators) */}

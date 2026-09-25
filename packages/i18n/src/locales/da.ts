@@ -323,6 +323,9 @@ export const daTranslation = {
         projectTree: "Projekttræ",
         searchPlaceholder: "Søg efter filer og klasser...",
         dragHint: "Træk eller klik på fil for at tilføje til lærredet",
+        dragOrClickToAdd: "Træk til lærredet eller klik for at vælge {{name}}",
+        addNode: "Tilføj",
+        addNodeTooltip: "Tilføj {{name}} til lærredet",
         level1Title: "Niveau 1: Arkitektonisk kabelføring af Power-kommandoen",
         waitingConnection: "Afventer forbindelse",
         connectionActive: "✓ Forbindelse aktiv",
@@ -371,6 +374,9 @@ export const daTranslation = {
         clearLog: "Ryd log",
         collapse: "Minimer",
         expand: "Maksimer",
+        expandTerminal: "Klik for at udvide hændelsesbusterminalen",
+        events: "hændelser",
+        clickToExpand: "⇧ Udvid",
         currentGoal: "Nuværende mål",
         terminalEmpty: "Loggen er tom — forbind knudepunkter for at se forklaringer",
         noCodeYet: "// Ingen forbindelser — træk ledning mellem porte",
@@ -850,6 +856,8 @@ export const daTranslation = {
         stationCompleted: "GENNEMFØRT",
         stationAvailable: "TILGÆNGELIG",
         stationLocked: "LÅST",
+        stationInDevelopment: "UNDER UDVIKLING",
+        roadmapStatus: "Modulstatus",
         recommendedStart: "🌟 Anbefalet start for begyndere",
         unlockCondition: "Kræver 200+ XP eller gennemførelse af Station 1 og 2",
         unlockProgress: "Oplåsningsfremskridt",
@@ -921,8 +929,9 @@ export const daTranslation = {
             title: "Station 03: IoT Garageport",
             subtitle: "Asynkron EventBus, beskedmæglere, hændelseskøer og sikkerhedssensorer",
             code: "Modul 3",
-            specs: "Kommer snart • Event-Driven Architecture",
-            badge: "KOMMER SNART: EventBus & Async I/O",
+            specs: "Under udvikling • Event-Driven Architecture • C# / Go",
+            releaseDate: "Udgivelse: Næste semester 2026",
+            badge: "UNDER UDVIKLING: EventBus & Async I/O",
           },
           pc: {
             title: "Station 04: Arbejdsstation",
@@ -1836,6 +1845,80 @@ export const daTranslation = {
                   desc: "Du har med succes designet en produktionsklar RAG-pipeline: vektor-chunking, hybrid søgefusion, ReAct agentgrafer og RAGAS kvalitetssikring!",
                   competencies: "Mestrede RAG & Agentic AI kompetencer (5/5):",
                   returnHub: "Vend tilbage til Hub"
+            },
+            tasks: {
+                  task1: {
+                        title: "Opgave 1: Rekursiv dokumentopdeling & overlap (Chunking)",
+                        concept: "Recursive Document Chunking & Chunk Overlap",
+                        desc: "Opdel virksomhedsdokumenter i mindre tekststykker med et glidende overlap for at bevare semantisk kontekst.",
+                        hint: "Beregn trinstørrelse som max(1, chunk_size - overlap) og flyt start-markøren gennem teksten.",
+                        simple: "Sådan skærer man en lang artikel i bidder uden at klippe vigtige sætninger over: ved at lade enderne overlappe hinanden en smule.",
+                        engineering: "Glidende vinduesopdeling med overlap forhindrer tab af grænsekontekst under indeksering i HNSW-vektorgrafer.",
+                        success: "✅ Dokument opdelt med succes: alle segmenter bevarer semantisk kontekst!"
+                  },
+                  task2: {
+                        title: "Opgave 2: Vektorindlejringer & L2-normalisering",
+                        concept: "Vector Embeddings & L2 Normalization",
+                        desc: "Konverter tekststykker til vektorer i R^8-rummet og udfør L2-normalisering for hurtig skalarprodukt-søgning.",
+                        hint: "Beregn vektorlængde som sqrt(sum(x_i^2)). Hvis længden er > 0, divider hver koordinat med normen.",
+                        simple: "Computere forstår ikke ord, men pile i rummet (vektorer). Vi laver tekst om til koordinater og skalerer pilen til længde 1.",
+                        engineering: "L2-normalisering reducerer beregning af cosinus-lighed til et enkelt SIMD-optimeret skalarprodukt (Dot Product).",
+                        success: "✅ Vektorindlejring genereret og normaliseret til enhedssfære!"
+                  },
+                  task3: {
+                        title: "Opgave 3: Cosinus-lighed & semantisk rangering",
+                        concept: "Cosine Similarity Distance Metric",
+                        desc: "Beregn cosinus-lighed mellem forespørgsel og vidensbasevektorer for at finde de mest relevante svar.",
+                        hint: "Beregn prikproduktet af vector_a og vector_b og divider med produktet af deres L2-normer.",
+                        simple: "Vi måler vinklen mellem to begrebspile. Jo mindre vinkel (tættere på 1), jo tættere er teksterne på hinanden i betydning.",
+                        engineering: "Cosinus-lighed er uafhængig af tekstlængde, hvilket muliggør præcis matching mellem korte spørgsmål og lange dokumenter.",
+                        success: "✅ Cosinus-matrix beregnet: mest relevante vidensudsnit fundet!"
+                  },
+                  task4: {
+                        title: "Opgave 4: Hybridsøgning med Reciprocal Rank Fusion (RRF)",
+                        concept: "Reciprocal Rank Fusion (RRF k=60)",
+                        desc: "Kombiner nøgleordssøgning (BM25) og semantisk vektorsøgning via Reciprocal Rank Fusion algoritmen.",
+                        hint: "Tildel 1.0 / (k + rank) point til hvert dokument, hvor k som standard er 60.",
+                        simple: "Når to eksperter (en på ord og en på mening) giver lister, belønner vi dokumenter, som begge placerer højt.",
+                        engineering: "RRF udligner pointforskelle mellem BM25 og neurale cosinus-scores uden behov for manuel vægtjustering.",
+                        success: "✅ RRF-hybridsøgning kombinerede nøgleords- og vektorscores!"
+                  },
+                  task5: {
+                        title: "Opgave 5: ReAct autonom agent-løkke (Thought ➔ Action ➔ Observation)",
+                        concept: "ReAct Pattern: Reason and Act Loop",
+                        desc: "Implementer en agentløkke: formuler en tanke (Thought), udfør et værktøj (Action) og indhent observation (Observation).",
+                        hint: "Hvis handlingen returnerer 'FINAL_ANSWER', returner svaret; ellers gem observationen og tag næste skridt.",
+                        simple: "En AI-agent tænker som et menneske: tænker 'jeg skal tjekke vejret', kalder termometeret, læser tallet og svarer dig.",
+                        engineering: "ReAct-mønstret modvirker hallucinationer ved at forankre ræsonnementer i verificerede eksterne værktøjskald.",
+                        success: "✅ ReAct-løkken gennemførte handlingskæden og returnerede verificeret svar!"
+                  },
+                  task6: {
+                        title: "Opgave 6: Deterministisk værktøjskald & JSON Schema validering",
+                        concept: "Deterministic Function Calling & Schema Enforcement",
+                        desc: "Opbyg en sikker værktøjsfortolker, der validerer agentens parametre mod et strengt JSON-skema før API-kald.",
+                        hint: "Valider obligatoriske felter og parametertyper, før kontrollen gives videre til udførelsesfunktionen.",
+                        simple: "Sikkerhedstjek: før robotten starter en lommeregner eller database, sikrer vi, at alle parametre er gyldige.",
+                        engineering: "Streng skemavalidering eliminerer Type Confusion-angreb og beskytter API'er mod defekte LLM-kald.",
+                        success: "✅ Værktøjskald valideret mod skema og udført deterministisk!"
+                  },
+                  task7: {
+                        title: "Opgave 7: RAGAS telemetri & anti-hallucineringsværn",
+                        concept: "RAGAS Evaluation: Faithfulness & Groundedness",
+                        desc: "Beregn pålidelighedsscoren (Faithfulness): verificer hvor stor en del af svaret, der understøttes direkte af kilderne.",
+                        hint: "Divider antallet af faktuelle påstande med kildebelæg med det samlede antal genererede påstande.",
+                        simple: "Løgnedetektor: vi tjekker hver sætning mod vores dokumenter. Hvis robotten opfandt noget, blokerer vi svaret.",
+                        engineering: "RAGAS Groundedness-metrikken sikrer overholdelse af enterprise-sikkerhedskrav og forhindrer ukorrekte svar.",
+                        success: "✅ RAGAS-evaluering godkendt: svaret er 100% forankret i kilderne!"
+                  },
+                  task8: {
+                        title: "Opgave 8: StateGraph hukommelse & checkpoint-lagring",
+                        concept: "StateGraph Memory & Checkpointing",
+                        desc: "Implementer vedvarende tilstandslagring (Checkpointer) for at støtte flertrins-samtaler og fejlgendannelse.",
+                        hint: "Serialiser agentens tilstandsgraf med unikt session_id og trin-nummer step_id til sikker lagring.",
+                        simple: "Gemmepunkt i et spil: agenten husker samtalen, så du kan fortsætte i morgen præcis, hvor du slap.",
+                        engineering: "Uforanderlige snapshots sikrer fejltolerance, revisionsspor og gendannelse efter systemnedbrud.",
+                        success: "✅ Agentens tilstand er sikkert gemt i revisionsloggen!"
+                  }
             }
       },
       cyber: {
@@ -1854,6 +1937,80 @@ export const daTranslation = {
                   desc: "Du har med succes forsvaret virksomhedens netværk: normaliseret Syslog-strømme, sporet trusler i Chronicle SIEM, analyseret pakker i Wireshark og afværget angreb via NIST CSF 2.0!",
                   competencies: "Mestrede Google SOC forsvarskompetencer (5/5):",
                   returnHub: "Vend tilbage til Hub"
+            },
+            tasks: {
+                  task1: {
+                        title: "Opgave 1: SIEM Log-indlæsning & RFC 5424/3164 parsing",
+                        concept: "Syslog Ingestion & RFC Log Normalization",
+                        desc: "Normaliser rå syslog-tekststrømme til ensartede hændelsesposter: udtræk tidsstempel, alvorsgrad og kilde-IP.",
+                        hint: "Brug regulære udtryk til at finde IPv4-adresser og fortolke alvorsgraden fra loglinjens præfiks.",
+                        simple: "Servere skriver logs i mange formater. Vi rydder op og lægger informationen i faste kasser: hvem, hvornår og hvad.",
+                        engineering: "Standardisering af rå logs til fælles CEF/JSON-skema er forudsætningen for lynhurtig korrelation i SIEM-systemer.",
+                        success: "✅ Rå syslog-strøm parset og normaliseret til SIEM-hændelser!"
+                  },
+                  task2: {
+                        title: "Opgave 2: OSI-lagsdissektion (Ethernet, IPv4, TCP)",
+                        concept: "Web-Wireshark Packet Dissection",
+                        desc: "Analyser rå netværkspakker på tværs af OSI-lagene: afkod MAC-adresser (lag 2), IP-headere (lag 3) og TCP-flag (lag 4).",
+                        hint: "Udtræk afsender/modtager MAC og IP, porte samt kontrolflag (SYN, ACK, FIN, RST).",
+                        simple: "En netværkspakke er som en kuvert i en kuvert. Vi åbner lagene, læser adresserne og tjekker poststemplet.",
+                        engineering: "Inspektion af OSI-headere afslører protokolfejl og ulovlige flagkombinationer, som simple filtre overser.",
+                        success: "✅ Netværkspakke analyseret gennem OSI-stakken og TCP-flag verificeret!"
+                  },
+                  task3: {
+                        title: "Opgave 3: Trusselsdetektion i Google Chronicle SIEM",
+                        concept: "Chronicle YARA-L & Rule-Based Detection",
+                        desc: "Skriv en detekteringsregel: udløs en alarm, når der sker gentagne loginforsøg fra samme IP på kort tid.",
+                        hint: "Filtrer hændelser hvor auth_failed = True og test om antallet af forsøg fra source_ip overstiger tærsklen >= 5.",
+                        simple: "Overvågningskamera for servere: hvis nogen gætter forkert kode 5 gange i træk, udløser vi rød alarm.",
+                        engineering: "Chronicle YARA-L regler gennemsøger petabytes af logdata på brøkdele af et sekund for at stoppe angribere i realtid.",
+                        success: "✅ Chronicle SIEM-regel udløst: adgangskode-bruteforce angreb afsløret!"
+                  },
+                  task4: {
+                        title: "Opgave 4: MITRE ATT&CK korrelation",
+                        concept: "MITRE ATT&CK Tactic & Technique Mapping",
+                        desc: "Knyt observerede anomalier til MITRE ATT&CK teknikker (T1110 Brute Force, T1059 Command Injection) for risikovurdering.",
+                        hint: "Kortlæg logsignaturer mod MITRE-kataloget og fastsæt hændelsens alvorsgrad.",
+                        simple: "Forbryderhåndbog: vi identificerer præcis hvilken kendt taktik hackeren brugte ifølge den internationale standard.",
+                        engineering: "MITRE ATT&CK kortlægning standardiserer hændelseshåndtering på tværs af SOC-teams og aktiverer de rette forsvarsplaner.",
+                        success: "✅ Sikkerhedshændelse klassificeret i MITRE ATT&CK rammeværket!"
+                  },
+                  task5: {
+                        title: "Opgave 5: Anomalidetektion & SYN Flood DDoS afværgelse",
+                        concept: "Network Anomaly Detection & SYN Flood Analysis",
+                        desc: "Analyser netværkstrafik og identificer et TCP SYN Flood angreb ud fra en unormal andel af ubesvarede SYN-pakker.",
+                        hint: "Sammenlign syn_count med ack_count. Hvis syn_count / max(1, ack_count) > 10, markér som overbelastningsangreb.",
+                        simple: "En person ringer tusindvis af gange og lægger på med det samme for at blokere telefonlinjen. Vi sporer og blokerer nummeret.",
+                        engineering: "Uafsluttede TCP-forbindelser fylder kernens SYN-kø. Sporing af SYN/ACK-forholdet aktiverer SYN Cookies automatisk.",
+                        success: "✅ SYN Flood angreb identificeret og kildevektor isoleret!"
+                  },
+                  task6: {
+                        title: "Opgave 6: Detektion af Link-Layer angreb (ARP Spoofing)",
+                        concept: "ARP Cache Poisoning & Man-in-the-Middle Detection",
+                        desc: "Afslør forsøg på ARP Cache Poisoning ved at opdage modstridende IP-til-MAC meddelelser på lokalnettet.",
+                        hint: "Vedligehold IP-til-MAC tabellen. Hvis en kendt IP hævder en ny MAC-adresse uopfordret, udløs alarm.",
+                        simple: "Nogen i rummet udgiver sig for at være postbuddet for at stjæle breve. Vi tjekker ID og afslører bedrageren.",
+                        engineering: "Detektion af falske ARP-pakker forhindrer Man-in-the-Middle (MitM) aflytning og kapring af sessioner i Zero-Trust netværk.",
+                        success: "✅ ARP Poisoning forsøg afsløret: uautoriseret MAC-adresse isoleret!"
+                  },
+                  task7: {
+                        title: "Opgave 7: Hændelseshåndtering efter NIST CSF 2.0",
+                        concept: "NIST Incident Response: Identification to Containment",
+                        desc: "Gennemfør NIST CSF responsfaserne: Identificer ➔ Beskyt ➔ Opdag ➔ Reager ➔ Gendan for at inddæmme den kompromitterede vært.",
+                        hint: "Skift hændelsestilstand til 'CONTAINED' og tilføj kryptografisk tidsstempel til revisionssporet.",
+                        simple: "Brandøvelse i it-sikkerhed: vi følger en fast protokol — find virussen, isoler computeren, rens og genstart sikkert.",
+                        engineering: "Overholdelse af NIST CSF 2.0 sikrer juridisk holdbar bevissikring og minimerer nedetid under aktive sikkerhedsbrud.",
+                        success: "✅ Sikkerhedshændelse inddæmmet efter officiel NIST CSF 2.0 protokol!"
+                  },
+                  task8: {
+                        title: "Opgave 8: Automatiseret firewall-hærdning med iptables",
+                        concept: "Firewall Hardening & Automated Rule Push",
+                        desc: "Opret og udrul Netfilter-regler (iptables) i kernen for omgående at forkaste alle pakker fra angriberens IP-adresse.",
+                        hint: "Generer kommandoen 'iptables -A INPUT -s <IP> -j DROP' og tilføj reglen til den aktive filterkæde.",
+                        simple: "Vi sænker bommen foran angriberen: vedkommendes computer kan ikke længere sende en eneste byte til vores server.",
+                        engineering: "Automatisk udrulning af Netfilter-regler i Linux-kernen blokerer angreb øjeblikkeligt uden genstart af tjenester.",
+                        success: "✅ iptables-regel aktiveret i kernen: ondsindet trafik permanent blokeret!"
+                  }
             }
       },
       projectFiles: {

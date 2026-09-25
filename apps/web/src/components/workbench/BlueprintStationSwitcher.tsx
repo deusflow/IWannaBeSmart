@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Tv, CreditCard, Warehouse, Lock, Server, GitBranch, Shield, Cloud, Briefcase, Cpu, ShieldAlert } from "lucide-react";
+import { ChevronDown, Tv, CreditCard, Warehouse, Lock, Server, GitBranch, Shield, Cloud, Briefcase, Cpu, ShieldAlert, Construction } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { toast } from "../../store/toastStore";
 
@@ -56,12 +56,12 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
       {
         id: "iot",
         code: t("hub.stations.iot.code", "Модуль 3"),
-        title: t("hub.stations.iot.title", "Гаражні ворота"),
+        title: t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота"),
         subtitle: t(
           "hub.stations.iot.subtitle",
           "Ультразвуковий датчик та кінцеві автомати"
         ),
-        status: t("hub.stationLocked", "Незабаром"),
+        status: t("hub.stationInDevelopment", "В розробці"),
         icon: <Warehouse size={16} strokeWidth={2} />,
         isAvailable: false,
       },
@@ -277,7 +277,11 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
                 </div>
 
                 {!station.isAvailable && (
-                  <Lock size={13} strokeWidth={2} className="text-ink-subtle mt-1.5" />
+                  station.id === "iot" ? (
+                    <Construction size={13} strokeWidth={2} className="text-amber-600 mt-1.5 shrink-0" />
+                  ) : (
+                    <Lock size={13} strokeWidth={2} className="text-ink-subtle mt-1.5 shrink-0" />
+                  )
                 )}
               </button>
             );

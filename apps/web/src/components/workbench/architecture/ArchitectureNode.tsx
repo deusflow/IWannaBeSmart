@@ -64,7 +64,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
   return (
     <div
       className={`
-        w-[290px] rounded-xl select-none group/node
+        w-[340px] rounded-xl select-none group/node
         bg-[#23252A] border transition-all duration-200
         shadow-[0_8px_28px_rgba(0,0,0,0.55)]
         ${

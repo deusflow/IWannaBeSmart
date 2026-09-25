@@ -133,29 +133,42 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
     return logs.filter((log) => resolveSubsystem(log) === filterSubsystem);
   }, [logs, filterSubsystem]);
 
-  // ── Collapsed ──────────────────────────────────────────
+  // ── Collapsed (Compact Strip) ──────────────────────────
   if (!isExpanded) {
+    const lastLog = logs[logs.length - 1];
     return (
       <div
         onClick={toggle}
-        className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-1.5 cursor-pointer select-none"
-        style={{
-          background: "#151617",
-          borderTop: "1px solid #2A2B2F",
-        }}
+        title={t("architecture.expandTerminal", "Клікніть, щоб розгорнути термінал шини подій")}
+        className="absolute bottom-0 left-0 right-0 z-30 h-8 flex items-center justify-between px-4 cursor-pointer select-none transition-colors group bg-[#151617]/95 hover:bg-[#1A1C20] border-t border-[#2A2B2F] hover:border-emerald-500/40 backdrop-blur-xs"
       >
-        <div className="flex items-center gap-2">
-          <Terminal size={12} className="text-emerald-400" />
-          <span className="font-mono text-[10px] font-bold text-gray-400">
-            {t("architecture.terminal")}
-          </span>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <Terminal size={12} className="text-emerald-400 shrink-0" />
+            <span className="font-mono text-[10px] font-bold text-gray-300 group-hover:text-emerald-300 transition-colors">
+              {t("architecture.terminal", "HIGH-SIGNAL BUS TERMINAL")}
+            </span>
+          </div>
+
           {logs.length > 0 && (
-            <span className="font-mono text-[9px] text-gray-400 bg-gray-800 px-1.5 py-px rounded-full border border-gray-700">
-              {logs.length} events
+            <span className="font-mono text-[9px] text-gray-400 bg-gray-800/90 px-1.5 py-0.5 rounded-full border border-gray-700/80 shrink-0">
+              {logs.length} {t("architecture.events", "подій")}
+            </span>
+          )}
+
+          {lastLog && (
+            <span className="hidden sm:inline-block font-mono text-[10px] text-gray-400 truncate max-w-[360px] lg:max-w-[500px]">
+              <span className="text-emerald-400/80 mr-1.5">[{lastLog.timestamp}]</span>
+              <span className="text-gray-300">{lastLog.message}</span>
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-gray-600">
+
+        <div className="flex items-center gap-2 text-gray-400 group-hover:text-emerald-400 transition-colors shrink-0">
+          <span className="hidden md:inline font-mono text-[9px] text-gray-400 group-hover:text-gray-300">
+            {t("architecture.clickToExpand", "⇧ Розгорнути")}
+          </span>
           <ChevronUp size={13} />
           <Maximize2 size={11} />
         </div>
