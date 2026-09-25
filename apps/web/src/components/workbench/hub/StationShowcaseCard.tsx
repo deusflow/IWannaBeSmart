@@ -22,9 +22,12 @@ export interface StationShowcaseCardProps {
   specs: string;
   currentStars: number;
   maxStars: number;
-  statusType: "mastered" | "completed" | "available" | "locked" | "roadmap";
+  statusType?: "mastered" | "completed" | "available" | "locked" | "roadmap";
   isRecommended?: boolean;
   beaconText?: string;
+  isTrackStation?: boolean;
+  isSecondaryStation?: boolean;
+  trackBadgeText?: string;
   accentBorderClass?: string;
   starColorClass?: string;
   lockCriteria?: {
@@ -50,6 +53,9 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
   statusType,
   isRecommended = false,
   beaconText,
+  isTrackStation = false,
+  isSecondaryStation = false,
+  trackBadgeText,
   accentBorderClass = "hover:border-[#1A1D20]/50",
   starColorClass = "text-amber-700",
   lockCriteria,
@@ -154,25 +160,46 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
   return (
     <div
       className={`flex flex-col justify-between p-5 rounded-3xl bg-[#FAF8F2] border-2 transition-all space-y-4 shadow-paper-sm hover:shadow-paper-md ${
-        isRecommended
+        isTrackStation
+          ? "border-amber-600/70 shadow-paper-md ring-2 ring-amber-500/25 bg-[#FDFBF7]"
+          : isRecommended
           ? "border-amber-500/60 shadow-paper-md ring-2 ring-amber-500/20"
+          : isSecondaryStation
+          ? `border-[#1A1D20]/20 opacity-85 hover:opacity-100 ${accentBorderClass}`
           : `border-[#1A1D20]/25 ${accentBorderClass}`
       }`}
     >
       <div className="space-y-3">
-        {/* Recommended Beacon */}
-        {isRecommended && (
+        {/* Track Beacon or Recommended Beacon */}
+        {isTrackStation ? (
+          <div className="flex items-center justify-between px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-950 text-xs font-mono font-bold shadow-2xs">
+            <div className="flex items-center gap-1.5">
+              <Sparkles size={13} className="text-amber-700 shrink-0" />
+              <span>{trackBadgeText || t("career.yourTrackBadge", "★ Твій трек")}</span>
+            </div>
+            <span className="text-[10px] font-mono text-amber-800 uppercase tracking-wider font-extrabold">
+              {t("career.recommendedFocus", "ФОКУС")}
+            </span>
+          </div>
+        ) : isRecommended ? (
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-900 text-xs font-mono font-bold animate-pulse">
             <Sparkles size={13} className="text-amber-700 shrink-0" />
             <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", "🌟 Рекомендований старт для новачків"))}</span>
           </div>
-        )}
+        ) : null}
 
         {/* Badge & Status */}
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]">
-            {codeLabel}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]">
+              {codeLabel}
+            </span>
+            {isSecondaryStation && (
+              <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-[#1A1D20]/5 border border-[#1A1D20]/15 text-[#1A1D20]/60">
+                {t("career.secondaryStation", "Додатково")}
+              </span>
+            )}
+          </div>
           <span
             className={`text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
               statusType === "mastered"

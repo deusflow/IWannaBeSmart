@@ -728,6 +728,35 @@ Traffic is routed across private interconnects to prevent external interception.
       expect(getStore().warRoomErrorRate).toBe(0.05);
     });
   });
+
+  describe("mentorSlice - Career Track Onboarding", () => {
+    it("should allow student to select and switch career tracks", () => {
+      const store = getStore();
+      
+      // Default initial state
+      expect(store.userTrack).toBeDefined();
+
+      // Setting backend track
+      store.setUserTrack("backend");
+      expect(getStore().userTrack).toBe("backend");
+      expect(getStore().hasCompletedOnboarding).toBe(true);
+      expect(getStore().isCareerModalOpen).toBe(false);
+
+      // Switching to ai track
+      store.setUserTrack("ai");
+      expect(getStore().userTrack).toBe("ai");
+
+      // Switching to explorer track
+      store.setUserTrack("explorer");
+      expect(getStore().userTrack).toBe("explorer");
+
+      // Opening and closing modal
+      store.setIsCareerModalOpen(true);
+      expect(getStore().isCareerModalOpen).toBe(true);
+      store.setIsCareerModalOpen(false);
+      expect(getStore().isCareerModalOpen).toBe(false);
+    });
+  });
 });
 
 

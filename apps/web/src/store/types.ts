@@ -136,7 +136,14 @@ export interface MentorSlice {
   setTargetTaskId: (taskId: string | null) => void;
   isOnboardingOpen: boolean;
   setIsOnboardingOpen: (open: boolean) => void;
+  userTrack: CareerTrack | null;
+  hasCompletedOnboarding: boolean;
+  isCareerModalOpen: boolean;
+  setUserTrack: (track: CareerTrack | null) => void;
+  setIsCareerModalOpen: (open: boolean) => void;
 }
+
+export type CareerTrack = "backend" | "ai" | "security" | "explorer";
 
 
 export interface PosSlice {

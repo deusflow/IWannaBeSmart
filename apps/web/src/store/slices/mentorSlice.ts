@@ -12,6 +12,7 @@ import type {
   WorkbenchStore,
   MentorSlice,
   MentorPhase,
+  CareerTrack,
 } from "../types";
 
 function deriveStationAndTier(
@@ -434,5 +435,68 @@ export const createMentorSlice: StateCreator<
     return false;
   })(),
   setIsOnboardingOpen: (open: boolean) => set({ isOnboardingOpen: open }),
+
+  userTrack: (() => {
+    try {
+      if (typeof window !== "undefined") {
+        return (localStorage.getItem("iw_user_track") as CareerTrack | null) || null;
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  })(),
+
+  hasCompletedOnboarding: (() => {
+    try {
+      if (typeof window !== "undefined") {
+        return Boolean(
+          localStorage.getItem("iw_career_onboarding_completed") === "true" ||
+          localStorage.getItem("iw_user_track")
+        );
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  })(),
+
+  isCareerModalOpen: (() => {
+    try {
+      if (typeof window !== "undefined") {
+        const completed = Boolean(
+          localStorage.getItem("iw_career_onboarding_completed") === "true" ||
+          localStorage.getItem("iw_user_track")
+        );
+        return !completed;
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  })(),
+
+  setUserTrack: (track: CareerTrack | null) => {
+    try {
+      if (typeof window !== "undefined") {
+        if (track) {
+          localStorage.setItem("iw_user_track", track);
+          localStorage.setItem("iw_career_onboarding_completed", "true");
+        } else {
+          localStorage.removeItem("iw_user_track");
+          localStorage.removeItem("iw_career_onboarding_completed");
+        }
+      }
+    } catch {
+      // Safe catch
+    }
+    set({
+      userTrack: track,
+      hasCompletedOnboarding: Boolean(track),
+      isCareerModalOpen: false,
+    });
+  },
+
+  setIsCareerModalOpen: (open: boolean) => set({ isCareerModalOpen: open }),
 });
 

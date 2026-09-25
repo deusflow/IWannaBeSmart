@@ -9,9 +9,11 @@ import { useTranslation } from "react-i18next";
 import {
   Sparkles,
   Cpu,
+  Compass,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
+import { isStationInTrack } from "./career/careerTracks";
 import {
   FINTECH_TASKS,
   CODING_TASKS,
@@ -56,6 +58,8 @@ export const WorkshopHubScreen: React.FC = () => {
     setFdeVictoryModalOpen,
     setRagVictoryModalOpen,
     setCyberVictoryModalOpen,
+    userTrack,
+    setIsCareerModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       xp: s.xp,
@@ -73,6 +77,8 @@ export const WorkshopHubScreen: React.FC = () => {
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
       setRagVictoryModalOpen: s.setRagVictoryModalOpen,
       setCyberVictoryModalOpen: s.setCyberVictoryModalOpen,
+      userTrack: s.userTrack,
+      setIsCareerModalOpen: s.setIsCareerModalOpen,
     }))
   );
 
@@ -214,6 +220,29 @@ export const WorkshopHubScreen: React.FC = () => {
     setCurrentView("STATION");
   };
 
+  const getTrackCardProps = useCallback(
+    (stationId: string) => {
+      if (!userTrack) return {};
+      if (userTrack === "explorer") {
+        return {
+          isTrackStation: true,
+          trackBadgeText: t("career.explorerIntroBadge", "★ Ознайомчий рівень"),
+        };
+      }
+      const inTrack = isStationInTrack(stationId, userTrack);
+      if (inTrack) {
+        return {
+          isTrackStation: true,
+          trackBadgeText: t("career.yourTrackBadge", "★ Твій трек"),
+        };
+      }
+      return {
+        isSecondaryStation: true,
+      };
+    },
+    [userTrack, t]
+  );
+
   return (
     <div className="w-full flex-1 flex flex-col p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300 select-none">
       {/* ── Blueprint Hub Header ── */}
@@ -234,8 +263,31 @@ export const WorkshopHubScreen: React.FC = () => {
           </p>
         </div>
 
-        {/* ── Onboarding Briefing & Stars Mastery Counter ── */}
-        <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
+        {/* ── Onboarding Briefing, Career Track & Stars Mastery Counter ── */}
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 self-start sm:self-auto shrink-0">
+          <button
+            id="btn-hub-career-track"
+            type="button"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsCareerModalOpen(true);
+            }}
+            className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] hover:bg-[#FAF8F2] border-2 border-[#1A1D20]/20 hover:border-amber-600/50 text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-95 group select-none"
+            title={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
+          >
+            <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-600/35 text-amber-700 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-2xs shrink-0">
+              <Compass size={15} strokeWidth={2.2} />
+            </div>
+            <div className="text-left leading-none">
+              <div className="text-[9px] font-mono uppercase font-bold text-amber-700">
+                {userTrack ? t(`career.tracks.${userTrack}.shortBadge`, "Трек") : t("career.chooseTrack", "Напрямок")}
+              </div>
+              <div className="font-display font-extrabold text-xs text-[#1A1D20] mt-0.5">
+                {t("career.changeTrack", "Змінити шлях")}
+              </div>
+            </div>
+          </button>
+
           <button
             id="btn-hub-onboarding"
             type="button"
@@ -281,6 +333,53 @@ export const WorkshopHubScreen: React.FC = () => {
         patterns={patterns}
         station3ProgressPercent={station3ProgressPercent}
       />
+
+      {/* ── Active Career Track Banner ── */}
+      <div className="relative overflow-hidden rounded-2xl bg-[#FAF8F2] border-2 border-amber-600/35 p-4 sm:p-5 shadow-paper-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800 shrink-0 shadow-inner">
+            <Compass size={22} className="text-amber-700" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-amber-500/25 text-amber-900 border border-amber-600/40 uppercase tracking-widest">
+                {userTrack ? t(`career.tracks.${userTrack}.shortBadge`, "Трек") : t("career.chooseTrack", "Напрямок")}
+              </span>
+              <span className="text-[11px] font-mono font-bold text-amber-800">
+                {userTrack === "explorer"
+                  ? "«" + t("career.motto", "Неможливо програти, якщо це експеримент") + "»"
+                  : t("career.activeTrackBanner", "Твій кар'єрний трек")}
+              </span>
+            </div>
+            <h2 className="text-sm sm:text-base font-display font-extrabold text-[#1A1D20] tracking-tight">
+              {userTrack
+                ? t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")
+                : t("career.onboardingModalTitle", "Обери свій інженерний шлях")}
+            </h2>
+            <p className="text-xs text-[#1A1D20]/70 max-w-2xl leading-relaxed">
+              {userTrack === "explorer"
+                ? t("career.tracks.explorer.audience")
+                : userTrack
+                ? t(`career.tracks.${userTrack}.roles`)
+                : t("career.onboardingModalSubtitle")}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          id="btn-hub-banner-change-track"
+          onClick={() => {
+            audioFx.playRelayClick();
+            setIsCareerModalOpen(true);
+          }}
+          className="px-4 py-2 rounded-xl font-mono font-bold text-xs bg-[#1A1D20] hover:bg-[#2C3035] text-white shadow-paper-sm flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start sm:self-auto"
+        >
+          <Compass size={14} className="text-amber-400" />
+          <span>{t("career.changeTrack", "Змінити шлях")}</span>
+          <span>→</span>
+        </button>
+      </div>
 
       {/* ── 🚨 Incident War Room Emergency Banner ── */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#180A0E] via-[#200F15] to-[#12080B] border-2 border-rose-500/40 p-5 shadow-lg shadow-rose-950/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -375,7 +474,8 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={tvStats.current}
             maxStars={tvStats.max}
             statusType={tvStats.statusType}
-            isRecommended={!tvStats.isCompleted || xp < 100}
+            {...getTrackCardProps("tv")}
+            isRecommended={!userTrack ? (!tvStats.isCompleted || xp < 100) : false}
             beaconText={t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
             onEnter={() => handleEnterStation("tv")}
             onViewCert={
@@ -405,6 +505,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={posStats.current}
             maxStars={posStats.max}
             statusType={posStats.statusType}
+            {...getTrackCardProps("pos")}
             starColorClass="text-amber-700"
             onEnter={() => handleEnterStation("pos")}
             onViewCert={
@@ -434,6 +535,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={0}
             maxStars={0}
             statusType="roadmap"
+            {...getTrackCardProps("iot")}
             lockCriteria={{
               conditionText: t("hub.roadmapStatus", "Статус модуля"),
               progressText: t("hub.stations.iot.releaseDate", "Реліз: Наступний семестр 2026"),
@@ -459,6 +561,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={apiStats.current}
             maxStars={apiStats.max}
             statusType={apiStats.statusType}
+            {...getTrackCardProps("api")}
             accentBorderClass="hover:border-cyan-600/60"
             starColorClass="text-cyan-700"
             onEnter={() => handleEnterStation("api")}
@@ -489,6 +592,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={gitStats.current}
             maxStars={gitStats.max}
             statusType={gitStats.statusType}
+            {...getTrackCardProps("git")}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("git")}
@@ -519,6 +623,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={banditStats.current}
             maxStars={banditStats.max}
             statusType={banditStats.statusType}
+            {...getTrackCardProps("bandit")}
             accentBorderClass="hover:border-emerald-600/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("bandit")}
@@ -549,6 +654,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={vertexStats.current}
             maxStars={vertexStats.max}
             statusType={vertexStats.statusType}
+            {...getTrackCardProps("vertex")}
             accentBorderClass="hover:border-blue-600/60"
             starColorClass="text-blue-800"
             onEnter={() => handleEnterStation("vertex")}
@@ -579,6 +685,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={fdeStats.current}
             maxStars={fdeStats.max}
             statusType={fdeStats.statusType}
+            {...getTrackCardProps("fde")}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("fde")}
@@ -609,6 +716,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={ragStats.current}
             maxStars={ragStats.max}
             statusType={ragStats.statusType}
+            {...getTrackCardProps("rag")}
             accentBorderClass="hover:border-cyan-500/60"
             starColorClass="text-cyan-800"
             onEnter={() => handleEnterStation("rag")}
@@ -639,6 +747,7 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={cyberStats.current}
             maxStars={cyberStats.max}
             statusType={cyberStats.statusType}
+            {...getTrackCardProps("cyber")}
             accentBorderClass="hover:border-emerald-500/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("cyber")}

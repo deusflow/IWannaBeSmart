@@ -52,9 +52,10 @@ import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { CommandPaletteModal } from "../components/workbench/CommandPaletteModal";
 import { KeyboardShortcutsModal } from "../components/workbench/KeyboardShortcutsModal";
 import { OnboardingTourModal } from "../components/workbench/OnboardingTourModal";
+import { CareerOnboardingModal } from "../components/workbench/career/CareerOnboardingModal";
 import { AudioVolumeWidget } from "../components/workbench/AudioVolumeWidget";
 import { audioFx } from "../utils/audioFx";
-import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Search, Sparkles, Compass } from "lucide-react";
 
 /**
  * Engineering Microchip XP icon — silicon die with contact pins.
@@ -162,6 +163,8 @@ export const WorkbenchScreen: React.FC = () => {
     setCurrentView,
     isOnboardingOpen,
     setIsOnboardingOpen,
+    userTrack,
+    setIsCareerModalOpen,
   } = useWorkbenchStore(
     useShallow((s) => ({
       power: s.power,
@@ -197,6 +200,8 @@ export const WorkbenchScreen: React.FC = () => {
       setCurrentView: s.setCurrentView,
       isOnboardingOpen: s.isOnboardingOpen,
       setIsOnboardingOpen: s.setIsOnboardingOpen,
+      userTrack: s.userTrack,
+      setIsCareerModalOpen: s.setIsCareerModalOpen,
     }))
   );
 
@@ -420,6 +425,25 @@ export const WorkbenchScreen: React.FC = () => {
             <kbd className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[10px] font-mono font-bold text-ink-muted">
               ⌘K
             </kbd>
+          </button>
+
+          {/* Career Track Trigger Button */}
+          <button
+            id="btn-career-track"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsCareerModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-amber-600/60 text-ink/80 hover:text-amber-700 font-display font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0"
+            title={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
+            aria-label={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
+          >
+            <Compass size={13} className="text-amber-600 shrink-0" />
+            <span className="hidden sm:inline">
+              {userTrack
+                ? t(`career.tracks.${userTrack}.shortBadge`, "Трек")
+                : t("career.chooseTrack", "Напрямок")}
+            </span>
           </button>
 
           {/* Engineering Onboarding Briefing Button */}
@@ -976,6 +1000,9 @@ export const WorkbenchScreen: React.FC = () => {
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
       />
+
+      {/* Freshman Career Onboarding Modal */}
+      <CareerOnboardingModal />
     </div>
   );
 };
