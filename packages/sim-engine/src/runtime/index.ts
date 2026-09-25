@@ -26,6 +26,7 @@ export * from "./ragEngine";
 export * from "./tasks-rag";
 export * from "./cyberEngine";
 export * from "./tasks-cyber";
+export * from "./warRoomEngine";
 
 import { CODING_TASKS } from "./tasks";
 import { FINTECH_TASKS } from "./tasks-fintech";

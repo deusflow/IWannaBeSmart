@@ -1,31 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS, VERTEX_TASKS, FDE_TASKS, RAG_TASKS, CYBER_TASKS } from "@iw/sim-engine";
+
+const WarRoomScreen = lazy(() =>
+  import("../components/workbench/warroom/WarRoomScreen").then((m) => ({ default: m.WarRoomScreen }))
+);
+
+const StationLoadingFallback = () => (
+  <div className="flex-1 flex items-center justify-center min-h-[400px]">
+    <div className="flex flex-col items-center space-y-3">
+      <div className="w-10 h-10 border-2 border-accent-blue/30 border-t-accent-blue rounded-full animate-spin" />
+      <span className="font-mono text-xs text-ink-muted">INITIALIZING BLUEPRINT...</span>
+    </div>
+  </div>
+);
 import { useWorkbenchStore } from "../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
+const TVBlueprintDevice = lazy(() => import("../components/workbench/TVBlueprintDevice").then((m) => ({ default: m.TVBlueprintDevice })));
+const RemoteBlueprintDevice = lazy(() => import("../components/workbench/RemoteBlueprintDevice").then((m) => ({ default: m.RemoteBlueprintDevice })));
+const ArchitectureCanvas = lazy(() => import("../components/workbench/architecture/ArchitectureCanvas").then((m) => ({ default: m.ArchitectureCanvas })));
+const POSBlueprintDevice = lazy(() => import("../components/workbench/POSBlueprintDevice").then((m) => ({ default: m.POSBlueprintDevice })));
+const CodeGymRunner = lazy(() => import("../components/workbench/playground/CodeGymRunner").then((m) => ({ default: m.CodeGymRunner })));
+const ApiForgeBlueprintDevice = lazy(() => import("../components/workbench/ApiForgeBlueprintDevice").then((m) => ({ default: m.ApiForgeBlueprintDevice })));
+const ApiCodeGymRunner = lazy(() => import("../components/workbench/playground/ApiCodeGymRunner").then((m) => ({ default: m.ApiCodeGymRunner })));
+const GitBlueprintDevice = lazy(() => import("../components/workbench/GitBlueprintDevice").then((m) => ({ default: m.GitBlueprintDevice })));
+const GitCodeGymRunner = lazy(() => import("../components/workbench/playground/GitCodeGymRunner").then((m) => ({ default: m.GitCodeGymRunner })));
+const BanditBlueprintDevice = lazy(() => import("../components/workbench/BanditBlueprintDevice").then((m) => ({ default: m.BanditBlueprintDevice })));
+const BanditCodeGymRunner = lazy(() => import("../components/workbench/playground/BanditCodeGymRunner").then((m) => ({ default: m.BanditCodeGymRunner })));
+const VertexBlueprintDevice = lazy(() => import("../components/workbench/VertexBlueprintDevice").then((m) => ({ default: m.VertexBlueprintDevice })));
+const VertexCodeGymRunner = lazy(() => import("../components/workbench/playground/VertexCodeGymRunner").then((m) => ({ default: m.VertexCodeGymRunner })));
+const FdeBlueprintDevice = lazy(() => import("../components/workbench/FdeBlueprintDevice").then((m) => ({ default: m.FdeBlueprintDevice })));
+const FdeCodeGymRunner = lazy(() => import("../components/workbench/playground/FdeCodeGymRunner").then((m) => ({ default: m.FdeCodeGymRunner })));
+const RagAgentBlueprintDevice = lazy(() => import("../components/workbench/RagAgentBlueprintDevice").then((m) => ({ default: m.RagAgentBlueprintDevice })));
+const RagAgentCodeGymRunner = lazy(() => import("../components/workbench/playground/RagAgentCodeGymRunner").then((m) => ({ default: m.RagAgentCodeGymRunner })));
+const CyberBlueprintDevice = lazy(() => import("../components/workbench/CyberBlueprintDevice").then((m) => ({ default: m.CyberBlueprintDevice })));
+const CyberCodeGymRunner = lazy(() => import("../components/workbench/playground/CyberCodeGymRunner").then((m) => ({ default: m.CyberCodeGymRunner })));
 import { BlueprintStationSwitcher } from "../components/workbench/BlueprintStationSwitcher";
-import { TVBlueprintDevice } from "../components/workbench/TVBlueprintDevice";
-import { RemoteBlueprintDevice } from "../components/workbench/RemoteBlueprintDevice";
 import { EngineeringDrawer } from "../components/workbench/EngineeringDrawer";
-import { ArchitectureCanvas } from "../components/workbench/architecture/ArchitectureCanvas";
 import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
 import { UserNavBadge } from "../components/auth/UserNavBadge";
-import { POSBlueprintDevice } from "../components/workbench/POSBlueprintDevice";
-import { CodeGymRunner } from "../components/workbench/playground/CodeGymRunner";
-import { ApiForgeBlueprintDevice } from "../components/workbench/ApiForgeBlueprintDevice";
-import { ApiCodeGymRunner } from "../components/workbench/playground/ApiCodeGymRunner";
-import { GitBlueprintDevice } from "../components/workbench/GitBlueprintDevice";
-import { GitCodeGymRunner } from "../components/workbench/playground/GitCodeGymRunner";
-import { BanditBlueprintDevice } from "../components/workbench/BanditBlueprintDevice";
-import { BanditCodeGymRunner } from "../components/workbench/playground/BanditCodeGymRunner";
-import { VertexBlueprintDevice } from "../components/workbench/VertexBlueprintDevice";
-import { VertexCodeGymRunner } from "../components/workbench/playground/VertexCodeGymRunner";
-import { FdeBlueprintDevice } from "../components/workbench/FdeBlueprintDevice";
-import { FdeCodeGymRunner } from "../components/workbench/playground/FdeCodeGymRunner";
-import { RagAgentBlueprintDevice } from "../components/workbench/RagAgentBlueprintDevice";
-import { RagAgentCodeGymRunner } from "../components/workbench/playground/RagAgentCodeGymRunner";
-import { CyberBlueprintDevice } from "../components/workbench/CyberBlueprintDevice";
-import { CyberCodeGymRunner } from "../components/workbench/playground/CyberCodeGymRunner";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
 import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
@@ -367,7 +380,28 @@ export const WorkbenchScreen: React.FC = () => {
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* Incident War Room SEV-1 Button */}
+          <button
+            id="btn-incident-war-room"
+            onClick={() => {
+              audioFx.playWarRoomSiren();
+              setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
+            }}
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 ${
+              currentView === "WAR_ROOM"
+                ? "bg-rose-600 text-white shadow-rose-900/50 border border-rose-500"
+                : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 border border-rose-500/30 hover:border-rose-500/60"
+            }`}
+            title="Incident War Room (SEV-1 Production Outage Drills)"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+            </span>
+            <span className="tracking-tight">WAR ROOM</span>
+          </button>
+
           {/* Command Palette Trigger [ ⌘K Search ] */}
           <button
             id="btn-command-palette"
@@ -530,11 +564,19 @@ export const WorkbenchScreen: React.FC = () => {
       )}
 
       {/* ── Main content ── */}
-      {currentView === "HUB" ? (
+      {currentView === "WAR_ROOM" ? (
+        <main className="relative z-10 flex-1 w-full min-h-screen overflow-y-auto flex flex-col">
+          <Suspense fallback={<StationLoadingFallback />}>
+            <WarRoomScreen />
+          </Suspense>
+        </main>
+      ) : currentView === "HUB" ? (
         <main className="relative z-10 flex-1 w-full overflow-y-auto flex flex-col">
           <WorkshopHubScreen />
         </main>
-      ) : activeView === "architecture" && currentStationId === "tv" ? (
+      ) : (
+        <Suspense fallback={<StationLoadingFallback />}>
+          {activeView === "architecture" && currentStationId === "tv" ? (
         <main className="relative z-10 flex-1 w-full h-[calc(100vh-3.5rem)] min-h-0 overflow-hidden flex flex-col">
           <ArchitectureCanvas onBackToTv={() => setActiveView("device")} />
         </main>
@@ -762,6 +804,8 @@ export const WorkbenchScreen: React.FC = () => {
             )}
           </div>
         </main>
+          )}
+        </Suspense>
       )}
 
       {/* ══════════════════════════════════════════════

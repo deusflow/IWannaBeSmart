@@ -665,5 +665,69 @@ Traffic is routed across private interconnects to prevent external interception.
       expect(getStore().taskBestWpm[testTaskId]).toBe(80);
     });
   });
+
+  describe("warRoomSlice (Incident War Room & SEV-1 Outage Drills)", () => {
+    it("should initialize with default standby incident", () => {
+      const store = getStore();
+      expect(store.activeIncidentId).toBe("incident-fintech-double-charge");
+      expect(store.warRoomStatus).toBe("STANDBY");
+      expect(store.warRoomTimeRemainingSec).toBeGreaterThan(0);
+      expect(store.warRoomErrorRate).toBeGreaterThan(0);
+      expect(store.warRoomChatMessages.length).toBeGreaterThan(0);
+    });
+
+    it("should start an incident drill and tick timer", () => {
+      const store = getStore();
+      store.startIncidentDrill("incident-fintech-double-charge");
+
+      expect(getStore().warRoomStatus).toBe("IN_PROGRESS");
+      expect(getStore().warRoomElapsedSec).toBe(0);
+
+      store.tickWarRoomTimer();
+      expect(getStore().warRoomElapsedSec).toBe(1);
+      expect(getStore().warRoomAccumulatedLoss).toBeGreaterThan(0);
+
+      store.abortIncidentDrill();
+      expect(getStore().warRoomStatus).toBe("STANDBY");
+    });
+
+    it("should validate and resolve incident when correct hotfix is deployed", () => {
+      const store = getStore();
+      store.startIncidentDrill("incident-fintech-double-charge");
+
+      // Broken code should fail
+      const initialSuccess = store.runWarRoomHotfixAction();
+      expect(initialSuccess).toBe(false);
+      expect(getStore().warRoomStatus).toBe("IN_PROGRESS");
+      expect(getStore().warRoomHotfixError).toBeDefined();
+
+      // Deploying the correct patch
+      const validPatch = `export function processIdempotentPayment(
+  cache: Map<string, { status: string; amount: number }>,
+  idempotencyKey: string,
+  amount: number,
+  balance: number
+): { success: boolean; newBalance: number; status: string; isDuplicate: boolean } {
+  if (cache.has(idempotencyKey)) {
+    return { success: true, newBalance: balance, status: "DUPLICATE_IGNORED", isDuplicate: true };
+  }
+  if (balance < amount) {
+    return { success: false, newBalance: balance, status: "INSUFFICIENT_FUNDS", isDuplicate: false };
+  }
+  const newBalance = balance - amount;
+  cache.set(idempotencyKey, { status: "PROCESSED", amount });
+  return { success: true, newBalance, status: "PROCESSED", isDuplicate: false };
+}`;
+
+      store.setWarRoomHotfixCode(validPatch);
+      const passed = store.runWarRoomHotfixAction();
+      expect(passed).toBe(true);
+      expect(getStore().warRoomStatus).toBe("RESOLVED");
+      expect(getStore().warRoomHealthStatus).toBe("OPERATIONAL");
+      expect(getStore().isWarRoomVictoryModalOpen).toBe(true);
+      expect(getStore().warRoomErrorRate).toBe(0.05);
+    });
+  });
 });
+
 

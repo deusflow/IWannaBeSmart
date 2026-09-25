@@ -130,8 +130,8 @@ export interface MentorSlice {
   syncCloudProgress: (userId: string) => Promise<void>;
   currentStationId: string;
   setCurrentStationId: (id: string) => void;
-  currentView: "HUB" | "STATION";
-  setCurrentView: (view: "HUB" | "STATION") => void;
+  currentView: "HUB" | "STATION" | "WAR_ROOM";
+  setCurrentView: (view: "HUB" | "STATION" | "WAR_ROOM") => void;
   targetTaskId: string | null;
   setTargetTaskId: (taskId: string | null) => void;
   isOnboardingOpen: boolean;
@@ -364,6 +364,38 @@ export interface CyberSlice {
   resetCyberState: () => void;
 }
 
+export interface WarRoomSlice {
+  activeIncidentId: string | null;
+  warRoomStatus: "STANDBY" | "IN_PROGRESS" | "RESOLVED" | "FAILED";
+  warRoomElapsedSec: number;
+  warRoomTimeRemainingSec: number;
+  warRoomAccumulatedLoss: number;
+  warRoomErrorRate: number;
+  warRoomLatencyMs: number;
+  warRoomHealthStatus: "CRITICAL" | "DEGRADED" | "STABILIZING" | "OPERATIONAL";
+  warRoomActiveTab: "feed" | "diagnostics" | "hotfix";
+  warRoomChatMessages: import("@iw/sim-engine").IncidentSlackMessage[];
+  warRoomHotfixCode: Record<"typescript" | "python", string>;
+  warRoomHotfixLanguage: "typescript" | "python";
+  warRoomHotfixLogs: string[];
+  warRoomHotfixError: string | null;
+  isWarRoomAudioEnabled: boolean;
+  isWarRoomVictoryModalOpen: boolean;
+  isWarRoomFailureModalOpen: boolean;
+
+  startIncidentDrill: (incidentId: string) => void;
+  abortIncidentDrill: () => void;
+  tickWarRoomTimer: () => void;
+  setWarRoomActiveTab: (tab: "feed" | "diagnostics" | "hotfix") => void;
+  setWarRoomHotfixCode: (code: string) => void;
+  setWarRoomHotfixLanguage: (lang: "typescript" | "python") => void;
+  runWarRoomHotfixAction: () => boolean;
+  toggleWarRoomAudio: () => void;
+  setWarRoomVictoryModalOpen: (open: boolean) => void;
+  setWarRoomFailureModalOpen: (open: boolean) => void;
+  resetWarRoomState: () => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -379,4 +411,6 @@ export type WorkbenchStore = TVStateSlice &
   FdeSlice &
   RagAgentSlice &
   CyberSlice &
+  WarRoomSlice &
   WorkbenchActions;
+

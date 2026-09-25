@@ -408,7 +408,7 @@ export const createMentorSlice: StateCreator<
       return "HUB";
     }
   })(),
-  setCurrentView: (view: "HUB" | "STATION") => {
+  setCurrentView: (view: "HUB" | "STATION" | "WAR_ROOM") => {
     try {
       saveGlobalSession({
         currentStationId: get().currentStationId,

@@ -282,10 +282,50 @@ export const WorkshopHubScreen: React.FC = () => {
         station3ProgressPercent={station3ProgressPercent}
       />
 
+      {/* ── 🚨 Incident War Room Emergency Banner ── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#180A0E] via-[#200F15] to-[#12080B] border-2 border-rose-500/40 p-5 shadow-lg shadow-rose-950/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0 shadow-inner">
+            <span className="relative flex h-5 w-5 items-center justify-center">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+              <span className="text-xl">🚨</span>
+            </span>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-rose-500/25 text-rose-300 border border-rose-500/40 uppercase tracking-widest">
+                SEV-1 On-Call SRE Simulator
+              </span>
+              <span className="text-[11px] font-mono font-bold text-amber-400">
+                +150 XP за кожну ліквідацію
+              </span>
+            </div>
+            <h2 className="text-base sm:text-lg font-display font-extrabold text-white tracking-tight">
+              Incident War Room: Аварії на прод-системах
+            </h2>
+            <p className="text-xs text-rose-200/70 max-w-2xl leading-relaxed">
+              5 критичних аварій у реальному часі (FinTech подвійні списання, RAG інʼєкції, SYN Flood DDoS, дрифт ML-моделей). Звучить сирена, рахується збиток — накатіть хотфікс до порушення SLA.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            audioFx.playWarRoomSiren();
+            setCurrentView("WAR_ROOM");
+          }}
+          className="px-5 py-2.5 rounded-xl font-mono font-black text-xs bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 hover:to-amber-400 text-black shadow-lg shadow-rose-500/30 flex items-center justify-center space-x-2 transition-all transform active:scale-95 shrink-0 cursor-pointer"
+        >
+          <span>Увійти в War Room</span>
+          <span>→</span>
+        </button>
+      </div>
+
       {/* ── Interactive Category Filter Bar ── */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none">
         {[
-          { id: "all" as const, label: t("hub.categories.all", "Всі станції"), count: 9 },
+          { id: "all" as const, label: t("hub.categories.all", "Всі станції"), count: 10 },
           { id: "systems" as const, label: t("hub.categories.systems", "Системи & Бекенд"), count: 3 },
           { id: "security" as const, label: t("hub.categories.security", "Фінтех & Безпека"), count: 3 },
           { id: "ai" as const, label: t("hub.categories.ai", "AI & MLOps"), count: 3 },

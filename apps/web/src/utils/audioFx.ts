@@ -365,6 +365,124 @@ class AudioFxEngine {
   }
 
   /**
+   * SEV-1 War Room Red Alert siren (subtle pulsing alarm)
+   */
+  public playWarRoomSiren(): void {
+    if (this._isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const dest = this.getMasterDestination(ctx);
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(440, t);
+    osc.frequency.linearRampToValueAtTime(660, t + 0.25);
+    osc.frequency.linearRampToValueAtTime(440, t + 0.5);
+
+    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.52);
+
+    osc.connect(gain);
+    gain.connect(dest);
+
+    osc.start(t);
+    osc.stop(t + 0.53);
+  }
+
+  /**
+   * Low-frequency heartbeat countdown alert when SLA timer < 45s
+   */
+  public playHeartbeat(): void {
+    if (this._isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const dest = this.getMasterDestination(ctx);
+    const t = ctx.currentTime;
+
+    // Double thump (lub-dub)
+    [0, 0.15].forEach((offset, idx) => {
+      const startTime = t + offset;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(idx === 0 ? 70 : 55, startTime);
+      osc.frequency.exponentialRampToValueAtTime(30, startTime + 0.08);
+
+      gain.gain.setValueAtTime(0.18, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.09);
+
+      osc.connect(gain);
+      gain.connect(dest);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.095);
+    });
+  }
+
+  /**
+   * SEV-1 Incident Mitigated Victory Chime (Ascending triad + shimmer)
+   */
+  public playIncidentResolved(): void {
+    if (this._isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const dest = this.getMasterDestination(ctx);
+    const t = ctx.currentTime;
+    const chord = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+
+    chord.forEach((freq, idx) => {
+      const startTime = t + idx * 0.08;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.15, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.45);
+
+      osc.connect(gain);
+      gain.connect(dest);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.46);
+    });
+  }
+
+  /**
+   * SEV-1 Incident SLA Breached Outage sound (Descending power-down)
+   */
+  public playIncidentFailed(): void {
+    if (this._isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const dest = this.getMasterDestination(ctx);
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.exponentialRampToValueAtTime(65, t + 0.6);
+
+    gain.gain.setValueAtTime(0.16, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.62);
+
+    osc.connect(gain);
+    gain.connect(dest);
+
+    osc.start(t);
+    osc.stop(t + 0.63);
+  }
+
+  /**
    * Procedural tactile mechanical switch click for Code Gym typing
    * High-frequency transient burst decaying exponentially in ~12ms.
    */
@@ -394,3 +512,4 @@ class AudioFxEngine {
 }
 
 export const audioFx = new AudioFxEngine();
+
