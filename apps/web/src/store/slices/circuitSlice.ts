@@ -12,7 +12,7 @@ import type {
   CircuitEdgeState,
 } from "../types";
 
-export const createInitialCircuitEdges = (): Record<CircuitEdgeId, CircuitEdgeState> => ({
+const createInitialCircuitEdges = (): Record<CircuitEdgeId, CircuitEdgeState> => ({
   "edge-psu-mcu": {
     id: "edge-psu-mcu",
     source: "node-psu",

@@ -35,7 +35,7 @@ import { GuidedTokensLayer } from "./guided/GuidedTokensLayer";
 
 // ─── Type definitions ─────────────────────────────────────────────────────────
 
-export interface GuidedStepData {
+interface GuidedStepData {
   /** i18n key for the "simple words" layer */
   simpleKey: string;
   /** i18n key for the engineering-precision layer */
@@ -62,7 +62,7 @@ interface GuidedStepBarProps {
   className?: string;
 }
 
-export type TutorialLayer = "solution" | "simple" | "engineering" | "tokens" | "architecture";
+type TutorialLayer = "solution" | "simple" | "engineering" | "tokens" | "architecture";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

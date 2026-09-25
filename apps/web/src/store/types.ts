@@ -86,14 +86,10 @@ export interface ArchitectureSlice {
    * ArchitectureCanvas reads these on mount and writes on every change.
    * Navigating away and back never resets the board.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  archNodes: Node<Record<string, any>>[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  archEdges: Edge<Record<string, any>>[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setArchNodes: (nodes: Node<Record<string, any>>[]) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setArchEdges: (edges: Edge<Record<string, any>>[]) => void;
+  archNodes: Node<Record<string, unknown>>[];
+  archEdges: Edge<Record<string, unknown>>[];
+  setArchNodes: (nodes: Node<Record<string, unknown>>[]) => void;
+  setArchEdges: (edges: Edge<Record<string, unknown>>[]) => void;
 
   // Trace-Chain Node System State
   selectedTraceEntityId: string;

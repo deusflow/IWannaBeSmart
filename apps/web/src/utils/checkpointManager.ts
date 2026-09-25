@@ -99,7 +99,7 @@ export function getStationCheckpoint(stationId: string): StationCheckpoint | nul
 // 2. Code Draft Auto-Save (Protects Unfinished Editor Input)
 // ─────────────────────────────────────────────────────────────
 
-export function getCodeDraftKey(taskId: string, lang: string, round: number): string {
+function getCodeDraftKey(taskId: string, lang: string, round: number): string {
   return `${KEY_CODE_DRAFT_PREFIX}${taskId}_${lang}_r${round}`;
 }
 

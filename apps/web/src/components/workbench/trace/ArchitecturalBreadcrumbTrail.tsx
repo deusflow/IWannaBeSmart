@@ -9,7 +9,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronRight, CornerDownLeft, ArrowLeftRight, AlertOctagon } from "lucide-react";
 
-export interface BreadcrumbItem {
+interface BreadcrumbItem {
   stepIndex: number;
   symbol: string;
   file: string;

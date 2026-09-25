@@ -12,7 +12,7 @@ import type {
   HardwarePoint,
 } from "../types";
 
-export const createInitialConnections = (): Record<HardwarePointKey, HardwarePoint> => ({
+const createInitialConnections = (): Record<HardwarePointKey, HardwarePoint> => ({
   VCC: {
     id: "VCC",
     name: "VCC (+5V Power Rail)",

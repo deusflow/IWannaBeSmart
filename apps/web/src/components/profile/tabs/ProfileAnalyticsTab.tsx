@@ -15,14 +15,14 @@ import {
 } from "lucide-react";
 import { TOTAL_MAX_STARS } from "@iw/sim-engine";
 
-export interface ProfileStrengthItem {
+interface ProfileStrengthItem {
   id: string;
   title: string;
   stars: number;
   station: string;
 }
 
-export interface ProfileGrowthItem {
+interface ProfileGrowthItem {
   id: string;
   title: string;
   stars: number;

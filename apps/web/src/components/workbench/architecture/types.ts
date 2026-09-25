@@ -66,7 +66,7 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   onInspectDi?: () => void;
 }
 
-export type JourneyType = "INTERFACE" | "DI";
+type JourneyType = "INTERFACE" | "DI";
 
 export interface ActiveJourneyState {
   type: JourneyType;
@@ -75,7 +75,7 @@ export interface ActiveJourneyState {
   activeCommand: "PowerCommand" | "VolumeUpCommand";
 }
 
-export type LogType = "success" | "error" | "info" | "warning";
+type LogType = "success" | "error" | "info" | "warning";
 
 export type SubsystemTag = "IoC" | "VTABLE" | "BUS" | "HARDWARE" | "FAULT" | "GRAPH";
 
@@ -103,7 +103,7 @@ export type TraceNodeType =
   | "CallSite"        // где вызывается / используется (TVController.PowerOn -> cmd.Execute())
   | "Effect";         // итоговый наблюдаемый эффект (экран включен / звук изменен)
 
-export type TraceEdgeStatus = "active" | "broken" | "bypassed";
+type TraceEdgeStatus = "active" | "broken" | "bypassed";
 
 export interface TraceNode {
   id: string;

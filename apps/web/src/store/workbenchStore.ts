@@ -15,14 +15,8 @@
 import { create } from "zustand";
 import type { WorkbenchStore } from "./types";
 import { createTvSlice } from "./slices/tvSlice";
-import {
-  createConnectionsSlice,
-  createInitialConnections,
-} from "./slices/connectionsSlice";
-import {
-  createCircuitSlice,
-  createInitialCircuitEdges,
-} from "./slices/circuitSlice";
+import { createConnectionsSlice } from "./slices/connectionsSlice";
+import { createCircuitSlice } from "./slices/circuitSlice";
 import { createArchitectureSlice } from "./slices/architectureSlice";
 import { createMentorSlice } from "./slices/mentorSlice";
 import { createPosSlice } from "./slices/posSlice";
@@ -55,4 +49,3 @@ export const useWorkbenchStore = create<WorkbenchStore>((...a) => ({
 }));
 
 export * from "./types";
-export { createInitialConnections, createInitialCircuitEdges };

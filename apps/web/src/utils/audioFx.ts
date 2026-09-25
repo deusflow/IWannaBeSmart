@@ -43,8 +43,7 @@ class AudioFxEngine {
     if (!this.ctx) {
       const AudioCtxClass =
         window.AudioContext ||
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).webkitAudioContext;
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (AudioCtxClass) {
         this.ctx = new AudioCtxClass();
       }

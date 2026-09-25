@@ -88,7 +88,6 @@ export interface Database {
 }
 
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-export type UserProgressRow = Database["public"]["Tables"]["user_progress"]["Row"];
 
 // ────────────────────────────────────────────────
 //  Environment Resolution & Guard (Isomorphic)

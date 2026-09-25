@@ -6,7 +6,7 @@
 import type { Connection, Edge, Node } from "@xyflow/react";
 import type { ArchitectureNodeData, PortType } from "./types";
 
-export const PORT_COMPATIBILITY: Record<PortType, PortType[]> = {
+const PORT_COMPATIBILITY: Record<PortType, PortType[]> = {
   IRemoteCommand: ["IRemoteCommand"],
   ITVReceiver: ["ITVReceiver"],
   DisplayService: ["DisplayService"],
@@ -16,7 +16,7 @@ export const PORT_COMPATIBILITY: Record<PortType, PortType[]> = {
   hardware: ["hardware"],
 };
 
-export function findPortType(
+function findPortType(
   nodeId: string,
   handleId: string | null | undefined,
   direction: "input" | "output",

@@ -6,35 +6,9 @@
 import type { TraceGraph, TraceNode, TraceEdge } from "./types";
 
 /**
- * Predefined trace graph templates for TV Station entities.
- */
-export const TV_TRACE_ENTITIES: Record<string, { entityName: string; description: string }> = {
-  IRemoteCommand: {
-    entityName: "IRemoteCommand",
-    description: "Інтерфейс поліморфних команд пульта телевізора",
-  },
-  PowerCommand: {
-    entityName: "PowerCommand",
-    description: "Команда увімкнення/вимкнення живлення телевізора",
-  },
-  TVController: {
-    entityName: "TVController",
-    description: "Центральний диспетчер та приймач команд ТВ",
-  },
-  ITVReceiver: {
-    entityName: "ITVReceiver",
-    description: "Контракт пристрою-отримувача стану телевізора",
-  },
-  Mute: {
-    entityName: "Mute()",
-    description: "Окрема функція швидкого вимкнення звуку",
-  },
-};
-
-/**
  * Builds the canonical blueprint TraceGraph for a given entity.
  */
-export function buildRawTraceGraph(entityId: string = "IRemoteCommand"): TraceGraph {
+function buildRawTraceGraph(entityId: string = "IRemoteCommand"): TraceGraph {
   if (entityId === "Mute") {
     // 2. Function trace: Declaration -> CallSite -> Effect (3 nodes, 2 edges)
     const nodes: TraceNode[] = [

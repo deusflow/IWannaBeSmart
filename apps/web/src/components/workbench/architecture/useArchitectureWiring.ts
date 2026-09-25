@@ -15,8 +15,7 @@ import { audioFx } from "../../../utils/audioFx";
 import { PROJECT_FILES } from "./projectData";
 import { createInitialNodes } from "./initialGraph";
 import {
-  PORT_COMPATIBILITY,
-  findPortType,
+  validatePortConnection,
   getPortName,
   getNodeName,
 } from "./connectionRules";
@@ -335,30 +334,20 @@ export function useArchitectureWiring({
   // Connection validation & Connect
   const isValidConnection: IsValidConnection = useCallback(
     (connection: Edge | Connection) => {
-      const srcType = findPortType(connection.source ?? "", connection.sourceHandle, "output", nodes);
-      const tgtType = findPortType(connection.target ?? "", connection.targetHandle, "input", nodes);
-
-      if (!srcType || !tgtType) return false;
-      const valid = PORT_COMPATIBILITY[srcType]?.includes(tgtType) ?? false;
-
-      if (!valid) {
-        const srcNodeName = getNodeName(connection.source ?? "", nodes);
-        const tgtNodeName = getNodeName(connection.target ?? "", nodes);
-        const srcPortName = getPortName(connection.source ?? "", connection.sourceHandle, "output", nodes);
-        const tgtPortName = getPortName(connection.target ?? "", connection.targetHandle, "input", nodes);
-
+      const res = validatePortConnection(connection, nodes);
+      if (!res.isValid && res.srcType && res.tgtType) {
         addLog({
           type: "error",
           subsystem: "FAULT",
           operation: "TYPE_MISMATCH",
-          message: `Binding rejected: ${srcNodeName}.${srcPortName} -> ${tgtNodeName}.${tgtPortName}`,
+          message: `Binding rejected: ${res.srcNodeName}.${res.srcPortName} -> ${res.tgtNodeName}.${res.tgtPortName}`,
           targetNodeId: connection.target ?? undefined,
-          details: `Cannot bind [${srcType}] to [${tgtType}]`,
-          codeContext: `// ✗ Type Mismatch:\n// ${srcNodeName}.${srcPortName} [${srcType}]\n//   → ${tgtNodeName}.${tgtPortName} [${tgtType}]\n// Expected port type: «${tgtType}»`,
+          details: `Cannot bind [${res.srcType}] to [${res.tgtType}]`,
+          codeContext: `// ✗ Type Mismatch:\n// ${res.srcNodeName}.${res.srcPortName} [${res.srcType}]\n//   → ${res.tgtNodeName}.${res.tgtPortName} [${res.tgtType}]\n// Expected port type: «${res.tgtType}»`,
         });
       }
 
-      return valid;
+      return res.isValid;
     },
     [nodes, addLog]
   );

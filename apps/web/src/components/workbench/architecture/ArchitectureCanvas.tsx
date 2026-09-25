@@ -392,10 +392,8 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
             )}
 
             <ReactFlow
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              nodes={(canvasMode === "TRACE" ? traceFlowNodes : processedNodes) as Node<any>[]}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              edges={(canvasMode === "TRACE" ? traceFlowEdges : processedEdges) as Edge<any>[]}
+              nodes={(canvasMode === "TRACE" ? traceFlowNodes : processedNodes) as unknown as Node<ArchitectureNodeData>[]}
+              edges={(canvasMode === "TRACE" ? traceFlowEdges : processedEdges) as unknown as Edge<ArchitectureEdgeData>[]}
               onNodesChange={handleNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}

@@ -210,8 +210,7 @@ export const createTvSlice: StateCreator<
       }
 
       let isPowerWired = state.isArchitecturePowerWired;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let nextArchEdges = state.archEdges as any[];
+      let nextArchEdges = [...state.archEdges];
 
       if (osd === "CALC_MODE" || (osd && osd.includes("CALC"))) {
         isPowerWired = true;

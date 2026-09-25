@@ -6,13 +6,7 @@
 
 import { getLocalizedTaskDidactic } from "@iw/i18n";
 
-export interface SyntaxTokenItem {
-  token: string;
-  role: string;
-  explanation: string;
-}
-
-export interface ArchitectureMapInfo {
+interface ArchitectureMapInfo {
   contractFile?: string;
   implementationFile?: string;
   clientFile?: string;
@@ -32,7 +26,7 @@ export interface TaskDidacticInfo {
   [key: string]: unknown;
 }
 
-export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
+const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
   // ── TV Module — Tier 0: Fundamentals ──────────────────────────────────────
   "task-0-1-power-on": {
     taskId: "task-0-1-power-on",

@@ -13,7 +13,7 @@ import {
   Check,
 } from "lucide-react";
 
-export const PRESET_AVATARS = [
+const PRESET_AVATARS = [
   { id: "kernel", label: "Kernel-01", url: "https://api.dicebear.com/7.x/bottts/svg?seed=kernel&backgroundColor=1e293b" },
   { id: "cyber", label: "Cyber-99", url: "https://api.dicebear.com/7.x/bottts/svg?seed=cyber&backgroundColor=0f172a" },
   { id: "shield", label: "Guardian", url: "https://api.dicebear.com/7.x/bottts/svg?seed=shield&backgroundColor=1e1b4b" },
