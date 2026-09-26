@@ -24,6 +24,9 @@ export interface CareerTrackItem {
     ringColor: string;
     cardBorder: string;
     glowShadow: string;
+    leftBarColor: string;
+    pillBg: string;
+    tagBorder: string;
   };
 }
 
@@ -39,12 +42,15 @@ export const CAREER_TRACKS: CareerTrackItem[] = [
     icon: Server,
     stationIds: ["tv", "pos", "api", "git"],
     theme: {
-      accentBorder: "border-sky-500/50 hover:border-sky-500",
-      accentBg: "bg-sky-500/10",
-      accentText: "text-sky-800",
-      ringColor: "ring-sky-500/30",
-      cardBorder: "border-sky-600/40",
-      glowShadow: "shadow-sky-500/10",
+      accentBorder: "border-[#3B6B88]",
+      accentBg: "bg-[#EAF0F4]",
+      accentText: "text-[#3B6B88]",
+      ringColor: "ring-[#3B6B88]/25",
+      cardBorder: "border-[#3B6B88]/30",
+      glowShadow: "shadow-sm",
+      leftBarColor: "border-[#3B6B88]",
+      pillBg: "bg-[#EAF0F4]",
+      tagBorder: "border-[#3B6B88]/30",
     },
   },
   {
@@ -58,12 +64,15 @@ export const CAREER_TRACKS: CareerTrackItem[] = [
     icon: Cpu,
     stationIds: ["vertex", "fde", "rag"],
     theme: {
-      accentBorder: "border-purple-500/50 hover:border-purple-500",
-      accentBg: "bg-purple-500/10",
-      accentText: "text-purple-800",
-      ringColor: "ring-purple-500/30",
-      cardBorder: "border-purple-600/40",
-      glowShadow: "shadow-purple-500/10",
+      accentBorder: "border-[#635380]",
+      accentBg: "bg-[#F0EDF6]",
+      accentText: "text-[#635380]",
+      ringColor: "ring-[#635380]/25",
+      cardBorder: "border-[#635380]/30",
+      glowShadow: "shadow-sm",
+      leftBarColor: "border-[#635380]",
+      pillBg: "bg-[#F0EDF6]",
+      tagBorder: "border-[#635380]/30",
     },
   },
   {
@@ -77,12 +86,15 @@ export const CAREER_TRACKS: CareerTrackItem[] = [
     icon: ShieldCheck,
     stationIds: ["bandit", "cyber"],
     theme: {
-      accentBorder: "border-emerald-500/50 hover:border-emerald-500",
-      accentBg: "bg-emerald-500/10",
-      accentText: "text-emerald-800",
-      ringColor: "ring-emerald-500/30",
-      cardBorder: "border-emerald-600/40",
-      glowShadow: "shadow-emerald-500/10",
+      accentBorder: "border-[#3E7A5E]",
+      accentBg: "bg-[#EAF3EE]",
+      accentText: "text-[#3E7A5E]",
+      ringColor: "ring-[#3E7A5E]/25",
+      cardBorder: "border-[#3E7A5E]/30",
+      glowShadow: "shadow-sm",
+      leftBarColor: "border-[#3E7A5E]",
+      pillBg: "bg-[#EAF3EE]",
+      tagBorder: "border-[#3E7A5E]/30",
     },
   },
   {
@@ -97,12 +109,15 @@ export const CAREER_TRACKS: CareerTrackItem[] = [
     icon: Compass,
     stationIds: ["tv", "pos", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"],
     theme: {
-      accentBorder: "border-amber-500/50 hover:border-amber-500",
-      accentBg: "bg-amber-500/10",
-      accentText: "text-amber-900",
-      ringColor: "ring-amber-500/30",
-      cardBorder: "border-amber-600/40",
-      glowShadow: "shadow-amber-500/10",
+      accentBorder: "border-[#C86D32]",
+      accentBg: "bg-[#F5EDE6]",
+      accentText: "text-[#C86D32]",
+      ringColor: "ring-[#C86D32]/25",
+      cardBorder: "border-[#C86D32]/30",
+      glowShadow: "shadow-sm",
+      leftBarColor: "border-[#C86D32]",
+      pillBg: "bg-[#F5EDE6]",
+      tagBorder: "border-[#C86D32]/30",
     },
   },
 ];

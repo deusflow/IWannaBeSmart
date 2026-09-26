@@ -69,28 +69,25 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
     const isRoadmap = statusType === "roadmap" || lockCriteria?.isRoadmap;
     return (
       <div
-        className={`flex flex-col justify-between p-4 sm:p-4.5 rounded-2xl border-2 border-dashed space-y-3 relative overflow-hidden ${
-          isRoadmap
-            ? "bg-[#EFE9DC]/80 border-amber-600/35"
-            : "bg-[#EBE5D8]/70 border-[#1A1D20]/30"
-        }`}
+        className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#1E2227]/15 space-y-3 relative overflow-hidden shadow-xs"
       >
         <div className="space-y-2.5">
+          {/* Top row: Module code on left, Status badge on right */}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]/60">
+            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-[#1E2227]/5 border border-[#1E2227]/10 text-[#1E2227]/70">
               {codeLabel}
             </span>
             <span
-              className={`inline-flex items-center gap-1 text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
+              className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
                 isRoadmap
-                  ? "bg-amber-500/15 border-amber-600/30 text-amber-800"
-                  : "bg-stone-500/15 border-stone-600/30 text-stone-700"
+                  ? "bg-[#F5EDE6] border-[#C86D32]/30 text-[#C86D32]"
+                  : "bg-[#1E2227]/5 border-[#1E2227]/10 text-[#1E2227]/60"
               }`}
             >
               {isRoadmap ? (
                 <>
-                  <Construction size={11} className="text-amber-700" />
-                  <span>{t("hub.stationInDevelopment", "В РОЗРОБЦІ")}</span>
+                  <Construction size={11} className="text-[#C86D32]" />
+                  <span>{t("hub.stations.iot.badge", "В розробці (2 семестр)")}</span>
                 </>
               ) : (
                 <>
@@ -102,15 +99,15 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
           </div>
 
           <div>
-            <h3 className="font-display font-bold text-base sm:text-lg text-[#1A1D20]/80 flex items-center gap-2">
+            <h3 className="font-display font-bold text-base sm:text-lg text-[#1E2227]/80 flex items-center gap-2">
               <span>{title}</span>
             </h3>
-            <p className="text-xs font-sans text-[#1A1D20]/65 mt-0.5 leading-relaxed line-clamp-2">
+            <p className="text-xs font-sans text-[#1E2227]/65 mt-0.5 leading-relaxed line-clamp-2">
               {subtitle}
             </p>
           </div>
 
-          <div className="p-2.5 sm:p-3 rounded-xl bg-[#DFD7C5]/50 border border-[#1A1D20]/15 flex items-center justify-center py-3.5 sm:py-4 relative overflow-hidden opacity-75">
+          <div className="p-2.5 sm:p-3 rounded-xl bg-[#FAF8F4] border border-[#1E2227]/10 flex items-center justify-center py-3.5 sm:py-4 relative overflow-hidden opacity-75">
             <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
             {blueprint}
           </div>
@@ -119,18 +116,18 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
             <div
               className={`p-2.5 rounded-xl border space-y-1 ${
                 isRoadmap
-                  ? "bg-amber-500/10 border-amber-600/20"
-                  : "bg-[#DFD7C5]/60 border-[#1A1D20]/15"
+                  ? "bg-[#F5EDE6]/60 border-[#C86D32]/20"
+                  : "bg-[#1E2227]/5 border-[#1E2227]/10"
               }`}
             >
-              <div className="flex items-center justify-between text-[10px] font-mono text-[#1A1D20]/75">
+              <div className="flex items-center justify-between text-[10px] font-mono text-[#1E2227]/75">
                 <span>{lockCriteria.conditionText}</span>
-                <span className="font-bold text-[#1A1D20]">{lockCriteria.progressText}</span>
+                <span className="font-bold text-[#1E2227]">{lockCriteria.progressText}</span>
               </div>
               {!isRoadmap && (
-                <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-[#1E2227]/10 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-amber-600 transition-all duration-300"
+                    className="h-full rounded-full bg-[#C86D32] transition-all duration-300"
                     style={{ width: `${lockCriteria.percent}%` }}
                   />
                 </div>
@@ -142,13 +139,13 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         {lockCriteria && (
           <div className="pt-1">
             <div
-              className={`w-full py-1.5 px-3 rounded-xl border font-mono font-bold text-[10.5px] text-center flex items-center justify-center gap-1.5 ${
+              className={`w-full py-2 px-3 rounded-xl border font-mono font-bold text-[10.5px] text-center flex items-center justify-center gap-1.5 ${
                 isRoadmap
-                  ? "bg-amber-500/15 border-amber-600/35 text-amber-900 shadow-2xs"
-                  : "bg-[#DFD7C5]/70 border-[#1A1D20]/20 text-[#1A1D20]/60"
+                  ? "bg-[#F5EDE6] border-[#C86D32]/30 text-[#C86D32] shadow-2xs"
+                  : "bg-[#1E2227]/5 border-[#1E2227]/10 text-[#1E2227]/60"
               }`}
             >
-              {isRoadmap ? <Construction size={12} className="text-amber-700" /> : <Lock size={12} />}
+              {isRoadmap ? <Construction size={12} className="text-[#C86D32]" /> : <Lock size={12} />}
               <span>{lockCriteria.badgeText}</span>
             </div>
           </div>
@@ -159,54 +156,36 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
 
   return (
     <div
-      className={`flex flex-col justify-between p-4 sm:p-4.5 rounded-2xl bg-[#FAF8F2] border-2 transition-all space-y-3 shadow-paper-sm hover:shadow-paper-md ${
+      className={`flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border transition-all space-y-3 shadow-xs hover:shadow-paper-sm ${
         isTrackStation
-          ? "border-amber-600/70 shadow-paper-md ring-2 ring-amber-500/25 bg-[#FDFBF7]"
+          ? "border-[#C86D32]/50 shadow-sm ring-2 ring-[#C86D32]/20"
           : isRecommended
-          ? "border-amber-500/60 shadow-paper-md ring-2 ring-amber-500/20"
+          ? "border-[#3B6B88]/40 shadow-sm ring-2 ring-[#3B6B88]/15"
           : isSecondaryStation
-          ? `border-[#1A1D20]/20 opacity-85 hover:opacity-100 ${accentBorderClass}`
-          : `border-[#1A1D20]/25 ${accentBorderClass}`
+          ? `border-[#1E2227]/15 opacity-85 hover:opacity-100 ${accentBorderClass}`
+          : `border-[#1E2227]/15 ${accentBorderClass}`
       }`}
     >
       <div className="space-y-2.5">
-        {/* Track Beacon or Recommended Beacon */}
-        {isTrackStation ? (
-          <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-600/40 text-amber-950 text-xs font-mono font-bold shadow-2xs">
-            <div className="flex items-center gap-1.5">
-              <Sparkles size={13} className="text-amber-700 shrink-0" />
-              <span>{trackBadgeText || t("career.yourTrackBadge", "★ Твій трек")}</span>
-            </div>
-            <span className="text-[10px] font-mono text-amber-800 uppercase tracking-wider font-extrabold">
-              {t("career.recommendedFocus", "ФОКУС")}
-            </span>
-          </div>
-        ) : isRecommended ? (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-600/40 text-amber-900 text-xs font-mono font-bold animate-pulse">
-            <Sparkles size={13} className="text-amber-700 shrink-0" />
-            <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", "🌟 Базовий контур: рекомендовано для старту інженера"))}</span>
-          </div>
-        ) : null}
-
-        {/* Badge & Status */}
+        {/* Row 1: Module number on left, Status on right (single clean line) */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]">
+            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-[#1E2227]/5 border border-[#1E2227]/10 text-[#1E2227]">
               {codeLabel}
             </span>
             {isSecondaryStation && (
-              <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-[#1A1D20]/5 border border-[#1A1D20]/15 text-[#1A1D20]/60">
+              <span className="text-[9px] font-mono font-medium uppercase px-1.5 py-0.5 rounded bg-[#1E2227]/5 border border-[#1E2227]/10 text-[#1E2227]/60">
                 {t("career.secondaryStation", "Додатково")}
               </span>
             )}
           </div>
           <span
-            className={`text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded border ${
+            className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
               statusType === "mastered"
-                ? "bg-amber-500/15 border-amber-600/30 text-amber-900"
+                ? "bg-[#F5EDE6] border-[#C86D32]/30 text-[#C86D32]"
                 : statusType === "completed"
-                ? "bg-emerald-500/15 border-emerald-600/30 text-emerald-900"
-                : "bg-blue-500/15 border-blue-600/30 text-blue-900"
+                ? "bg-[#EAF3EE] border-[#3E7A5E]/30 text-[#3E7A5E]"
+                : "bg-[#EAF0F4] border-[#3B6B88]/30 text-[#3B6B88]"
             }`}
           >
             {statusType === "mastered"
@@ -217,25 +196,38 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
           </span>
         </div>
 
-        {/* Title & Subtitle */}
+        {/* Row 2: Track strip or Recommended strip (placed cleanly above title) */}
+        {isTrackStation ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 text-[#C86D32] text-xs font-mono font-bold shadow-2xs">
+            <Sparkles size={13} className="text-[#C86D32] shrink-0" />
+            <span>{trackBadgeText || t("career.yourTrackBadge", "★ Твій трек")}</span>
+          </div>
+        ) : isRecommended ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EAF0F4] border border-[#3B6B88]/30 text-[#3B6B88] text-xs font-mono font-bold">
+            <Sparkles size={13} className="text-[#3B6B88] shrink-0" />
+            <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", "🌟 Базовий контур: рекомендовано для старту інженера"))}</span>
+          </div>
+        ) : null}
+
+        {/* Row 3: Title & Subtitle */}
         <div>
-          <h3 className="font-display font-bold text-base sm:text-lg text-[#1A1D20]">
+          <h3 className="font-display font-bold text-base sm:text-lg text-[#1E2227]">
             {title}
           </h3>
-          <p className="text-xs font-sans text-[#1A1D20]/70 mt-0.5 leading-relaxed line-clamp-2">
+          <p className="text-xs font-sans text-[#1E2227]/70 mt-0.5 leading-relaxed line-clamp-2">
             {subtitle}
           </p>
         </div>
 
         {/* Blueprint Diagram */}
-        <div className="p-2.5 sm:p-3 rounded-xl bg-[#EFEAE1] border border-[#1A1D20]/15 flex items-center justify-center py-3.5 sm:py-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-notebook-grid opacity-40 pointer-events-none" />
+        <div className="p-2.5 sm:p-3 rounded-xl bg-[#FAF8F4] border border-[#1E2227]/10 flex items-center justify-center py-3.5 sm:py-4 relative overflow-hidden">
+          <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
           {blueprint}
         </div>
 
-        {/* Specs & Task Progress with Zeigarnik Endowed Progress Bar */}
+        {/* Specs & Task Progress */}
         <div className="space-y-1">
-          <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
+          <div className="flex items-center justify-between text-xs font-mono text-[#1E2227]/80">
             <span className="truncate mr-2">{specs}</span>
             <span className={`font-bold shrink-0 ${starColorClass}`}>
               {currentStars}/{maxStars} ★
@@ -243,14 +235,14 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
           </div>
 
           <div className="w-full space-y-0.5">
-            <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
+            <div className="w-full h-1.5 rounded-full bg-[#1E2227]/10 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   currentStars >= maxStars
-                    ? "bg-amber-600"
+                    ? "bg-[#C86D32]"
                     : currentStars > 0
-                    ? "bg-emerald-600"
-                    : "bg-gradient-to-r from-amber-500 to-emerald-500 animate-pulse"
+                    ? "bg-[#3E7A5E]"
+                    : "bg-[#3B6B88]"
                 }`}
                 style={{
                   width: `${
@@ -261,7 +253,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
                 }}
               />
             </div>
-            <div className="flex items-center justify-between text-[9px] font-mono text-[#1A1D20]/60">
+            <div className="flex items-center justify-between text-[9px] font-mono text-[#1E2227]/60">
               <span>
                 {currentStars === 0
                   ? t("architecture.circuitInitialized", {
@@ -282,10 +274,12 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
       <div className="pt-1.5 flex items-center gap-2">
         <button
           onClick={onEnter}
-          className={`flex-1 py-2 px-3.5 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-sm ${
-            isRecommended
-              ? "bg-accent-blue hover:bg-blue-600 text-white ring-2 ring-blue-500/40"
-              : "bg-[#1A1D20] hover:bg-black text-white"
+          className={`flex-1 py-2 px-3.5 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-xs ${
+            isTrackStation
+              ? "bg-[#C86D32] hover:bg-[#B35E28] text-white"
+              : isRecommended
+              ? "bg-[#3B6B88] hover:bg-[#2F566E] text-white"
+              : "bg-[#1E2227] hover:bg-black text-white"
           }`}
         >
           <span>{t("hub.enterStation", "Увійти на станцію")}</span>
@@ -295,7 +289,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         {onViewCert && (
           <button
             onClick={onViewCert}
-            className="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-600/40 text-amber-800 transition-colors cursor-pointer shrink-0"
+            className="p-2 rounded-xl bg-[#F5EDE6] hover:bg-[#EBDDCF] border border-[#C86D32]/30 text-[#C86D32] transition-colors cursor-pointer shrink-0"
             title={certTooltip || t("hub.viewCertTooltip", "Переглянути сертифікат")}
           >
             <Trophy size={15} />

@@ -10,6 +10,7 @@ import {
   Cpu,
   Compass,
   Zap,
+  ArrowRight,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -315,29 +316,29 @@ export const WorkshopHubScreen: React.FC = () => {
 
         {/* ── Engineering Telemetry (XP & Stars only) ── */}
         <div className="flex items-center gap-2.5 sm:gap-3 self-start sm:self-auto shrink-0 select-none">
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border-2 border-[#1A1D20]/20 shadow-paper-xs">
-            <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-600 shadow-2xs shrink-0">
-              <Zap size={15} className="fill-amber-500 text-amber-600" />
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs">
+            <div className="w-7 h-7 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
+              <Zap size={14} className="fill-[#C86D32] text-[#C86D32]" />
             </div>
             <div className="text-left leading-none">
-              <div className="text-[9px] font-mono uppercase font-bold text-[#1A1D20]/60">
+              <div className="text-[9px] font-mono uppercase font-bold text-[#1E2227]/60">
                 {t("hub.totalXp", "Досвід")}
               </div>
-              <div className="font-display font-extrabold text-xs sm:text-sm text-[#1A1D20] mt-0.5">
+              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] mt-0.5">
                 {xp} XP
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border-2 border-[#1A1D20]/20 shadow-paper-xs">
-            <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-500 shadow-2xs shrink-0">
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs">
+            <div className="w-7 h-7 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
               <span className="text-sm font-bold">★</span>
             </div>
             <div className="text-left leading-none">
-              <div className="text-[9px] font-mono uppercase font-bold text-[#1A1D20]/60">
+              <div className="text-[9px] font-mono uppercase font-bold text-[#1E2227]/60">
                 {t("hub.totalStars", "Зірки майстерності")}
               </div>
-              <div className="font-display font-extrabold text-xs sm:text-sm text-[#1A1D20] mt-0.5">
+              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] mt-0.5">
                 {totalStars} / {TOTAL_MAX_STARS}
               </div>
             </div>
@@ -347,24 +348,25 @@ export const WorkshopHubScreen: React.FC = () => {
 
       {/* ── Career Focus Banner (Directly under Hub Header) ── */}
       {!userTrack ? (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#FAF6ED] via-[#F6EEDF] to-[#EFE6D4] border-2 border-amber-600/40 p-4 sm:p-5 shadow-paper-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800 shrink-0 shadow-inner">
-              <Compass size={22} className="text-amber-700" />
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-[#1E2227]/15 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="absolute inset-0 bg-notebook-grid opacity-20 pointer-events-none" />
+          <div className="flex items-start sm:items-center gap-3.5 relative z-10">
+            <div className="w-11 h-11 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
+              <Compass size={22} className="text-[#C86D32]" />
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-black bg-amber-500/25 text-amber-900 border border-amber-600/40 uppercase tracking-widest">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30 uppercase tracking-wider">
                   Кар'єрний фокус інженера
                 </span>
-                <span className="text-[11px] font-mono font-bold text-amber-800">
+                <span className="text-[11px] font-mono font-medium text-[#3E7A5E]">
                   «Неможливо програти, якщо це експеримент»
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-display font-extrabold text-[#1A1D20] tracking-tight">
+              <h2 className="text-base sm:text-lg font-display font-bold text-[#1E2227] tracking-tight">
                 Обери свій напрямок в IT (Backend, AI, Cyber або Спробувати все)
               </h2>
-              <p className="text-xs text-[#1A1D20]/75 max-w-2xl leading-relaxed">
+              <p className="text-xs text-[#1E2227]/75 max-w-2xl leading-relaxed">
                 {t(
                   "career.onboardingModalSubtitle",
                   "Інженерна гнучкість: кожен вибір розширює архітектурний кругозір, а напрямок можна адаптувати у будь-який момент в один клік."
@@ -380,23 +382,24 @@ export const WorkshopHubScreen: React.FC = () => {
               audioFx.playRelayClick();
               setIsCareerModalOpen(true);
             }}
-            className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs sm:text-sm bg-amber-600 hover:bg-amber-500 text-white shadow-paper-sm flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto border border-amber-700"
+            className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#1E2227] hover:bg-black text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
             <span>Обрати трек 🧭</span>
           </button>
         </div>
       ) : (
-        <div className="relative overflow-hidden rounded-2xl bg-[#FAF8F2] border-2 border-amber-600/35 p-4 sm:p-5 shadow-paper-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800 shrink-0 shadow-inner">
-              <Compass size={22} className="text-amber-700" />
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-[#1E2227]/15 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="absolute inset-0 bg-notebook-grid opacity-20 pointer-events-none" />
+          <div className="flex items-start sm:items-center gap-3.5 relative z-10">
+            <div className="w-11 h-11 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
+              <Compass size={22} className="text-[#C86D32]" />
             </div>
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-amber-500/25 text-amber-900 border border-amber-600/40 uppercase tracking-widest">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30 uppercase tracking-wider">
                   Кар'єрний фокус інженера
                 </span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-[#1A1D20]/10 text-[#1A1D20] border border-[#1A1D20]/20 uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1E2227]/5 text-[#1E2227] border border-[#1E2227]/15 uppercase">
                   {userTrack === "explorer"
                     ? "🧭 Спробувати все (Explorer)"
                     : userTrack === "backend"
@@ -407,15 +410,15 @@ export const WorkshopHubScreen: React.FC = () => {
                     ? "🛡️ Кібербезпека & SOC Analyst"
                     : t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
                 </span>
-                <span className="text-[11px] font-mono font-semibold text-amber-800">
+                <span className="text-[11px] font-mono font-medium text-[#3E7A5E]">
                   «Неможливо програти, якщо це експеримент»
                 </span>
               </div>
-              <h2 className="text-sm sm:text-base font-display font-extrabold text-[#1A1D20] tracking-tight">
+              <h2 className="text-sm sm:text-base font-display font-bold text-[#1E2227] tracking-tight">
                 {t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
               </h2>
-              <div className="text-xs text-[#1A1D20]/75 max-w-2xl leading-relaxed">
-                <span className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/60 mr-1.5">
+              <div className="text-xs text-[#1E2227]/75 max-w-2xl leading-relaxed">
+                <span className="font-mono font-bold text-[10px] uppercase text-[#1E2227]/60 mr-1.5">
                   Цільові вакансії:
                 </span>
                 <span>
@@ -440,7 +443,7 @@ export const WorkshopHubScreen: React.FC = () => {
               audioFx.playRelayClick();
               setIsCareerModalOpen(true);
             }}
-            className="px-4 py-2 rounded-xl font-mono font-bold text-xs bg-[#1A1D20] hover:bg-[#2C3035] text-white shadow-paper-sm flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto border border-[#1A1D20]"
+            className="relative z-10 px-4 py-2 rounded-xl font-mono font-bold text-xs bg-white hover:bg-[#F0EDE6] text-[#1E2227] border border-[#1E2227]/20 shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
             <span>Змінити 🔄</span>
           </button>
@@ -454,29 +457,35 @@ export const WorkshopHubScreen: React.FC = () => {
         station3ProgressPercent={station3ProgressPercent}
       />
 
-      {/* ── 🚨 Incident War Room Emergency Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#180A0E] via-[#200F15] to-[#12080B] border-2 border-rose-500/40 p-5 shadow-lg shadow-rose-950/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0 shadow-inner">
+      {/* ── 🚨 Incident War Room Emergency Industrial Console ── */}
+      <div className="relative overflow-hidden rounded-2xl bg-[#24282D] border border-[#1E2227]/25 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
+        {/* Subtle Matte Drafting Grid */}
+        <div className="absolute inset-0 bg-notebook-grid opacity-10 pointer-events-none" />
+
+        <div className="flex items-start sm:items-center gap-4 relative z-10">
+          <div className="w-12 h-12 rounded-xl bg-[#2E343B] border border-[#1E2227]/40 flex items-center justify-center shrink-0">
             <span className="relative flex h-5 w-5 items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span className="text-xl">🚨</span>
+              <span className="w-3 h-3 rounded-full bg-[#D9822B] opacity-90 animate-pulse"></span>
             </span>
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-rose-500/25 text-rose-300 border border-rose-500/40 uppercase tracking-widest">
+
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded text-[10.5px] font-mono font-bold bg-[#8E3B3B]/25 text-[#EBB5B5] border border-[#8E3B3B]/40 uppercase tracking-wider">
                 SEV-1 On-Call SRE Simulator
               </span>
-              <span className="text-[11px] font-mono font-bold text-amber-400">
-                +150 XP за кожну ліквідацію
+              <span className="text-[11px] font-mono font-medium text-[#E0A468] flex items-center gap-1">
+                <span>+150 XP</span>
+                <span className="text-[#F7F5F0]/60">за кожну ліквідацію</span>
               </span>
             </div>
-            <h2 className="text-base sm:text-lg font-display font-extrabold text-white tracking-tight">
+
+            <h2 className="text-base sm:text-lg font-display font-bold text-[#F7F5F0] tracking-tight">
               Incident War Room: Аварії на прод-системах
             </h2>
-            <p className="text-xs text-rose-200/70 max-w-2xl leading-relaxed">
-              5 критичних аварій у реальному часі (FinTech подвійні списання, RAG інʼєкції, SYN Flood DDoS, дрифт ML-моделей). Звучить сирена, рахується збиток — накатіть хотфікс до порушення SLA.
+
+            <p className="text-xs text-[#F7F5F0]/75 max-w-2xl leading-relaxed">
+              5 критичних аварій у реальному часі (FinTech подвійні списання, RAG інʼєкції, SYN Flood DDoS, дрифт ML-момоделей). Звучить сирена, рахується збиток — накатіть хотфікс до порушення SLA.
             </p>
           </div>
         </div>
@@ -487,10 +496,10 @@ export const WorkshopHubScreen: React.FC = () => {
             audioFx.playWarRoomSiren();
             setCurrentView("WAR_ROOM");
           }}
-          className="px-5 py-2.5 rounded-xl font-mono font-black text-xs bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 hover:to-amber-400 text-black shadow-lg shadow-rose-500/30 flex items-center justify-center space-x-2 transition-all transform active:scale-95 shrink-0 cursor-pointer"
+          className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#C86D32] hover:bg-[#B35E28] text-white flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer shadow-sm"
         >
           <span>Увійти в War Room</span>
-          <span>→</span>
+          <ArrowRight size={14} />
         </button>
       </div>
 
@@ -509,8 +518,8 @@ export const WorkshopHubScreen: React.FC = () => {
               }}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-display text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 shrink-0 ${
                 isActive
-                  ? "bg-[#1A1D20] text-white shadow-paper-xs"
-                  : "bg-[#EBE5D8] hover:bg-[#FAF8F2] border border-[#1A1D20]/20 text-[#1A1D20]/80 hover:text-[#1A1D20]"
+                  ? "bg-[#1E2227] text-white shadow-xs"
+                  : "bg-white hover:bg-[#FDFBF7] border border-[#1E2227]/15 text-[#1E2227]/75 hover:text-[#1E2227]"
               }`}
             >
               <span>{tab.label}</span>
