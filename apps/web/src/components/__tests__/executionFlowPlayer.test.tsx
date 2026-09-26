@@ -6,6 +6,8 @@ import {
   POS_EXECUTION_TRACE,
   GIT_EXECUTION_TRACE,
   BANDIT_EXECUTION_TRACE,
+  RAG_EXECUTION_TRACE,
+  CYBER_EXECUTION_TRACE,
   TracePlaybackController,
 } from "@iw/sim-engine";
 import {
@@ -86,6 +88,34 @@ describe("Execution Flow Visualizer & POE Components", () => {
       const correctOption = step0.poeQuestion?.options.find((o) => o.isCorrect);
       expect(correctOption?.targetFileId).toBe("security-filter-cs");
     });
+
+    it("returns authentic RAG neural retrieval trace with vector search and ReAct loop", () => {
+      const trace = getStationTrace("rag");
+      expect(trace.id).toBe(RAG_EXECUTION_TRACE.id);
+      expect(trace.stationId).toBe("rag");
+      expect(trace.language).toBe("python");
+      expect(trace.totalSteps).toBe(5);
+
+      const step0 = trace.steps[0];
+      expect(step0.location.fileName).toBe("document_chunker.py");
+      expect(step0.poeQuestion).toBeDefined();
+      const correctOption = step0.poeQuestion?.options.find((o) => o.isCorrect);
+      expect(correctOption?.targetFileId).toBe("rag-chunker");
+    });
+
+    it("returns authentic Cyber SOC defense trace with Wireshark dissection and iptables drop", () => {
+      const trace = getStationTrace("cyber");
+      expect(trace.id).toBe(CYBER_EXECUTION_TRACE.id);
+      expect(trace.stationId).toBe("cyber");
+      expect(trace.language).toBe("python");
+      expect(trace.totalSteps).toBe(5);
+
+      const step0 = trace.steps[0];
+      expect(step0.location.fileName).toBe("syslog_parser.py");
+      expect(step0.poeQuestion).toBeDefined();
+      const correctOption = step0.poeQuestion?.options.find((o) => o.isCorrect);
+      expect(correctOption?.targetFileId).toBe("cyber-syslog");
+    });
   });
 
   describe("Trace Controller, POE Gates & Breadcrumb History", () => {
@@ -157,7 +187,7 @@ describe("Execution Flow Visualizer & POE Components", () => {
 
   describe("Project Solution Files Alignment & flattenProjectFiles", () => {
     it("ensures station project files contain execution trace target files across all stations", () => {
-      const stations = ["tv", "api", "pos", "git", "bandit", "vertex", "fde"] as const;
+      const stations = ["tv", "api", "pos", "git", "bandit", "vertex", "fde", "rag", "cyber"] as const;
 
       for (const st of stations) {
         const trace = getStationTrace(st);

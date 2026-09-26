@@ -49,7 +49,7 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
         <div className="flex items-center gap-3">
           <div className="text-[11px] font-mono text-[#1A1D20]/70">
             {t("hub.unlockProgress", "Прогрес")}:{" "}
-            <span className="font-bold text-[#1A1D20]">{xp} / 200 XP</span>
+            <span className="font-bold text-[#1A1D20]">{xp} XP</span>
           </div>
 
           <button

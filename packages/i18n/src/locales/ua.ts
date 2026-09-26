@@ -935,7 +935,7 @@ export const uaTranslation = {
         stationInDevelopment: "В РОЗРОБЦІ",
         roadmapStatus: "Статус модуля",
         recommendedStart: "🌟 Базовий контур: рекомендовано для старту інженера",
-        unlockCondition: "Потрібно 200+ XP або завершення Станцій 1 та 2",
+        unlockCondition: "В розробці: Реліз у 2 семестрі",
         unlockProgress: "Прогрес розблокування",
         stations: {
           tv: {
@@ -1006,8 +1006,8 @@ export const uaTranslation = {
             subtitle: "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори",
             code: "Модуль 3",
             specs: "В розробці • Event-Driven Architecture • C# / Go",
-            releaseDate: "Реліз: Наступний семестр 2026",
-            badge: "В РОЗРОБЦІ: EventBus & Async I/O",
+            releaseDate: "Реліз у 2 семестрі",
+            badge: "В розробці: Реліз у 2 семестрі",
           },
           pc: {
             title: "Станція 04: Робоча станція",

@@ -935,7 +935,7 @@ export const daTranslation = {
         stationInDevelopment: "UNDER UDVIKLING",
         roadmapStatus: "Modulstatus",
         recommendedStart: "🌟 Grundlæggende kredsløb: Anbefalet start for ingeniører",
-        unlockCondition: "Kræver 200+ XP eller gennemførelse af Station 1 og 2",
+        unlockCondition: "Under udvikling: Udgivelse i 2. semester",
         unlockProgress: "Oplåsningsfremskridt",
         stations: {
           tv: {
@@ -1006,8 +1006,8 @@ export const daTranslation = {
             subtitle: "Asynkron EventBus, beskedmæglere, hændelseskøer og sikkerhedssensorer",
             code: "Modul 3",
             specs: "Under udvikling • Event-Driven Architecture • C# / Go",
-            releaseDate: "Udgivelse: Næste semester 2026",
-            badge: "UNDER UDVIKLING: EventBus & Async I/O",
+            releaseDate: "Udgivelse i 2. semester",
+            badge: "Under udvikling: Udgivelse i 2. semester",
           },
           pc: {
             title: "Station 04: Arbejdsstation",

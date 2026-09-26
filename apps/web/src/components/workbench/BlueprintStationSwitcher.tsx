@@ -61,7 +61,7 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
           "hub.stations.iot.subtitle",
           "Ультразвуковий датчик та кінцеві автомати"
         ),
-        status: t("hub.stationInDevelopment", "В розробці"),
+        status: t("hub.stations.iot.badge", "В розробці: Реліз у 2 семестрі"),
         icon: <Warehouse size={16} strokeWidth={2} />,
         isAvailable: false,
       },

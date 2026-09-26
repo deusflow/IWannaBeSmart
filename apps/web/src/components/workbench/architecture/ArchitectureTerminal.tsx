@@ -166,6 +166,8 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
+            id="btn-expand-journal"
+            data-testid="expand-journal-btn"
             onClick={(e) => {
               e.stopPropagation();
               setIsExpanded(true);

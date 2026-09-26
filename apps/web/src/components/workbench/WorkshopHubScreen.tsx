@@ -7,9 +7,9 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Sparkles,
   Cpu,
   Compass,
+  Zap,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -48,7 +48,6 @@ export const WorkshopHubScreen: React.FC = () => {
     taskMasteryStars,
     setCurrentStationId,
     setCurrentView,
-    setIsOnboardingOpen,
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
     setApiVictoryModalOpen,
@@ -67,7 +66,6 @@ export const WorkshopHubScreen: React.FC = () => {
       taskMasteryStars: s.taskMasteryStars,
       setCurrentStationId: s.setCurrentStationId,
       setCurrentView: s.setCurrentView,
-      setIsOnboardingOpen: s.setIsOnboardingOpen,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
@@ -82,19 +80,71 @@ export const WorkshopHubScreen: React.FC = () => {
     }))
   );
 
-  type StationCategory = "all" | "systems" | "security" | "ai" | "iot";
-  const [selectedCategory, setSelectedCategory] = useState<StationCategory>("all");
+  type HubTab = "my_track" | "backend" | "ai" | "security" | "all";
+  const [selectedTab, setSelectedTab] = useState<HubTab>("all");
 
-  const showTv = selectedCategory === "all" || selectedCategory === "systems" || selectedCategory === "iot";
-  const showPos = selectedCategory === "all" || selectedCategory === "security";
-  const showIot = selectedCategory === "all" || selectedCategory === "iot";
-  const showApi = selectedCategory === "all" || selectedCategory === "systems";
-  const showGit = selectedCategory === "all" || selectedCategory === "systems";
-  const showBandit = selectedCategory === "all" || selectedCategory === "security";
-  const showVertex = selectedCategory === "all" || selectedCategory === "ai";
-  const showFde = selectedCategory === "all" || selectedCategory === "ai";
-  const showRag = selectedCategory === "all" || selectedCategory === "ai";
-  const showCyber = selectedCategory === "all" || selectedCategory === "security";
+  const isStationVisible = useCallback(
+    (stationId: string): boolean => {
+      if (selectedTab === "all") return true;
+      if (selectedTab === "my_track") {
+        if (!userTrack || userTrack === "explorer") return true;
+        if (userTrack === "security") {
+          return ["pos", "bandit", "cyber"].includes(stationId);
+        }
+        return isStationInTrack(stationId, userTrack);
+      }
+      if (selectedTab === "backend") {
+        return ["tv", "pos", "api", "git"].includes(stationId);
+      }
+      if (selectedTab === "ai") {
+        return ["vertex", "fde", "rag"].includes(stationId);
+      }
+      if (selectedTab === "security") {
+        return ["pos", "bandit", "cyber"].includes(stationId);
+      }
+      return true;
+    },
+    [selectedTab, userTrack]
+  );
+
+  const hubTabs = useMemo(
+    () => [
+      {
+        id: "my_track" as const,
+        label: "🌟 Мій трек",
+        count: !userTrack
+          ? 10
+          : userTrack === "explorer"
+          ? 9
+          : userTrack === "backend"
+          ? 4
+          : userTrack === "ai"
+          ? 3
+          : 3,
+      },
+      {
+        id: "backend" as const,
+        label: "🖥️ Backend",
+        count: 4,
+      },
+      {
+        id: "ai" as const,
+        label: "🤖 AI & MLOps",
+        count: 3,
+      },
+      {
+        id: "security" as const,
+        label: "🛡️ Безпека",
+        count: 3,
+      },
+      {
+        id: "all" as const,
+        label: "🧭 Всі станції (10)",
+        count: 10,
+      },
+    ],
+    [userTrack]
+  );
 
   // Helper for computing module completion & stars
   const getStationStats = useCallback(
@@ -263,55 +313,23 @@ export const WorkshopHubScreen: React.FC = () => {
           </p>
         </div>
 
-        {/* ── Onboarding Briefing, Career Track & Stars Mastery Counter ── */}
-        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 self-start sm:self-auto shrink-0">
-          <button
-            id="btn-hub-career-track"
-            type="button"
-            onClick={() => {
-              audioFx.playRelayClick();
-              setIsCareerModalOpen(true);
-            }}
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] hover:bg-[#FAF8F2] border-2 border-[#1A1D20]/20 hover:border-amber-600/50 text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-95 group select-none"
-            title={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
-          >
-            <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-600/35 text-amber-700 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-2xs shrink-0">
-              <Compass size={15} strokeWidth={2.2} />
+        {/* ── Engineering Telemetry (XP & Stars only) ── */}
+        <div className="flex items-center gap-2.5 sm:gap-3 self-start sm:self-auto shrink-0 select-none">
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border-2 border-[#1A1D20]/20 shadow-paper-xs">
+            <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-600 shadow-2xs shrink-0">
+              <Zap size={15} className="fill-amber-500 text-amber-600" />
             </div>
             <div className="text-left leading-none">
-              <div className="text-[9px] font-mono uppercase font-bold text-amber-700">
-                {userTrack ? t(`career.tracks.${userTrack}.shortBadge`, "Трек") : t("career.chooseTrack", "Напрямок")}
+              <div className="text-[9px] font-mono uppercase font-bold text-[#1A1D20]/60">
+                {t("hub.totalXp", "Досвід")}
               </div>
-              <div className="font-display font-extrabold text-xs text-[#1A1D20] mt-0.5">
-                {t("career.changeTrack", "Змінити шлях")}
+              <div className="font-display font-extrabold text-xs sm:text-sm text-[#1A1D20] mt-0.5">
+                {xp} XP
               </div>
             </div>
-          </button>
+          </div>
 
-          <button
-            id="btn-hub-onboarding"
-            type="button"
-            onClick={() => {
-              audioFx.playRelayClick();
-              setIsOnboardingOpen(true);
-            }}
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] hover:bg-[#FAF8F2] border-2 border-[#1A1D20]/20 hover:border-accent-blue/50 text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-95 group select-none"
-            title={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
-          >
-            <div className="w-7 h-7 rounded-xl bg-accent-blue/15 border border-accent-blue/35 text-accent-blue flex items-center justify-center group-hover:scale-105 group-hover:bg-accent-blue group-hover:text-white transition-all shadow-2xs shrink-0">
-              <Sparkles size={15} strokeWidth={2.2} />
-            </div>
-            <div className="text-left leading-none">
-              <div className="text-[9px] font-mono uppercase font-bold text-accent-blue">
-                +25 XP БОНУС
-              </div>
-              <div className="font-display font-extrabold text-xs text-[#1A1D20] mt-0.5">
-                {t("onboarding.tourTitle", "Інструктаж")}
-              </div>
-            </div>
-          </button>
-
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border-2 border-[#1A1D20]/20 shadow-paper-xs select-none">
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#EBE5D8] border-2 border-[#1A1D20]/20 shadow-paper-xs">
             <div className="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-500 shadow-2xs shrink-0">
               <span className="text-sm font-bold">★</span>
             </div>
@@ -327,59 +345,114 @@ export const WorkshopHubScreen: React.FC = () => {
         </div>
       </div>
 
+      {/* ── Career Focus Banner (Directly under Hub Header) ── */}
+      {!userTrack ? (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#FAF6ED] via-[#F6EEDF] to-[#EFE6D4] border-2 border-amber-600/40 p-4 sm:p-5 shadow-paper-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800 shrink-0 shadow-inner">
+              <Compass size={22} className="text-amber-700" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-black bg-amber-500/25 text-amber-900 border border-amber-600/40 uppercase tracking-widest">
+                  Кар'єрний фокус інженера
+                </span>
+                <span className="text-[11px] font-mono font-bold text-amber-800">
+                  «Неможливо програти, якщо це експеримент»
+                </span>
+              </div>
+              <h2 className="text-base sm:text-lg font-display font-extrabold text-[#1A1D20] tracking-tight">
+                Обери свій напрямок в IT (Backend, AI, Cyber або Спробувати все)
+              </h2>
+              <p className="text-xs text-[#1A1D20]/75 max-w-2xl leading-relaxed">
+                {t(
+                  "career.onboardingModalSubtitle",
+                  "Інженерна гнучкість: кожен вибір розширює архітектурний кругозір, а напрямок можна адаптувати у будь-який момент в один клік."
+                )}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="btn-hub-banner-choose-track"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsCareerModalOpen(true);
+            }}
+            className="px-5 py-2.5 rounded-xl font-mono font-bold text-xs sm:text-sm bg-amber-600 hover:bg-amber-500 text-white shadow-paper-sm flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto border border-amber-700"
+          >
+            <span>Обрати трек 🧭</span>
+          </button>
+        </div>
+      ) : (
+        <div className="relative overflow-hidden rounded-2xl bg-[#FAF8F2] border-2 border-amber-600/35 p-4 sm:p-5 shadow-paper-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800 shrink-0 shadow-inner">
+              <Compass size={22} className="text-amber-700" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-amber-500/25 text-amber-900 border border-amber-600/40 uppercase tracking-widest">
+                  Кар'єрний фокус інженера
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-[#1A1D20]/10 text-[#1A1D20] border border-[#1A1D20]/20 uppercase">
+                  {userTrack === "explorer"
+                    ? "🧭 Спробувати все (Explorer)"
+                    : userTrack === "backend"
+                    ? "🖥️ Backend & Distributed Systems"
+                    : userTrack === "ai"
+                    ? "🤖 AI & MLOps Architecture"
+                    : userTrack === "security"
+                    ? "🛡️ Кібербезпека & SOC Analyst"
+                    : t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
+                </span>
+                <span className="text-[11px] font-mono font-semibold text-amber-800">
+                  «Неможливо програти, якщо це експеримент»
+                </span>
+              </div>
+              <h2 className="text-sm sm:text-base font-display font-extrabold text-[#1A1D20] tracking-tight">
+                {t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
+              </h2>
+              <div className="text-xs text-[#1A1D20]/75 max-w-2xl leading-relaxed">
+                <span className="font-mono font-bold text-[10px] uppercase text-[#1A1D20]/60 mr-1.5">
+                  Цільові вакансії:
+                </span>
+                <span>
+                  {userTrack === "backend"
+                    ? "Junior/Middle Go & C# Developer, Backend Engineer, Distributed Systems Architect"
+                    : userTrack === "ai"
+                    ? "MLOps Engineer, AI Solutions Architect, Applied AI Developer, Prompt Engineer"
+                    : userTrack === "security"
+                    ? "Junior SOC Analyst, Security Engineer, Application Security Specialist, Ethical Hacker"
+                    : userTrack === "explorer"
+                    ? "Fullstack Explorer, Cross-Discipline Software Engineer, T-shaped Developer"
+                    : t(`career.tracks.${userTrack}.roles`, "Цільові вакансії інженера")}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="btn-hub-banner-change-track"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsCareerModalOpen(true);
+            }}
+            className="px-4 py-2 rounded-xl font-mono font-bold text-xs bg-[#1A1D20] hover:bg-[#2C3035] text-white shadow-paper-sm flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto border border-[#1A1D20]"
+          >
+            <span>Змінити 🔄</span>
+          </button>
+        </div>
+      )}
+
       {/* ── Global Engineer Dossier Bar ── */}
       <EngineerDossierBar
         xp={xp}
         patterns={patterns}
         station3ProgressPercent={station3ProgressPercent}
       />
-
-      {/* ── Active Career Track Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-[#FAF8F2] border-2 border-amber-600/35 p-4 sm:p-5 shadow-paper-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-start sm:items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-800 shrink-0 shadow-inner">
-            <Compass size={22} className="text-amber-700" />
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-amber-500/25 text-amber-900 border border-amber-600/40 uppercase tracking-widest">
-                {userTrack ? t(`career.tracks.${userTrack}.shortBadge`, "Трек") : t("career.chooseTrack", "Напрямок")}
-              </span>
-              <span className="text-[11px] font-mono font-bold text-amber-800">
-                {userTrack === "explorer"
-                  ? "«" + t("career.motto", "Неможливо програти, якщо це експеримент") + "»"
-                  : t("career.activeTrackBanner", "Твій кар'єрний трек")}
-              </span>
-            </div>
-            <h2 className="text-sm sm:text-base font-display font-extrabold text-[#1A1D20] tracking-tight">
-              {userTrack
-                ? t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")
-                : t("career.onboardingModalTitle", "Обери свій інженерний шлях")}
-            </h2>
-            <p className="text-xs text-[#1A1D20]/70 max-w-2xl leading-relaxed">
-              {userTrack === "explorer"
-                ? t("career.tracks.explorer.audience")
-                : userTrack
-                ? t(`career.tracks.${userTrack}.roles`)
-                : t("career.onboardingModalSubtitle")}
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          id="btn-hub-banner-change-track"
-          onClick={() => {
-            audioFx.playRelayClick();
-            setIsCareerModalOpen(true);
-          }}
-          className="px-4 py-2 rounded-xl font-mono font-bold text-xs bg-[#1A1D20] hover:bg-[#2C3035] text-white shadow-paper-sm flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start sm:self-auto"
-        >
-          <Compass size={14} className="text-amber-400" />
-          <span>{t("career.changeTrack", "Змінити шлях")}</span>
-          <span>→</span>
-        </button>
-      </div>
 
       {/* ── 🚨 Incident War Room Emergency Banner ── */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#180A0E] via-[#200F15] to-[#12080B] border-2 border-rose-500/40 p-5 shadow-lg shadow-rose-950/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -421,46 +494,35 @@ export const WorkshopHubScreen: React.FC = () => {
         </button>
       </div>
 
-      {/* ── Interactive Category Filter Bar ── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none">
-        {[
-          { id: "all" as const, label: t("hub.categories.all", "Всі станції"), count: 10 },
-          { id: "systems" as const, label: t("hub.categories.systems", "Системи & Бекенд"), count: 3 },
-          { id: "security" as const, label: t("hub.categories.security", "Фінтех & Безпека"), count: 3 },
-          { id: "ai" as const, label: t("hub.categories.ai", "AI & MLOps"), count: 3 },
-          { id: "iot" as const, label: t("hub.categories.iot", "Апаратні & IoT"), count: 2 },
-        ].map((cat) => {
-          const isActive = selectedCategory === cat.id;
+      {/* ── Interactive Track / Category Filter Tabs ── */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none scrollbar-none" role="tablist">
+        {hubTabs.map((tab) => {
+          const isActive = selectedTab === tab.id;
           return (
             <button
-              key={cat.id}
+              key={tab.id}
+              role="tab"
+              aria-selected={isActive}
               onClick={() => {
                 audioFx.playKeyClick();
-                setSelectedCategory(cat.id);
+                setSelectedTab(tab.id);
               }}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-display text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 shrink-0 ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-display text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 shrink-0 ${
                 isActive
-                  ? "bg-[#1A1D20] text-white shadow-sm"
-                  : "bg-paper-subtle hover:bg-paper border border-paper-border text-ink-muted hover:text-ink"
+                  ? "bg-[#1A1D20] text-white shadow-paper-xs"
+                  : "bg-[#EBE5D8] hover:bg-[#FAF8F2] border border-[#1A1D20]/20 text-[#1A1D20]/80 hover:text-[#1A1D20]"
               }`}
             >
-              <span>{cat.label}</span>
-              <span
-                className={`px-1.5 py-0.2 rounded-full font-mono text-[10px] ${
-                  isActive ? "bg-white/20 text-white" : "bg-black/5 text-ink-muted"
-                }`}
-              >
-                {cat.count}
-              </span>
+              <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* ── Station Showcase Cards Grid ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-5">
+      {/* ── Station Showcase Cards Grid (Strict Order 01 -> 10) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         {/* Station 01: TV Station */}
-        {showTv && (
+        {isStationVisible("tv") && (
           <StationShowcaseCard
             stationId="tv"
             codeLabel={`${t("hub.stations.tv.code", "Модуль 1")} • 01`}
@@ -491,7 +553,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 02: Fintech POS Terminal */}
-        {showPos && (
+        {isStationVisible("pos") && (
           <StationShowcaseCard
             stationId="pos"
             codeLabel={`${t("hub.stations.pos.code", "Модуль 2")} • 02`}
@@ -521,7 +583,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 03: IoT Garage Gate (In Development / Roadmap) */}
-        {showIot && (
+        {isStationVisible("iot") && (
           <StationShowcaseCard
             stationId="iot"
             codeLabel={`${t("hub.stations.iot.code", "Модуль 3")} • 03`}
@@ -538,16 +600,16 @@ export const WorkshopHubScreen: React.FC = () => {
             {...getTrackCardProps("iot")}
             lockCriteria={{
               conditionText: t("hub.roadmapStatus", "Статус модуля"),
-              progressText: t("hub.stations.iot.releaseDate", "Реліз: Наступний семестр 2026"),
+              progressText: t("hub.stations.iot.releaseDate", "Реліз у 2 семестрі"),
               percent: 100,
-              badgeText: t("hub.stations.iot.badge", "В РОЗРОБЦІ: EventBus & Async I/O"),
+              badgeText: t("hub.stations.iot.badge", "В розробці: Реліз у 2 семестрі"),
               isRoadmap: true,
             }}
           />
         )}
 
         {/* Station 04: API Forge */}
-        {showApi && (
+        {isStationVisible("api") && (
           <StationShowcaseCard
             stationId="api"
             codeLabel={`${t("hub.stations.api.code", "Модуль 4")} • 04`}
@@ -578,7 +640,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 05: Git Time Machine */}
-        {showGit && (
+        {isStationVisible("git") && (
           <StationShowcaseCard
             stationId="git"
             codeLabel={`${t("hub.stations.git.code", "Модуль 5")} • 05`}
@@ -609,7 +671,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 06: Cyber Bandit Lab */}
-        {showBandit && (
+        {isStationVisible("bandit") && (
           <StationShowcaseCard
             stationId="bandit"
             codeLabel={`${t("hub.stations.bandit.code", "Модуль 6")} • 06`}
@@ -640,7 +702,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 07: Vertex AI Architect */}
-        {showVertex && (
+        {isStationVisible("vertex") && (
           <StationShowcaseCard
             stationId="vertex"
             codeLabel={`${t("hub.stations.vertex.code", "Модуль 7")} • 07`}
@@ -671,7 +733,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 08: Field AI Deployer (FDE) */}
-        {showFde && (
+        {isStationVisible("fde") && (
           <StationShowcaseCard
             stationId="fde"
             codeLabel={`${t("hub.stations.fde.code", "Модуль 8")} • 08`}
@@ -702,7 +764,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 09: IBM RAG & Agentic AI Track */}
-        {showRag && (
+        {isStationVisible("rag") && (
           <StationShowcaseCard
             stationId="rag"
             codeLabel={`${t("hub.stations.rag.code", "Модуль 9")} • 09`}
@@ -733,7 +795,7 @@ export const WorkshopHubScreen: React.FC = () => {
         )}
 
         {/* Station 10: Google Cybersecurity & SOC Analyst Track */}
-        {showCyber && (
+        {isStationVisible("cyber") && (
           <StationShowcaseCard
             stationId="cyber"
             codeLabel={`${t("hub.stations.cyber.code", "Модуль 10")} • 10`}

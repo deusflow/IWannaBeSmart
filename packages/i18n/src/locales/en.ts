@@ -935,7 +935,7 @@ export const enTranslation = {
         stationInDevelopment: "IN DEVELOPMENT",
         roadmapStatus: "Module Status",
         recommendedStart: "🌟 Core Circuit: Recommended Engineer Start",
-        unlockCondition: "Requires 200+ XP or completing Stations 1 & 2",
+        unlockCondition: "In Development: Release in Semester 2",
         unlockProgress: "Unlock Progress",
         stations: {
           tv: {
@@ -1006,8 +1006,8 @@ export const enTranslation = {
             subtitle: "Asynchronous EventBus, message brokers, event queues, and safety sensors",
             code: "Module 3",
             specs: "In Development • Event-Driven Architecture • C# / Go",
-            releaseDate: "Release: Next Semester 2026",
-            badge: "IN DEVELOPMENT: EventBus & Async I/O",
+            releaseDate: "Release in Semester 2",
+            badge: "In Development: Release in Semester 2",
           },
           pc: {
             title: "Station 04: Workstation",

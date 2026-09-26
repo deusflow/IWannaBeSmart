@@ -1428,7 +1428,7 @@ ${currentCode}`,
       type: "folder",
       children: [
         {
-          id: "cyber-syslog-parser",
+          id: "cyber-syslog",
           name: "syslog_parser.py",
           type: "file",
           icon: "code",
@@ -1436,12 +1436,11 @@ ${currentCode}`,
             python: `# RFC 5424 / RFC 3164 Syslog Parser for Chronicle SIEM
 import re
 
-def parse_syslog(raw: str) -> dict:
-    ip_match = re.search(r"\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b", raw)
-    return {
-        "sourceIp": ip_match.group(0) if ip_match else "127.0.0.1",
-        "severity": "CRITICAL" if "exploit" in raw.lower() else "HIGH" if "failed" in raw.lower() else "INFO"
-    }`,
+def parse_syslog_line(raw_line: str) -> dict:
+    ip_match = re.search(r"\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b", raw_line)
+    source_ip = ip_match.group(0) if ip_match else "127.0.0.1"
+    severity = "CRITICAL" if "exploit" in raw_line.lower() else "HIGH" if "failed" in raw_line.lower() else "INFO"
+    return {"source_ip": source_ip, "severity": severity}`,
             typescript: `// RFC 5424 / RFC 3164 Syslog Parser for Chronicle SIEM
 export function parseSyslog(raw: string) {
   const ipMatch = raw.match(/\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b/);
@@ -1458,19 +1457,19 @@ export function parseSyslog(raw: string) {
           },
         },
         {
-          id: "cyber-packet-dissector",
+          id: "cyber-wireshark",
           name: "packet_dissector.py",
           type: "file",
           icon: "code",
           codeSnippet: {
             python: `# Web-Wireshark Packet Dissector & Anomaly Detector
-def dissect_packet(frame: dict) -> dict:
-    flags = frame.get("flags", {})
-    is_syn = flags.get("syn", False) and not flags.get("ack", False)
+def dissect_pcap_frame(raw_bytes: bytes) -> dict:
+    # Ethernet header: 14 bytes, IPv4: 20 bytes, TCP: 20 bytes
+    flags = {"syn": True, "ack": False}
     return {
-        "sourceIp": frame.get("sourceIp"),
-        "isSynInitiation": is_syn,
-        "payloadLen": frame.get("length", 0)
+        "source_ip": "192.168.1.105",
+        "is_syn_initiation": flags["syn"] and not flags["ack"],
+        "payload_len": len(raw_bytes)
     }`,
             typescript: `// Web-Wireshark Packet Dissector & Anomaly Detector
 export function dissectPacket(frame: any) {
@@ -1489,20 +1488,77 @@ export function dissectPacket(frame: any) {
           },
         },
         {
-          id: "cyber-nist-containment",
-          name: "incident_containment.py",
+          id: "cyber-chronicle",
+          name: "chronicle_engine.py",
           type: "file",
           icon: "code",
           codeSnippet: {
-            python: `# NIST CSF Respond Phase: Dynamic Firewall Policy
-${currentCode}`,
-            typescript: `// NIST CSF Respond Phase: Dynamic Firewall Policy
-${currentCode}`,
+            python: `# Google Chronicle SIEM Rules Engine & MITRE ATT&CK Mapper
+def evaluate_mitre(event: dict) -> dict:
+    if event.get("syn_ratio", 0) > 10.0:
+        return {"id": "T1499", "name": "Endpoint Denial of Service", "tactic": "Impact"}
+    return {"id": "T1110", "name": "Brute Force", "tactic": "Credential Access"}`,
+            typescript: `// Google Chronicle SIEM Rules Engine & MITRE ATT&CK Mapper
+export function evaluateMitre(event: any) {
+  if (event.synRatio > 10.0) {
+    return { id: "T1499", name: "Endpoint Denial of Service", tactic: "Impact" };
+  }
+  return { id: "T1110", name: "Brute Force", tactic: "Credential Access" };
+}`,
           },
           description: {
-            ua: "Автоматизація локалізації загроз: генерація правил iptables та ізоляція скомпрометованих вузлів.",
-            en: "Threat containment automation: generates iptables DROP rules and isolates compromised endpoints.",
-            da: "Trusselsisolering: genererer iptables DROP-regler og isolerer kompromitterede værter.",
+            ua: "Движок правил Chronicle SIEM: зіставлення мережевих подій з матрицею загроз MITRE ATT&CK.",
+            en: "Chronicle SIEM rules engine: maps security telemetry against MITRE ATT&CK adversary tactics.",
+            da: "Chronicle SIEM-regelmotor: kortlægger hændelser til MITRE ATT&CK matricen.",
+          },
+        },
+        {
+          id: "cyber-nist",
+          name: "nist_containment.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# NIST SP 800-61 Rev 2 / NIST CSF 2.0 Containment Machine
+class NistContainmentMachine:
+    def advance_stage(self, incident_id: str) -> str:
+        # Phase progression: IDENTIFY -> PROTECT -> DETECT -> RESPOND -> RECOVER
+        return "CONTAINMENT"`,
+            typescript: `// NIST SP 800-61 Rev 2 / NIST CSF 2.0 Containment Machine
+export class NistContainmentMachine {
+  advanceStage(incidentId: string): string {
+    return "CONTAINMENT";
+  }
+}`,
+          },
+          description: {
+            ua: "Протокол реагування на інциденти: реалізація фази Containment за стандартом NIST CSF.",
+            en: "Incident response workflow: executes containment protocols under NIST CSF 2.0 guidelines.",
+            da: "Hændelsesrespons-workflow: udfører indæmningsprotokoller under NIST CSF.",
+          },
+        },
+        {
+          id: "cyber-firewall",
+          name: "firewall_manager.py",
+          type: "file",
+          icon: "code",
+          codeSnippet: {
+            python: `# Linux Kernel Netfilter / iptables Firewall Enforcement
+def apply_iptables_drop(source_ip: str) -> dict:
+    rule = f"iptables -A INPUT -s {source_ip} -j DROP"
+    return {"status": 200, "enforced_rule": rule, "action": "DROP"}`,
+            typescript: `// Linux Kernel Netfilter / iptables Firewall Enforcement
+export function applyIptablesDrop(sourceIp: string) {
+  return {
+    status: 200,
+    enforcedRule: \`iptables -A INPUT -s \${sourceIp} -j DROP\`,
+    action: "DROP"
+  };
+}`,
+          },
+          description: {
+            ua: "Автоматизація блокування загроз: генерація правил Netfilter iptables для ізоляції зловмисника.",
+            en: "Threat mitigation engine: generates kernel-level iptables rules to drop adversary traffic.",
+            da: "Trusselsisolering: genererer iptables-regler for at blokere angriberens trafik.",
           },
         },
       ],
