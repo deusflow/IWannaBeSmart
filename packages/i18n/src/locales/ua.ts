@@ -1037,6 +1037,10 @@ export const uaTranslation = {
         clickToSelect: "Натисніть для вибору",
         activeTrackBanner: "Твій кар'єрний трек",
         skipForNow: "Переглянути всі",
+        nextStationBtn: "Наступна станція треку: {{name}} ➔",
+        warRoomGraduation: "Випускне випробування: Перейти в War Room ⚡",
+        returnToHub: "На головний хаб",
+        trackProgressBadge: "Пройдено {{completed}} з {{total}} станцій фокусу ({{percent}}%)",
         tracks: {
           backend: {
             title: "Бекенд та архітектура систем",

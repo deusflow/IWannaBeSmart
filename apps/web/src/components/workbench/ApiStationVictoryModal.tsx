@@ -10,7 +10,6 @@ import {
   Award,
   Download,
   Copy,
-  ArrowRight,
   X,
   Server,
   ShieldCheck,
@@ -22,6 +21,7 @@ import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useAuthStore } from "../../store/authStore";
 import { downloadCertificateSvg } from "../../utils/certificateSvg";
+import { StationTrackNavigator } from "./career/StationTrackNavigator";
 import { API_FORGE_TASKS } from "@iw/sim-engine";
 
 interface ApiStationVictoryModalProps {
@@ -86,7 +86,6 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
   const [activeSkillId, setActiveSkillId] = useState<string>(API_SKILLS[0].id);
   const [isMatrixExpanded, setIsMatrixExpanded] = useState<boolean>(true);
 
-  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const callsign = useAuthStore((s) => s.profile?.callsign);
 
@@ -152,12 +151,6 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
     navigator.clipboard.writeText(certText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handleSwitchToHub = () => {
-    audioFx.playRelayClick();
-    onClose();
-    setCurrentView("HUB");
   };
 
   return (
@@ -326,13 +319,7 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
             </button>
           </div>
 
-          <button
-            onClick={handleSwitchToHub}
-            className="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-[#1A1D20] hover:bg-black text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-paper-sm"
-          >
-            <span>{t("fintechVictoryModal.switchStationBtn", "Повернутися до станцій")}</span>
-            <ArrowRight size={14} />
-          </button>
+          <StationTrackNavigator currentStationId="api" onClose={onClose} />
         </div>
       </div>
     </div>

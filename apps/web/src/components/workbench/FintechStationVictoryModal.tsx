@@ -10,7 +10,6 @@ import {
   Award,
   Download,
   Copy,
-  ArrowRight,
   X,
   Sparkles,
   CreditCard,
@@ -23,6 +22,7 @@ import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useAuthStore } from "../../store/authStore";
 import { downloadCertificateSvg } from "../../utils/certificateSvg";
+import { StationTrackNavigator } from "./career/StationTrackNavigator";
 import { FINTECH_TASKS } from "@iw/sim-engine";
 
 interface FintechStationVictoryModalProps {
@@ -89,7 +89,6 @@ export const FintechStationVictoryModal: React.FC<FintechStationVictoryModalProp
   xp,
 }) => {
   const { t } = useTranslation();
-  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const callsign = useAuthStore((s) => s.profile?.callsign);
   const [displayXp, setDisplayXp] = useState(0);
@@ -182,12 +181,6 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     }
-  };
-
-  const handleReturnToStations = () => {
-    audioFx.playRelayClick();
-    onClose();
-    setCurrentView("HUB");
   };
 
 
@@ -336,13 +329,7 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
             </button>
           </div>
 
-          <button
-            onClick={handleReturnToStations}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#1E2024] hover:bg-black text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-md"
-          >
-            <span>{t("fintechVictoryModal.switchStationBtn")}</span>
-            <ArrowRight size={14} />
-          </button>
+          <StationTrackNavigator currentStationId="pos" onClose={onClose} />
         </div>
       </div>
     </div>

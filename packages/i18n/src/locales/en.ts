@@ -1037,6 +1037,10 @@ export const enTranslation = {
         clickToSelect: "Click to select",
         activeTrackBanner: "Active Career Track",
         skipForNow: "Browse All",
+        nextStationBtn: "Next Track Station: {{name}} ➔",
+        warRoomGraduation: "Graduation Challenge: Enter War Room ⚡",
+        returnToHub: "To Workshop Hub",
+        trackProgressBadge: "Completed {{completed}} of {{total}} focus stations ({{percent}}%)",
         tracks: {
           backend: {
             title: "Backend & Systems Architecture",

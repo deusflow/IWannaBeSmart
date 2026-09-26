@@ -15,6 +15,7 @@ import {
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
 import { isStationInTrack } from "./career/careerTracks";
+import { getTrackCompletionStats } from "./career/trackManifest";
 import {
   FINTECH_TASKS,
   CODING_TASKS,
@@ -89,19 +90,16 @@ export const WorkshopHubScreen: React.FC = () => {
       if (selectedTab === "all") return true;
       if (selectedTab === "my_track") {
         if (!userTrack || userTrack === "explorer") return true;
-        if (userTrack === "security") {
-          return ["pos", "bandit", "cyber"].includes(stationId);
-        }
         return isStationInTrack(stationId, userTrack);
       }
       if (selectedTab === "backend") {
-        return ["tv", "pos", "api", "git"].includes(stationId);
+        return isStationInTrack(stationId, "backend");
       }
       if (selectedTab === "ai") {
-        return ["vertex", "fde", "rag"].includes(stationId);
+        return isStationInTrack(stationId, "ai");
       }
       if (selectedTab === "security") {
-        return ["pos", "bandit", "cyber"].includes(stationId);
+        return isStationInTrack(stationId, "security");
       }
       return true;
     },
@@ -205,6 +203,49 @@ export const WorkshopHubScreen: React.FC = () => {
     fdeStats.current +
     ragStats.current +
     cyberStats.current;
+
+  // Active track completion statistics (Data-driven Questline)
+  const isStationCompleted = useCallback(
+    (stationId: string) => {
+      switch (stationId) {
+        case "tv":
+          return tvStats.isCompleted;
+        case "pos":
+          return posStats.isCompleted;
+        case "api":
+          return apiStats.isCompleted;
+        case "git":
+          return gitStats.isCompleted;
+        case "bandit":
+          return banditStats.isCompleted;
+        case "vertex":
+          return vertexStats.isCompleted;
+        case "fde":
+          return fdeStats.isCompleted;
+        case "rag":
+          return ragStats.isCompleted;
+        case "cyber":
+          return cyberStats.isCompleted;
+        default:
+          return false;
+      }
+    },
+    [
+      tvStats.isCompleted,
+      posStats.isCompleted,
+      apiStats.isCompleted,
+      gitStats.isCompleted,
+      banditStats.isCompleted,
+      vertexStats.isCompleted,
+      fdeStats.isCompleted,
+      ragStats.isCompleted,
+      cyberStats.isCompleted,
+    ]
+  );
+
+  const trackStats = useMemo(() => {
+    return getTrackCompletionStats(userTrack, isStationCompleted);
+  }, [userTrack, isStationCompleted]);
 
   // Station 3 unlock condition (200+ XP or both modules finished)
   const isStation3Unlocked = xp >= 200 || (tvStats.isCompleted && posStats.isEligible);
@@ -410,6 +451,14 @@ export const WorkshopHubScreen: React.FC = () => {
                     ? "🛡️ Кібербезпека & SOC Analyst"
                     : t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
                 </span>
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#3E7A5E]/10 text-[#3E7A5E] border border-[#3E7A5E]/30">
+                  {t("career.trackProgressBadge", {
+                    completed: trackStats.completedCount,
+                    total: trackStats.totalCount,
+                    percent: trackStats.percent,
+                    defaultValue: `Пройдено ${trackStats.completedCount} з ${trackStats.totalCount} станцій фокусу (${trackStats.percent}%)`,
+                  })}
+                </span>
                 <span className="text-[11px] font-mono font-medium text-[#3E7A5E]">
                   «Неможливо програти, якщо це експеримент»
                 </span>
@@ -432,6 +481,15 @@ export const WorkshopHubScreen: React.FC = () => {
                     ? "Fullstack Explorer, Cross-Discipline Software Engineer, T-shaped Developer"
                     : t(`career.tracks.${userTrack}.roles`, "Цільові вакансії інженера")}
                 </span>
+              </div>
+              {/* Dynamic Track Progress Bar */}
+              <div className="w-full max-w-md pt-1">
+                <div className="w-full bg-[#1E2227]/10 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-[#3E7A5E] h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${trackStats.percent}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>

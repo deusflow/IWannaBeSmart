@@ -1037,6 +1037,10 @@ export const daTranslation = {
         clickToSelect: "Klik for at vælge",
         activeTrackBanner: "Aktivt karrierespor",
         skipForNow: "Se alle",
+        nextStationBtn: "Næste station på sporet: {{name}} ➔",
+        warRoomGraduation: "Afsluttende prøve: Gå til War Room ⚡",
+        returnToHub: "Til værkstedshub",
+        trackProgressBadge: "Fuldført {{completed}} af {{total}} fokusstationer ({{percent}}%)",
         tracks: {
           backend: {
             title: "Backend og systemarkitektur",

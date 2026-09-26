@@ -5,12 +5,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, Award, Download, Copy, ArrowRight, X, Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, Award, Download, Copy, X, Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useAuthStore } from "../../store/authStore";
 import { downloadCertificateSvg } from "../../utils/certificateSvg";
 import { CODING_TASKS } from "@iw/sim-engine";
+import { StationTrackNavigator } from "./career/StationTrackNavigator";
 
 interface StationCompletionModalProps {
   isOpen: boolean;
@@ -100,7 +101,6 @@ export const StationCompletionModal: React.FC<StationCompletionModalProps> = ({
   xp,
 }) => {
   const { t } = useTranslation();
-  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const callsign = useAuthStore((s) => s.profile?.callsign);
   const [displayXp, setDisplayXp] = useState(0);
@@ -354,17 +354,7 @@ Verification Hash: IW-TV-ARCH-${Math.random().toString(36).substring(2, 9).toUpp
             </button>
           </div>
 
-          <button
-            onClick={() => {
-              audioFx.playRelayClick();
-              onClose();
-              setCurrentView("HUB");
-            }}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#1A1D20] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-black/25 transition-all cursor-pointer"
-          >
-            <span>{t("victoryModal.continueBtn", "Завершити модуль")}</span>
-            <ArrowRight size={14} />
-          </button>
+          <StationTrackNavigator currentStationId="tv" onClose={onClose} />
         </div>
       </div>
     </div>

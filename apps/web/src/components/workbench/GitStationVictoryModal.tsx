@@ -10,7 +10,6 @@ import {
   Award,
   Download,
   Copy,
-  ArrowRight,
   X,
   GitBranch,
   Check,
@@ -21,6 +20,7 @@ import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useAuthStore } from "../../store/authStore";
 import { downloadCertificateSvg } from "../../utils/certificateSvg";
+import { StationTrackNavigator } from "./career/StationTrackNavigator";
 import { GIT_TASKS } from "@iw/sim-engine";
 
 interface GitStationVictoryModalProps {
@@ -85,7 +85,6 @@ export const GitStationVictoryModal: React.FC<GitStationVictoryModalProps> = ({
   const [activeSkillId, setActiveSkillId] = useState<string>(GIT_SKILLS[0].id);
   const [isMatrixExpanded, setIsMatrixExpanded] = useState<boolean>(true);
 
-  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const callsign = useAuthStore((s) => s.profile?.callsign);
 
@@ -153,12 +152,6 @@ Verification Hash: IW-GIT-MASTER-${Math.random().toString(36).substring(2, 9).to
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     });
-  };
-
-  const handleReturnToHub = () => {
-    audioFx.playRelayClick();
-    onClose();
-    setCurrentView("HUB");
   };
 
   return (
@@ -277,13 +270,7 @@ Verification Hash: IW-GIT-MASTER-${Math.random().toString(36).substring(2, 9).to
             </button>
           </div>
 
-          <button
-            onClick={handleReturnToHub}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#21262D] hover:bg-[#30363D] text-white border border-[#30363D] font-mono text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer"
-          >
-            <span>{t("git.returnToHub", "Return to Workshop Hub")}</span>
-            <ArrowRight size={14} />
-          </button>
+          <StationTrackNavigator currentStationId="git" onClose={onClose} />
         </div>
       </div>
     </div>

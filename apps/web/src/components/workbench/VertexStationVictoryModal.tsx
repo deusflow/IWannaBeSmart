@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Download,
   Copy,
-  ArrowRight,
   X,
   Cloud,
   Check,
@@ -20,6 +19,7 @@ import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useAuthStore } from "../../store/authStore";
 import { downloadCertificateSvg } from "../../utils/certificateSvg";
+import { StationTrackNavigator } from "./career/StationTrackNavigator";
 import { VERTEX_TASKS } from "@iw/sim-engine";
 
 interface VertexStationVictoryModalProps {
@@ -74,7 +74,6 @@ export const VertexStationVictoryModal: React.FC<VertexStationVictoryModalProps>
   xp,
 }) => {
   const { t } = useTranslation();
-  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const callsign = useAuthStore((s) => s.profile?.callsign);
   const [copied, setCopied] = useState(false);
@@ -96,12 +95,6 @@ export const VertexStationVictoryModal: React.FC<VertexStationVictoryModalProps>
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
-  const handleReturnToHub = () => {
-    audioFx.playRelayClick();
-    onClose();
-    setCurrentView("HUB");
-  };
 
   const handleDownloadSvg = () => {
     audioFx.playSuccessFanfare();
@@ -266,13 +259,7 @@ export const VertexStationVictoryModal: React.FC<VertexStationVictoryModalProps>
             </button>
           </div>
 
-          <button
-            onClick={handleReturnToHub}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-200 border border-slate-700 transition-all cursor-pointer active:scale-95"
-          >
-            <span>{t("vertex.victory.returnHub", "Повернутися до Хабу")}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <StationTrackNavigator currentStationId="vertex" onClose={onClose} />
         </div>
       </div>
     </div>

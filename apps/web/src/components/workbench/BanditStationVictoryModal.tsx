@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next";
 import {
   Download,
   Copy,
-  ArrowRight,
   X,
   Shield,
   Check,
@@ -19,6 +18,7 @@ import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useAuthStore } from "../../store/authStore";
 import { downloadCertificateSvg } from "../../utils/certificateSvg";
+import { StationTrackNavigator } from "./career/StationTrackNavigator";
 import { BANDIT_TASKS } from "@iw/sim-engine";
 
 interface BanditStationVictoryModalProps {
@@ -79,7 +79,6 @@ export const BanditStationVictoryModal: React.FC<BanditStationVictoryModalProps>
   xp,
 }) => {
   const { t } = useTranslation();
-  const setCurrentView = useWorkbenchStore((s) => s.setCurrentView);
   const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
   const callsign = useAuthStore((s) => s.profile?.callsign);
   const [copied, setCopied] = useState(false);
@@ -99,12 +98,6 @@ export const BanditStationVictoryModal: React.FC<BanditStationVictoryModalProps>
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
-  const handleReturnToHub = () => {
-    audioFx.playRelayClick();
-    onClose();
-    setCurrentView("HUB");
-  };
 
   const handleDownloadSvg = () => {
     audioFx.playSuccessFanfare();
@@ -252,13 +245,7 @@ DATE: ${new Date().toLocaleDateString()}
             </button>
           </div>
 
-          <button
-            onClick={handleReturnToHub}
-            className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-          >
-            <span>{t("bandit.victory.returnHub", "Return to Workshop Hub")}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <StationTrackNavigator currentStationId="bandit" onClose={onClose} />
         </div>
       </div>
     </div>
