@@ -52,6 +52,7 @@ import { WorkshopHubScreen } from "../components/workbench/WorkshopHubScreen";
 import { CommandPaletteModal } from "../components/workbench/CommandPaletteModal";
 import { KeyboardShortcutsModal } from "../components/workbench/KeyboardShortcutsModal";
 import { WarRoomLockedModal } from "../components/workbench/WarRoomLockedModal";
+import { FeatureNudge } from "../components/common/FeatureNudge";
 import { OnboardingTourModal } from "../components/workbench/OnboardingTourModal";
 import { CareerOnboardingModal } from "../components/workbench/career/CareerOnboardingModal";
 import { ExplorerTourHeaderBar } from "../components/workbench/career/ExplorerTourHeaderBar";
@@ -403,29 +404,46 @@ export const WorkbenchScreen: React.FC = () => {
         {/* Right */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0 flex-wrap sm:flex-nowrap">
           {/* Incident War Room SEV-1 Button (Always visible; gated with warning siren for new users) */}
-          <button
-            id="btn-incident-war-room"
-            onClick={() => {
-              audioFx.playWarRoomSiren();
-              if (isNewUser) {
-                setIsWarRoomLockedModalOpen(true);
-              } else {
-                setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
-              }
-            }}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap ${
-              currentView === "WAR_ROOM"
-                ? "bg-rose-600 text-white shadow-rose-900/50 border border-rose-500"
-                : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 border border-rose-500/30 hover:border-rose-500/60"
-            }`}
-            title="Incident War Room (SEV-1 Production Outage Drills)"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
-            </span>
-            <span className="tracking-tight">WAR ROOM</span>
-          </button>
+          <div className="relative">
+            <button
+              id="btn-incident-war-room"
+              onClick={() => {
+                audioFx.playWarRoomSiren();
+                if (isNewUser) {
+                  setIsWarRoomLockedModalOpen(true);
+                } else {
+                  setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
+                }
+              }}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap ${
+                currentView === "WAR_ROOM"
+                  ? "bg-rose-600 text-white shadow-rose-900/50 border border-rose-500"
+                  : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 border border-rose-500/30 hover:border-rose-500/60"
+              }`}
+              title="Incident War Room (SEV-1 Production Outage Drills)"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+              </span>
+              <span className="tracking-tight">WAR ROOM</span>
+            </button>
+
+            {/* Feature Discovery Nudge: War Room Unlocked */}
+            {!isNewUser && (
+              <FeatureNudge
+                storageKey="iw_nudge_war_room_unlocked"
+                badge={t("nudges.warRoomUnlocked.badge", "⚡ СЕКТОР РОЗБЛОКОВАНО")}
+                text={t(
+                  "nudges.warRoomUnlocked.text",
+                  "⚡ War Room розблоковано! Сюди йдуть тренувати ліквідацію аварій на продакшні під звук сирени."
+                )}
+                dismissText={t("nudges.warRoomUnlocked.understood", "Зрозуміло")}
+                position="bottom-right"
+                pulseColor="rose"
+              />
+            )}
+          </div>
 
           {/* Master Audio Synthesizer Widget */}
           <AudioVolumeWidget />

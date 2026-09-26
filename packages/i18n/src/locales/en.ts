@@ -119,6 +119,19 @@ export const enTranslation = {
         profileTooltip: "Open engineer panel and telemetry",
       },
       profile: {
+        onboarding: {
+          badge: "MINI-ONBOARDING",
+          stepIndicator: "Step {{current}} of {{total}}",
+          step1Title: "1. Engineering Rank",
+          step1Desc: "Your professional level (from L1 to L4). Progresses through clean architectural implementations.",
+          step2Title: "2. Patterns Dossier",
+          step2Desc: "Your practical toolkit: mastered software design patterns accumulate here.",
+          step3Title: "3. Quick Shortcuts",
+          step3Desc: "Keyboard shortcuts to operate the workbench hands-free without a mouse.",
+          next: "Next ➔",
+          prev: "← Back",
+          finish: "Got it! 🚀",
+        },
         modalTitle: "Engineer Profile & Analytics",
         tabIdentity: "Profile",
         tabAnalytics: "Analytics",
@@ -890,6 +903,13 @@ export const enTranslation = {
         hintSelect: "Select",
         hintClose: "Close",
       },
+      nudges: {
+        warRoomUnlocked: {
+          badge: "⚡ SECTOR UNLOCKED",
+          text: "⚡ War Room unlocked! Step in to triage production outages under the sound of sirens.",
+          understood: "Understood",
+        },
+      },
       shortcuts: {
         title: "Keyboard Shortcuts",
         subtitle: "Fast keyboard ergonomics across the workbench",
@@ -911,6 +931,28 @@ export const enTranslation = {
         footerHint: "Press Esc to return to workbench",
       },
       hub: {
+        starterCards: {
+          cardA: {
+            badge: "⚡ EXPRESS TEST-DRIVE • 5 MINUTES",
+            title: "⚡ Express Test-Drive: Try Everything (5 mins)",
+            subtitle: "Not sure where to start? Try 3 key disciplines in sequence:",
+            step1: "1. Power up TV screen (Backend)",
+            step2: "2. Chunk text for AI (AI)",
+            step3: "3. Defend against attack (Cyber)",
+            button: "Start Test-Drive ➔",
+          },
+          cardB: {
+            badge: "🎯 CAREER FOCUS",
+            title: "🎯 Choose a Professional Track",
+            subtitle: "Already know what you want? Pick one of 3 career pathways:",
+            item1: "• Backend & Systems (C# / Go)",
+            item2: "• AI & Agents (Python)",
+            item3: "• Cybersecurity (SOC)",
+            button: "Choose Track 🧭",
+          },
+          spoilerOpen: "🛠️ View all 10 workbench stations ▼",
+          spoilerClose: "Hide workbench stations ▲",
+        },
         categories: {
           all: "All Stations",
           systems: "Systems & Backend",

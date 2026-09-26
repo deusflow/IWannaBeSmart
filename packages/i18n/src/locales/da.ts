@@ -119,6 +119,19 @@ export const daTranslation = {
         profileTooltip: "Åbn ingeniørpanel og telemetri",
       },
       profile: {
+        onboarding: {
+          badge: "MINI-ONBOARDING",
+          stepIndicator: "Trin {{current}} af {{total}}",
+          step1Title: "1. Ingeniørrang",
+          step1Desc: "Dit professionelle niveau (fra L1 til L4). Vokser med rene arkitektoniske løsninger.",
+          step2Title: "2. Mønsterdossier",
+          step2Desc: "Din praktiske værktøjskasse: mestrede designmønstre samles her.",
+          step3Title: "3. Hurtiggenveje",
+          step3Desc: "Tastaturgenveje til at betjene værkstedet uden mus.",
+          next: "Næste ➔",
+          prev: "← Tilbage",
+          finish: "Forstået! 🚀",
+        },
         modalTitle: "Ingeniørprofil og analyse",
         tabIdentity: "Profil",
         tabAnalytics: "Analyse",
@@ -890,6 +903,13 @@ export const daTranslation = {
         hintSelect: "Vælg",
         hintClose: "Luk",
       },
+      nudges: {
+        warRoomUnlocked: {
+          badge: "⚡ SEKTOR LÅST OP",
+          text: "⚡ War Room låst op! Træn nedbrudshåndtering i produktion til lyden af sirener.",
+          understood: "Forstået",
+        },
+      },
       shortcuts: {
         title: "Tastaturgenveje",
         subtitle: "Hurtig tastaturergonomi på værkstedet",
@@ -911,6 +931,28 @@ export const daTranslation = {
         footerHint: "Tryk på Esc for at vende tilbage til værkstedet",
       },
       hub: {
+        starterCards: {
+          cardA: {
+            badge: "⚡ EKSPRES TESTKØRSEL • 5 MINUTTER",
+            title: "⚡ Ekspres Testkørsel: Prøv det hele (5 min)",
+            subtitle: "Ved du ikke hvor du skal starte? Prøv 3 nøglediscipliner i rækkefølge:",
+            step1: "1. Tænd TV-skærmen (Backend)",
+            step2: "2. Del tekst til AI (AI)",
+            step3: "3. Afvis angrebet (Cyber)",
+            button: "Start Testkørsel ➔",
+          },
+          cardB: {
+            badge: "🎯 KARRIEREFOKUS",
+            title: "🎯 Vælg et karrierespor",
+            subtitle: "Ved du allerede hvad du vil? Vælg en af 3 karriereveje:",
+            item1: "• Backend & Systems (C# / Go)",
+            item2: "• AI & Agents (Python)",
+            item3: "• Cybersecurity (SOC)",
+            button: "Vælg spor 🧭",
+          },
+          spoilerOpen: "🛠️ Se alle 10 værkstedsstationer ▼",
+          spoilerClose: "Skjul værkstedsstationer ▲",
+        },
         categories: {
           all: "Alle stationer",
           systems: "Systemer & Backend",

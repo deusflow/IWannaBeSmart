@@ -11,6 +11,7 @@ import {
   Compass,
   Zap,
   Sparkles,
+  Rocket,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -59,6 +60,7 @@ export const WorkshopHubScreen: React.FC = () => {
     setFdeVictoryModalOpen,
     setRagVictoryModalOpen,
     setCyberVictoryModalOpen,
+    startExplorerTour,
     userTrack,
     setIsCareerModalOpen,
   } = useWorkbenchStore(
@@ -77,10 +79,13 @@ export const WorkshopHubScreen: React.FC = () => {
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
       setRagVictoryModalOpen: s.setRagVictoryModalOpen,
       setCyberVictoryModalOpen: s.setCyberVictoryModalOpen,
+      startExplorerTour: s.startExplorerTour,
       userTrack: s.userTrack,
       setIsCareerModalOpen: s.setIsCareerModalOpen,
     }))
   );
+
+  const [showAllStationsSpoiler, setShowAllStationsSpoiler] = useState(false);
 
   type HubTab = "my_track" | "backend" | "ai" | "security" | "all";
   const [selectedTab, setSelectedTab] = useState<HubTab>("all");
@@ -513,8 +518,152 @@ export const WorkshopHubScreen: React.FC = () => {
       </div>
       )}
 
-      {/* ── Station Showcase Cards Grid (Strict Order 01 -> 10) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+      {/* ── Hub Content: New User Gateways vs Active Cadet Grid ── */}
+      {isNewUser ? (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* ── CARD A: Express Test-Drive (5 Mins) ── */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-[#FCFAF6] to-[#F5EDE6] border-2 border-[#C86D32]/80 p-5 sm:p-7 shadow-md flex flex-col justify-between group hover:border-[#C86D32] transition-all">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-[#C86D32]/5 rounded-bl-full pointer-events-none" />
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C86D32] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C86D32]" />
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase tracking-wider border border-[#C86D32]/30">
+                    {t("hub.starterCards.cardA.badge", "⚡ ЕКСПРЕС ТЕСТ-ДРАЙВ • 5 ХВИЛИН")}
+                  </span>
+                </div>
+
+                <h3 className="font-display font-extrabold text-lg sm:text-xl text-[#1E2227] tracking-tight leading-snug">
+                  {t("hub.starterCards.cardA.title", "⚡ Експрес тест-драйв: Спробувати все (5 хвилин)")}
+                </h3>
+                <p className="text-xs sm:text-sm text-[#1E2227]/75 mt-1.5 font-sans leading-relaxed">
+                  {t("hub.starterCards.cardA.subtitle", "Не знаєш з чого почати? Спробуй 3 ключові професії по черзі:")}
+                </p>
+
+                {/* 3 Step Badges */}
+                <div className="mt-4 space-y-2 font-mono text-xs">
+                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-[#C86D32]/20 shadow-2xs">
+                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0">
+                      1
+                    </span>
+                    <span className="font-bold text-[#1E2227]">
+                      {t("hub.starterCards.cardA.step1", "1. Оживи екран ТВ (Backend)")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-[#C86D32]/20 shadow-2xs">
+                    <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold flex items-center justify-center shrink-0">
+                      2
+                    </span>
+                    <span className="font-bold text-[#1E2227]">
+                      {t("hub.starterCards.cardA.step2", "2. Наріж текст для ШІ (AI)")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-[#C86D32]/20 shadow-2xs">
+                    <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center justify-center shrink-0">
+                      3
+                    </span>
+                    <span className="font-bold text-[#1E2227]">
+                      {t("hub.starterCards.cardA.step3", "3. Відбий атаку (Cyber)")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Start Button */}
+              <div className="mt-6 pt-2">
+                <button
+                  type="button"
+                  id="btn-start-express-tour"
+                  onClick={() => {
+                    startExplorerTour();
+                  }}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Rocket size={17} />
+                  <span>{t("hub.starterCards.cardA.button", "Розпочати тест-драйв ➔")}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ── CARD B: Choose Career Track ── */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-[#FAF8F5] to-[#EFEBE4] border-2 border-[#1E2227]/20 p-5 sm:p-7 shadow-md flex flex-col justify-between group hover:border-[#1E2227]/40 transition-all">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-[#1E2227]/5 rounded-bl-full pointer-events-none" />
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#1E2227]/10 text-[#1E2227] uppercase tracking-wider border border-[#1E2227]/20">
+                    {t("hub.starterCards.cardB.badge", "🎯 КАР'ЄРНИЙ ФОКУС")}
+                  </span>
+                </div>
+
+                <h3 className="font-display font-extrabold text-lg sm:text-xl text-[#1E2227] tracking-tight leading-snug">
+                  {t("hub.starterCards.cardB.title", "🎯 Обрати професійний трек")}
+                </h3>
+                <p className="text-xs sm:text-sm text-[#1E2227]/75 mt-1.5 font-sans leading-relaxed">
+                  {t("hub.starterCards.cardB.subtitle", "Вже знаєш, чого хочеш? Обери один із 3 кар'єрних шляхів:")}
+                </p>
+
+                {/* 3 Career Options */}
+                <div className="mt-4 space-y-2 font-mono text-xs">
+                  <div className="p-2.5 rounded-xl bg-white border border-[#1E2227]/15 text-[#1E2227] font-bold shadow-2xs flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                    <span>{t("hub.starterCards.cardB.item1", "• Backend & Systems (C# / Go)")}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white border border-[#1E2227]/15 text-[#1E2227] font-bold shadow-2xs flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-600" />
+                    <span>{t("hub.starterCards.cardB.item2", "• AI & Agents (Python)")}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white border border-[#1E2227]/15 text-[#1E2227] font-bold shadow-2xs flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-600" />
+                    <span>{t("hub.starterCards.cardB.item3", "• Cybersecurity (SOC)")}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Choose Track Button */}
+              <div className="mt-6 pt-2">
+                <button
+                  type="button"
+                  id="btn-hub-choose-career-track"
+                  onClick={() => {
+                    audioFx.playRelayClick();
+                    setIsCareerModalOpen(true);
+                  }}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-[#1E2227] hover:bg-black active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Compass size={17} />
+                  <span>{t("hub.starterCards.cardB.button", "Обрати трек 🧭")}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Spoiler toggle button */}
+          <div className="flex justify-center pt-2">
+            <button
+              type="button"
+              id="btn-toggle-all-stations-spoiler"
+              onClick={() => {
+                audioFx.playRelayClick();
+                setShowAllStationsSpoiler((prev) => !prev);
+              }}
+              className="px-5 py-2.5 rounded-xl border border-[#1E2227]/20 bg-[#FAF8F2] hover:bg-white text-xs font-mono font-bold text-[#1E2227] shadow-paper-xs transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+            >
+              <span>
+                {showAllStationsSpoiler
+                  ? t("hub.starterCards.spoilerClose", "Сховати станції верстака ▲")
+                  : t("hub.starterCards.spoilerOpen", "🛠️ Переглянути всі 10 станцій верстака ▼")}
+              </span>
+            </button>
+          </div>
+
+          {/* Expanded Grid */}
+          {showAllStationsSpoiler && (
+            <div className="pt-2 animate-in fade-in duration-300">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+
         {/* Station 01: TV Station */}
         {isStationVisible("tv") && (
           <StationShowcaseCard
@@ -563,8 +712,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={posStats.max}
             statusType={posStats.statusType}
             {...getTrackCardProps("pos")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             starColorClass="text-amber-700"
             onEnter={() => handleEnterStation("pos")}
             onViewCert={
@@ -595,8 +744,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={0}
             statusType="roadmap"
             {...getTrackCardProps("iot")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             lockCriteria={{
               conditionText: t("hub.roadmapStatus", "Статус модуля"),
               progressText: t("hub.stations.iot.releaseDate", "Реліз у 2 семестрі"),
@@ -623,8 +772,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={apiStats.max}
             statusType={apiStats.statusType}
             {...getTrackCardProps("api")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             accentBorderClass="hover:border-cyan-600/60"
             starColorClass="text-cyan-700"
             onEnter={() => handleEnterStation("api")}
@@ -656,8 +805,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={gitStats.max}
             statusType={gitStats.statusType}
                         {...getTrackCardProps("git")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("git")}
@@ -689,8 +838,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={banditStats.max}
             statusType={banditStats.statusType}
                         {...getTrackCardProps("bandit")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             accentBorderClass="hover:border-emerald-600/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("bandit")}
@@ -722,8 +871,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={vertexStats.max}
             statusType={vertexStats.statusType}
                         {...getTrackCardProps("vertex")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             accentBorderClass="hover:border-blue-600/60"
             starColorClass="text-blue-800"
             onEnter={() => handleEnterStation("vertex")}
@@ -755,8 +904,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={fdeStats.max}
             statusType={fdeStats.statusType}
                         {...getTrackCardProps("fde")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("fde")}
@@ -788,8 +937,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={ragStats.max}
             statusType={ragStats.statusType}
                         {...getTrackCardProps("rag")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             accentBorderClass="hover:border-cyan-500/60"
             starColorClass="text-cyan-800"
             onEnter={() => handleEnterStation("rag")}
@@ -821,8 +970,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={cyberStats.max}
             statusType={cyberStats.statusType}
                         {...getTrackCardProps("cyber")}
-            isWaitingStation={isNewUser}
-            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
             accentBorderClass="hover:border-emerald-500/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("cyber")}
@@ -837,7 +986,337 @@ export const WorkshopHubScreen: React.FC = () => {
             certTooltip={t("hub.viewCyberCertTooltip", "Переглянути сертифікат Google Cybersecurity & SOC")}
           />
         )}
-      </div>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+
+        {/* Station 01: TV Station */}
+        {isStationVisible("tv") && (
+          <StationShowcaseCard
+            stationId="tv"
+            codeLabel={`${t("hub.stations.tv.code", "Модуль 1")} • 01`}
+            title={t("hub.stations.tv.title", "Станція 01: Розумний телевізор")}
+            subtitle={t(
+              "hub.stations.tv.subtitle",
+              "Вчимося керувати приладом через код: подаємо живлення, перемикаємо канали та налаштовуємо звук пультом."
+            )}
+            blueprint={<TvBlueprintSvg />}
+            specs={t("hub.stations.tv.specs", "Перші змінні, умови та команди.")}
+            currentStars={tvStats.current}
+            maxStars={tvStats.max}
+            statusType={tvStats.statusType}
+            {...getTrackCardProps("tv")}
+            isHeroCard={isNewUser}
+            isRecommended={isNewUser ? true : !userTrack ? (!tvStats.isCompleted || xp < 100) : false}
+            beaconText={isNewUser ? t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
+            onEnter={() => handleEnterStation("tv")}
+            onViewCert={
+              tvStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setStationVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewTvCertTooltip", "Переглянути матрицю навичок та сертифікат")}
+          />
+        )}
+
+        {/* Station 02: Fintech POS Terminal */}
+        {isStationVisible("pos") && (
+          <StationShowcaseCard
+            stationId="pos"
+            codeLabel={`${t("hub.stations.pos.code", "Модуль 2")} • 02`}
+            title={t("hub.stations.pos.title", "Станція 02: Термінал оплати")}
+            subtitle={t(
+              "hub.stations.pos.subtitle",
+              "Пишемо захист платежів: перевіряємо PIN-код, блокуємо картку після 3 помилок і захищаємо баланс від списання в мінус."
+            )}
+            blueprint={<PosBlueprintSvg />}
+            specs={t("hub.stations.pos.specs", "Перевірка умов, статуси оплати та захист карток.")}
+            currentStars={posStats.current}
+            maxStars={posStats.max}
+            statusType={posStats.statusType}
+            {...getTrackCardProps("pos")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            starColorClass="text-amber-700"
+            onEnter={() => handleEnterStation("pos")}
+            onViewCert={
+              posStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setPosVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewFintechCertTooltip", "Переглянути комерційний сертифікат фінтех-інженера")}
+          />
+        )}
+
+        {/* Station 03: IoT Garage Gate (In Development / Roadmap) */}
+        {isStationVisible("iot") && (
+          <StationShowcaseCard
+            stationId="iot"
+            codeLabel={`${t("hub.stations.iot.code", "Модуль 3")} • 03`}
+            title={t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")}
+            subtitle={t(
+              "hub.stations.iot.subtitle",
+              "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
+            )}
+            blueprint={<IotBlueprintSvg />}
+            specs={t("hub.stations.iot.specs", "В розробці • Event-Driven Architecture • C# / Go")}
+            currentStars={0}
+            maxStars={0}
+            statusType="roadmap"
+            {...getTrackCardProps("iot")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            lockCriteria={{
+              conditionText: t("hub.roadmapStatus", "Статус модуля"),
+              progressText: t("hub.stations.iot.releaseDate", "Реліз у 2 семестрі"),
+              percent: 100,
+              badgeText: t("hub.stations.iot.badge", "В розробці: Реліз у 2 семестрі"),
+              isRoadmap: true,
+            }}
+          />
+        )}
+
+        {/* Station 04: API Forge */}
+        {isStationVisible("api") && (
+          <StationShowcaseCard
+            stationId="api"
+            codeLabel={`${t("hub.stations.api.code", "Модуль 4")} • 04`}
+            title={t("hub.stations.api.title", "Станція 04: Інтернет-зв'язок (API)")}
+            subtitle={t(
+              "hub.stations.api.subtitle",
+              "З'єднуємо додаток із сервером: відправляємо запити, перевіряємо доступ та налаштовуємо повторну спробу, якщо зник Wi-Fi."
+            )}
+            blueprint={<ApiForgeBlueprintSvg />}
+            specs={t("hub.stations.api.specs", "HTTP-запити, передача даних та стабільність зв'язку.")}
+            currentStars={apiStats.current}
+            maxStars={apiStats.max}
+            statusType={apiStats.statusType}
+            {...getTrackCardProps("api")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            accentBorderClass="hover:border-cyan-600/60"
+            starColorClass="text-cyan-700"
+            onEnter={() => handleEnterStation("api")}
+            onViewCert={
+              apiStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setApiVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewApiCertTooltip", "Переглянути сертифікат бекенд & API архітектора")}
+          />
+        )}
+
+        {/* Station 05: Git Time Machine */}
+        {isStationVisible("git") && (
+          <StationShowcaseCard
+            stationId="git"
+            codeLabel={`${t("hub.stations.git.code", "Модуль 5")} • 05`}
+            title={t("hub.stations.git.title", "Станція 05: Git Time Machine")}
+            subtitle={t(
+              "hub.stations.git.subtitle",
+              "DAG дерево комітів, паралельні гілки, 3-Way злиття, вирішення конфліктів та rebase"
+            )}
+            blueprint={<GitBlueprintSvg />}
+            specs={t("hub.stations.git.specs", `${GIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            currentStars={gitStats.current}
+            maxStars={gitStats.max}
+            statusType={gitStats.statusType}
+                        {...getTrackCardProps("git")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            accentBorderClass="hover:border-purple-600/60"
+            starColorClass="text-purple-800"
+            onEnter={() => handleEnterStation("git")}
+            onViewCert={
+              gitStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setGitVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewGitCertTooltip", "Переглянути сертифікат Git архітектора")}
+          />
+        )}
+
+        {/* Station 06: Cyber Bandit Lab */}
+        {isStationVisible("bandit") && (
+          <StationShowcaseCard
+            stationId="bandit"
+            codeLabel={`${t("hub.stations.bandit.code", "Модуль 6")} • 06`}
+            title={t("hub.stations.bandit.title", "Станція 06: Cyber Bandit Lab")}
+            subtitle={t(
+              "hub.stations.bandit.subtitle",
+              "Етичний хакінг, перехоплення пакетів, підміна параметрів, SQL-ін'єкції та Rate Limiting"
+            )}
+            blueprint={<BanditBlueprintSvg />}
+            specs={t("hub.stations.bandit.specs", `${BANDIT_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            currentStars={banditStats.current}
+            maxStars={banditStats.max}
+            statusType={banditStats.statusType}
+                        {...getTrackCardProps("bandit")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            accentBorderClass="hover:border-emerald-600/60"
+            starColorClass="text-emerald-800"
+            onEnter={() => handleEnterStation("bandit")}
+            onViewCert={
+              banditStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setBanditVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewBanditCertTooltip", "Переглянути сертифікат Cyber Defense архітектора")}
+          />
+        )}
+
+        {/* Station 07: Vertex AI Architect */}
+        {isStationVisible("vertex") && (
+          <StationShowcaseCard
+            stationId="vertex"
+            codeLabel={`${t("hub.stations.vertex.code", "Модуль 7")} • 07`}
+            title={t("hub.stations.vertex.title", "Станція 07: Vertex AI Architect")}
+            subtitle={t(
+              "hub.stations.vertex.subtitle",
+              "Хмарний MLOps: GCS пайплайни, GPU інференс, VPC Peering та моніторинг дрейфу"
+            )}
+            blueprint={<VertexBlueprintSvg />}
+            specs={t("hub.stations.vertex.specs", `${VERTEX_TASKS.length} tasks • Vertex AI & MLOps • Python / YAML`)}
+            currentStars={vertexStats.current}
+            maxStars={vertexStats.max}
+            statusType={vertexStats.statusType}
+                        {...getTrackCardProps("vertex")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            accentBorderClass="hover:border-blue-600/60"
+            starColorClass="text-blue-800"
+            onEnter={() => handleEnterStation("vertex")}
+            onViewCert={
+              vertexStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setVertexVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewVertexCertTooltip", "Переглянути сертифікат Vertex AI архітектора")}
+          />
+        )}
+
+        {/* Station 08: Field AI Deployer (FDE) */}
+        {isStationVisible("fde") && (
+          <StationShowcaseCard
+            stationId="fde"
+            codeLabel={`${t("hub.stations.fde.code", "Модуль 8")} • 08`}
+            title={t("hub.stations.fde.title", "Станція 08: Field AI Deployer (FDE)")}
+            subtitle={t(
+              "hub.stations.fde.subtitle",
+              "Інтерв'ю стейкхолдерів, адаптація legacy API, агентні графи та регламенти передачі"
+            )}
+            blueprint={<FdeBlueprintSvg />}
+            specs={t("hub.stations.fde.specs", `${FDE_TASKS.length} tasks • Applied AI • Python / TS`)}
+            currentStars={fdeStats.current}
+            maxStars={fdeStats.max}
+            statusType={fdeStats.statusType}
+                        {...getTrackCardProps("fde")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            accentBorderClass="hover:border-purple-600/60"
+            starColorClass="text-purple-800"
+            onEnter={() => handleEnterStation("fde")}
+            onViewCert={
+              fdeStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setFdeVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewFdeCertTooltip", "Переглянути сертифікат Field AI Deployer")}
+          />
+        )}
+
+        {/* Station 09: IBM RAG & Agentic AI Track */}
+        {isStationVisible("rag") && (
+          <StationShowcaseCard
+            stationId="rag"
+            codeLabel={`${t("hub.stations.rag.code", "Модуль 9")} • 09`}
+            title={t("hub.stations.rag.title", "Станція 09: IBM RAG & Agentic AI")}
+            subtitle={t(
+              "hub.stations.rag.subtitle",
+              "Векторний пошук, Reciprocal Rank Fusion, ReAct агентні графи та RAGAS валідація"
+            )}
+            blueprint={<FdeBlueprintSvg />}
+            specs={t("hub.stations.rag.specs", `${RAG_TASKS.length} tasks • IBM RAG & Agentic AI • Python / TS`)}
+            currentStars={ragStats.current}
+            maxStars={ragStats.max}
+            statusType={ragStats.statusType}
+                        {...getTrackCardProps("rag")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            accentBorderClass="hover:border-cyan-500/60"
+            starColorClass="text-cyan-800"
+            onEnter={() => handleEnterStation("rag")}
+            onViewCert={
+              ragStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setRagVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewRagCertTooltip", "Переглянути сертифікат IBM RAG & Agentic AI")}
+          />
+        )}
+
+        {/* Station 10: Google Cybersecurity & SOC Analyst Track */}
+        {isStationVisible("cyber") && (
+          <StationShowcaseCard
+            stationId="cyber"
+            codeLabel={`${t("hub.stations.cyber.code", "Модуль 10")} • 10`}
+            title={t("hub.stations.cyber.title", "Станція 10: Google Cybersecurity & SOC")}
+            subtitle={t(
+              "hub.stations.cyber.subtitle",
+              "Chronicle SIEM, Web-Wireshark аналізатор пакетів, MITRE ATT&CK та NIST CSF"
+            )}
+            blueprint={<BanditBlueprintSvg />}
+            specs={t("hub.stations.cyber.specs", `${CYBER_TASKS.length} tasks • Google Cybersecurity • Python / TS`)}
+            currentStars={cyberStats.current}
+            maxStars={cyberStats.max}
+            statusType={cyberStats.statusType}
+                        {...getTrackCardProps("cyber")}
+            isWaitingStation={false}
+            waitingBadgeText={undefined}
+            accentBorderClass="hover:border-emerald-500/60"
+            starColorClass="text-emerald-800"
+            onEnter={() => handleEnterStation("cyber")}
+            onViewCert={
+              cyberStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setCyberVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewCyberCertTooltip", "Переглянути сертифікат Google Cybersecurity & SOC")}
+          />
+        )}
+        </div>
+      )}
     </div>
   );
 };

@@ -119,6 +119,19 @@ export const uaTranslation = {
         profileTooltip: "Відкрити панель інженера та телеметрію",
       },
       profile: {
+        onboarding: {
+          badge: "МІНІ-ОНБОРДИНГ",
+          stepIndicator: "Крок {{current}} з {{total}}",
+          step1Title: "1. Інженерний ранг",
+          step1Desc: "Твій професійний рівень (від L1 до L4). Зростає за чисті архітектурні рішення.",
+          step2Title: "2. Досьє патернів",
+          step2Desc: "Твій практичний багаж: тут збираються опановані патерни проектування.",
+          step3Title: "3. Швидкі команди",
+          step3Desc: "Гарячі клавіші для керування верстаком без миші.",
+          next: "Далі ➔",
+          prev: "← Назад",
+          finish: "Зрозуміло! 🚀",
+        },
         modalTitle: "Профіль та аналітика інженера",
         tabIdentity: "Профіль",
         tabAnalytics: "Аналітика",
@@ -890,6 +903,13 @@ export const uaTranslation = {
         hintSelect: "Обрати",
         hintClose: "Закрити",
       },
+      nudges: {
+        warRoomUnlocked: {
+          badge: "⚡ СЕКТОР РОЗБЛОКОВАНО",
+          text: "⚡ War Room розблоковано! Сюди йдуть тренувати ліквідацію аварій на продакшні під звук сирени.",
+          understood: "Зрозуміло",
+        },
+      },
       shortcuts: {
         title: "Гарячі клавіші",
         subtitle: "Швидка ергономічна взаємодія з верстаком",
@@ -911,6 +931,28 @@ export const uaTranslation = {
         footerHint: "Натисніть Esc для повернення до верстака",
       },
       hub: {
+        starterCards: {
+          cardA: {
+            badge: "⚡ ЕКСПРЕС ТЕСТ-ДРАЙВ • 5 ХВИЛИН",
+            title: "⚡ Експрес тест-драйв: Спробувати все (5 хвилин)",
+            subtitle: "Не знаєш з чого почати? Спробуй 3 ключові професії по черзі:",
+            step1: "1. Оживи екран ТВ (Backend)",
+            step2: "2. Наріж текст для ШІ (AI)",
+            step3: "3. Відбий атаку (Cyber)",
+            button: "Розпочати тест-драйв ➔",
+          },
+          cardB: {
+            badge: "🎯 КАР'ЄРНИЙ ФОКУС",
+            title: "🎯 Обрати професійний трек",
+            subtitle: "Вже знаєш, чого хочеш? Обери один із 3 кар'єрних шляхів:",
+            item1: "• Backend & Systems (C# / Go)",
+            item2: "• AI & Agents (Python)",
+            item3: "• Cybersecurity (SOC)",
+            button: "Обрати трек 🧭",
+          },
+          spoilerOpen: "🛠️ Переглянути всі 10 станцій верстака ▼",
+          spoilerClose: "Сховати станції верстака ▲",
+        },
         categories: {
           all: "Всі станції",
           systems: "Системи & Бекенд",

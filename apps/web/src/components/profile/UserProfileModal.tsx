@@ -40,6 +40,7 @@ import {
   CYBER_TASKS,
   TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
+import { ProfileOnboardingGuide } from "./ProfileOnboardingGuide";
 import { ProfileIdentityTab } from "./tabs/ProfileIdentityTab";
 import { ProfileAnalyticsTab } from "./tabs/ProfileAnalyticsTab";
 import {
@@ -546,6 +547,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
         {/* ── Modal Scrollable Body ── */}
         <div className="relative z-10 flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Feature Discovery: 3-step mini-onboarding for profile */}
+          <ProfileOnboardingGuide />
+
           {activeTab === "identity" && (
             <ProfileIdentityTab
               callsign={callsign}
