@@ -72,7 +72,7 @@ export const AudioVolumeWidget: React.FC = () => {
   };
 
   return (
-    <div className="relative inline-block" ref={popoverRef}>
+    <div className="relative inline-block shrink-0" ref={popoverRef}>
       {/* Trigger Button */}
       <button
         onClick={() => {

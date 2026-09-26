@@ -71,7 +71,7 @@ export const ExplorerTourHeaderBar: React.FC = () => {
   return (
     <div
       id="explorer-tour-header-bar"
-      className="sticky top-0 z-40 w-full bg-[#1E2227] text-[#FAF8F4] border-b border-[#FAF8F4]/15 shadow-md px-3 sm:px-6 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 select-none animate-in slide-in-from-top duration-200"
+      className="sticky top-0 z-40 w-full max-w-full overflow-hidden bg-[#1E2227] text-[#FAF8F4] border-b border-[#FAF8F4]/15 shadow-md px-3 sm:px-6 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 select-none animate-in slide-in-from-top duration-200"
     >
       {/* ── Left: Tour Badge & Step Indicator ── */}
       <div className="flex items-center gap-3 w-full md:w-auto shrink-0 justify-between md:justify-start">

@@ -68,33 +68,33 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
   const initials = callsign.slice(0, 2).toUpperCase();
 
   return (
-    <div className={`relative inline-flex items-center ${className}`} ref={menuRef}>
+    <div className={`relative inline-flex items-center shrink-0 ${className}`} ref={menuRef}>
       {/* ── State 1: Unauthenticated (Guest Mode) ── */}
       {!user ? (
         <button
           id="btn-auth-guest-login"
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl bg-[#EBE5D8] hover:bg-[#FAF8F2] border-2 border-[#1A1D20]/20 hover:border-accent-blue/50 text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-[0.98] select-none group"
+          className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#EBE5D8] hover:bg-[#FAF8F2] border-2 border-[#1A1D20]/20 hover:border-accent-blue/50 text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-[0.98] select-none group shrink-0 whitespace-nowrap"
           title={t("auth.guestTooltip", "Увійти в акаунт інженера або зберегти прогрес у хмарі")}
         >
           {/* Engineering Key / Login Icon Box */}
-          <div className="w-7 h-7 rounded-xl bg-accent-blue/15 border border-accent-blue/35 text-accent-blue flex items-center justify-center transition-all duration-200 group-hover:bg-accent-blue group-hover:text-white group-hover:scale-105 shadow-2xs shrink-0">
-            <LogIn size={15} strokeWidth={2.2} />
+          <div className="w-6 h-6 rounded-lg bg-accent-blue/15 border border-accent-blue/35 text-accent-blue flex items-center justify-center transition-all duration-200 group-hover:bg-accent-blue group-hover:text-white group-hover:scale-105 shadow-2xs shrink-0">
+            <LogIn size={13} strokeWidth={2.2} />
           </div>
 
           {/* Two-tier Engineering Telemetry Typography */}
-          <div className="text-left flex flex-col justify-center leading-none">
-            <div className="flex items-center gap-1.5 text-[9px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/60 group-hover:text-accent-blue transition-colors">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-              <span>{t("auth.guestStatus", "Гість • Offline")}</span>
+          <div className="text-left flex flex-col justify-center leading-none min-w-0">
+            <div className="flex items-center gap-1 text-[8.5px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/60 group-hover:text-accent-blue transition-colors truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              <span className="truncate">{t("auth.guestStatus", "Гість • Offline")}</span>
             </div>
-            <div className="font-display font-extrabold text-xs sm:text-sm text-[#1A1D20] group-hover:text-accent-blue flex items-center gap-1 mt-0.5 transition-colors">
-              <span>{t("auth.guestLoginAction", "Увійти в акаунт")}</span>
+            <div className="font-display font-extrabold text-xs text-[#1A1D20] group-hover:text-accent-blue flex items-center gap-1 mt-0.5 transition-colors whitespace-nowrap">
+              <span>{t("auth.guestLoginAction", "Вхід")}</span>
               <ArrowRight
-                size={13}
+                size={12}
                 strokeWidth={2.4}
-                className="text-accent-blue/70 group-hover:text-accent-blue group-hover:translate-x-0.5 transition-transform"
+                className="text-accent-blue/70 group-hover:text-accent-blue group-hover:translate-x-0.5 transition-transform shrink-0"
               />
             </div>
           </div>
@@ -105,11 +105,11 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           id="btn-user-profile-menu"
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 rounded-2xl bg-[#FAF8F2] hover:bg-white border-2 border-[#1A1D20]/25 hover:border-emerald-600/50 shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-[0.98] select-none group"
+          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-xl bg-[#FAF8F2] hover:bg-white border-2 border-[#1A1D20]/25 hover:border-emerald-600/50 shadow-paper-xs hover:shadow-paper-sm transition-all duration-200 cursor-pointer active:scale-[0.98] select-none group shrink-0 whitespace-nowrap"
           title={t("auth.profileTooltip", "Відкрити панель інженера та телеметрію")}
         >
           {/* Avatar / Initials Stamp */}
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl overflow-hidden bg-accent-blue/15 border border-accent-blue/35 text-accent-blue flex items-center justify-center font-display font-extrabold text-xs shadow-2xs shrink-0">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden bg-accent-blue/15 border border-accent-blue/35 text-accent-blue flex items-center justify-center font-display font-extrabold text-xs shadow-2xs shrink-0">
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
@@ -122,34 +122,34 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           </div>
 
           {/* Callsign & Cloud Pulse */}
-          <div className="text-left leading-none hidden xs:flex flex-col justify-center">
-            <div className="flex items-center gap-1 text-[8px] sm:text-[9px] font-mono uppercase tracking-wider text-[#1A1D20]/60 font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{t("auth.syncBadge", "SYNC")} • ONLINE</span>
+          <div className="text-left leading-none hidden md:flex flex-col justify-center min-w-0">
+            <div className="flex items-center gap-1 text-[8px] sm:text-[8.5px] font-mono uppercase tracking-wider text-[#1A1D20]/60 font-bold truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>{t("auth.syncBadge", "SYNC")}</span>
             </div>
-            <div className="font-display font-extrabold text-xs sm:text-sm text-[#1A1D20] truncate max-w-[95px] sm:max-w-[130px] mt-0.5">
+            <div className="font-display font-extrabold text-xs text-[#1A1D20] truncate max-w-[80px] lg:max-w-[110px] mt-0.5">
               {callsign}
             </div>
           </div>
 
           {/* Career Qualification Grade Pill */}
           <span
-            className={`hidden sm:inline-flex items-center px-1.5 py-0.5 rounded font-mono font-bold text-[10px] border shadow-2xs ${careerRank.color}`}
+            className={`hidden sm:inline-flex items-center px-1.5 py-0.5 rounded font-mono font-bold text-[9px] border shadow-2xs shrink-0 ${careerRank.color}`}
             title={`${careerRank.grade}: ${careerRank.codeName}`}
           >
             {careerRank.grade}
           </span>
 
-          {/* Star Balance Badge */}
-          <div className="flex items-center gap-0.5 text-amber-900 font-bold text-[10px] font-mono bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-600/35 shadow-2xs">
+          {/* Compact Star Balance Badge: ★ {stars} */}
+          <div className="flex items-center gap-0.5 text-amber-900 font-bold text-[10px] font-mono bg-amber-500/20 px-1.5 py-0.5 rounded-md border border-amber-600/35 shadow-2xs shrink-0 whitespace-nowrap">
             <span className="text-amber-600">★</span>
-            <span>{totalStars}/{TOTAL_MAX_STARS}</span>
+            <span>{totalStars}</span>
           </div>
 
           <ChevronDown
-            size={14}
+            size={13}
             strokeWidth={2.2}
-            className={`text-[#1A1D20]/60 transition-transform duration-200 ${
+            className={`text-[#1A1D20]/60 transition-transform duration-200 shrink-0 ${
               isMenuOpen ? "rotate-180 text-emerald-700" : ""
             }`}
           />

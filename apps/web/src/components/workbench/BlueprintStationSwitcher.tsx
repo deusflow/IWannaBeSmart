@@ -182,24 +182,24 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
   }, [isOpen]);
 
   return (
-    <div ref={containerRef} className="relative z-40">
+    <div ref={containerRef} className="relative z-40 shrink-0">
       {/* Station Trigger Button in Sniglet Font */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        className={`group flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-paper-subtle border border-paper-border text-ink font-display text-sm shadow-paper-sm transition-all duration-150 active:scale-[0.98] cursor-pointer outline-none hover:border-accent-blue/40 ${
+        className={`group flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-paper-subtle border border-paper-border text-ink font-display text-xs sm:text-sm shadow-paper-sm transition-all duration-150 active:scale-[0.98] cursor-pointer outline-none hover:border-accent-blue/40 shrink-0 whitespace-nowrap ${
           isOpen ? "ring-2 ring-accent-blue/20 border-accent-blue" : ""
         }`}
       >
-        <span className="text-accent-blue flex items-center">{activeOption.icon}</span>
-        <span className="font-bold text-ink">{activeOption.title}</span>
-        <span className="text-[11px] px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted">
+        <span className="text-accent-blue flex items-center shrink-0">{activeOption.icon}</span>
+        <span className="font-bold text-ink truncate max-w-[110px] sm:max-w-none">{activeOption.title}</span>
+        <span className="text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted shrink-0 hidden sm:inline-block">
           {activeOption.code}
         </span>
         <ChevronDown
           size={14}
           strokeWidth={2}
-          className={`text-ink-muted transition-transform duration-200 ease-out ${
+          className={`text-ink-muted transition-transform duration-200 ease-out shrink-0 ${
             isOpen ? "rotate-180 text-accent-blue" : ""
           }`}
         />

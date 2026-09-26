@@ -22,7 +22,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
 
   return (
     <div
-      className={`flex items-center gap-0.5 bg-white p-0.5 rounded-xl border border-[#1E2227]/15 shadow-2xs select-none ${className}`}
+      className={`flex items-center gap-0.5 bg-white p-0.5 rounded-xl border border-[#1E2227]/15 shadow-2xs select-none shrink-0 ${className}`}
       title="Зміна мови / Change language / Skift sprog"
     >
       {showIcon && !compact && (

@@ -345,7 +345,7 @@ export const WorkshopHubScreen: React.FC = () => {
             <span>WORKBENCH HUB v2.0 • ENGINEERING WORKSHOP</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#1A1D20] tracking-tight">
-            {t("hub.title", "Інженерний Хаб верстака")}
+            {t("hub.title", "Інженерний Хаб")}
           </h1>
           <p className="text-xs sm:text-sm font-sans text-[#1A1D20]/70 max-w-2xl mt-0.5">
             {t(
@@ -357,30 +357,24 @@ export const WorkshopHubScreen: React.FC = () => {
 
         {/* ── Engineering Telemetry (XP & Stars only) ── */}
         <div className="flex items-center gap-2.5 sm:gap-3 self-start sm:self-auto shrink-0 select-none">
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs">
-            <div className="w-7 h-7 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
-              <Zap size={14} className="fill-[#C86D32] text-[#C86D32]" />
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs shrink-0 whitespace-nowrap">
+            <div className="w-6 h-6 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
+              <Zap size={13} className="fill-[#C86D32] text-[#C86D32]" />
             </div>
             <div className="text-left leading-none">
-              <div className="text-[9px] font-mono uppercase font-bold text-[#1E2227]/60">
-                {t("hub.totalXp", "Досвід")}
-              </div>
-              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] mt-0.5">
-                {xp} XP
+              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] whitespace-nowrap">
+                XP: {xp}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs">
-            <div className="w-7 h-7 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
-              <span className="text-sm font-bold">★</span>
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs shrink-0 whitespace-nowrap">
+            <div className="w-6 h-6 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
+              <span className="text-xs font-bold leading-none text-amber-600">★</span>
             </div>
             <div className="text-left leading-none">
-              <div className="text-[9px] font-mono uppercase font-bold text-[#1E2227]/60">
-                {t("hub.totalStars", "Зірки майстерності")}
-              </div>
-              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] mt-0.5">
-                {totalStars} / {TOTAL_MAX_STARS}
+              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] whitespace-nowrap">
+                ★ {totalStars} / {TOTAL_MAX_STARS}
               </div>
             </div>
           </div>
