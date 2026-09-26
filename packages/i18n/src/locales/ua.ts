@@ -1100,6 +1100,7 @@ export const uaTranslation = {
             progressStars: "зірок майстерності",
             releaseDate: "Доступно зараз",
             badge: "Активна станція: Асинхронний EventBus",
+            certButton: "Сертифікат",
           },
           api: {
             title: "Станція 04: Інтернет-зв'язок (API)",
@@ -1543,7 +1544,6 @@ export const uaTranslation = {
       obstacleActive: "🛑 ЗАВАДА АКТИВНА",
       tripObstacle: "⚠️ ПЕРЕШКОДА (IR BEAM)",
       resetBtn: "СКИДАННЯ ВОРІТ",
-      certButton: "Сертифікат",
       tasks: {
         task1: {
           title: "Детекція датчика руху та безпечний стоп воріт",

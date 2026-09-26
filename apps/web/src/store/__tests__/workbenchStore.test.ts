@@ -16,6 +16,7 @@ import {
   FDE_TASKS,
   RAG_TASKS,
   CYBER_TASKS,
+  IOT_TASKS,
 } from "@iw/sim-engine";
 
 // Helper accessor to always inspect the fresh Zustand state
@@ -626,6 +627,7 @@ Traffic is routed across private interconnects to prevent external interception.
       const expectedTotal =
         CODING_TASKS.length * 4 +
         FINTECH_TASKS.length * 4 +
+        IOT_TASKS.length * 4 +
         API_FORGE_TASKS.length * 4 +
         GIT_TASKS.length * 4 +
         BANDIT_TASKS.length * 4 +
@@ -634,7 +636,8 @@ Traffic is routed across private interconnects to prevent external interception.
         RAG_TASKS.length * 4 +
         CYBER_TASKS.length * 4;
       expect(TOTAL_MAX_STARS).toBe(expectedTotal);
-      expect(TOTAL_MAX_STARS).toBe(356);
+      // 356 base + 4 (1 IoT task × 4 stars)
+      expect(TOTAL_MAX_STARS).toBe(360);
     });
 
     it("should record task mastery stars and best WPM without downgrade", () => {

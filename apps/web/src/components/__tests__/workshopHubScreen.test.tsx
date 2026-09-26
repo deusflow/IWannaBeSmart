@@ -87,9 +87,9 @@ describe("WorkshopHubScreen Hierarchy & Invariants", () => {
     });
 
     it("shows track stations when userTrack is active under 'my_track'", () => {
-      // Backend track
+      // Backend track - iot is now a live station
       const backendVisible = ORDERED_STATION_IDS.filter((id) => isStationVisible(id, "my_track", "backend"));
-      expect(backendVisible).toEqual(["tv", "pos", "api", "git"]);
+      expect(backendVisible).toEqual(["tv", "pos", "iot", "api", "git"]);
 
       // AI track
       const aiVisible = ORDERED_STATION_IDS.filter((id) => isStationVisible(id, "my_track", "ai"));

@@ -336,7 +336,7 @@ export const IotCodeGymRunner: React.FC = () => {
               className="px-2.5 py-1 text-xs rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 flex items-center gap-1.5 transition-colors shadow-[0_0_10px_rgba(245,158,11,0.2)]"
             >
               <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>{t("workbench.viewCertificate", "Certificate")}</span>
+              <span>{t("hub.stations.iot.certButton", "Certificate")}</span>
             </button>
           )}
 

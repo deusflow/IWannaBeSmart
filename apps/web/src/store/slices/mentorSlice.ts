@@ -22,6 +22,9 @@ function deriveStationAndTier(
   if (taskId.startsWith("task-pos-")) {
     return { stationId: "pos", tier: 0 };
   }
+  if (taskId.startsWith("task-iot-")) {
+    return { stationId: "iot", tier: 0 };
+  }
   if (taskId.startsWith("task-api-")) {
     return { stationId: "api", tier: 0 };
   }
@@ -36,6 +39,12 @@ function deriveStationAndTier(
   }
   if (taskId.startsWith("task-fde-")) {
     return { stationId: "fde", tier: 0 };
+  }
+  if (taskId.startsWith("task-rag-")) {
+    return { stationId: "rag", tier: 0 };
+  }
+  if (taskId.startsWith("task-cyber-")) {
+    return { stationId: "cyber", tier: 0 };
   }
   const tvTask = CODING_TASKS.find((t) => t.id === taskId);
   if (tvTask) {

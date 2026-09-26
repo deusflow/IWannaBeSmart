@@ -1100,6 +1100,7 @@ export const enTranslation = {
             progressStars: "mastery stars",
             releaseDate: "Available Now",
             badge: "Active Station: Event-Driven Bus",
+            certButton: "Certificate",
           },
           api: {
             title: "Station 04: Internet Connection (API)",
@@ -1543,7 +1544,6 @@ export const enTranslation = {
       obstacleActive: "🛑 OBSTACLE ACTIVE",
       tripObstacle: "⚠️ OBSTACLE (IR BEAM)",
       resetBtn: "RESET GATE",
-      certButton: "Certificate",
       tasks: {
         task1: {
           title: "Motion Sensor Detection & Safe Gate Stop",

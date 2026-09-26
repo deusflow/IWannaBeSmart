@@ -1100,6 +1100,7 @@ export const daTranslation = {
             progressStars: "mestringsstjerner",
             releaseDate: "Tilgængelig nu",
             badge: "Aktiv station: Event-Driven Bus",
+            certButton: "Certifikat",
           },
           api: {
             title: "Station 04: Internetforbindelse (API)",
