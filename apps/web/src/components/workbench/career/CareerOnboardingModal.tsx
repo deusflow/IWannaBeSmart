@@ -21,6 +21,7 @@ import { useShallow } from "zustand/react/shallow";
 import { CAREER_TRACKS, type CareerTrackItem } from "./careerTracks";
 import type { CareerTrack } from "../../../store/types";
 import { audioFx } from "../../../utils/audioFx";
+import { LanguageSwitcher } from "../LanguageSwitcher";
 
 export const CareerOnboardingModal: React.FC = () => {
   const { t } = useTranslation();
@@ -102,15 +103,18 @@ export const CareerOnboardingModal: React.FC = () => {
             </p>
           </div>
 
-          {/* Close button (always accessible) */}
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="self-end sm:self-start p-2 rounded-xl border border-[#1E2227]/15 hover:border-[#1E2227]/40 text-[#1E2227]/60 hover:text-[#1E2227] bg-white hover:bg-[#F0EDE6] transition-all cursor-pointer shrink-0"
-            title={t("common.close", "Закрити")}
-          >
-            <X size={18} />
-          </button>
+          {/* Language Switcher & Close button */}
+          <div className="self-end sm:self-start flex items-center gap-2.5 shrink-0">
+            <LanguageSwitcher compact />
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="p-2 rounded-xl border border-[#1E2227]/15 hover:border-[#1E2227]/40 text-[#1E2227]/60 hover:text-[#1E2227] bg-white hover:bg-[#F0EDE6] transition-all cursor-pointer shrink-0"
+              title={t("common.close", "Закрити")}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* ── 4 Career Track Cards Grid ── */}

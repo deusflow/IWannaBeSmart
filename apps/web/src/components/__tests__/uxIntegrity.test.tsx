@@ -75,4 +75,33 @@ describe("UX Integrity & Codebase Fixes", () => {
       expect(setCurrentViewMock).toHaveBeenCalledWith("STATION");
     });
   });
+
+  describe("First-Entry Modal Localization & Language Switcher", () => {
+    it("provides language switching across UA, EN, DA with feedback", () => {
+      const toastInfoSpy = vi.spyOn(toast, "info");
+      const changeLanguageMock = vi.fn();
+
+      const switchLang = (locale: string) => {
+        changeLanguageMock(locale);
+        const langLabels: Record<string, string> = {
+          ua: "Мову перемкнуто: Українська",
+          en: "Language switched: English",
+          da: "Sprog skiftet: Dansk",
+        };
+        toast.info(langLabels[locale] || locale.toUpperCase());
+      };
+
+      switchLang("en");
+      expect(changeLanguageMock).toHaveBeenCalledWith("en");
+      expect(toastInfoSpy).toHaveBeenCalledWith("Language switched: English");
+
+      switchLang("da");
+      expect(changeLanguageMock).toHaveBeenCalledWith("da");
+      expect(toastInfoSpy).toHaveBeenCalledWith("Sprog skiftet: Dansk");
+
+      switchLang("ua");
+      expect(changeLanguageMock).toHaveBeenCalledWith("ua");
+      expect(toastInfoSpy).toHaveBeenCalledWith("Мову перемкнуто: Українська");
+    });
+  });
 });

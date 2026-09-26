@@ -19,6 +19,7 @@ import {
 import { audioFx } from "../../utils/audioFx";
 import { toast } from "../../store/toastStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface OnboardingTourModalProps {
   isOpen: boolean;
@@ -178,14 +179,17 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="text-[#1E2227]/50 hover:text-[#1E2227] transition-colors p-1.5 rounded-lg hover:bg-[#1E2227]/5 cursor-pointer"
-            aria-label={t("onboarding.skip", "Пропустити")}
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher compact />
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="text-[#1E2227]/50 hover:text-[#1E2227] transition-colors p-1.5 rounded-lg hover:bg-[#1E2227]/5 cursor-pointer"
+              aria-label={t("onboarding.skip", "Пропустити")}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Slide Content */}

@@ -19,6 +19,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import { LanguageSwitcher } from "../workbench/LanguageSwitcher";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -150,14 +151,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </h3>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#1A1D20]/5 hover:bg-[#1A1D20]/15 border border-[#1A1D20]/20 flex items-center justify-center text-[#1A1D20] transition-all cursor-pointer"
-            title={t("common.close", "Закрити")}
-            aria-label={t("common.close", "Закрити")}
-          >
-            <X size={16} strokeWidth={2.4} />
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher compact />
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-xl bg-[#1A1D20]/5 hover:bg-[#1A1D20]/15 border border-[#1A1D20]/20 flex items-center justify-center text-[#1A1D20] transition-all cursor-pointer"
+              title={t("common.close", "Закрити")}
+              aria-label={t("common.close", "Закрити")}
+            >
+              <X size={16} strokeWidth={2.4} />
+            </button>
+          </div>
         </div>
 
         {/* Modal Body */}
