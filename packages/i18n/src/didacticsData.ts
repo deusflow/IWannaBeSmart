@@ -246,6 +246,137 @@ export const TASK_DIDACTIC_EN: Record<string, DidacticTranslation> = {
       "go": "Implement retry loop with exponential backoff for transient network errors."
     }
   }
+,
+  "task-git-1-genesis": {
+    "whyThisCode": {
+      "csharp": "Execute Git plumbing via Process.Start: stage tracked files (git add) and create the root genesis commit with a cryptographic SHA-1 hash.",
+      "go": "Invoke exec.Command in Go to initialize device telemetry repository and write the genesis commit."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Git calculates SHA-1 / SHA-256 tree hashes based on raw payload bytes, storing immutable objects in .git/objects without loading everything into RAM.",
+      "go": "Git objects are stored as zlib-compressed byte streams keyed by 20-byte object IDs."
+    }
+  },
+  "task-git-4-conflict": {
+    "whyThisCode": {
+      "csharp": "Resolve Git merge conflicts: manually reconcile divergent branches by keeping verified upstream changes and cleanly deleting conflict markers (<<<<<<<, =======, >>>>>>>).",
+      "go": "Reconcile divergent file heads and commit resolved state to finalize the merge."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "During merge conflicts, Git holds three stages in the index: common ancestor (stage 1), target branch (stage 2), and source branch (stage 3).",
+      "go": "Index stages 1, 2, and 3 track file versions until stage resolution generates a unified hash."
+    }
+  },
+  "task-git-5-rebase": {
+    "whyThisCode": {
+      "csharp": "Git rebase workflow: replay topic commits on top of updated origin/main to preserve a clean, linear commit history without extraneous merge bubbles.",
+      "go": "Linearize commit graph history via rebase before opening upstream pull request."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Rebasing creates brand-new commit hashes for each replayed commit because their parent SHA pointers are rewritten.",
+      "go": "Rebase rewrites parent pointers for each commit, updating downstream SHA references."
+    }
+  },
+  "task-bandit-4-sql-injection": {
+    "whyThisCode": {
+      "csharp": "Defense against SQL Injection: replace dynamic string interpolation with parameterized SqlCommand queries to neutralize SQL syntax manipulation.",
+      "go": "Use database parameter placeholders (, ?) to prevent malicious input from altering the AST parse tree."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Parameterized queries separate the query grammar from data arguments in memory, ensuring input is treated purely as a literal value.",
+      "go": "Parameters are sent separately to the database engine, preventing user input from executing as SQL code."
+    }
+  },
+  "task-bandit-5-rate-limiter": {
+    "whyThisCode": {
+      "csharp": "Implement Token Bucket rate limiting: enforce maximum requests per second per IP to shield endpoints against credential stuffing and brute-force DoS.",
+      "go": "Enforce request rate limiting using time.Ticker and buffered concurrency tokens."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Tokens refill at fixed clock intervals in an atomic memory register (Interlocked.Increment / Decrement) with zero lock contention.",
+      "go": "Token bucket uses atomic memory registers to validate incoming traffic without spinlock contention."
+    }
+  },
+  "task-vertex-3-pipeline-yaml": {
+    "whyThisCode": {
+      "csharp": "Configure declarative ML training pipelines in Kubeflow / Vertex AI YAML: wire dataset extraction, training container, and model evaluation steps.",
+      "go": "Define declarative machine learning workflow DAG specifying container artifacts and compute requirements."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Pipeline specs compile into immutable cloud execution graphs with input/output artifact URIs tracked in Google Cloud Storage.",
+      "go": "Kubeflow specifications are parsed into a directed acyclic graph (DAG) in orchestrator memory."
+    }
+  },
+  "task-vertex-13-drift-detection": {
+    "whyThisCode": {
+      "csharp": "Data Drift monitoring: compute L-Infinity distance between baseline training distributions and incoming production inference features to detect model degradation.",
+      "go": "Track real-time feature skew and trigger automated model retraining when divergence exceeds threshold."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Statistical histograms are kept in sliding time window buffers (60s) to detect statistical skew with minimal heap footprint.",
+      "go": "Data distribution histograms are updated in memory buffers to detect anomalies in real time."
+    }
+  },
+  "task-fde-7-agent-architecture": {
+    "whyThisCode": {
+      "csharp": "Autonomous AI Agent architecture: implement ReAct loop dividing cognitive flow into Perception (observe state), Planning (reasoning), and Tool Execution.",
+      "go": "Orchestrate agent reasoning loop with deterministic tool calling boundaries and circuit breakers."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Agent scratchpad memory resides in an ephemeral dialogue context, pruned via sliding token window to maintain strict prompt limits.",
+      "go": "Agent working memory is maintained in compressed token arrays to respect the model context window."
+    }
+  },
+  "task-fde-10-prompt-injection": {
+    "whyThisCode": {
+      "csharp": "Shield against Prompt Injection (OWASP LLM01): isolate user input within XML tags, enforce system prompt precedence, and sanitize output before database commits.",
+      "go": "Filter and semantically analyze LLM prompts to prevent prompt leak and unauthorized instruction overrides."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Input tokens are analyzed through deterministic regex guards and dual-model classification filters before reaching the core inference engine.",
+      "go": "Prompt token validation is performed in memory buffers before dispatching requests to LLM APIs."
+    }
+  },
+  "task-rag-1-chunking-overlap": {
+    "whyThisCode": {
+      "csharp": "Document chunking with sliding window overlap: divide source corpus into 500-token chunks with 50-token overlap to preserve semantic continuity across boundaries.",
+      "go": "Segment text documents with configurable chunk overlap for optimal vector embedding generation."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Tokens are processed as contiguous spans in ReadOnlySpan<char> memory buffers, eliminating superfluous string allocations during splitting.",
+      "go": "Document snippets are processed as slices in memory to minimize memory copying."
+    }
+  },
+  "task-rag-4-hybrid-rrf": {
+    "whyThisCode": {
+      "csharp": "Hybrid search via Reciprocal Rank Fusion (RRF): combine sparse lexical results (BM25) and dense semantic vector rankings into a unified relevance score.",
+      "go": "Compute reciprocal rank fusion scores to balance exact keyword matching with semantic embedding search."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Score calculation uses 1.0 / (k + rank) where k=60; results are stored in a priority queue (Min-Heap) for top-K retrieval in O(N log K).",
+      "go": "Top-K documents are sorted in a compact memory heap for lowest query latency."
+    }
+  },
+  "task-cyber-4-syn-flood-detector": {
+    "whyThisCode": {
+      "csharp": "Detect TCP SYN Flood attacks: track half-open connection ratio and alert when pending handshake queue backlog exceeds capacity threshold.",
+      "go": "Monitor raw network socket packets to identify abnormal bursts of TCP SYN flags without matching ACK responses."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Packet header flags (SYN=0x02, ACK=0x10) are unpacked via bitwise masking in a circular ring buffer without locking.",
+      "go": "Network packet flags are evaluated with bitwise masks in a ring buffer for low CPU footprint."
+    }
+  },
+  "task-cyber-8-nist-containment": {
+    "whyThisCode": {
+      "csharp": "Implement NIST SP 800-61 incident containment: isolate compromised hosts via firewall rules, revoke session tokens, and preserve forensic memory logs.",
+      "go": "Enforce network host isolation, terminate active malicious connections, and write tamper-proof audit trails."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Forensic state and network ACLs are written to an append-only audit stream with cryptographic checksums for chain of custody.",
+      "go": "Forensic event data is recorded with cryptographic timestamps to safeguard the chain of custody."
+    }
+  },
 };
 
 export const TASK_DIDACTIC_DA: Record<string, DidacticTranslation> = {
@@ -477,6 +608,137 @@ export const TASK_DIDACTIC_DA: Record<string, DidacticTranslation> = {
       "go": "Implementer retry-løkke med eksponentiel backoff for midlertidige netværksfejl."
     }
   }
+,
+  "task-git-1-genesis": {
+    "whyThisCode": {
+      "csharp": "Udfør Git-plumbing via Process.Start: stage sporede filer (git add) og opret rod-genesiskommit med en kryptografisk SHA-1 hash.",
+      "go": "Kald exec.Command i Go for at initialisere telemetri-lageret og oprette genesiskommit."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Git beregner SHA-1 / SHA-256 hashes baseret på rå bytes og gemmer uforanderlige objekter i .git/objects uden at overbelaste RAM.",
+      "go": "Git-objekter gemmes som zlib-komprimerede datastrømme indekseret efter 20-byte objekt-IDs."
+    }
+  },
+  "task-git-4-conflict": {
+    "whyThisCode": {
+      "csharp": "Løs Git-flettekonflikter: afstem modstridende ændringer ved at bevare verificerede opdateringer og fjerne konfliktmarkører (<<<<<<<, =======, >>>>>>>).",
+      "go": "Afstem divergerende grene og udfør et rent fletningskommit i Git."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Under flettekonflikter opbevarer Git tre stadier i indekset: fælles forfader (trin 1), målgren (trin 2) og kildegren (trin 3).",
+      "go": "Indekstrin 1, 2 og 3 holder filversioner, indtil afstemning skaber en ensartet hash."
+    }
+  },
+  "task-git-5-rebase": {
+    "whyThisCode": {
+      "csharp": "Git rebase-arbejdsgang: genafspil lokale commits oven på opdateret origin/main for at opretholde en ren, lineær historik uden unødige merge-commits.",
+      "go": "Linearisér kommit-historikken via rebase før oprettelse af pull request."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Rebase tildeler helt nye commit-hashes til hvert kommit, da forælder-referencerne (parent SHA) omskrives.",
+      "go": "Rebase omskriver forældre-pointers for hvert kommit og opdaterer hele historiegrenen."
+    }
+  },
+  "task-bandit-4-sql-injection": {
+    "whyThisCode": {
+      "csharp": "Beskyttelse mod SQL Injection: erstat dynamisk strengkonkatenering med parametriserede SqlCommand-forespørgsler for at neutralisere angreb.",
+      "go": "Anvend parametriserede pladsholdere (, ?) for at forhindre manipulation af databasens syntakstræ."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Parametriserede forespørgsler adskiller SQL-grammatikken fra dataværdier i hukommelsen, så input behandles udelukkende som data.",
+      "go": "Database-driveren sender parametre adskilt over netværkssoklen, hvilket forhindrer utilsigtet kodeudførelse."
+    }
+  },
+  "task-bandit-5-rate-limiter": {
+    "whyThisCode": {
+      "csharp": "Implementér Token Bucket rate-begrænsning: håndhæv maksimalt antal forespørgsler pr. sekund for at beskytte mod brute-force og DoS.",
+      "go": "Begræns forespørgselsfrekvens med time.Ticker og bufferede Go-kanaler."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Tokens genopfyldes med faste tidsintervaller i et atomisk register med Interlocked.Decrement uden låsekonflikter.",
+      "go": "Token bucket anvender atomare datatyper i hukommelsen til lynhurtig godkendelse af indgående trafik."
+    }
+  },
+  "task-vertex-3-pipeline-yaml": {
+    "whyThisCode": {
+      "csharp": "Konfigurér deklarativ ML-træningspipeline i Kubeflow / Vertex AI YAML: forbind datasæt-udtræk, træningsbeholder og modelevaluering.",
+      "go": "Definér deklarativ maskinlærings-arbejdsgang med beholder-artefakter og beregningskrav."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Pipeline-specifikationer kompileres til uforanderlige cloud-eksekveringsgrafer med artefakt-URIs i Cloud Storage.",
+      "go": "YAML-specifikationen parses til en rettet acyklisk graf (DAG) i orkestreringslagets hukommelse."
+    }
+  },
+  "task-vertex-13-drift-detection": {
+    "whyThisCode": {
+      "csharp": "Overvåg datadrift: beregn L-Infinity afstand mellem grundlæggende træningsfordeling og produktionsfunktioner for at opdage modelforringelse.",
+      "go": "Overvåg funktionsafvigelse i realtid og udløs automatisk gentræning af modellen."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Statistiske histogrammer gemmes i glidende tidsvinduer i hukommelsen med lavt heap-forbrug.",
+      "go": "Datafordelings-histogrammer opdateres i hukommelsesbuffere for at identificere afvigelser øjeblikkeligt."
+    }
+  },
+  "task-fde-7-agent-architecture": {
+    "whyThisCode": {
+      "csharp": "Autonom AI-agentarkitektur: implementér ReAct-cyklus opdelt i observation (Perception), planlægning (Planning) og værktøjskald (Tool Calling).",
+      "go": "Orkestrer agentens ræsonneringscyklus med deterministiske grænser for værktøjskald."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Agentens kladdehukommelse opbevares i en flygtig dialogkontekst, der beskæres til faste token-grænser.",
+      "go": "Konteksthukommelsen holdes i komprimerede token-arrays for at overholde modellens maksimale vindue."
+    }
+  },
+  "task-fde-10-prompt-injection": {
+    "whyThisCode": {
+      "csharp": "Beskyttelse mod Prompt Injection (OWASP LLM01): isolér brugerinput i XML-tags, håndhæv systeminstruktioner og saniter svar.",
+      "go": "Filtrér og analysér prompter semantisk for at forhindre omgåelse af systemets sikkerhedsregler."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Input-tokens analyseres gennem deterministiske filtre, før de overføres til inferensmotoren.",
+      "go": "Sikkerhedskontrol af strenge sker i memory-buffere før kald til LLM-tjenesten."
+    }
+  },
+  "task-rag-1-chunking-overlap": {
+    "whyThisCode": {
+      "csharp": "Dokumentopdeling med glidende vindue (overlap): opdel kildetekst i 500-token bidder med 50-token overlap for at bevare semantisk sammenhæng.",
+      "go": "Segmentér tekstdokumenter med overlap for at opnå optimale vektorindlejringer."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Tokens behandles som sammenhængende ReadOnlySpan<char>-blokke uden overflødig strengallokering på heapen.",
+      "go": "Udsnit af dokumenter håndteres direkte via slices for lynhurtig parsing."
+    }
+  },
+  "task-rag-4-hybrid-rrf": {
+    "whyThisCode": {
+      "csharp": "Hybrid søgning med Reciprocal Rank Fusion (RRF): kombinér leksikalsk søgning (BM25) og semantisk vektorsøgning til en samlet relevansscore.",
+      "go": "Beregn RRF-point for at afbalancere nøgleordssøgning med semantisk vektorforståelse."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Pointberegningen anvender formlen 1.0 / (k + rang) med k=60 og lagres i en prioritetskø (Min-Heap) for hurtig top-K søgning.",
+      "go": "Top-K dokumenter sorteres i en kompakt hukommelseskø med minimal beregningsforsinkelse."
+    }
+  },
+  "task-cyber-4-syn-flood-detector": {
+    "whyThisCode": {
+      "csharp": "Registrér TCP SYN Flood angreb: overvåg forholdet mellem halvåbne forbindelser og slå alarm, når baglog-køen overstiger tærsklen.",
+      "go": "Overvåg rå netværkspakker for at identificere unormale stigninger i TCP SYN-flag uden matchende ACK."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Pakkeflag (SYN=0x02, ACK=0x10) udpakkes via bitvise masker i en cirkulær ring-buffer uden låsning.",
+      "go": "Netværksflag analyseres med bitmasker i en ringbuffer for ekstremt lav latenstid."
+    }
+  },
+  "task-cyber-8-nist-containment": {
+    "whyThisCode": {
+      "csharp": "Implementér hændelsesbegrænsning efter NIST SP 800-61: isolér kompromitterede værter via firewall, tilbagekald sessioner og gem retsmedicinske logfiler.",
+      "go": "Isolér netværksvært, afbryd ondsindede forbindelser og opret en uforanderlig revisionslog."
+    },
+    "primitiveMemoryNote": {
+      "csharp": "Retsmedicinske data og netværksregler skrives til en append-only log med kryptografiske kontrolsummer for beviskæde.",
+      "go": "Hændelsesdata registreres med kryptografiske tidsstempler for at sikre bevisernes gyldighed."
+    }
+  },
 };
 
 export interface LocalizableTaskDidactic {

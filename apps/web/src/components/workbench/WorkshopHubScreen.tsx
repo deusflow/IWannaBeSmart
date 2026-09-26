@@ -12,6 +12,10 @@ import {
   Zap,
   Sparkles,
   Rocket,
+  Server,
+  BrainCircuit,
+  ShieldAlert,
+  LayoutGrid,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -27,6 +31,7 @@ import {
   FDE_TASKS,
   RAG_TASKS,
   CYBER_TASKS,
+  IOT_TASKS,
   TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 import { useShallow } from "zustand/react/shallow";
@@ -113,35 +118,45 @@ export const WorkshopHubScreen: React.FC = () => {
     () => [
       {
         id: "my_track" as const,
-        label: t("hub.tabs.myTrack", "🌟 Мій трек"),
+        label: t("hub.tabs.myTrack", "MY TRACK"),
+        icon: Compass,
+        accentColor: "#C86D32",
         count: !userTrack
           ? 10
           : userTrack === "explorer"
-          ? 9
+          ? 10
           : userTrack === "backend"
-          ? 4
+          ? 5
           : userTrack === "ai"
           ? 3
-          : 3,
+          : 2,
       },
       {
         id: "backend" as const,
-        label: t("hub.tabs.backend", "🖥️ Backend"),
-        count: 4,
+        label: t("hub.tabs.backend", "BACKEND & SYSTEMS"),
+        icon: Server,
+        accentColor: "#3B6B88",
+        count: 5,
       },
       {
         id: "ai" as const,
-        label: t("hub.tabs.ai", "🤖 AI & MLOps"),
+        label: t("hub.tabs.ai", "AI & MLOPS"),
+        icon: BrainCircuit,
+        accentColor: "#3E7A5E",
         count: 3,
       },
       {
         id: "security" as const,
-        label: t("hub.tabs.security", "🛡️ Безпека"),
-        count: 3,
+        label: t("hub.tabs.security", "SECURITY & SOC"),
+        icon: ShieldAlert,
+        accentColor: "#B85D38",
+        count: 2,
       },
       {
         id: "all" as const,
-        label: `${t("hub.tabs.all", "🧭 Всі станції")} (10)`,
+        label: t("hub.tabs.all", "ALL STATIONS"),
+        icon: LayoutGrid,
+        accentColor: "#1E2227",
         count: 10,
       },
     ],
@@ -174,7 +189,10 @@ export const WorkshopHubScreen: React.FC = () => {
   // 2. Fintech POS Terminal (4 stars per task)
   const posStats = useMemo(() => getStationStats(FINTECH_TASKS, 4), [getStationStats]);
 
-  // 3. API Forge (4 stars per task)
+  // 3. IoT Garage Gate (4 stars per task)
+  const iotStats = useMemo(() => getStationStats(IOT_TASKS, 4), [getStationStats]);
+
+  // 4. API Forge (4 stars per task)
   const apiStats = useMemo(() => getStationStats(API_FORGE_TASKS, 4), [getStationStats]);
 
   // 4. Git Time Machine (4 stars per task)
@@ -489,32 +507,75 @@ export const WorkshopHubScreen: React.FC = () => {
 
 
 
-      {/* ── Interactive Track / Category Filter Tabs (Hidden for new cadets) ── */}
-      {!isNewUser && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none scrollbar-none" role="tablist">
-        {hubTabs.map((tab) => {
-          const isActive = selectedTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => {
-                audioFx.playKeyClick();
-                setSelectedTab(tab.id);
-              }}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-display text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 shrink-0 ${
-                isActive
-                  ? "bg-[#1E2227] text-white shadow-xs"
-                  : "bg-white hover:bg-[#FDFBF7] border border-[#1E2227]/15 text-[#1E2227]/75 hover:text-[#1E2227]"
-              }`}
-            >
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+      {/* ── Interactive Track / Category Filter Tabs & Persistent Express Flight ── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-2 select-none" role="toolbar" aria-label="Workbench Filter & Express">
+        <div className="flex items-center gap-2 overflow-x-auto select-none scrollbar-none py-1" role="tablist">
+          {hubTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = selectedTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                role="tab"
+                id={`tab-hub-${tab.id}`}
+                aria-selected={isActive}
+                onClick={() => {
+                  audioFx.playKeyClick();
+                  setSelectedTab(tab.id);
+                }}
+                className={`group flex items-center gap-2 px-3 py-2 rounded-xl font-mono uppercase text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 shrink-0 ${
+                  isActive
+                    ? "bg-[#1E2227] text-white border border-[#1E2227] shadow-[inset_0_2px_4px_rgba(0,0,0,0.6),0_1px_3px_rgba(30,34,39,0.3)]"
+                    : "bg-white/85 hover:bg-white text-[#1E2227]/75 hover:text-[#1E2227] border border-[#1E2227]/15 hover:border-[#1E2227]/30 shadow-2xs"
+                }`}
+              >
+                {/* Micro-indicator LED dot */}
+                <span
+                  className="w-1.5 h-1.5 rounded-full shrink-0 transition-all"
+                  style={{
+                    backgroundColor: tab.accentColor,
+                    boxShadow: isActive ? `0 0 8px ${tab.accentColor}` : "none",
+                  }}
+                />
+                <Icon
+                  size={13}
+                  className="shrink-0 transition-colors"
+                  style={{ color: isActive ? "#FFFFFF" : tab.accentColor }}
+                />
+                <span className="font-bold">{tab.label}</span>
+                <span
+                  className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold leading-none ${
+                    isActive
+                      ? "bg-white/20 text-white"
+                      : "bg-[#1E2227]/10 text-[#1E2227]/70 group-hover:text-[#1E2227]"
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Permanent Express Flight (Test-Drive) Button */}
+        <button
+          type="button"
+          id="btn-permanent-express-tour"
+          onClick={() => {
+            audioFx.playRelayClick();
+            setCurrentView("EXPRESS_TOUR");
+          }}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#C86D32]/10 via-[#C86D32]/15 to-[#C86D32]/20 hover:from-[#C86D32]/20 hover:to-[#C86D32]/30 border border-[#C86D32]/40 hover:border-[#C86D32] text-[#C86D32] font-mono uppercase text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0 ml-auto"
+          title={t("hub.expressTourTooltip", "Швидкий ознайомчий тур для новачків (3 хвилини)")}
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C86D32] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C86D32]" />
+          </span>
+          <Zap size={13} className="text-[#C86D32] fill-current" />
+          <span>{t("hub.expressTourBtn", "⚡ ЕКСПРЕС ТЕСТ-ДРАЙВ (3 ХВ)")}</span>
+        </button>
       </div>
-      )}
 
       {/* ── Hub Content: New User Gateways vs Active Cadet Grid ── */}
       {isNewUser ? (
@@ -727,7 +788,7 @@ export const WorkshopHubScreen: React.FC = () => {
           />
         )}
 
-        {/* Station 03: IoT Garage Gate (In Development / Roadmap) */}
+        {/* Station 03: IoT Garage Gate */}
         {isStationVisible("iot") && (
           <StationShowcaseCard
             stationId="iot"
@@ -735,23 +796,18 @@ export const WorkshopHubScreen: React.FC = () => {
             title={t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")}
             subtitle={t(
               "hub.stations.iot.subtitle",
-              "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
+              "Асинхронний EventBus, брокери повідомлень, реле керування та захисні сенсори руху."
             )}
             blueprint={<IotBlueprintSvg />}
-            specs={t("hub.stations.iot.specs", "В розробці • Event-Driven Architecture • C# / Go")}
-            currentStars={0}
-            maxStars={0}
-            statusType="roadmap"
+            specs={t("hub.stations.iot.specs", "1 задача • Event-Driven Architecture • C# / Go")}
+            currentStars={iotStats.current}
+            maxStars={iotStats.max}
+            statusType={iotStats.statusType}
             {...getTrackCardProps("iot")}
             isWaitingStation={false}
             waitingBadgeText={undefined}
-            lockCriteria={{
-              conditionText: t("hub.roadmapStatus", "Статус модуля"),
-              progressText: t("hub.stations.iot.releaseDate", "Реліз у 2 семестрі"),
-              percent: 100,
-              badgeText: t("hub.stations.iot.badge", "В розробці: Реліз у 2 семестрі"),
-              isRoadmap: true,
-            }}
+            starColorClass="text-sky-600"
+            onEnter={() => handleEnterStation("iot")}
           />
         )}
 

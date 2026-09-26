@@ -27,6 +27,8 @@ export * from "./tasks-rag";
 export * from "./cyberEngine";
 export * from "./tasks-cyber";
 export * from "./warRoomEngine";
+export * from "./iotContext";
+export * from "./tasks-iot";
 
 import { CODING_TASKS } from "./tasks";
 import { FINTECH_TASKS } from "./tasks-fintech";
@@ -37,6 +39,7 @@ import { VERTEX_TASKS } from "./tasks-vertex";
 import { FDE_TASKS } from "./tasks-fde";
 import { RAG_TASKS } from "./tasks-rag";
 import { CYBER_TASKS } from "./tasks-cyber";
+import { IOT_TASKS } from "./tasks-iot";
 
 export const TOTAL_MAX_STARS =
   CODING_TASKS.length * 4 +
@@ -47,5 +50,7 @@ export const TOTAL_MAX_STARS =
   VERTEX_TASKS.length * 4 +
   FDE_TASKS.length * 4 +
   RAG_TASKS.length * 4 +
-  CYBER_TASKS.length * 4;
+  CYBER_TASKS.length * 4 +
+  IOT_TASKS.length * 4;
+
 

@@ -28,6 +28,7 @@ import type {
   PipelineResult,
   SecurityResult,
   HandoffResult,
+  VirtualIotState,
 } from "@iw/sim-engine";
 
 /**
@@ -419,6 +420,17 @@ export interface ExplorerTourSlice {
   setTourFinaleModalOpen: (open: boolean) => void;
 }
 
+export interface IotSlice {
+  isIotVictoryModalOpen: boolean;
+  setIotVictoryModalOpen: (open: boolean) => void;
+  iotState: VirtualIotState;
+  triggerIotRemote: () => void;
+  triggerIotObstacle: (detected: boolean) => void;
+  setIotPosition: (percent: number) => void;
+  resetIotState: () => void;
+  applyIotExecution: (updates: Partial<VirtualIotState>) => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -436,5 +448,7 @@ export type WorkbenchStore = TVStateSlice &
   CyberSlice &
   WarRoomSlice &
   ExplorerTourSlice &
+  IotSlice &
   WorkbenchActions;
+
 

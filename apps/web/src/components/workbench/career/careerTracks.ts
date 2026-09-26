@@ -40,7 +40,7 @@ export const CAREER_TRACKS: CareerTrackItem[] = [
     rolesKey: "career.tracks.backend.roles",
     stationsKey: "career.tracks.backend.stations",
     icon: Server,
-    stationIds: ["tv", "pos", "api", "git"],
+    stationIds: ["tv", "pos", "iot", "api", "git"],
     theme: {
       accentBorder: "border-[#3B6B88]",
       accentBg: "bg-[#EAF0F4]",
@@ -107,7 +107,7 @@ export const CAREER_TRACKS: CareerTrackItem[] = [
     stationsKey: "career.tracks.explorer.stations",
     mottoKey: "career.tracks.explorer.motto",
     icon: Compass,
-    stationIds: ["tv", "pos", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"],
+    stationIds: ["tv", "pos", "iot", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"],
     theme: {
       accentBorder: "border-[#C86D32]",
       accentBg: "bg-[#F5EDE6]",
@@ -128,7 +128,7 @@ export const CAREER_TRACKS: CareerTrackItem[] = [
 export function isStationInTrack(stationId: string, track: CareerTrack | null): boolean {
   if (!track) return false;
   if (track === "explorer") {
-    return ["tv", "pos", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"].includes(stationId);
+    return ["tv", "pos", "iot", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"].includes(stationId);
   }
   const config = CAREER_TRACKS.find((c) => c.id === track);
   return config ? config.stationIds.includes(stationId) : false;
@@ -140,6 +140,7 @@ export function isStationInTrack(stationId: string, track: CareerTrack | null): 
 export const EXPLORER_INTRO_TASKS: Record<string, string> = {
   tv: "task-1-command",
   pos: "task-pos-1",
+  iot: "task-iot-1-motion-stop",
   api: "task-api-1",
   git: "task-git-1",
   bandit: "task-bandit-1",

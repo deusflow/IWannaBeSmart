@@ -113,8 +113,8 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
     const didacticsEnKeys = Object.keys(TASK_DIDACTIC_EN);
     const didacticsDaKeys = Object.keys(TASK_DIDACTIC_DA);
 
-    expect(didacticsEnKeys.length).toBeGreaterThanOrEqual(33);
-    expect(didacticsDaKeys.length).toBeGreaterThanOrEqual(33);
+    expect(didacticsEnKeys.length).toBeGreaterThanOrEqual(46);
+    expect(didacticsDaKeys.length).toBeGreaterThanOrEqual(46);
     expect(didacticsEnKeys.sort()).toEqual(didacticsDaKeys.sort());
 
     for (const taskId of didacticsEnKeys) {

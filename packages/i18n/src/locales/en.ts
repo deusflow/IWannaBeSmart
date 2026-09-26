@@ -1024,12 +1024,14 @@ export const enTranslation = {
           iot: "Hardware & IoT",
         },
         tabs: {
-          myTrack: "🌟 My Track",
-          backend: "🖥️ Backend",
-          ai: "🤖 AI & MLOps",
-          security: "🛡️ Security",
-          all: "🧭 All Stations",
+          myTrack: "My Track",
+          backend: "Backend & Systems",
+          ai: "AI & MLOps",
+          security: "Security & SOC",
+          all: "All Stations",
         },
+        expressTourBtn: "⚡ Express Flight (3 min)",
+        expressTourTooltip: "Quick introductory test-drive for new cadets (3 minutes)",
         warRoomBanner: {
           badge: "SEV-1 On-Call SRE Simulator",
           perResolution: "per resolution",
@@ -1090,6 +1092,15 @@ export const enTranslation = {
             specs: "Condition checks, payment statuses, and card protection.",
             progressStars: "mastery stars",
           },
+          iot: {
+            title: "Station 03: IoT Garage Gate",
+            subtitle: "Async EventBus, message brokers, relay actuators, and optical safety motion sensors.",
+            code: "Module 3",
+            specs: "Asynchronous events, event bus, and safety interlocks.",
+            progressStars: "mastery stars",
+            releaseDate: "Available Now",
+            badge: "Active Station: Event-Driven Bus",
+          },
           api: {
             title: "Station 04: Internet Connection (API)",
             subtitle: "Connect app to server: send online requests, check access tokens, and retry if Wi-Fi drops.",
@@ -1138,14 +1149,6 @@ export const enTranslation = {
             code: "Module 10",
             specs: "8 tasks • Google Cybersecurity • Python / TS",
             progressStars: "mastery stars",
-          },
-          iot: {
-            title: "Station 03: IoT Garage Gate",
-            subtitle: "Asynchronous EventBus, message brokers, event queues, and safety sensors",
-            code: "Module 3",
-            specs: "In Development • Event-Driven Architecture • C# / Go",
-            releaseDate: "Release in Semester 2",
-            badge: "In Development: Release in Semester 2",
           },
           pc: {
             title: "Station 04: Workstation",
@@ -1532,7 +1535,31 @@ export const enTranslation = {
         right: "Right",
         irTransmitter: "38 kHz IR Transmitter",
       },
-      apiForge: {
+      iotStation: {
+      title: "IoT Garage Gate: EventBus & Sensors",
+      motorUp: "MOTOR UP",
+      motorDown: "MOTOR DOWN",
+      remoteBtn: "⚡ REMOTE (CLICK)",
+      obstacleActive: "🛑 OBSTACLE ACTIVE",
+      tripObstacle: "⚠️ OBSTACLE (IR BEAM)",
+      resetBtn: "RESET GATE",
+      certButton: "Certificate",
+      tasks: {
+        task1: {
+          title: "Motion Sensor Detection & Safe Gate Stop",
+          concept: "Event-Driven Safety Interlock & Relay Control",
+          desc: "Subscribe to the OBSTACLE_DETECTED event and immediately trigger gate.EmergencyStop() and relay.PowerOff() to prevent a hazard collision.",
+          hint: "Use eventBus.Subscribe('OBSTACLE_DETECTED', ...) and call EmergencyStop() and PowerOff()",
+          success: "Safety stop successfully engaged! Motor powered off, collision prevented.",
+        },
+      },
+      validation: {
+        fail: "Gate safe stop validation failed",
+        success: "Safe stop engaged: motor stopped and power relay cut!",
+        motorStillRunning: "Warning! Obstacle detected, but motor relay is still energized!",
+      },
+    },
+    apiForge: {
         title: "API Forge: Client & Server Gateway",
         subtitle: "Full lifecycle: From HTTP client dispatcher and physical bus to C# and Go endpoints",
         client: "HTTP Client (Dispatcher)",

@@ -1024,12 +1024,14 @@ export const daTranslation = {
           iot: "Hardware & IoT",
         },
         tabs: {
-          myTrack: "🌟 Mit Spor",
-          backend: "🖥️ Backend",
-          ai: "🤖 AI & MLOps",
-          security: "🛡️ Sikkerhed",
-          all: "🧭 Alle Stationer",
+          myTrack: "Mit Spor",
+          backend: "Backend & Systemer",
+          ai: "AI & MLOps",
+          security: "Sikkerhed & SOC",
+          all: "Alle Stationer",
         },
+        expressTourBtn: "⚡ Ekstres Testkørsel (3 min)",
+        expressTourTooltip: "Hurtig introduktionstur for nye kadetter (3 minutter)",
         warRoomBanner: {
           badge: "SEV-1 On-Call SRE Simulator",
           perResolution: "pr. løsning",
@@ -1090,6 +1092,15 @@ export const daTranslation = {
             specs: "Betingelsestjek, betalingsstatus og kortbeskyttelse.",
             progressStars: "mestringsstjerner",
           },
+          iot: {
+            title: "Station 03: IoT Garageport",
+            subtitle: "Asynkron EventBus, beskedmæglere, relæstyring og optiske sikkerhedssensorer.",
+            code: "Modul 3",
+            specs: "Asynkrone hændelser, event bus og sikkerhedsrelæer.",
+            progressStars: "mestringsstjerner",
+            releaseDate: "Tilgængelig nu",
+            badge: "Aktiv station: Event-Driven Bus",
+          },
           api: {
             title: "Station 04: Internetforbindelse (API)",
             subtitle: "Forbind appen til serveren: send online forespørgsler, tjek adgangstokens og genprøv ved Wi-Fi-udfald.",
@@ -1138,14 +1149,6 @@ export const daTranslation = {
             code: "Modul 10",
             specs: "8 opgaver • Google Cybersecurity • Python / TS",
             progressStars: "mestringsstjerner",
-          },
-          iot: {
-            title: "Station 03: IoT Garageport",
-            subtitle: "Asynkron EventBus, beskedmæglere, hændelseskøer og sikkerhedssensorer",
-            code: "Modul 3",
-            specs: "Under udvikling • Event-Driven Architecture • C# / Go",
-            releaseDate: "Udgivelse i 2. semester",
-            badge: "Under udvikling: Udgivelse i 2. semester",
           },
           pc: {
             title: "Station 04: Arbejdsstation",
@@ -1532,7 +1535,30 @@ export const daTranslation = {
         right: "Højre",
         irTransmitter: "38 kHz IR-sender",
       },
-      apiForge: {
+      iotStation: {
+      title: "IoT Garageport: EventBus & Sensorer",
+      motorUp: "MOTOR OP",
+      motorDown: "MOTOR NED",
+      remoteBtn: "⚡ FJERNBETJENING (CLICK)",
+      obstacleActive: "🛑 FORHINDRING AKTIV",
+      tripObstacle: "⚠️ FORHINDRING (IR BEAM)",
+      resetBtn: "NULSTIL PORT",
+      tasks: {
+        task1: {
+          title: "Bevægelsessensordetektering & Sikkerhedsstyring",
+          concept: "Event-Driven Safety Interlock & Relay Control",
+          desc: "Abonnér på OBSTACLE_DETECTED hændelsen og udløs straks gate.EmergencyStop() og relay.PowerOff() for at forhindre en kollision.",
+          hint: "Brug eventBus.Subscribe('OBSTACLE_DETECTED', ...) og kald EmergencyStop() og PowerOff()",
+          success: "Sikkerhedsstop udløst! Motorens strømrelæ afbrudt, kollision afværget.",
+        },
+      },
+      validation: {
+        fail: "Validering af portens sikkerhedsstop mislykkedes",
+        success: "Sikkerhedsstop aktiveret: motor standset og strøm afbrudt!",
+        motorStillRunning: "Advarsel! Forhindring registreret, men motorrelæet er stadig tændt!",
+      },
+    },
+    apiForge: {
         title: "API Forge: Klient & Server Gateway",
         subtitle: "Komplet cyklus: Fra HTTP-klient dispatcher og fysisk bus til C# og Go endpoints",
         client: "HTTP Klient (Dispatcher)",

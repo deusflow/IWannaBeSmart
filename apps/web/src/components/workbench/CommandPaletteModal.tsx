@@ -42,7 +42,6 @@ import {
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { audioFx } from "../../utils/audioFx";
-import { toast } from "../../store/toastStore";
 
 interface PaletteItem {
   id: string;
@@ -99,21 +98,12 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   // Handle station jump
   const handleJumpStation = useCallback(
     (stationId: string) => {
-      if (stationId === "iot") {
-        audioFx.playRelayClick();
-        toast.info(
-          t("hub.stations.iot.badge", "В РОЗРОБЦІ: EventBus & Async I/O"),
-          t("hub.stations.iot.releaseDate", "Реліз: Наступний семестр 2026")
-        );
-        onClose();
-        return;
-      }
       audioFx.playRelayClick();
       setCurrentStationId(stationId);
       setCurrentView("STATION");
       onClose();
     },
-    [setCurrentStationId, setCurrentView, onClose, t]
+    [setCurrentStationId, setCurrentView, onClose]
   );
 
   // Handle task jump

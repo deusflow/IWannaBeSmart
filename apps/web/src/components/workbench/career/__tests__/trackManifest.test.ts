@@ -14,7 +14,7 @@ import {
 
 describe("trackManifest Registry", () => {
   it("enforces strict sequences for all career tracks", () => {
-    expect(TRACK_SEQUENCES.backend).toEqual(["tv", "pos", "api", "git"]);
+    expect(TRACK_SEQUENCES.backend).toEqual(["tv", "pos", "iot", "api", "git"]);
     expect(TRACK_SEQUENCES.ai).toEqual(["vertex", "fde", "rag"]);
     expect(TRACK_SEQUENCES.security).toEqual(["bandit", "cyber"]);
   });
@@ -32,20 +32,28 @@ describe("trackManifest Registry", () => {
 });
 
 describe("getNextStationInTrack", () => {
-  describe("Backend Track Sequence: tv -> pos -> api -> git", () => {
+  describe("Backend Track Sequence: tv -> pos -> iot -> api -> git", () => {
     it("transitions from tv to pos", () => {
       const res = getNextStationInTrack("tv", "backend");
       expect(res.nextStationId).toBe("pos");
       expect(res.isLast).toBe(false);
-      expect(res.progressPercent).toBe(25);
+      expect(res.progressPercent).toBe(20);
       expect(res.nextStationShortName).toBe("POS Terminal");
     });
 
-    it("transitions from pos to api", () => {
+    it("transitions from pos to iot", () => {
       const res = getNextStationInTrack("pos", "backend");
+      expect(res.nextStationId).toBe("iot");
+      expect(res.isLast).toBe(false);
+      expect(res.progressPercent).toBe(40);
+      expect(res.nextStationShortName).toBe("IoT Gate");
+    });
+
+    it("transitions from iot to api", () => {
+      const res = getNextStationInTrack("iot", "backend");
       expect(res.nextStationId).toBe("api");
       expect(res.isLast).toBe(false);
-      expect(res.progressPercent).toBe(50);
+      expect(res.progressPercent).toBe(60);
       expect(res.nextStationShortName).toBe("API Forge");
     });
 
@@ -53,7 +61,7 @@ describe("getNextStationInTrack", () => {
       const res = getNextStationInTrack("api", "backend");
       expect(res.nextStationId).toBe("git");
       expect(res.isLast).toBe(false);
-      expect(res.progressPercent).toBe(75);
+      expect(res.progressPercent).toBe(80);
       expect(res.nextStationShortName).toBe("Git Time Machine");
     });
 
@@ -130,9 +138,9 @@ describe("getTrackCompletionStats", () => {
 
     const stats = getTrackCompletionStats("backend", isCompleted);
     expect(stats.completedCount).toBe(2);
-    expect(stats.totalCount).toBe(4);
-    expect(stats.percent).toBe(50);
-    expect(stats.stationIds).toEqual(["tv", "pos", "api", "git"]);
+    expect(stats.totalCount).toBe(5);
+    expect(stats.percent).toBe(40);
+    expect(stats.stationIds).toEqual(["tv", "pos", "iot", "api", "git"]);
   });
 
   it("handles 100% completion", () => {

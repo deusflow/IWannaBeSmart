@@ -1024,12 +1024,14 @@ export const uaTranslation = {
           iot: "Апаратні & IoT",
         },
         tabs: {
-          myTrack: "🌟 Мій трек",
-          backend: "🖥️ Backend",
-          ai: "🤖 AI & MLOps",
-          security: "🛡️ Безпека",
-          all: "🧭 Всі станції",
+          myTrack: "Мій трек",
+          backend: "Backend & Системи",
+          ai: "AI & MLOps",
+          security: "Безпека & SOC",
+          all: "Всі станції",
         },
+        expressTourBtn: "⚡ Експрес тест-драйв (3 хв)",
+        expressTourTooltip: "Швидкий ознайомчий тур для новачків (3 хвилини)",
         warRoomBanner: {
           badge: "SEV-1 On-Call SRE Simulator",
           perResolution: "за кожну ліквідацію",
@@ -1090,6 +1092,15 @@ export const uaTranslation = {
             specs: "Перевірка умов, статуси оплати та захист карток.",
             progressStars: "зірок майстерності",
           },
+          iot: {
+            title: "Станція 03: IoT Гаражні ворота",
+            subtitle: "Асинхронний EventBus, брокери повідомлень, реле керування та захисні сенсори руху.",
+            code: "Модуль 3",
+            specs: "Асинхронні події, шина повідомлень та захисні інтерлоки.",
+            progressStars: "зірок майстерності",
+            releaseDate: "Доступно зараз",
+            badge: "Активна станція: Асинхронний EventBus",
+          },
           api: {
             title: "Станція 04: Інтернет-зв'язок (API)",
             subtitle: "З'єднуємо додаток із сервером: відправляємо запити, перевіряємо доступ та налаштовуємо повторну спробу, якщо зник Wi-Fi.",
@@ -1138,14 +1149,6 @@ export const uaTranslation = {
             code: "Модуль 10",
             specs: "8 завдань • Google Cybersecurity • Python / TS",
             progressStars: "зірок майстерності",
-          },
-          iot: {
-            title: "Станція 03: IoT Гаражні ворота",
-            subtitle: "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори",
-            code: "Модуль 3",
-            specs: "В розробці • Event-Driven Architecture • C# / Go",
-            releaseDate: "Реліз у 2 семестрі",
-            badge: "В розробці: Реліз у 2 семестрі",
           },
           pc: {
             title: "Станція 04: Робоча станція",
@@ -1532,7 +1535,31 @@ export const uaTranslation = {
         right: "Вправо",
         irTransmitter: "38 kHz ІЧ-передавач",
       },
-      apiForge: {
+      iotStation: {
+      title: "IoT Гаражні ворота: EventBus & Сенсори",
+      motorUp: "ПІДЙОМ ВОРІТ",
+      motorDown: "ОПУСКАННЯ ВОРІТ",
+      remoteBtn: "⚡ ПУЛЬТ (CLICK)",
+      obstacleActive: "🛑 ЗАВАДА АКТИВНА",
+      tripObstacle: "⚠️ ПЕРЕШКОДА (IR BEAM)",
+      resetBtn: "СКИДАННЯ ВОРІТ",
+      certButton: "Сертифікат",
+      tasks: {
+        task1: {
+          title: "Детекція датчика руху та безпечний стоп воріт",
+          concept: "Event-Driven Safety Interlock & Relay Control",
+          desc: "Підпишися на подію перешкоди OBSTACLE_DETECTED і негайно викликай gate.EmergencyStop() та relay.PowerOff(), щоб запобігти аварійному зіткненню.",
+          hint: "Використовуй eventBus.Subscribe('OBSTACLE_DETECTED', ...) і викликай EmergencyStop() та PowerOff()",
+          success: "Безпечний стоп успішно спрацював! Двигун знеструмлено, аварії уникнуто.",
+        },
+      },
+      validation: {
+        fail: "Помилка валідації безпечного зупину воріт",
+        success: "Безпечний стоп активовано: двигун зупинено, живлення знеструмлено!",
+        motorStillRunning: "Увага! Перешкода на шляху, але реле двигуна не знеструмлено!",
+      },
+    },
+    apiForge: {
         title: "API Forge: Клієнт & Серверний шлюз",
         subtitle: "Повний цикл: Від HTTP клієнта та кабелю зв'язку до серверних ендпоінтів C# та Go",
         client: "HTTP Клієнт (Dispatcher)",

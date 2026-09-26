@@ -59,11 +59,11 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         title: t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота"),
         subtitle: t(
           "hub.stations.iot.subtitle",
-          "Ультразвуковий датчик та кінцеві автомати"
+          "Асинхронний EventBus, реле керування та захисні сенсори"
         ),
-        status: t("hub.stations.iot.badge", "В розробці: Реліз у 2 семестрі"),
+        status: t("hub.stationAvailable", "Доступно"),
         icon: <Warehouse size={16} strokeWidth={2} />,
-        isAvailable: false,
+        isAvailable: true,
       },
       {
         id: "api",

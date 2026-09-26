@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
-import { tvLevel01, CODING_TASKS, FINTECH_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS, VERTEX_TASKS, FDE_TASKS, RAG_TASKS, CYBER_TASKS } from "@iw/sim-engine";
+import { tvLevel01, CODING_TASKS, FINTECH_TASKS, IOT_TASKS, API_FORGE_TASKS, GIT_TASKS, BANDIT_TASKS, VERTEX_TASKS, FDE_TASKS, RAG_TASKS, CYBER_TASKS } from "@iw/sim-engine";
 
 const WarRoomScreen = lazy(() =>
   import("../components/workbench/warroom/WarRoomScreen").then((m) => ({ default: m.WarRoomScreen }))
@@ -26,6 +26,8 @@ const TVBlueprintDevice = lazy(() => import("../components/workbench/TVBlueprint
 const RemoteBlueprintDevice = lazy(() => import("../components/workbench/RemoteBlueprintDevice").then((m) => ({ default: m.RemoteBlueprintDevice })));
 const ArchitectureCanvas = lazy(() => import("../components/workbench/architecture/ArchitectureCanvas").then((m) => ({ default: m.ArchitectureCanvas })));
 const POSBlueprintDevice = lazy(() => import("../components/workbench/POSBlueprintDevice").then((m) => ({ default: m.POSBlueprintDevice })));
+const IotGarageBlueprintDevice = lazy(() => import("../components/workbench/IotGarageBlueprintDevice").then((m) => ({ default: m.IotGarageBlueprintDevice })));
+const IotCodeGymRunner = lazy(() => import("../components/workbench/playground/IotCodeGymRunner").then((m) => ({ default: m.IotCodeGymRunner })));
 const CodeGymRunner = lazy(() => import("../components/workbench/playground/CodeGymRunner").then((m) => ({ default: m.CodeGymRunner })));
 const ApiForgeBlueprintDevice = lazy(() => import("../components/workbench/ApiForgeBlueprintDevice").then((m) => ({ default: m.ApiForgeBlueprintDevice })));
 const ApiCodeGymRunner = lazy(() => import("../components/workbench/playground/ApiCodeGymRunner").then((m) => ({ default: m.ApiCodeGymRunner })));
@@ -235,6 +237,11 @@ export const WorkbenchScreen: React.FC = () => {
   ).length;
   const isPosCompleted = completedPosCount >= FINTECH_TASKS.length;
 
+  const completedIotCount = IOT_TASKS.filter(
+    (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
+  ).length;
+  const isIotCompleted = completedIotCount >= IOT_TASKS.length;
+
   const completedApiCount = API_FORGE_TASKS.filter(
     (t) => (taskMasteryStars[t.id] || 0) >= 1 || completedCodingTasks[t.id]
   ).length;
@@ -273,6 +280,8 @@ export const WorkbenchScreen: React.FC = () => {
   const isCurrentStationCompleted =
     currentStationId === "pos"
       ? isPosCompleted
+      : currentStationId === "iot"
+      ? isIotCompleted
       : currentStationId === "api"
       ? isApiCompleted
       : currentStationId === "git"
@@ -292,6 +301,8 @@ export const WorkbenchScreen: React.FC = () => {
   const currentStationProgressText =
     currentStationId === "pos"
       ? `${completedPosCount}/${FINTECH_TASKS.length} ✓`
+      : currentStationId === "iot"
+      ? `${completedIotCount}/${IOT_TASKS.length} ✓`
       : currentStationId === "api"
       ? `${completedApiCount}/${API_FORGE_TASKS.length} ✓`
       : currentStationId === "git"
@@ -407,6 +418,8 @@ export const WorkbenchScreen: React.FC = () => {
                     ? t("architecture.title")
                     : currentStationId === "pos"
                     ? t("posStation.title")
+                    : currentStationId === "iot"
+                    ? t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")
                     : currentStationId === "api"
                     ? t("apiForge.title", "API Forge: Client & Server")
                     : currentStationId === "git"
@@ -609,6 +622,24 @@ export const WorkbenchScreen: React.FC = () => {
             {/* Right: Code Gym Runner */}
             <div className="flex-1 w-full min-w-0">
               <CodeGymRunner />
+            </div>
+          </div>
+        </main>
+      ) : currentStationId === "iot" ? (
+        <main className="relative z-10 flex-1 flex flex-col justify-start p-4 sm:p-6 w-full max-w-[1700px] mx-auto overflow-y-auto">
+          <div className="w-full flex flex-col xl:flex-row items-start justify-center gap-6 xl:gap-8">
+            {/* Left: IoT Garage Gate Device */}
+            <div className="w-full xl:w-[620px] 2xl:w-[680px] shrink-0 xl:sticky top-2">
+              <Suspense fallback={<StationLoadingFallback />}>
+                <IotGarageBlueprintDevice />
+              </Suspense>
+            </div>
+
+            {/* Right: IoT Code Gym Runner */}
+            <div className="flex-1 w-full min-w-0">
+              <Suspense fallback={<StationLoadingFallback />}>
+                <IotCodeGymRunner />
+              </Suspense>
             </div>
           </div>
         </main>

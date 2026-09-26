@@ -15,7 +15,7 @@ export interface StationMeta {
 }
 
 export const TRACK_SEQUENCES: Record<Exclude<CareerTrack, "explorer">, string[]> = {
-  backend: ["tv", "pos", "api", "git"],
+  backend: ["tv", "pos", "iot", "api", "git"],
   ai: ["vertex", "fde", "rag"],
   security: ["bandit", "cyber"],
 };
@@ -23,6 +23,7 @@ export const TRACK_SEQUENCES: Record<Exclude<CareerTrack, "explorer">, string[]>
 export const ALL_STATIONS_SEQUENCE: string[] = [
   "tv",
   "pos",
+  "iot",
   "api",
   "git",
   "bandit",
@@ -46,6 +47,13 @@ export const STATION_DIRECTORY: Record<string, StationMeta> = {
     defaultTitle: "POS Terminal (State Machine & Crypto)",
     shortName: "POS Terminal",
     icon: "💳",
+  },
+  iot: {
+    id: "iot",
+    titleKey: "hub.stations.iot.title",
+    defaultTitle: "IoT Garage Gate (EventBus & Sensors)",
+    shortName: "IoT Gate",
+    icon: "🚪",
   },
   api: {
     id: "api",
