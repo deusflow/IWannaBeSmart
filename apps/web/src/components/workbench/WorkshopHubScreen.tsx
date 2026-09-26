@@ -10,7 +10,7 @@ import {
   Cpu,
   Compass,
   Zap,
-  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -29,7 +29,7 @@ import {
   TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 import { useShallow } from "zustand/react/shallow";
-import { EngineerDossierBar, PatternItem } from "./hub/EngineerDossierBar";
+// EngineerDossierBar moved to UserProfileModal.tsx
 import { StationShowcaseCard } from "./hub/StationShowcaseCard";
 import {
   TvBlueprintSvg,
@@ -248,64 +248,16 @@ export const WorkshopHubScreen: React.FC = () => {
   }, [userTrack, isStationCompleted]);
 
   // Station 3 unlock condition (200+ XP or both modules finished)
-  const isCleanStart = xp === 0;
-  const isStation3Unlocked = xp >= 200 || (tvStats.isCompleted && posStats.isEligible);
-  const station3XpTarget = 200;
-  const station3ProgressPercent = isStation3Unlocked
-    ? 100
-    : Math.min(100, Math.round((xp / station3XpTarget) * 100));
+  const completedTasksCount = useMemo(() => {
+    const ids = new Set([
+      ...Object.keys(completedCodingTasks).filter((id) => completedCodingTasks[id]),
+      ...Object.keys(taskMasteryStars).filter((id) => (taskMasteryStars[id] || 0) >= 1),
+    ]);
+    return ids.size;
+  }, [completedCodingTasks, taskMasteryStars]);
 
-  // Architectural patterns mastery detection
-  const patterns: PatternItem[] = useMemo(() => [
-    {
-      id: "state-machine",
-      name: "State Machine",
-      unlocked: Boolean(
-        completedCodingTasks["task-2-branching"] ||
-        (taskMasteryStars["task-2-branching"] || 0) >= 1 ||
-        completedCodingTasks["task-pos-pin-lockout"] ||
-        (taskMasteryStars["task-pos-pin-lockout"] || 0) >= 1
-      ),
-    },
-    {
-      id: "guard-clauses",
-      name: "Guard Clauses",
-      unlocked: Boolean(
-        completedCodingTasks["task-boundary-guard"] ||
-        (taskMasteryStars["task-boundary-guard"] || 0) >= 1 ||
-        completedCodingTasks["task-pos-guard-clause"] ||
-        (taskMasteryStars["task-pos-guard-clause"] || 0) >= 1
-      ),
-    },
-    {
-      id: "polymorphism",
-      name: "Polymorphism",
-      unlocked: Boolean(
-        completedCodingTasks["task-interface-polymorphism"] ||
-        (taskMasteryStars["task-interface-polymorphism"] || 0) >= 1 ||
-        completedCodingTasks["task-pos-interface-polymorphism"] ||
-        (taskMasteryStars["task-pos-interface-polymorphism"] || 0) >= 1
-      ),
-    },
-    {
-      id: "dependency-injection",
-      name: "Dependency Injection",
-      unlocked: Boolean(
-        completedCodingTasks["task-di-container"] ||
-        (taskMasteryStars["task-di-container"] || 0) >= 1 ||
-        completedCodingTasks["task-pos-dependency-injection"] ||
-        (taskMasteryStars["task-pos-dependency-injection"] || 0) >= 1
-      ),
-    },
-    {
-      id: "open-closed",
-      name: "Open-Closed Principle",
-      unlocked: Boolean(
-        completedCodingTasks["task-command-registry"] ||
-        (taskMasteryStars["task-command-registry"] || 0) >= 1
-      ),
-    },
-  ], [completedCodingTasks, taskMasteryStars]);
+  const isNewUser = completedTasksCount === 0;
+
 
   const handleEnterStation = (stationId: string) => {
     audioFx.playRelayClick();
@@ -382,8 +334,44 @@ export const WorkshopHubScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Career Focus Banner (Directly under Hub Header) ── */}
-      {xp > 0 && (!userTrack ? (
+      {/* ── Onboarding Nudge Tooltip (Appears when completedTasksCount === 1) ── */}
+      {completedTasksCount === 1 && !userTrack && (
+        <div
+          id="career-focus-onboarding-nudge"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F5EDE6] via-white to-[#F5EDE6] border-2 border-[#C86D32] p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in slide-in-from-top duration-500"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/40 text-[#C86D32] flex items-center justify-center shrink-0 shadow-2xs">
+              <Sparkles size={20} className="text-[#C86D32] animate-pulse" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase tracking-wider mb-1">
+                <span>⚡ ONBOARDING NUDGE</span>
+              </div>
+              <p className="text-xs sm:text-sm font-display font-extrabold text-[#1E2227] leading-snug">
+                {t(
+                  "onboarding.firstCircuitNudge",
+                  "Перший контур замкнено! Обери свій кар'єрний фокус (Backend, AI або Cyber), щоб налаштувати тренажер під себе."
+                )}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            id="btn-nudge-choose-track"
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsCareerModalOpen(true);
+            }}
+            className="px-4 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#C86D32] hover:bg-[#B35E28] text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start sm:self-auto"
+          >
+            <span>{t("career.chooseTrackBtn", "Обрати трек 🧭")}</span>
+          </button>
+        </div>
+      )}
+
+      {/* ── Career Focus Banner (Directly under Hub Header, shown once cadet has graduated beyond 0 tasks) ── */}
+      {!isNewUser && (!userTrack ? (
         <div className="relative overflow-hidden rounded-2xl bg-white border border-[#1E2227]/15 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="absolute inset-0 bg-notebook-grid opacity-20 pointer-events-none" />
           <div className="flex items-start sm:items-center gap-3.5 relative z-10">
@@ -496,70 +484,10 @@ export const WorkshopHubScreen: React.FC = () => {
       ))}
 
 
-      {/* ── Global Engineer Dossier Bar ── */}
-      {xp > 0 && (
-        <EngineerDossierBar
-          xp={xp}
-          patterns={patterns}
-          station3ProgressPercent={station3ProgressPercent}
-        />
-      )}
 
-      {/* ── 🚨 Incident War Room Emergency Industrial Console ── */}
-      {xp > 0 && (
-        <div className="relative overflow-hidden rounded-2xl bg-[#24282D] border border-[#1E2227]/25 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
-        {/* Subtle Matte Drafting Grid */}
-        <div className="absolute inset-0 bg-notebook-grid opacity-10 pointer-events-none" />
 
-        <div className="flex items-start sm:items-center gap-4 relative z-10">
-          <div className="w-12 h-12 rounded-xl bg-[#2E343B] border border-[#1E2227]/40 flex items-center justify-center shrink-0">
-            <span className="relative flex h-5 w-5 items-center justify-center">
-              <span className="w-3 h-3 rounded-full bg-[#D9822B] opacity-90 animate-pulse"></span>
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded text-[10.5px] font-mono font-bold bg-[#8E3B3B]/25 text-[#EBB5B5] border border-[#8E3B3B]/40 uppercase tracking-wider">
-                {t("hub.warRoomBanner.badge", "SEV-1 On-Call SRE Simulator")}
-              </span>
-              <span className="text-[11px] font-mono font-medium text-[#E0A468] flex items-center gap-1">
-                <span>+150 XP</span>
-                <span className="text-[#F7F5F0]/60">
-                  {t("hub.warRoomBanner.perResolution", "за кожну ліквідацію")}
-                </span>
-              </span>
-            </div>
-
-            <h2 className="text-base sm:text-lg font-display font-bold text-[#F7F5F0] tracking-tight">
-              {t("hub.warRoomBanner.title", "Incident War Room: Аварії на прод-системах")}
-            </h2>
-
-            <p className="text-xs text-[#F7F5F0]/75 max-w-2xl leading-relaxed">
-              {t(
-                "hub.warRoomBanner.desc",
-                "5 критичних аварій у реальному часі (FinTech подвійні списання, RAG інʼєкції, SYN Flood DDoS, дрифт ML-момоделей). Звучить сирена, рахується збиток — накатіть хотфікс до порушення SLA."
-              )}
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            audioFx.playWarRoomSiren();
-            setCurrentView("WAR_ROOM");
-          }}
-          className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#C86D32] hover:bg-[#B35E28] text-white flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer shadow-sm"
-        >
-          <span>{t("hub.warRoomBanner.enterBtn", "Увійти в War Room")}</span>
-          <ArrowRight size={14} />
-        </button>
-      </div>
-      )}
-
-      {/* ── Interactive Track / Category Filter Tabs ── */}
-      {xp > 0 && (
+      {/* ── Interactive Track / Category Filter Tabs (Hidden for new cadets) ── */}
+      {!isNewUser && (
         <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none scrollbar-none" role="tablist">
         {hubTabs.map((tab) => {
           const isActive = selectedTab === tab.id;
@@ -603,9 +531,9 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={tvStats.max}
             statusType={tvStats.statusType}
             {...getTrackCardProps("tv")}
-            isHeroCard={isCleanStart}
-            isRecommended={isCleanStart ? true : !userTrack ? (!tvStats.isCompleted || xp < 100) : false}
-            beaconText={isCleanStart ? t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
+            isHeroCard={isNewUser}
+            isRecommended={isNewUser ? true : !userTrack ? (!tvStats.isCompleted || xp < 100) : false}
+            beaconText={isNewUser ? t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
             onEnter={() => handleEnterStation("tv")}
             onViewCert={
               tvStats.isEligible
@@ -635,8 +563,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={posStats.max}
             statusType={posStats.statusType}
             {...getTrackCardProps("pos")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             starColorClass="text-amber-700"
             onEnter={() => handleEnterStation("pos")}
             onViewCert={
@@ -667,8 +595,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={0}
             statusType="roadmap"
             {...getTrackCardProps("iot")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             lockCriteria={{
               conditionText: t("hub.roadmapStatus", "Статус модуля"),
               progressText: t("hub.stations.iot.releaseDate", "Реліз у 2 семестрі"),
@@ -695,8 +623,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={apiStats.max}
             statusType={apiStats.statusType}
             {...getTrackCardProps("api")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-cyan-600/60"
             starColorClass="text-cyan-700"
             onEnter={() => handleEnterStation("api")}
@@ -728,8 +656,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={gitStats.max}
             statusType={gitStats.statusType}
                         {...getTrackCardProps("git")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("git")}
@@ -761,8 +689,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={banditStats.max}
             statusType={banditStats.statusType}
                         {...getTrackCardProps("bandit")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-emerald-600/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("bandit")}
@@ -794,8 +722,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={vertexStats.max}
             statusType={vertexStats.statusType}
                         {...getTrackCardProps("vertex")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-blue-600/60"
             starColorClass="text-blue-800"
             onEnter={() => handleEnterStation("vertex")}
@@ -827,8 +755,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={fdeStats.max}
             statusType={fdeStats.statusType}
                         {...getTrackCardProps("fde")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("fde")}
@@ -860,8 +788,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={ragStats.max}
             statusType={ragStats.statusType}
                         {...getTrackCardProps("rag")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-cyan-500/60"
             starColorClass="text-cyan-800"
             onEnter={() => handleEnterStation("rag")}
@@ -893,8 +821,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={cyberStats.max}
             statusType={cyberStats.statusType}
                         {...getTrackCardProps("cyber")}
-            isWaitingStation={isCleanStart}
-            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
+            isWaitingStation={isNewUser}
+            waitingBadgeText={isNewUser ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-emerald-500/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("cyber")}

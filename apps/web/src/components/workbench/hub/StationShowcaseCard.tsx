@@ -76,7 +76,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
     return (
       <div
         className={`flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#1E2227]/15 space-y-3 relative overflow-hidden shadow-xs ${
-          isWaitingStation ? "opacity-60 hover:opacity-85 transition-opacity" : ""
+          isWaitingStation ? "opacity-40 pointer-events-none select-none cursor-not-allowed" : ""
         }`}
       >
         <div className="space-y-2.5">
@@ -168,7 +168,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         isHeroCard
           ? "col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 border-[#C86D32] ring-2 ring-[#C86D32]/35 shadow-md bg-gradient-to-br from-white via-white to-[#FDF8F3]"
           : isWaitingStation
-          ? "border-[#1E2227]/15 opacity-60 hover:opacity-85 bg-[#FAF9F5]"
+          ? "border-[#1E2227]/15 opacity-40 pointer-events-none select-none bg-[#FAF9F5] cursor-not-allowed"
           : isTrackStation
           ? "border-[#C86D32]/50 shadow-sm ring-2 ring-[#C86D32]/20"
           : isRecommended
@@ -297,17 +297,18 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
       {/* Action Buttons */}
       <div className="pt-1.5 flex items-center gap-2">
         <button
-          onClick={onEnter}
-          className={`flex-1 py-2 px-3.5 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-xs ${
+          onClick={isWaitingStation ? undefined : onEnter}
+          disabled={isWaitingStation}
+          className={`flex-1 py-2 px-3.5 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 shadow-xs ${
             isHeroCard
-              ? "py-2.5 text-xs sm:text-sm bg-[#C86D32] hover:bg-[#B35E28] text-white shadow-sm ring-2 ring-[#C86D32]/25"
+              ? "py-2.5 text-xs sm:text-sm bg-[#C86D32] hover:bg-[#B35E28] text-white shadow-sm ring-2 ring-[#C86D32]/25 cursor-pointer"
               : isWaitingStation
-              ? "bg-[#1E2227]/10 hover:bg-[#1E2227]/15 text-[#1E2227]/70 border border-[#1E2227]/15"
+              ? "bg-[#1E2227]/5 text-[#1E2227]/40 border border-[#1E2227]/10 cursor-not-allowed"
               : isTrackStation
-              ? "bg-[#C86D32] hover:bg-[#B35E28] text-white"
+              ? "bg-[#C86D32] hover:bg-[#B35E28] text-white cursor-pointer"
               : isRecommended
-              ? "bg-[#3B6B88] hover:bg-[#2F566E] text-white"
-              : "bg-[#1E2227] hover:bg-black text-white"
+              ? "bg-[#3B6B88] hover:bg-[#2F566E] text-white cursor-pointer"
+              : "bg-[#1E2227] hover:bg-black text-white cursor-pointer"
           }`}
         >
           <span>
