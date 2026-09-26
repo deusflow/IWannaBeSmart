@@ -148,7 +148,9 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
 
   describe("signInWithGoogle (Online & Offline Resilience)", () => {
     it("redirects to OAuth URL when Supabase is online", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(null, { status: 200 }));
       const { error } = await useAuthStore.getState().signInWithGoogle();
+      fetchSpy.mockRestore();
       expect(error).toBeNull();
       expect(window.location.href).toContain("supabase.co");
     });
