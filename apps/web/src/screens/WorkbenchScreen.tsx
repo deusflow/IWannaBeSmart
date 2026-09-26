@@ -6,6 +6,12 @@ const WarRoomScreen = lazy(() =>
   import("../components/workbench/warroom/WarRoomScreen").then((m) => ({ default: m.WarRoomScreen }))
 );
 
+const ExpressTastingScreen = lazy(() =>
+  import("../components/workbench/express/ExpressTastingScreen").then((m) => ({
+    default: m.ExpressTastingScreen,
+  }))
+);
+
 const StationLoadingFallback = () => (
   <div className="flex-1 flex items-center justify-center min-h-[400px]">
     <div className="flex flex-col items-center space-y-3">
@@ -337,6 +343,23 @@ export const WorkbenchScreen: React.FC = () => {
                 WORKBENCH
               </span>
             </div>
+          ) : currentView === "EXPRESS_TOUR" ? (
+            <div className="flex items-center gap-2.5">
+              <button
+                id="btn-express-back-to-hub"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setCurrentView("HUB");
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border text-ink font-mono font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0"
+              >
+                <ArrowLeft size={14} className="text-accent-blue" />
+                <span>{t("expressTour.exitToHub", "До верстака / Hub")}</span>
+              </button>
+              <span className="hidden sm:inline-block font-mono text-xs font-bold text-[#C86D32] bg-[#F5EDE6] px-2 py-0.5 rounded border border-[#C86D32]/30">
+                ⚡ ЕКСПРЕС ТЕСТ-ДРАЙВ
+              </span>
+            </div>
           ) : (
             <>
               {/* Back to Hub Button */}
@@ -557,6 +580,12 @@ export const WorkbenchScreen: React.FC = () => {
         <main className="relative z-10 flex-1 w-full min-h-screen overflow-y-auto flex flex-col">
           <Suspense fallback={<StationLoadingFallback />}>
             <WarRoomScreen />
+          </Suspense>
+        </main>
+      ) : currentView === "EXPRESS_TOUR" ? (
+        <main className="relative z-10 flex-1 w-full min-h-screen overflow-y-auto flex flex-col">
+          <Suspense fallback={<StationLoadingFallback />}>
+            <ExpressTastingScreen onClose={() => setCurrentView("HUB")} />
           </Suspense>
         </main>
       ) : currentView === "HUB" ? (

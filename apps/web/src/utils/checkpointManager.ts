@@ -16,7 +16,7 @@ export interface StationCheckpoint {
 
 export interface GlobalSessionState {
   currentStationId: string;
-  currentView: "HUB" | "STATION" | "WAR_ROOM";
+  currentView: "HUB" | "STATION" | "WAR_ROOM" | "EXPRESS_TOUR";
   activeView?: "device" | "architecture";
   updatedAt: number;
 }
@@ -150,7 +150,7 @@ export function clearCodeDraft(taskId: string, lang: string, round: number): voi
 
 export function saveGlobalSession(data: {
   currentStationId: string;
-  currentView: "HUB" | "STATION" | "WAR_ROOM";
+  currentView: "HUB" | "STATION" | "WAR_ROOM" | "EXPRESS_TOUR";
   activeView?: "device" | "architecture";
 }): void {
   if (typeof window === "undefined") return;

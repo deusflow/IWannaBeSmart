@@ -60,7 +60,6 @@ export const WorkshopHubScreen: React.FC = () => {
     setFdeVictoryModalOpen,
     setRagVictoryModalOpen,
     setCyberVictoryModalOpen,
-    startExplorerTour,
     userTrack,
     setIsCareerModalOpen,
   } = useWorkbenchStore(
@@ -79,7 +78,6 @@ export const WorkshopHubScreen: React.FC = () => {
       setFdeVictoryModalOpen: s.setFdeVictoryModalOpen,
       setRagVictoryModalOpen: s.setRagVictoryModalOpen,
       setCyberVictoryModalOpen: s.setCyberVictoryModalOpen,
-      startExplorerTour: s.startExplorerTour,
       userTrack: s.userTrack,
       setIsCareerModalOpen: s.setIsCareerModalOpen,
     }))
@@ -261,7 +259,7 @@ export const WorkshopHubScreen: React.FC = () => {
     return ids.size;
   }, [completedCodingTasks, taskMasteryStars]);
 
-  const isNewUser = completedTasksCount === 0;
+  const isNewUser = completedTasksCount === 0 && !userTrack;
 
 
   const handleEnterStation = (stationId: string) => {
@@ -578,7 +576,8 @@ export const WorkshopHubScreen: React.FC = () => {
                   type="button"
                   id="btn-start-express-tour"
                   onClick={() => {
-                    startExplorerTour();
+                    audioFx.playRelayClick();
+                    setCurrentView("EXPRESS_TOUR");
                   }}
                   className="w-full py-3.5 px-5 rounded-2xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >

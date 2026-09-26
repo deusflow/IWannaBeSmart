@@ -130,8 +130,8 @@ export interface MentorSlice {
   syncCloudProgress: (userId: string) => Promise<void>;
   currentStationId: string;
   setCurrentStationId: (id: string) => void;
-  currentView: "HUB" | "STATION" | "WAR_ROOM";
-  setCurrentView: (view: "HUB" | "STATION" | "WAR_ROOM") => void;
+  currentView: "HUB" | "STATION" | "WAR_ROOM" | "EXPRESS_TOUR";
+  setCurrentView: (view: "HUB" | "STATION" | "WAR_ROOM" | "EXPRESS_TOUR") => void;
   targetTaskId: string | null;
   setTargetTaskId: (taskId: string | null) => void;
   isOnboardingOpen: boolean;
