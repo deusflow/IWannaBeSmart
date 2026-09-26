@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import type { TFunction } from "i18next";
 import type { Node, Edge } from "@xyflow/react";
-import type { ArchitectureNodeData, ActiveJourneyState, TerminalLogEntry } from "./types";
+import type { ArchitectureNodeData, ActiveJourneyState, TerminalLogEntry, PortType } from "./types";
 import type { ArchitectureEdgeData } from "./ArchitectureEdge";
 
 interface UseInterfaceJourneyParams {
@@ -14,6 +14,13 @@ interface UseInterfaceJourneyParams {
   setCenter: (x: number, y: number, options?: { zoom?: number; duration?: number }) => void;
   addLog: (entry: Omit<TerminalLogEntry, "id" | "timestamp">) => void;
   t: TFunction;
+  pendingSourcePort?: {
+    nodeId: string;
+    portId: string;
+    portType: PortType;
+    name: string;
+  } | null;
+  onPortClick?: (nodeId: string, portId: string, direction: "input" | "output") => void;
 }
 
 export function useInterfaceJourney({
@@ -26,6 +33,8 @@ export function useInterfaceJourney({
   setCenter,
   addLog,
   t,
+  pendingSourcePort,
+  onPortClick,
 }: UseInterfaceJourneyParams) {
   const [activeJourney, setActiveJourney] = useState<ActiveJourneyState | null>(null);
 
@@ -209,6 +218,9 @@ export function useInterfaceJourney({
           journeyBadge: undefined,
           onInspectInterface: handleInspectInterface,
           onInspectDi: handleInspectDi,
+          pendingSourcePortId: pendingSourcePort?.portId,
+          pendingSourceNodeId: pendingSourcePort?.nodeId,
+          onPortClick,
         },
       }));
     }
@@ -260,10 +272,13 @@ export function useInterfaceJourney({
           journeyBadge: badge,
           onInspectInterface: handleInspectInterface,
           onInspectDi: handleInspectDi,
+          pendingSourcePortId: pendingSourcePort?.portId,
+          pendingSourceNodeId: pendingSourcePort?.nodeId,
+          onPortClick,
         },
       };
     });
-  }, [nodes, activeJourney, handleInspectInterface, handleInspectDi, t]);
+  }, [nodes, activeJourney, handleInspectInterface, handleInspectDi, pendingSourcePort, onPortClick, t]);
 
   const processedEdges = useMemo(() => {
     if (!activeJourney) {

@@ -109,18 +109,40 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
         </div>
       </div>
 
-      {/* Upfront Plain-Language Intuition Analogy */}
-      {simpleText && (
-        <div className="p-3 rounded-xl bg-[#FAF8F2] border border-amber-600/30 space-y-1 shadow-2xs">
+      {/* Upfront Pacing & Leading Cognitive Behavioral Loop & Intuition Analogy */}
+      <div className="p-3 rounded-xl bg-[#FAF8F2] border border-amber-600/30 space-y-2 shadow-2xs">
+        {/* Step 1: Pacing (Validation of cognitive friction) */}
+        <div className="space-y-1">
           <div className="text-[10px] font-mono font-bold uppercase text-amber-900 flex items-center gap-1.5">
-            <Lightbulb size={12} className="text-amber-700 shrink-0" />
-            <span>{t("guide.simpleLabel", "Простими словами (Intuition Analogy)")}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+            <span>{t("guide.pacingLabel", "Підстройка (Валідація бар'єру)")}</span>
           </div>
-          <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
-            {simpleText}
+          <p className="font-sans text-xs text-[#1A1D20]/90 leading-relaxed italic pl-3 border-l-2 border-amber-500/40">
+            «{didactic?.pacingLeading?.pacing[currentLang] || t("guide.pacingDefault", "Цей інтерфейс здається громіздким — це природна реакція при першому погляді на промисловий код.")}»
           </p>
         </div>
-      )}
+
+        {/* Step 2: Leading (Frictionless Micro-Action) */}
+        <div className="space-y-1">
+          <div className="text-[10px] font-mono font-bold uppercase text-emerald-900 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>{t("guide.leadingLabel", "Ведення (Легка мікро-дія)")}</span>
+          </div>
+          <p className="font-sans text-xs text-[#1A1D20] font-medium leading-relaxed pl-3 border-l-2 border-emerald-500/40">
+            {didactic?.pacingLeading?.leading[currentLang] || t("guide.leadingDefault", "Але по суті це просто розетка для пульта. Зробіть мікро-дію: з'єднайте порт команди із вхідним слотом контролера.")}
+          </p>
+        </div>
+
+        {simpleText && (
+          <div className="pt-1.5 border-t border-[#1A1D20]/10 flex items-start gap-2">
+            <Lightbulb size={13} className="text-amber-700 shrink-0 mt-0.5" />
+            <p className="font-sans text-[11.5px] text-[#1A1D20]/80 leading-relaxed">
+              <strong className="text-amber-950 font-mono text-[10px] uppercase mr-1">{t("guide.simpleLabel", "Простими словами")}:</strong>
+              {simpleText}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Ready Working Code Box with ▶ Демонстрація button */}
       <div>

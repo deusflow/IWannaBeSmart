@@ -184,7 +184,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         ) : isRecommended ? (
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-600/40 text-amber-900 text-xs font-mono font-bold animate-pulse">
             <Sparkles size={13} className="text-amber-700 shrink-0" />
-            <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", "🌟 Рекомендований старт для новачків"))}</span>
+            <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", "🌟 Базовий контур: рекомендовано для старту інженера"))}</span>
           </div>
         ) : null}
 
@@ -233,12 +233,48 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
           {blueprint}
         </div>
 
-        {/* Specs & Task Progress */}
-        <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
-          <span>{specs}</span>
-          <span className={`font-bold ${starColorClass}`}>
-            {currentStars}/{maxStars} ★
-          </span>
+        {/* Specs & Task Progress with Zeigarnik Endowed Progress Bar */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-mono text-[#1A1D20]/80">
+            <span>{specs}</span>
+            <span className={`font-bold ${starColorClass}`}>
+              {currentStars}/{maxStars} ★
+            </span>
+          </div>
+
+          <div className="w-full space-y-1">
+            <div className="w-full h-1.5 rounded-full bg-[#1A1D20]/10 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  currentStars >= maxStars
+                    ? "bg-amber-600"
+                    : currentStars > 0
+                    ? "bg-emerald-600"
+                    : "bg-gradient-to-r from-amber-500 to-emerald-500 animate-pulse"
+                }`}
+                style={{
+                  width: `${
+                    currentStars === 0
+                      ? 25
+                      : Math.max(25, Math.round((currentStars / maxStars) * 100))
+                  }%`,
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[9.5px] font-mono text-[#1A1D20]/60">
+              <span>
+                {currentStars === 0
+                  ? t("architecture.circuitInitialized", {
+                      remaining: maxStars,
+                      defaultValue: "Контур ініціалізовано: 25%",
+                    })
+                  : currentStars >= maxStars
+                  ? t("hub.stationCompleted", "ЗАВЕРШЕНО")
+                  : `${Math.round((currentStars / maxStars) * 100)}%`}
+              </span>
+              <span>{currentStars === 0 ? "25% (Endowed)" : `${currentStars}/${maxStars} ★`}</span>
+            </div>
+          </div>
         </div>
       </div>
 

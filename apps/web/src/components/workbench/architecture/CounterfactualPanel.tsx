@@ -14,6 +14,7 @@ import {
   ToggleRight,
   ZapOff,
   Cpu,
+  X,
 } from "lucide-react";
 import type { TraceGraph } from "./types";
 
@@ -22,6 +23,7 @@ export interface CounterfactualPanelProps {
   bypassedNodeIds: string[];
   onToggleBypass: (nodeId: string) => void;
   onResetBypasses: () => void;
+  onClose?: () => void;
 }
 
 export const CounterfactualPanel: React.FC<CounterfactualPanelProps> = ({
@@ -29,6 +31,7 @@ export const CounterfactualPanel: React.FC<CounterfactualPanelProps> = ({
   bypassedNodeIds,
   onToggleBypass,
   onResetBypasses,
+  onClose,
 }) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -155,6 +158,16 @@ export const CounterfactualPanel: React.FC<CounterfactualPanelProps> = ({
           >
             {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg bg-[#25262B] hover:bg-[#303137] text-gray-400 hover:text-gray-200 border border-white/[0.06] transition-colors cursor-pointer"
+              title={t("common.close", "Закрити")}
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
 

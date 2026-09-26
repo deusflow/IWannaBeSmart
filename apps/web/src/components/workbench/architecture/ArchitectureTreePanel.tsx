@@ -159,6 +159,38 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
         </div>
       </div>
 
+      {/* Autonomy Bias Route Selector (Freedom of Engineering Assembly) */}
+      <div className="p-2 border-b bg-[#141517] space-y-1.5" style={{ borderColor: "#2A2B2F" }}>
+        <div className="flex items-center justify-between text-[9px] font-mono font-bold uppercase tracking-wider text-gray-400">
+          <span>Свобода вибору інженера</span>
+          <span className="text-emerald-400">2 ШЛЯХИ</span>
+        </div>
+        <div className="grid grid-cols-2 gap-1 text-[9.5px] font-mono">
+          <button
+            type="button"
+            onClick={() => {
+              const file = PROJECT_FILES.find((f) => f.id === "class-power-command");
+              if (file) handleEntityClick(file);
+            }}
+            className="p-1 rounded bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-left truncate transition-colors cursor-pointer"
+            title={t("architecture.autonomyRouteDirect", "Шлях А: Пряме впровадження PowerCommand")}
+          >
+            ⚡ {t("architecture.autonomyRouteDirect", "Шлях А: Power")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const file = PROJECT_FILES.find((f) => f.id === "class-volume-command");
+              if (file) handleEntityClick(file);
+            }}
+            className="p-1 rounded bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-left truncate transition-colors cursor-pointer"
+            title={t("architecture.autonomyRouteHotSwap", "Шлях Б: Поліморфний Hot Swap (VolumeUp)")}
+          >
+            🔄 {t("architecture.autonomyRouteHotSwap", "Шлях Б: Volume")}
+          </button>
+        </div>
+      </div>
+
       {/* Tree Content: Folders & Files */}
       <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin">
         {folders.map((folderKey) => {
@@ -232,13 +264,6 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
                           </div>
 
                           <div className="flex items-center gap-1 shrink-0">
-                            {isOnCanvas && (
-                              <span
-                                className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"
-                                title={t("architecture.placedOnBoard", "Розміщено на дошці")}
-                              />
-                            )}
-
                             {isSelected && (
                               <span className="flex items-center gap-0.5 px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 text-[8px] font-mono font-bold shrink-0">
                                 <CheckCircle2 size={9} />
@@ -247,21 +272,39 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
                             )}
 
                             {onAddNode && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onAddNode(file.id);
-                                }}
-                                title={t("architecture.addNodeTooltip", {
-                                  name: file.name,
-                                  defaultValue: `Додати ${file.name} на полотно`,
-                                })}
-                                className="opacity-0 group-hover/file:opacity-100 px-1.5 py-0.5 rounded bg-blue-600/30 hover:bg-blue-600/60 text-blue-200 border border-blue-400/40 text-[9px] font-mono font-bold flex items-center gap-0.5 transition-all cursor-pointer"
-                              >
-                                <Plus size={9} />
-                                <span>{t("architecture.addNode", "Додати")}</span>
-                              </button>
+                              isOnCanvas ? (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onAddNode(file.id);
+                                  }}
+                                  title={t("architecture.focusNodeTooltip", {
+                                    name: file.name,
+                                    defaultValue: `Знайти ${file.name} на полотні`,
+                                  })}
+                                  className="px-1.5 py-0.5 rounded bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-500/30 text-[8.5px] font-mono font-medium flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                                  <span>{t("architecture.placedOnBoard", "На полотні")}</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onAddNode(file.id);
+                                  }}
+                                  title={t("architecture.addNodeTooltip", {
+                                    name: file.name,
+                                    defaultValue: `Додати ${file.name} на полотно`,
+                                  })}
+                                  className="px-2 py-0.5 rounded bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 hover:border-emerald-400 text-[9px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+                                >
+                                  <Plus size={10} strokeWidth={2.5} />
+                                  <span>{t("architecture.addNodeDirect", "+ Додати")}</span>
+                                </button>
+                              )
                             )}
                           </div>
                         </div>

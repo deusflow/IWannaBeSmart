@@ -94,7 +94,8 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   );
   const { screenToFlowPosition, fitView, setCenter, getNode } = useReactFlow();
 
-  const [canvasMode, setCanvasMode] = useState<"TRACE" | "WIRING">("TRACE");
+  const [canvasMode, setCanvasMode] = useState<"TRACE" | "WIRING">("WIRING");
+  const [isFaultSimulationOpen, setIsFaultSimulationOpen] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>([]);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [isHotSwapInsightOpen, setIsHotSwapInsightOpen] = useState(false);
@@ -126,6 +127,9 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     handleAutoWire,
     handleReset,
     handleFocusNode,
+    pendingSourcePort,
+    handlePortClick,
+    cancelPendingConnection,
   } = useArchitectureWiring({
     storedNodes: storedNodes as unknown as Node<ArchitectureNodeData>[],
     storedEdges: storedEdges as unknown as Edge<ArchitectureEdgeData>[],
@@ -278,6 +282,8 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     setCenter,
     addLog,
     t,
+    pendingSourcePort,
+    onPortClick: handlePortClick,
   });
 
   // ── Call Flow Trace Hook ──
@@ -338,6 +344,16 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
         onAutoWire={handleAutoWire}
         onReset={handleReset}
         onFitView={() => fitView({ padding: 0.2, duration: 400 })}
+        isFaultSimulationOpen={isFaultSimulationOpen}
+        onToggleFaultSimulation={() => {
+          setIsFaultSimulationOpen((prev) => {
+            const next = !prev;
+            if (next && canvasMode !== "TRACE") {
+              setCanvasMode("TRACE");
+            }
+            return next;
+          });
+        }}
       />
 
       {/* Body: sidebar + canvas */}
@@ -408,6 +424,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
               connectionLineStyle={{ stroke: "#FBBF24", strokeWidth: 2 }}
               proOptions={{ hideAttribution: true }}
               style={{ background: "#1E1E22" }}
+              onPaneClick={cancelPendingConnection}
             >
               <Background
                 variant={BackgroundVariant.Dots}
@@ -421,12 +438,13 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
               />
             </ReactFlow>
 
-            {canvasMode === "TRACE" && (
+            {isFaultSimulationOpen && (
               <CounterfactualPanel
                 graph={evaluatedTraceGraph}
                 bypassedNodeIds={bypassedTraceNodes}
                 onToggleBypass={handleToggleTraceBypass}
                 onResetBypasses={resetBypasses}
+                onClose={() => setIsFaultSimulationOpen(false)}
               />
             )}
 

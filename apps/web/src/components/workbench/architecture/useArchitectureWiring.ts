@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useNodesState,
   useEdgesState,
@@ -12,6 +13,7 @@ import {
   type NodeRemoveChange,
 } from "@xyflow/react";
 import { audioFx } from "../../../utils/audioFx";
+import { toast } from "../../../store/toastStore";
 import { PROJECT_FILES } from "./projectData";
 import { createInitialNodes } from "./initialGraph";
 import {
@@ -23,6 +25,7 @@ import type {
   ArchitectureNodeData,
   InjectedDependencyInfo,
   TerminalLogEntry,
+  PortType,
 } from "./types";
 import type { ArchitectureEdgeData } from "./ArchitectureEdge";
 import type { MentorPhase } from "../../../store/types";
@@ -65,6 +68,15 @@ export function useArchitectureWiring({
   const initialNodes = storedNodes.length > 0 ? storedNodes : createInitialNodes();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<ArchitectureEdgeData>>(storedEdges);
+  const { t } = useTranslation();
+  const [pendingSourcePort, setPendingSourcePort] = useState<{
+    nodeId: string;
+    portId: string;
+    portType: PortType;
+    name: string;
+  } | null>(null);
+  const lastMismatchAlertTime = useRef<number>(0);
+  const mistakeCountRef = useRef<number>(0);
 
   const flashTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -112,6 +124,7 @@ export function useArchitectureWiring({
   useEffect(() => {
     if (mentorPhase === "PRACTICE" && storedEdges.length === 0 && edges.length > 0) {
       setEdges([]);
+      mistakeCountRef.current = 0;
     }
   }, [mentorPhase, storedEdges.length, edges.length, setEdges]);
 
@@ -256,6 +269,34 @@ export function useArchitectureWiring({
     [setNodes]
   );
 
+  const formatMismatch = useCallback(
+    (
+      srcType: string | null,
+      tgtType: string | null,
+      srcPort: string,
+      tgtPort: string
+    ) => {
+      if (srcType === "IRemoteCommand" && tgtType === "ITVReceiver") {
+        return t(
+          "architecture.mismatchCmdToReceiver",
+          "Цей дріт передає команду (IRemoteCommand), а гніздо очікує отримувача телевізора (ITVReceiver)."
+        );
+      }
+      if (srcType === "ITVReceiver" && tgtType === "IRemoteCommand") {
+        return t(
+          "architecture.mismatchReceiverToCmd",
+          "Цей порт надає керування телевізором (ITVReceiver), а гніздо очікує команду пульта (IRemoteCommand)."
+        );
+      }
+      return t(
+        "architecture.mismatchGeneric",
+        "Цей порт передає {{srcType}}, а гніздо очікує {{tgtType}}. З'єднайте однакові типи сигналів!",
+        { srcType: srcType || srcPort, tgtType: tgtType || tgtPort }
+      );
+    },
+    [t]
+  );
+
   const addNodeByFileId = useCallback(
     (fileId: string, position?: { x: number; y: number }) => {
       const file = PROJECT_FILES.find((f) => f.id === fileId);
@@ -285,8 +326,8 @@ export function useArchitectureWiring({
       }
 
       const targetPos = position || {
-        x: 80 + (nodes.length % 5) * 60,
-        y: 100 + Math.floor(nodes.length / 5) * 80,
+        x: 80 + (nodes.length % 4) * 360,
+        y: 80 + Math.floor(nodes.length / 4) * 220,
       };
 
       const newNode: Node<ArchitectureNodeData> = {
@@ -303,6 +344,19 @@ export function useArchitectureWiring({
       };
 
       setNodes((nds) => [...nds, newNode]);
+      audioFx.playRelayClick();
+      toast.success(
+        t("architecture.nodeAddedTitle", "Модуль додано"),
+        t("architecture.nodeAddedDesc", {
+          name: file.name,
+          defaultValue: `${file.name} розміщено на полотні`,
+        })
+      );
+      setTimeout(() => {
+        setCenter(targetPos.x + 170, targetPos.y + 110, { zoom: 1, duration: 420 });
+        flashNode(nodeId);
+      }, 60);
+
       addLog({
         type: "info",
         subsystem: "IoC",
@@ -312,7 +366,7 @@ export function useArchitectureWiring({
         details: `${file.role} | Path: ${file.path}`,
       });
     },
-    [nodes, setNodes, getNode, setCenter, flashNode, addLog]
+    [nodes, setNodes, getNode, setCenter, flashNode, addLog, t]
   );
 
   // Drag & Drop
@@ -336,6 +390,7 @@ export function useArchitectureWiring({
     (connection: Edge | Connection) => {
       const res = validatePortConnection(connection, nodes);
       if (!res.isValid && res.srcType && res.tgtType) {
+        mistakeCountRef.current += 1;
         addLog({
           type: "error",
           subsystem: "FAULT",
@@ -345,11 +400,21 @@ export function useArchitectureWiring({
           details: `Cannot bind [${res.srcType}] to [${res.tgtType}]`,
           codeContext: `// ✗ Type Mismatch:\n// ${res.srcNodeName}.${res.srcPortName} [${res.srcType}]\n//   → ${res.tgtNodeName}.${res.tgtPortName} [${res.tgtType}]\n// Expected port type: «${res.tgtType}»`,
         });
+
+        const now = Date.now();
+        if (now - lastMismatchAlertTime.current > 1500) {
+          lastMismatchAlertTime.current = now;
+          audioFx.playRelayClick();
+          toast.warning(
+            t("architecture.typeMismatchTitle", "Несумісні порти"),
+            formatMismatch(res.srcType, res.tgtType, res.srcPortName, res.tgtPortName)
+          );
+        }
       }
 
       return res.isValid;
     },
-    [nodes, addLog]
+    [nodes, addLog, formatMismatch, t]
   );
 
   const onConnect: OnConnect = useCallback(
@@ -405,8 +470,20 @@ export function useArchitectureWiring({
         return addEdge(newEdge, filtered);
       });
 
+      const triggerSuccessAudioAndNudge = () => {
+        if (mistakeCountRef.current === 0) {
+          audioFx.playSuccessFanfare();
+          toast.success(
+            t("architecture.flawlessAssemblyTitle", "Ідеальна збірка з першого разу"),
+            t("architecture.flawlessAssemblyDesc", "Контур замкнено без жодної помилки. Бездоганне інженерне рішення!")
+          );
+        } else {
+          audioFx.playRelayClick();
+        }
+      };
+
       if (isVolumeWire) {
-        audioFx.playRelayClick();
+        triggerSuccessAudioAndNudge();
         onOpenHotSwapInsight();
         addLog({
           type: "success",
@@ -418,7 +495,7 @@ export function useArchitectureWiring({
           codeContext: `// Hot Swap Polymorphism:\nservices.AddTransient<IRemoteCommand, VolumeUpCommand>();\n// TVController._cmd.Execute() тепер змінює гучність!`,
         });
       } else if (isPowerWire) {
-        audioFx.playRelayClick();
+        triggerSuccessAudioAndNudge();
         if (mentorPhase === "GUIDED") {
           setMentorPhase("VERIFY");
           addLog({
@@ -463,6 +540,94 @@ export function useArchitectureWiring({
       }
     },
     [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, diMode, onOpenHotSwapInsight]
+  );
+
+  const cancelPendingConnection = useCallback(() => {
+    setPendingSourcePort(null);
+  }, []);
+
+  const handlePortClick = useCallback(
+    (nodeId: string, portId: string, direction: "input" | "output") => {
+      if (direction === "output") {
+        const node = nodes.find((n) => n.id === nodeId);
+        const port = node?.data.outputs.find((p) => p.id === portId);
+        if (!port) return;
+
+        if (pendingSourcePort?.nodeId === nodeId && pendingSourcePort?.portId === portId) {
+          setPendingSourcePort(null);
+          toast.info(t("architecture.connectCancelled", "Вибір порту скасовано"));
+          return;
+        }
+
+        setPendingSourcePort({
+          nodeId,
+          portId,
+          portType: port.portType,
+          name: port.name.replace(/^[A-Za-z0-9_]+\./, ""),
+        });
+        audioFx.playRelayClick();
+        toast.info(
+          t("architecture.plugSelected", "Вихід вибрано"),
+          t(
+            "architecture.clickTargetSocket",
+            "Тепер клікніть на сумісний вхід (гніздо), щоб з'єднати їх проводом."
+          )
+        );
+        return;
+      }
+
+      // direction === "input"
+      if (!pendingSourcePort) {
+        audioFx.playRelayClick();
+        toast.info(
+          t("architecture.selectSourceFirstTitle", "Спочатку виберіть вихід"),
+          t(
+            "architecture.selectSourceFirstDesc",
+            "Клікніть на порт виходу (праворуч на блоці команди), щоб протягнути дріт до цього гнізда."
+          )
+        );
+        return;
+      }
+
+      // User clicked target input while pendingSourcePort is active
+      const connection: Connection = {
+        source: pendingSourcePort.nodeId,
+        sourceHandle: pendingSourcePort.portId,
+        target: nodeId,
+        targetHandle: portId,
+      };
+
+      const res = validatePortConnection(connection, nodes);
+      if (res.isValid) {
+        onConnect(connection);
+        setPendingSourcePort(null);
+        audioFx.playRelayClick();
+        toast.success(
+          t("architecture.wireConnectedTitle", "З'єднання встановлено!"),
+          t("architecture.wireConnectedDesc", {
+            src: pendingSourcePort.name,
+            tgt: res.tgtPortName,
+            defaultValue: `${pendingSourcePort.name} успішно підключено до ${res.tgtPortName}`,
+          })
+        );
+      } else {
+        audioFx.playRelayClick();
+        toast.warning(
+          t("architecture.typeMismatchTitle", "Несумісні порти"),
+          formatMismatch(pendingSourcePort.portType, res.tgtType, pendingSourcePort.name, res.tgtPortName)
+        );
+        addLog({
+          type: "error",
+          subsystem: "FAULT",
+          operation: "TYPE_MISMATCH",
+          message: `Binding rejected: ${pendingSourcePort.name} -> ${res.tgtNodeName}.${res.tgtPortName}`,
+          targetNodeId: nodeId,
+          details: `Cannot bind [${pendingSourcePort.portType}] to [${res.tgtType}]`,
+          codeContext: `// ✗ Type Mismatch:\n// Source: ${pendingSourcePort.name} [${pendingSourcePort.portType}]\n// Target: ${res.tgtNodeName}.${res.tgtPortName} [${res.tgtType}]\n// Expected port type: «${res.tgtType}»`,
+        });
+      }
+    },
+    [nodes, pendingSourcePort, onConnect, formatMismatch, addLog, t]
   );
 
   const handleHotSwap = useCallback(() => {
@@ -551,6 +716,7 @@ export function useArchitectureWiring({
   const handleReset = useCallback(() => {
     flashTimers.current.forEach((t) => clearTimeout(t));
     flashTimers.current.clear();
+    mistakeCountRef.current = 0;
     const fresh = createInitialNodes();
     setNodes(fresh);
     setEdges([]);
@@ -613,5 +779,8 @@ export function useArchitectureWiring({
     handleAutoWire,
     handleReset,
     handleFocusNode,
+    pendingSourcePort,
+    handlePortClick,
+    cancelPendingConnection,
   };
 }

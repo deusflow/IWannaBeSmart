@@ -64,6 +64,10 @@ export interface ArchitectureNodeData extends Record<string, unknown> {
   journeyBadge?: string;
   onInspectInterface?: (interfaceName: string) => void;
   onInspectDi?: () => void;
+  /** Click-to-Connect: active pending source port selection */
+  pendingSourcePortId?: string | null;
+  pendingSourceNodeId?: string | null;
+  onPortClick?: (nodeId: string, portId: string, direction: "input" | "output") => void;
 }
 
 type JourneyType = "INTERFACE" | "DI";

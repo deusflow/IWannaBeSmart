@@ -221,6 +221,10 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#1A1D20]/10 text-[#1A1D20]/80">
               {codeLang === "csharp" ? "C#" : "Go"}
             </span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-600/15 border border-emerald-600/30 text-emerald-900 font-mono text-[9px] font-extrabold flex items-center gap-1 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              <span>{t("guide.zeigarnikLoopBadge", "Контур ініціалізовано: 35%")}</span>
+            </span>
             {!isTheoryUnlocked && (
               <span className="px-2 py-0.5 rounded-full bg-amber-500 text-stone-950 font-mono text-[9px] font-extrabold flex items-center gap-1 animate-pulse shadow-xs">
                 <Sparkles size={10} className="fill-stone-950" />

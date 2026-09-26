@@ -45,6 +45,11 @@ export interface CuratedResource {
   whyRead: Record<string, string>;
 }
 
+export interface PacingLeadingInfo {
+  pacing: Record<string, string>;
+  leading: Record<string, string>;
+}
+
 export interface TaskDidacticInfo {
   taskId: string;
   whyThisCode: Record<string, string>;
@@ -52,6 +57,8 @@ export interface TaskDidacticInfo {
   primitiveMemoryNote?: Record<string, string>;
   /** Project structure and Architecture Canvas mapping (Tier 2 / architecture tasks) */
   architectureMap?: ArchitectureMapInfo;
+  /** Behavioral nudge: Pacing (validating initial friction) & Leading (frictionless micro-step) */
+  pacingLeading?: PacingLeadingInfo;
   /** Primary authoritative learning sources (Deep Dive module) */
   curatedResources?: CuratedResource[];
   [key: string]: unknown;
@@ -72,6 +79,18 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
         "Об'єкт телевізора `tv` живе у купі (Heap). Виклик методу без параметрів `()` не виділяє пам'ять під аргументи — він лише передає сигнал на перемикання реле живлення.",
       go:
         "Структура `tv` передається за посиланням (вказівником). Виклик методу змінює внутрішнє поле живлення апаратної структури.",
+    },
+    pacingLeading: {
+      pacing: {
+        ua: "Цей інтерфейс здається громіздким — це природна реакція при першому погляді на промисловий код.",
+        en: "This interface might look daunting — that is a completely natural reaction when first looking at industrial code.",
+        da: "Denne grænseflade kan virke overvældende — det er helt naturligt ved første møde med industriel kode.",
+      },
+      leading: {
+        ua: "Але по суті це просто розетка для пульта. Зробіть мікро-дію: викликайте метод tv.PowerOn() і замкніть живлення.",
+        en: "Under the hood it is simply an isolated relay switch. Take one easy micro-action: invoke tv.PowerOn() to close the rail.",
+        da: "I bund og grund er det blot et isoleret relæstik. Tag en nem mikrohandling: kald tv.PowerOn() for at lukke skinnen.",
+      },
     },
     curatedResources: [
       {

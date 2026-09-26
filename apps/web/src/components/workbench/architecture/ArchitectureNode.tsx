@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Handle, Position, type NodeProps, useReactFlow } from "@xyflow/react";
 import type { ArchitectureNodeData, EntityType } from "./types";
-import { FileCode, Box, Cpu, Zap, X, LucideIcon } from "lucide-react";
+import { FileCode, Box, Cpu, Zap, X, LucideIcon, Cable, CheckCircle2, ArrowRight } from "lucide-react";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 
@@ -114,11 +114,6 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
               ⚡ EXEC
             </span>
           )}
-          {nodeData.isVTableTarget && (
-            <span className="font-mono text-[8px] font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase shrink-0">
-              VTable
-            </span>
-          )}
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
@@ -178,52 +173,73 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
               // Format clean port name: "ctor(IRemoteCommand command)" -> "ctor(command)"
               const cleanName = inp.name.replace(/ctor\(.*?\s+(\w+)\)/, "ctor($1)");
               const isDiInput = inp.portType === "IRemoteCommand" || inp.name.includes("ctor");
+              const isPendingTarget = Boolean(nodeData.pendingSourcePortId);
+
+              const isUnwiredWaiting = isDiInput && !nodeData.injectedDependency;
 
               return (
                 <div
                   key={inp.id}
-                  onClick={
-                    isDiInput
-                      ? (e) => {
-                          e.stopPropagation();
-                          nodeData.onInspectDi?.();
-                        }
-                      : undefined
-                  }
-                  className={`relative flex items-center py-1 group ${
-                    isDiInput
-                      ? "cursor-pointer hover:bg-amber-500/10 rounded-md px-1 -mx-1 transition-colors"
-                      : ""
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isDiInput && !nodeData.pendingSourcePortId) {
+                      nodeData.onInspectDi?.();
+                    } else {
+                      nodeData.onPortClick?.(id, inp.id, "input");
+                    }
+                  }}
+                  className={`relative flex items-center py-1.5 px-1 rounded-md transition-colors cursor-pointer group ${
+                    isPendingTarget
+                      ? "bg-emerald-500/10 hover:bg-emerald-500/20"
+                      : isDiInput
+                      ? "hover:bg-amber-500/10"
+                      : "hover:bg-white/[0.04]"
                   }`}
-                  title={isDiInput ? t("journey.inspectDi", "Дослідити шлях впровадження DI") : undefined}
+                  title={
+                    nodeData.pendingSourcePortId
+                      ? t("architecture.socketTooltip", "Вхідне гніздо: клікніть для з'єднання")
+                      : isDiInput
+                      ? t("journey.inspectDi", "Дослідити шлях впровадження DI")
+                      : t("architecture.socketTooltip", "Вхідне гніздо: клікніть або перетягніть сюди дріт")
+                  }
                 >
                   <Handle
                     type="target"
                     position={Position.Left}
                     id={inp.id}
-                    className={`!w-3.5 !h-3.5 !rounded-xs !-left-[19px] !border-2 !border-[#23252A] shadow-inner transition-all group-hover:scale-125 cursor-crosshair ${
-                      isPortTarget
-                        ? "!ring-3 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
-                        : "hover:border-purple-300"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nodeData.onPortClick?.(id, inp.id, "input");
+                    }}
+                    className={`!w-[22px] !h-[22px] !rounded-full !-left-[23px] !border-2 !border-[#1E1E22] flex items-center justify-center shadow-md transition-all cursor-pointer ${
+                      isPendingTarget
+                        ? "!ring-3 !ring-emerald-400 !border-white !scale-115 !bg-emerald-500 animate-pulse z-20"
+                        : isPortTarget
+                        ? "!ring-3 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-115 z-10"
+                        : isUnwiredWaiting
+                        ? "!ring-2 !ring-amber-400/50 animate-pulse hover:scale-115 hover:border-white/80"
+                        : "hover:scale-115 hover:border-white/80"
                     }`}
-                    style={{ backgroundColor: inp.color || "#3B82F6" }}
-                  />
+                    style={{ backgroundColor: isPendingTarget ? "#10B981" : inp.color || "#3B82F6" }}
+                  >
+                    <ArrowRight size={11} strokeWidth={2.5} className="text-white pointer-events-none" />
+                  </Handle>
                   <div className="min-w-0 pl-1">
                     <div className="flex items-center gap-1">
                       <span
-                        className={`font-mono text-[10.5px] block leading-tight truncate ${
+                        className={`font-mono text-[10.5px] block leading-snug break-words ${
                           isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
                         }`}
                       >
                         {cleanName}
                       </span>
                       {isDiInput && (
-                        <span className="text-[8px] text-amber-400/80 font-mono" title={t("journey.inspectDi", "Дослідити шлях впровадження DI")}>
+                        <span className="text-[8px] text-amber-400/80 font-mono shrink-0" title={t("journey.inspectDi", "Дослідити шлях впровадження DI")}>
                           🔍
                         </span>
                       )}
                     </div>
-                    <span className="font-mono text-[9px] text-stone-400 block truncate mt-0.5">
+                    <span className="font-mono text-[9px] text-stone-400 block break-words mt-0.5 leading-tight">
                       {inp.portType}
                     </span>
                   </div>
@@ -252,21 +268,36 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
               // Format clean port name: "IRemoteCommand.Execute()" -> "Execute()"
               const cleanName = out.name.replace(/^[A-Za-z0-9_]+\./, "");
+              const isPendingSource =
+                nodeData.pendingSourcePortId === out.id && nodeData.pendingSourceNodeId === id;
 
               return (
                 <div
                   key={out.id}
-                  className="relative flex items-center justify-end py-1 group"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nodeData.onPortClick?.(id, out.id, "output");
+                  }}
+                  className={`relative flex items-center justify-end py-1.5 px-1 rounded-md transition-colors cursor-pointer group ${
+                    isPendingSource
+                      ? "bg-amber-500/20 ring-1 ring-amber-400/50"
+                      : "hover:bg-white/[0.04]"
+                  }`}
+                  title={t("architecture.plugTooltip", "Вихідний штекер: клікніть для з'єднання або потягніть дріт")}
                 >
                   <div className="min-w-0 pr-1 text-right">
                     <span
-                      className={`font-mono text-[10.5px] block leading-tight truncate ${
-                        isPortTarget ? "text-purple-300 font-bold" : "text-gray-200"
+                      className={`font-mono text-[10.5px] block leading-snug break-words ${
+                        isPendingSource
+                          ? "text-amber-300 font-bold"
+                          : isPortTarget
+                          ? "text-purple-300 font-bold"
+                          : "text-gray-200"
                       }`}
                     >
                       {cleanName}
                     </span>
-                    <span className="font-mono text-[9px] text-stone-400 block truncate mt-0.5">
+                    <span className="font-mono text-[9px] text-stone-400 block break-words mt-0.5 leading-tight">
                       {out.portType === "IRemoteCommand" ? "IRemoteCommand" : out.typeAnnotation || out.portType}
                     </span>
                   </div>
@@ -274,13 +305,23 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
                     type="source"
                     position={Position.Right}
                     id={out.id}
-                    className={`!w-3.5 !h-3.5 !rounded-r-md !rounded-l-xs !-right-[19px] !border-2 !border-[#23252A] shadow-md transition-all group-hover:scale-125 cursor-crosshair ${
-                      isPortTarget
-                        ? "!ring-3 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-125 z-10"
-                        : "hover:border-emerald-300"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nodeData.onPortClick?.(id, out.id, "output");
+                    }}
+                    className={`!w-[22px] !h-[22px] !rounded-full !-right-[23px] !border-2 !border-[#1E1E22] flex items-center justify-center shadow-md transition-all cursor-pointer ${
+                      isPendingSource
+                        ? "!ring-4 !ring-amber-400 !border-white !scale-120 !bg-amber-500 animate-pulse z-20"
+                        : isPortTarget
+                        ? "!ring-3 !ring-purple-400 !shadow-[0_0_14px_rgba(168,85,247,0.9)] animate-pulse !scale-115 z-10"
+                        : out.portType === "IRemoteCommand"
+                        ? "!ring-2 !ring-emerald-400/40 animate-pulse hover:scale-115 hover:border-white/80"
+                        : "hover:scale-115 hover:border-white/80"
                     }`}
-                    style={{ backgroundColor: out.color || "#10B981" }}
-                  />
+                    style={{ backgroundColor: isPendingSource ? "#F59E0B" : out.color || "#10B981" }}
+                  >
+                    <Zap size={11} strokeWidth={2.5} className="text-white pointer-events-none" />
+                  </Handle>
                 </div>
               );
             })
@@ -299,33 +340,37 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
             <span className="text-stone-400 text-[8.5px] uppercase font-bold tracking-wider">RAM</span>
             <span className="text-gray-300 font-semibold">_cmd:</span>
             {nodeData.injectedDependency ? (
-              <span className="text-emerald-400 font-semibold truncate">
-                [{nodeData.injectedDependency.address}] {nodeData.injectedDependency.name}
+              <span className="text-emerald-400 font-semibold truncate flex items-center gap-1">
+                <CheckCircle2 size={11} className="text-emerald-400 shrink-0" />
+                {nodeData.injectedDependency.name}
               </span>
             ) : (
               <span
-                className={`font-semibold flex items-center gap-1 ${
-                  nodeData.isMemoryCrashing ? "text-red-400 animate-pulse font-black" : "text-red-400"
+                className={`font-semibold flex items-center gap-1 text-[10px] ${
+                  nodeData.isMemoryCrashing ? "text-red-400 animate-pulse font-black" : "text-amber-400/90 font-medium"
                 }`}
               >
-                null <span className="text-[10px]">⚠️</span>
+                <Cable size={11} className="shrink-0 text-amber-400" />
+                <span className="truncate">{t("architecture.waitingModule", "Очікує підключення модуля")}</span>
               </span>
             )}
           </div>
           <div className="shrink-0 ml-2">
             {nodeData.injectedDependency ? (
-              <span className="text-[8.5px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 font-bold uppercase">
-                ✓ Active
+              <span className="text-[8.5px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 font-bold">
+                ✓ {t("architecture.installed", "Встановлено")}
               </span>
             ) : (
               <span
-                className={`text-[8.5px] px-2 py-0.5 rounded uppercase font-bold ${
+                className={`text-[8.5px] px-2 py-0.5 rounded font-semibold ${
                   nodeData.isMemoryCrashing
                     ? "bg-red-500/30 text-red-200 border border-red-500/60 animate-bounce shadow-[0_0_12px_rgba(239,68,68,0.6)]"
-                    : "bg-red-500/20 text-red-300 border border-red-500/35"
+                    : "bg-amber-500/15 text-amber-300 border border-amber-500/30"
                 }`}
               >
-                NullRef
+                {nodeData.isMemoryCrashing
+                  ? t("architecture.notConnected", "Не підключено")
+                  : t("architecture.emptySlot", "Вільне гніздо")}
               </span>
             )}
           </div>
@@ -334,7 +379,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
 
       {/* ── Role description (Footer) ── */}
       <div className="px-3 py-2 border-t border-white/[0.05] bg-white/[0.01] rounded-b-xl">
-        <p className="font-mono text-[9.5px] text-stone-400 leading-snug truncate" title={t(`projectFiles.${nodeData.fileId}.role`, nodeData.role)}>
+        <p className="font-mono text-[9.5px] text-stone-400 leading-snug break-words line-clamp-2" title={t(`projectFiles.${nodeData.fileId}.role`, nodeData.role)}>
           {t(`projectFiles.${nodeData.fileId}.role`, nodeData.role)}
         </p>
       </div>

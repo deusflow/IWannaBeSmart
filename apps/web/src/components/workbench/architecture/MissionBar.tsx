@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Sparkles, RotateCcw, Cable, Maximize2, Zap, AlertTriangle, ShieldAlert } from "lucide-react";
 import type { ActiveJourneyState } from "./types";
 
 interface MissionBarProps {
@@ -20,6 +20,8 @@ interface MissionBarProps {
   onAutoWire: () => void;
   onReset: () => void;
   onFitView: () => void;
+  isFaultSimulationOpen?: boolean;
+  onToggleFaultSimulation?: () => void;
 }
 
 export const MissionBar: React.FC<MissionBarProps> = ({
@@ -39,6 +41,8 @@ export const MissionBar: React.FC<MissionBarProps> = ({
   onAutoWire,
   onReset,
   onFitView,
+  isFaultSimulationOpen,
+  onToggleFaultSimulation,
 }) => {
   const { t } = useTranslation();
 
@@ -95,10 +99,31 @@ export const MissionBar: React.FC<MissionBarProps> = ({
                     ? t("architecture.traceBroken", "Ланцюг розірвано (Bypassed)")
                     : t("architecture.traceClosed", "Ланцюг замкнено (6 вузлів)")
                   : isAnyCommandWired
-                  ? t("architecture.connected", "З'єднано")
-                  : t("architecture.waitingConnection", "Очікує з'єднання")}
+                  ? t("architecture.circuitClosed", "Контур замкнено штатно. Архітектурний контракт виконано")
+                  : t("architecture.circuitInitialized", {
+                      remaining: 1,
+                      defaultValue: "Контур ініціалізовано. Залишилося 1 з'єднання",
+                    })}
               </span>
             </div>
+
+            {/* Endowed Zeigarnik Progress Bar (Eliminates 0% paralysis) */}
+            {canvasMode === "WIRING" && (
+              <div className="flex items-center gap-2 mt-1">
+                <div className="w-28 sm:w-36 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isAnyCommandWired
+                        ? "w-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                        : "w-[35%] bg-gradient-to-r from-amber-500 to-purple-500 animate-pulse"
+                    }`}
+                  />
+                </div>
+                <span className="text-[9px] font-mono text-gray-400">
+                  {isAnyCommandWired ? "100%" : "35% (ініціалізовано)"}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -199,6 +224,22 @@ export const MissionBar: React.FC<MissionBarProps> = ({
             />
             <span>{isTracing ? t("architecture.tracing", "Трасування...") : t("architecture.testCall", "⚡ Тест виклику")}</span>
           </button>
+
+          {/* Fault Simulation / Counterfactual Toggle */}
+          {onToggleFaultSimulation && (
+            <button
+              onClick={onToggleFaultSimulation}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-semibold transition-all cursor-pointer active:scale-95 ${
+                isFaultSimulationOpen
+                  ? "bg-red-500/25 border-red-500/60 text-red-200 shadow-[0_0_12px_rgba(239,68,68,0.3)]"
+                  : "bg-[#27282D] hover:bg-[#32333A] border-white/[0.06] text-gray-300 hover:text-gray-100"
+              }`}
+              title={t("architecture.faultSimulationBtn", "Перевірка відмовостійкості (Bypass)")}
+            >
+              <ShieldAlert size={12} className={isFaultSimulationOpen ? "text-red-400" : "text-amber-400"} />
+              <span>{t("architecture.faultTolerance", "Відмовостійкість")}</span>
+            </button>
+          )}
 
           {/* Auto-wire */}
           <button

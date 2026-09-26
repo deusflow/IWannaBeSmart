@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   GraduationCap,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useWorkbenchStore, type MentorPhase } from "../../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
+import { calculateCareerRank, countCompletedStations } from "../../../utils/careerRank";
 
 interface MentorBarProps {
   onGoToTv?: () => void;
@@ -33,6 +34,10 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
     completeLevel,
     isArchitecturePowerWired: isPowerWired,
     power,
+    xp,
+    taskMasteryStars,
+    completedCodingTasks,
+    resolvedIncidentIds,
   } = useWorkbenchStore(
     useShallow((s) => ({
       mentorPhase: s.mentorPhase,
@@ -43,8 +48,17 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
       completeLevel: s.completeLevel,
       isArchitecturePowerWired: s.isArchitecturePowerWired,
       power: s.power,
+      xp: s.xp,
+      taskMasteryStars: s.taskMasteryStars,
+      completedCodingTasks: s.completedCodingTasks,
+      resolvedIncidentIds: s.resolvedIncidentIds,
     }))
   );
+
+  const careerRank = useMemo(() => {
+    const stationsCount = countCompletedStations(taskMasteryStars, completedCodingTasks);
+    return calculateCareerRank(xp, stationsCount, (resolvedIncidentIds || []).length);
+  }, [xp, taskMasteryStars, completedCodingTasks, resolvedIncidentIds]);
 
   const toggleExpand = useCallback(() => setIsExpanded((prev) => !prev), []);
   const toggleTheory = useCallback(() => setShowTheory((prev) => !prev), []);
@@ -92,6 +106,12 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
             {t("mentor.title")}
           </span>
           <span
+            className={`px-1.5 py-0.5 rounded font-mono text-[9.5px] font-extrabold border ${careerRank.color}`}
+            title={`${careerRank.grade}: ${careerRank.codeName}`}
+          >
+            {careerRank.grade}
+          </span>
+          <span
             className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${badgeColor.bg} ${badgeColor.text} ${badgeColor.border}`}
           >
             {getPhaseTitle(mentorPhase)}
@@ -127,9 +147,15 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
           </div>
 
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-display font-bold text-xs text-white tracking-wide">
                 {t("mentor.title")}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded font-mono text-[10px] font-extrabold border shadow-xs ${careerRank.color}`}
+                title={`${careerRank.grade}: ${careerRank.codeName}`}
+              >
+                {careerRank.grade}: {careerRank.codeName}
               </span>
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${badgeColor.bg} ${badgeColor.text} ${badgeColor.border}`}
@@ -202,7 +228,10 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
                 {power ? (
                   <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
                     <CheckCircle2 size={15} className="shrink-0" />
-                    {t("mentor.verifySuccess")}
+                    <strong className="text-emerald-300 font-bold">
+                      {t("architecture.archDecisionCorrect", "Архітектурне рішення прийнято вірно:")}
+                    </strong>
+                    <span>{t("mentor.verifySuccess")}</span>
                   </span>
                 ) : (
                   <span>{t("mentor.verifyMsg")}</span>
@@ -216,7 +245,7 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <span className="text-emerald-300 font-bold flex items-center gap-1.5 shrink-0">
                       <Sparkles size={14} className="text-amber-400" />
-                      {t("mentor.activeRecallTitle")}:
+                      {t("architecture.archDecisionCorrect", "Архітектурне рішення прийнято вірно!")}
                     </span>
                     <span className="text-gray-300 shrink-0">
                       {t("mentor.activeRecallPrompt")}
@@ -231,7 +260,12 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
                     {t("mentor.hintActiveMsg")}
                   </span>
                 ) : (
-                  <span>{t("mentor.practiceMsg")}</span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold border border-amber-500/40 shrink-0">
+                      {t("mentor.engineerOnDuty", "Інженер на лінії")}
+                    </span>
+                    <span>{t("mentor.practiceMsg")}</span>
+                  </div>
                 )}
               </>
             )}

@@ -2,12 +2,11 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next";
 import {
   Terminal,
-  Minimize2,
-  Maximize2,
   Trash2,
   Target,
   Code2,
   ChevronUp,
+  ChevronDown,
   BookOpen,
   Filter,
 } from "lucide-react";
@@ -139,15 +138,14 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
     return (
       <div
         onClick={toggle}
-        title={t("architecture.expandTerminal", "Клікніть, щоб розгорнути термінал шини подій")}
+        title={t("architecture.expandJournal", "Розгорнути журнал")}
         className="absolute bottom-0 left-0 right-0 z-30 h-8 flex items-center justify-between px-4 cursor-pointer select-none transition-colors group bg-[#151617]/95 hover:bg-[#1A1C20] border-t border-[#2A2B2F] hover:border-emerald-500/40 backdrop-blur-xs"
       >
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            <Terminal size={12} className="text-emerald-400 shrink-0" />
-            <span className="font-mono text-[10px] font-bold text-gray-300 group-hover:text-emerald-300 transition-colors">
-              {t("architecture.terminal", "HIGH-SIGNAL BUS TERMINAL")}
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span className="font-sans text-[11px] font-semibold text-emerald-400">
+              {t("architecture.terminalStatusReady", "● Готовий до тесту")}
             </span>
           </div>
 
@@ -159,18 +157,25 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
 
           {lastLog && (
             <span className="hidden sm:inline-block font-mono text-[10px] text-gray-400 truncate max-w-[360px] lg:max-w-[500px]">
-              <span className="text-emerald-400/80 mr-1.5">[{lastLog.timestamp}]</span>
+              <span className="text-gray-500 mr-1.5">[{lastLog.timestamp}]</span>
               <span className="text-gray-300">{lastLog.message}</span>
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2 text-gray-400 group-hover:text-emerald-400 transition-colors shrink-0">
-          <span className="hidden md:inline font-mono text-[9px] text-gray-400 group-hover:text-gray-300">
-            {t("architecture.clickToExpand", "⇧ Розгорнути")}
-          </span>
-          <ChevronUp size={13} />
-          <Maximize2 size={11} />
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(true);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#252830] group-hover:bg-emerald-600/20 text-gray-300 group-hover:text-emerald-300 border border-white/[0.08] group-hover:border-emerald-500/40 text-[10px] font-mono font-semibold transition-all cursor-pointer"
+          >
+            <Terminal size={11} className="text-emerald-400" />
+            <span>{t("architecture.expandJournal", "Розгорнути журнал")}</span>
+            <ChevronUp size={12} className="text-gray-400 group-hover:text-emerald-400" />
+          </button>
         </div>
       </div>
     );
@@ -281,16 +286,17 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
           <button
             onClick={onClearLogs}
             title={t("architecture.clearLog")}
-            className="p-1 rounded hover:bg-[#252628] text-gray-600 hover:text-gray-400 cursor-pointer transition-colors"
+            className="p-1 rounded hover:bg-[#252628] text-gray-500 hover:text-gray-300 cursor-pointer transition-colors"
           >
             <Trash2 size={11} />
           </button>
           <button
             onClick={toggle}
-            title={t("architecture.collapse")}
-            className="p-1 rounded hover:bg-[#252628] text-gray-600 hover:text-gray-400 cursor-pointer transition-colors"
+            title={t("architecture.collapseJournal", "Згорнути журнал")}
+            className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#222428] hover:bg-[#2B2D33] text-gray-400 hover:text-gray-200 border border-white/[0.06] text-[9.5px] font-mono cursor-pointer transition-colors"
           >
-            <Minimize2 size={11} />
+            <ChevronDown size={12} />
+            <span>{t("architecture.collapseJournal", "Згорнути журнал")}</span>
           </button>
         </div>
       </div>
