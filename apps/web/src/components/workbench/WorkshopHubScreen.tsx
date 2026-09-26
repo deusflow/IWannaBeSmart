@@ -110,7 +110,7 @@ export const WorkshopHubScreen: React.FC = () => {
     () => [
       {
         id: "my_track" as const,
-        label: "🌟 Мій трек",
+        label: t("hub.tabs.myTrack", "🌟 Мій трек"),
         count: !userTrack
           ? 10
           : userTrack === "explorer"
@@ -123,26 +123,26 @@ export const WorkshopHubScreen: React.FC = () => {
       },
       {
         id: "backend" as const,
-        label: "🖥️ Backend",
+        label: t("hub.tabs.backend", "🖥️ Backend"),
         count: 4,
       },
       {
         id: "ai" as const,
-        label: "🤖 AI & MLOps",
+        label: t("hub.tabs.ai", "🤖 AI & MLOps"),
         count: 3,
       },
       {
         id: "security" as const,
-        label: "🛡️ Безпека",
+        label: t("hub.tabs.security", "🛡️ Безпека"),
         count: 3,
       },
       {
         id: "all" as const,
-        label: "🧭 Всі станції (10)",
+        label: `${t("hub.tabs.all", "🧭 Всі станції")} (10)`,
         count: 10,
       },
     ],
-    [userTrack]
+    [userTrack, t]
   );
 
   // Helper for computing module completion & stars
@@ -392,14 +392,14 @@ export const WorkshopHubScreen: React.FC = () => {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30 uppercase tracking-wider">
-                  Кар'єрний фокус інженера
+                  {t("career.careerFocusBadge", "Кар'єрний фокус інженера")}
                 </span>
                 <span className="text-[11px] font-mono font-medium text-[#3E7A5E]">
-                  «Неможливо програти, якщо це експеримент»
+                  «{t("career.motto", "Неможливо програти, якщо це експеримент")}»
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-display font-bold text-[#1E2227] tracking-tight">
-                Обери свій напрямок в IT (Backend, AI, Cyber або Спробувати все)
+                {t("career.onboardingModalTitle", "Обери свій напрямок в IT (Backend, AI, Cyber або Спробувати все)")}
               </h2>
               <p className="text-xs text-[#1E2227]/75 max-w-2xl leading-relaxed">
                 {t(
@@ -419,7 +419,7 @@ export const WorkshopHubScreen: React.FC = () => {
             }}
             className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#1E2227] hover:bg-black text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
-            <span>Обрати трек 🧭</span>
+            <span>{t("career.chooseTrackBtn", "Обрати трек 🧭")}</span>
           </button>
         </div>
       ) : (
@@ -432,17 +432,17 @@ export const WorkshopHubScreen: React.FC = () => {
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30 uppercase tracking-wider">
-                  Кар'єрний фокус інженера
+                  {t("career.careerFocusBadge", "Кар'єрний фокус інженера")}
                 </span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1E2227]/5 text-[#1E2227] border border-[#1E2227]/15 uppercase">
                   {userTrack === "explorer"
-                    ? "🧭 Спробувати все (Explorer)"
+                    ? `🧭 ${t("career.tracks.explorer.title", "Спробувати все (Explorer)")}`
                     : userTrack === "backend"
-                    ? "🖥️ Backend & Distributed Systems"
+                    ? `🖥️ ${t("career.tracks.backend.title", "Backend & Distributed Systems")}`
                     : userTrack === "ai"
-                    ? "🤖 AI & MLOps Architecture"
+                    ? `🤖 ${t("career.tracks.ai.title", "AI & MLOps Architecture")}`
                     : userTrack === "security"
-                    ? "🛡️ Кібербезпека & SOC Analyst"
+                    ? `🛡️ ${t("career.tracks.security.title", "Кібербезпека & SOC Analyst")}`
                     : t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
                 </span>
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#3E7A5E]/10 text-[#3E7A5E] border border-[#3E7A5E]/30">
@@ -454,7 +454,7 @@ export const WorkshopHubScreen: React.FC = () => {
                   })}
                 </span>
                 <span className="text-[11px] font-mono font-medium text-[#3E7A5E]">
-                  «Неможливо програти, якщо це експеримент»
+                  «{t("career.motto", "Неможливо програти, якщо це експеримент")}»
                 </span>
               </div>
               <h2 className="text-sm sm:text-base font-display font-bold text-[#1E2227] tracking-tight">
@@ -462,18 +462,10 @@ export const WorkshopHubScreen: React.FC = () => {
               </h2>
               <div className="text-xs text-[#1E2227]/75 max-w-2xl leading-relaxed">
                 <span className="font-mono font-bold text-[10px] uppercase text-[#1E2227]/60 mr-1.5">
-                  Цільові вакансії:
+                  {t("career.targetRolesLabel", "Цільові вакансії:")}
                 </span>
                 <span>
-                  {userTrack === "backend"
-                    ? "Junior/Middle Go & C# Developer, Backend Engineer, Distributed Systems Architect"
-                    : userTrack === "ai"
-                    ? "MLOps Engineer, AI Solutions Architect, Applied AI Developer, Prompt Engineer"
-                    : userTrack === "security"
-                    ? "Junior SOC Analyst, Security Engineer, Application Security Specialist, Ethical Hacker"
-                    : userTrack === "explorer"
-                    ? "Fullstack Explorer, Cross-Discipline Software Engineer, T-shaped Developer"
-                    : t(`career.tracks.${userTrack}.roles`, "Цільові вакансії інженера")}
+                  {t(`career.tracks.${userTrack}.roles`, "Цільові вакансії інженера")}
                 </span>
               </div>
               {/* Dynamic Track Progress Bar */}
@@ -497,7 +489,7 @@ export const WorkshopHubScreen: React.FC = () => {
             }}
             className="relative z-10 px-4 py-2 rounded-xl font-mono font-bold text-xs bg-white hover:bg-[#F0EDE6] text-[#1E2227] border border-[#1E2227]/20 shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
-            <span>Змінити 🔄</span>
+            <span>{t("career.changeTrackBtn", "Змінити 🔄")}</span>
           </button>
         </div>
       )}
@@ -524,20 +516,25 @@ export const WorkshopHubScreen: React.FC = () => {
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-0.5 rounded text-[10.5px] font-mono font-bold bg-[#8E3B3B]/25 text-[#EBB5B5] border border-[#8E3B3B]/40 uppercase tracking-wider">
-                SEV-1 On-Call SRE Simulator
+                {t("hub.warRoomBanner.badge", "SEV-1 On-Call SRE Simulator")}
               </span>
               <span className="text-[11px] font-mono font-medium text-[#E0A468] flex items-center gap-1">
                 <span>+150 XP</span>
-                <span className="text-[#F7F5F0]/60">за кожну ліквідацію</span>
+                <span className="text-[#F7F5F0]/60">
+                  {t("hub.warRoomBanner.perResolution", "за кожну ліквідацію")}
+                </span>
               </span>
             </div>
 
             <h2 className="text-base sm:text-lg font-display font-bold text-[#F7F5F0] tracking-tight">
-              Incident War Room: Аварії на прод-системах
+              {t("hub.warRoomBanner.title", "Incident War Room: Аварії на прод-системах")}
             </h2>
 
             <p className="text-xs text-[#F7F5F0]/75 max-w-2xl leading-relaxed">
-              5 критичних аварій у реальному часі (FinTech подвійні списання, RAG інʼєкції, SYN Flood DDoS, дрифт ML-момоделей). Звучить сирена, рахується збиток — накатіть хотфікс до порушення SLA.
+              {t(
+                "hub.warRoomBanner.desc",
+                "5 критичних аварій у реальному часі (FinTech подвійні списання, RAG інʼєкції, SYN Flood DDoS, дрифт ML-момоделей). Звучить сирена, рахується збиток — накатіть хотфікс до порушення SLA."
+              )}
             </p>
           </div>
         </div>
@@ -550,7 +547,7 @@ export const WorkshopHubScreen: React.FC = () => {
           }}
           className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#C86D32] hover:bg-[#B35E28] text-white flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer shadow-sm"
         >
-          <span>Увійти в War Room</span>
+          <span>{t("hub.warRoomBanner.enterBtn", "Увійти в War Room")}</span>
           <ArrowRight size={14} />
         </button>
       </div>
