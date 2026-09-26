@@ -42,7 +42,7 @@ export const ExplorerTourStepModal: React.FC = () => {
 
   const content = isStep1
     ? {
-        stepBadge: "КРОК 1/3 • БЕКЕНД ТА АРХІТЕКТУРА",
+        stepBadge: t("career.tour.step1StepBadge", "КРОК 1/3 • БЕКЕНД ТА АРХІТЕКТУРА"),
         title: t("career.tour.step1SuccessTitle", "Крок 1/3 завершено: Бекенд у кишені!"),
         desc: t(
           "career.tour.step1SuccessDesc",
@@ -52,10 +52,10 @@ export const ExplorerTourStepModal: React.FC = () => {
         nextBtnLabel: t("career.tour.step1NextBtn", "Перейти до ШІ ➔"),
         icon: Tv,
         nextIcon: Cpu,
-        nextStationName: "Станція 09: IBM RAG Chunker & Vector Search",
+        nextStationName: t("career.tour.step1NextStation", "Станція 09: IBM RAG Chunker & Vector Search"),
       }
     : {
-        stepBadge: "КРОК 2/3 • ШТУЧНИЙ ІНТЕЛЕКТ",
+        stepBadge: t("career.tour.step2StepBadge", "КРОК 2/3 • ШТУЧНИЙ ІНТЕЛЕКТ"),
         title: t("career.tour.step2SuccessTitle", "Крок 2/3 завершено: Нейропошук підкорено!"),
         desc: t(
           "career.tour.step2SuccessDesc",
@@ -65,7 +65,7 @@ export const ExplorerTourStepModal: React.FC = () => {
         nextBtnLabel: t("career.tour.step2NextBtn", "На лінію оборони ➔"),
         icon: Cpu,
         nextIcon: ShieldCheck,
-        nextStationName: "Станція 10: Google Cybersecurity & WireSniffer",
+        nextStationName: t("career.tour.step2NextStation", "Станція 10: Google Cybersecurity & WireSniffer"),
       };
 
   const Icon = content.icon;
@@ -122,7 +122,7 @@ export const ExplorerTourStepModal: React.FC = () => {
         {/* Technical Artifact Blueprint Box */}
         <div className="relative z-10 my-5 p-3.5 rounded-xl bg-white border border-[#1E2227]/15 space-y-2">
           <span className="text-[10px] font-mono font-bold text-[#1E2227]/50 uppercase tracking-wider block">
-            СИСТЕМНИЙ ЗВІТ ДІАГНОСТИКИ
+            {t("career.tour.diagReportLabel", "СИСТЕМНИЙ ЗВІТ ДІАГНОСТИКИ")}
           </span>
           <p className="font-mono text-xs text-[#1E2227] bg-[#FAF8F4] p-2 rounded-lg border border-[#1E2227]/10 leading-snug break-all">
             {content.techNote}
@@ -130,7 +130,7 @@ export const ExplorerTourStepModal: React.FC = () => {
 
           <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-[#1E2227]/70">
             <NextIcon size={14} className="text-[#C86D32]" />
-            <span>Наступний модуль: <strong>{content.nextStationName}</strong></span>
+            <span>{t("career.tour.nextModule", "Наступний модуль:")} <strong>{content.nextStationName}</strong></span>
           </div>
         </div>
 

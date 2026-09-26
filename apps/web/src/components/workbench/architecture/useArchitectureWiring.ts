@@ -491,7 +491,7 @@ export function useArchitectureWiring({
           operation: "HOT_SWAP",
           message: `${tgtNode}.${tgtPort} -> hot-swapped with ${srcNode} (0x9B1C)`,
           targetNodeId: params.target ?? undefined,
-          details: "Поліморфізм у дії: TVController.cs не змінено жодним рядком!",
+          details: t("architecture.hotSwapLogDetail", "Поліморфізм у дії: TVController.cs не змінено жодним рядком!"),
           codeContext: `// Hot Swap Polymorphism:\nservices.AddTransient<IRemoteCommand, VolumeUpCommand>();\n// TVController._cmd.Execute() тепер змінює гучність!`,
         });
       } else if (isPowerWire) {
@@ -512,9 +512,9 @@ export function useArchitectureWiring({
             type: "success",
             subsystem: "IoC",
             operation: "REGISTER",
-            message: "Контракт IRemoteCommand підключено до TVController!",
+            message: t("architecture.practiceSuccessLog", "Контракт IRemoteCommand підключено до TVController!"),
             targetNodeId: params.target ?? undefined,
-            details: "Підтвердіть реєстрацію services.AddTransient<IRemoteCommand, PowerCommand>() на панелі ментора нижче.",
+            details: t("architecture.practiceConfirmLog", "Підтвердіть реєстрацію services.AddTransient<IRemoteCommand, PowerCommand>() на панелі ментора нижче."),
             codeContext: "services.AddTransient<IRemoteCommand, PowerCommand>();\nservices.AddSingleton<TVController>();",
           });
         } else {
@@ -539,7 +539,7 @@ export function useArchitectureWiring({
         });
       }
     },
-    [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, diMode, onOpenHotSwapInsight]
+    [nodes, handleDeleteEdge, setEdges, addLog, mentorPhase, setMentorPhase, diMode, onOpenHotSwapInsight, t]
   );
 
   const cancelPendingConnection = useCallback(() => {
@@ -674,7 +674,7 @@ export function useArchitectureWiring({
       operation: "HOT_SWAP",
       message: `HOT SWAP ➔ Injected ${commandName} (${addr}) into TVController`,
       targetNodeId: "node-class-tv-controller",
-      details: "Поліморфізм: TVController.cs не змінився! Змінено лише прив'язку DI-контейнера.",
+      details: t("architecture.hotSwapManualLogDetail", "Поліморфізм: TVController.cs не змінився! Змінено лише прив'язку DI-контейнера."),
       codeContext: `// IoC Container configuration update:\nservices.AddTransient<IRemoteCommand, ${commandName}>();\n// TVController._cmd.Execute() тепер виконує ${commandName}!`,
     });
   }, [isVolumeWired, addNodeByFileId, handleDeleteEdge, setEdges, diMode, addLog, onOpenHotSwapInsight]);

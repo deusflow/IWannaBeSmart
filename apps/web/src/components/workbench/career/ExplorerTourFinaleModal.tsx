@@ -52,7 +52,7 @@ export const ExplorerTourFinaleModal: React.FC = () => {
         "career.tour.cardBackendDesc",
         "Бекенд-інженерія: архітектура, API, надійність та розподілені сервери"
       ),
-      stations: "Станції: 01 (TV & DI), 02 (POS Terminal), 04 (API Forge), 05 (Git)",
+      stations: t("career.tour.backendStations", "Станції: 01 (TV & DI), 02 (POS Terminal), 04 (API Forge), 05 (Git)"),
       theme: {
         bgBadge: "bg-[#EBF2F7] text-[#3B6B88] border-[#3B6B88]/30",
         borderHover: "hover:border-[#3B6B88] hover:shadow-md",
@@ -69,7 +69,7 @@ export const ExplorerTourFinaleModal: React.FC = () => {
         "career.tour.cardAiDesc",
         "Штучний інтелект: нейромережі, семантичний RAG-пошук та автономні агенти"
       ),
-      stations: "Станції: 07 (Vertex AI), 08 (Field AI Deployer), 09 (IBM RAG)",
+      stations: t("career.tour.aiStations", "Станції: 07 (Vertex AI), 08 (Field AI Deployer), 09 (IBM RAG)"),
       theme: {
         bgBadge: "bg-[#F5EDE6] text-[#C86D32] border-[#C86D32]/30",
         borderHover: "hover:border-[#C86D32] hover:shadow-md",
@@ -86,7 +86,7 @@ export const ExplorerTourFinaleModal: React.FC = () => {
         "career.tour.cardSecurityDesc",
         "Кібербезпека: захист від атак, мережеві файрволи та розслідування інцидентів"
       ),
-      stations: "Станції: 06 (Cyber Bandit Lab), 10 (Google Cybersecurity)",
+      stations: t("career.tour.securityStations", "Станції: 06 (Cyber Bandit Lab), 10 (Google Cybersecurity)"),
       theme: {
         bgBadge: "bg-[#EAF3EE] text-[#3E7A5E] border-[#3E7A5E]/30",
         borderHover: "hover:border-[#3E7A5E] hover:shadow-md",
@@ -111,12 +111,12 @@ export const ExplorerTourFinaleModal: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF3EE] border border-[#3E7A5E]/30 text-[#3E7A5E] text-[10px] font-mono font-bold uppercase tracking-wider">
                 <Trophy size={12} className="text-[#3E7A5E]" />
-                <span>ФІНАЛ ТЕСТ-ДРАЙВУ • 3/3 ПРОЙДЕНО</span>
+                <span>{t("career.tour.finaleBadge", "ФІНАЛ ТЕСТ-ДРАЙВУ • 3/3 ПРОЙДЕНО")}</span>
               </span>
 
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#F5EDE6] border border-[#C86D32]/30 text-[#C86D32] text-[10px] font-mono font-bold">
                 <Sparkles size={11} />
-                <span>+150 XP У СПАРБНИЧКУ</span>
+                <span>{t("career.tour.finaleXpBadge", "+150 XP У СКАРБНИЧКУ")}</span>
               </span>
             </div>
 
@@ -174,7 +174,7 @@ export const ExplorerTourFinaleModal: React.FC = () => {
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-[#1E2227]/10 flex items-center justify-between text-xs font-mono font-bold text-[#1E2227] group-hover:translate-x-0.5 transition-transform">
-                    <span>Обрати цей трек</span>
+                    <span>{t("career.tour.selectTrack", "Обрати цей трек")}</span>
                     <ArrowRight size={14} className="text-[#1E2227]" />
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export const ExplorerTourFinaleModal: React.FC = () => {
         <div className="relative z-10 px-6 sm:px-8 py-4 border-t border-[#1E2227]/15 bg-[#FAF8F4] shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center gap-2 text-xs font-mono text-[#1E2227]/70">
             <Compass size={15} className="text-[#C86D32]" />
-            <span>Не впевнений? Напрямок можна змінити у будь-який момент на Хабі.</span>
+            <span>{t("career.tour.notSurePrompt", "Не впевнений? Напрямок можна змінити у будь-який момент на Хабі.")}</span>
           </div>
 
           <button

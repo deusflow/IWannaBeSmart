@@ -6,6 +6,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Cpu,
   Layers,
@@ -23,6 +24,7 @@ import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 
 export const RagAgentBlueprintDevice: React.FC = () => {
+  const { t } = useTranslation();
   const {
     ragChunkSize,
     ragChunkOverlap,
@@ -99,12 +101,12 @@ export const RagAgentBlueprintDevice: React.FC = () => {
         <div className="flex items-center gap-4 text-xs font-mono">
           <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
             <Layers size={14} className="text-cyan-400" />
-            <span className="text-slate-400">Чанків:</span>
+            <span className="text-slate-400">{t("rag.blueprint.chunksLabel", "Чанків:")}</span>
             <span className="font-bold text-white">{ragActiveChunks.length}</span>
           </div>
           <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
             <Sparkles size={14} className="text-purple-400" />
-            <span className="text-slate-400">Векторів:</span>
+            <span className="text-slate-400">{t("rag.blueprint.vectorsLabel", "Векторів:")}</span>
             <span className="font-bold text-white">{ragActiveChunks.length} (R⁸)</span>
           </div>
         </div>
@@ -121,7 +123,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           }`}
         >
           <Sliders size={14} />
-          Чанкінг та 2D Векторний Простір
+          {t("rag.blueprint.tabChunking", "Чанкінг та 2D Векторний Простір")}
         </button>
         <button
           onClick={() => setRagActiveTabAction("react")}
@@ -132,7 +134,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           }`}
         >
           <Workflow size={14} />
-          ReAct Агентний Граф (StateGraph)
+          {t("rag.blueprint.tabReact", "ReAct Агентний Граф (StateGraph)")}
         </button>
         <button
           onClick={() => setRagActiveTabAction("ragas")}
@@ -143,7 +145,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           }`}
         >
           <Target size={14} />
-          RAGAS Оцінка та Guardrails
+          {t("rag.blueprint.tabRagas", "RAGAS Оцінка та Guardrails")}
         </button>
       </div>
 
@@ -162,8 +164,8 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
             <div>
               <div className="flex justify-between text-xs font-mono mb-1.5">
-                <span className="text-slate-300">Розмір чанка (Chunk Size):</span>
-                <span className="font-bold text-cyan-400">{ragChunkSize} символів (~{Math.ceil(ragChunkSize / 4)} токенів)</span>
+                <span className="text-slate-300">{t("rag.blueprint.chunkSizeLabel", "Розмір чанка (Chunk Size):")}</span>
+                <span className="font-bold text-cyan-400">{t("rag.blueprint.chunkSizeValue", { size: ragChunkSize, tokens: Math.ceil(ragChunkSize / 4) })}</span>
               </div>
               <input
                 type="range"
@@ -177,8 +179,8 @@ export const RagAgentBlueprintDevice: React.FC = () => {
             </div>
             <div>
               <div className="flex justify-between text-xs font-mono mb-1.5">
-                <span className="text-slate-300">Перекриття (Overlap):</span>
-                <span className="font-bold text-purple-400">{ragChunkOverlap} символів ({Math.round((ragChunkOverlap / ragChunkSize) * 100)}%)</span>
+                <span className="text-slate-300">{t("rag.blueprint.overlapLabel", "Перекриття (Overlap):")}</span>
+                <span className="font-bold text-purple-400">{t("rag.blueprint.overlapValue", { size: ragChunkOverlap, pct: Math.round((ragChunkOverlap / ragChunkSize) * 100) })}</span>
               </div>
               <input
                 type="range"
@@ -202,7 +204,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                   value={ragQueryInput}
                   onChange={(e) => setRagQueryInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && executeRagQueryAction(ragQueryInput)}
-                  placeholder="Введіть запит для гібридного векторного пошуку..."
+                  placeholder={t("rag.blueprint.queryPlaceholder", "Введіть запит для гібридного векторного пошуку...")}
                   className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
                 />
               </div>
@@ -211,13 +213,13 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                 className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(6,182,212,0.3)]"
               >
                 <Zap size={14} />
-                Шукати (RRF)
+                {t("rag.blueprint.searchBtn", "Шукати (RRF)")}
               </button>
             </div>
 
             {/* Quick Prompts */}
             <div className="flex flex-wrap gap-1.5 items-center">
-              <span className="text-[10px] text-slate-500 font-mono">Швидкі запити:</span>
+              <span className="text-[10px] text-slate-500 font-mono">{t("rag.blueprint.quickQueries", "Швидкі запити:")}</span>
               {sampleQueries.map((q, idx) => (
                 <button
                   key={idx}
@@ -238,8 +240,8 @@ export const RagAgentBlueprintDevice: React.FC = () => {
             {/* Left: Live Chunks Inspector */}
             <div className="flex flex-col bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 h-[280px] overflow-y-auto">
               <div className="text-xs font-bold text-slate-300 flex items-center justify-between mb-2">
-                <span>Зрізи Документів (Chunks Slices)</span>
-                <span className="text-[10px] font-mono text-cyan-400 font-normal">Слайд-вікно: {ragChunkSize} симв.</span>
+                <span>{t("rag.blueprint.chunksInspectorTitle", "Зрізи Документів (Chunks Slices)")}</span>
+                <span className="text-[10px] font-mono text-cyan-400 font-normal">{t("rag.blueprint.windowSize", { size: ragChunkSize })}</span>
               </div>
               <div className="space-y-2">
                 {ragActiveChunks.slice(0, 5).map((chunk) => (
@@ -249,7 +251,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                   >
                     <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
                       <span className="text-cyan-400 font-bold">[{chunk.id}]</span>
-                      <span>Символи: {chunk.startChar}–{chunk.endChar}</span>
+                      <span>{t("rag.blueprint.charsRange", "Символи:")} {chunk.startChar}–{chunk.endChar}</span>
                     </div>
                     <p className="text-slate-300 text-[11px] leading-relaxed">
                       {chunk.text}
@@ -262,13 +264,13 @@ export const RagAgentBlueprintDevice: React.FC = () => {
             {/* Right: Hybrid Search (RRF) Ranked Results */}
             <div className="flex flex-col bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 h-[280px] overflow-y-auto">
               <div className="text-xs font-bold text-slate-300 flex items-center justify-between mb-2">
-                <span>Результати Пошуку (Dense + BM25 RRF)</span>
+                <span>{t("rag.blueprint.searchResultsTitle", "Результати Пошуку (Dense + BM25 RRF)")}</span>
                 <span className="text-[10px] font-mono text-purple-400 font-normal">RRF k=60</span>
               </div>
               {ragSearchResults.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs font-mono text-center p-4">
                   <Search size={24} className="mb-2 opacity-40 text-cyan-400" />
-                  Введіть запит вище або оберіть зі зразків для розрахунку Reciprocal Rank Fusion.
+                  {t("rag.blueprint.searchEmptyHint", "Введіть запит вище або оберіть зі зразків для розрахунку Reciprocal Rank Fusion.")}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -314,14 +316,14 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                 className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(168,85,247,0.3)]"
               >
                 <Play size={13} />
-                {isReActRunning ? "Виконується..." : "Запустити Агента"}
+                {isReActRunning ? t("rag.blueprint.runningLabel", "Виконується...") : t("rag.blueprint.runAgentBtn", "Запустити Агента")}
               </button>
               <button
                 onClick={resetReActAgentAction}
                 className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1"
               >
                 <RotateCcw size={13} />
-                Скинути
+                {t("rag.blueprint.resetBtn", "Скинути")}
               </button>
             </div>
           </div>
@@ -331,7 +333,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
             {reActSteps.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs font-mono text-center py-12">
                 <Workflow size={28} className="mb-2 opacity-40 text-purple-400" />
-                Натисніть "Запустити Агента", щоб спостерігати за покроковим виконанням циклу ReAct.
+                {t("rag.blueprint.reactEmptyHint", 'Натисніть "Запустити Агента", щоб спостерігати за покроковим виконанням циклу ReAct.')}
               </div>
             ) : (
               reActSteps.map((step) => {
@@ -374,7 +376,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
               <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-emerald-950/40 via-cyan-950/30 to-slate-950 border border-emerald-500/40 text-emerald-200 text-xs font-mono shadow-[0_0_15px_rgba(16,185,129,0.15)]">
                 <div className="font-bold flex items-center gap-2 mb-1 text-emerald-400">
                   <Sparkles size={14} />
-                  ФІНАЛЬНА ВІДПОВІДЬ (GROUNDED RAG RESPONSE):
+                  {t("rag.blueprint.finalAnswerLabel", "ФІНАЛЬНА ВІДПОВІДЬ (GROUNDED RAG RESPONSE):")}
                 </div>
                 <div className="text-slate-200 text-[11px] leading-relaxed">
                   {reActFinalAnswer}
@@ -392,8 +394,8 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Faithfulness */}
             <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center text-center">
-              <div className="text-xs font-bold text-slate-300 mb-1">Faithfulness (Вірність Джерелам)</div>
-              <div className="text-[10px] text-slate-500 mb-3">Захист від галюцинацій моделі</div>
+              <div className="text-xs font-bold text-slate-300 mb-1">{t("rag.blueprint.faithfulnessLabel", "Faithfulness (Вірність Джерелам)")}</div>
+              <div className="text-[10px] text-slate-500 mb-3">{t("rag.blueprint.faithfulnessDesc", "Захист від галюцинацій моделі")}</div>
               <div className="text-2xl font-bold font-mono text-emerald-400">
                 {ragasEvaluation ? `${Math.round(ragasEvaluation.faithfulnessScore * 100)}%` : "—"}
               </div>
@@ -407,8 +409,8 @@ export const RagAgentBlueprintDevice: React.FC = () => {
 
             {/* Answer Relevance */}
             <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center text-center">
-              <div className="text-xs font-bold text-slate-300 mb-1">Answer Relevance (Релевантність)</div>
-              <div className="text-[10px] text-slate-500 mb-3">Відповідність наміру користувача</div>
+              <div className="text-xs font-bold text-slate-300 mb-1">{t("rag.blueprint.answerRelevanceLabel", "Answer Relevance (Релевантність)")}</div>
+              <div className="text-[10px] text-slate-500 mb-3">{t("rag.blueprint.answerRelevanceDesc", "Відповідність наміру користувача")}</div>
               <div className="text-2xl font-bold font-mono text-cyan-400">
                 {ragasEvaluation ? `${Math.round(ragasEvaluation.answerRelevanceScore * 100)}%` : "—"}
               </div>
@@ -422,8 +424,8 @@ export const RagAgentBlueprintDevice: React.FC = () => {
 
             {/* Context Precision */}
             <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center text-center">
-              <div className="text-xs font-bold text-slate-300 mb-1">Context Precision (Точність Вибірки)</div>
-              <div className="text-[10px] text-slate-500 mb-3">Співвідношення корисного сигналу до шуму</div>
+              <div className="text-xs font-bold text-slate-300 mb-1">{t("rag.blueprint.contextPrecisionLabel", "Context Precision (Точність Вибірки)")}</div>
+              <div className="text-[10px] text-slate-500 mb-3">{t("rag.blueprint.contextPrecisionDesc", "Співвідношення корисного сигналу до шуму")}</div>
               <div className="text-2xl font-bold font-mono text-purple-400">
                 {ragasEvaluation ? `${Math.round(ragasEvaluation.contextPrecisionScore * 100)}%` : "—"}
               </div>
@@ -443,16 +445,16 @@ export const RagAgentBlueprintDevice: React.FC = () => {
               <div>
                 <div className="text-xs font-bold text-white">
                   {ragasEvaluation?.isHallucinationDetected
-                    ? "УВАГА: Виявлено потенційну галюцинацію моделі!"
-                    : "СТАТУС: Відповідь повністю підтверджена знаннями (Verified Grounded)"}
+                    ? t("rag.blueprint.hallucinationAlert", "УВАГА: Виявлено потенційну галюцинацію моделі!")
+                    : t("rag.blueprint.groundedStatus", "СТАТУС: Відповідь повністю підтверджена знаннями (Verified Grounded)")}
                 </div>
                 <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                  Поріг допустимої невідповідності джерелу: &lt; 70% Faithfulness.
+                  {t("rag.blueprint.faithfulnessThreshold", "Поріг допустимої невідповідності джерелу: < 70% Faithfulness.")}
                 </div>
               </div>
             </div>
             <div className="text-xs font-mono text-slate-400">
-              Цитати: {ragasEvaluation?.citations?.join(", ") || "[Source 1]"}
+{t("rag.blueprint.citationsLabel", "Цитати:")} {ragasEvaluation?.citations?.join(", ") || "[Source 1]"}
             </div>
           </div>
         </div>

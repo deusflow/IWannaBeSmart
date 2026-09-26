@@ -449,7 +449,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
             <div className="flex items-center gap-2 mb-2">
               <Code2 size={11} className="text-blue-400" />
               <span className="font-mono text-[9px] font-bold text-gray-400 uppercase tracking-wider">
-                {codeLang === "csharp" ? "C# — Generated DI Config" : "Go — Generated Wiring"}
+                {codeLang === "csharp" ? t("architecture.codeLangCsharp", "C# — Generated DI Config") : t("architecture.codeLangGo", "Go — Generated Wiring")}
               </span>
             </div>
             <pre

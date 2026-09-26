@@ -103,7 +103,7 @@ export const ExplorerTourHeaderBar: React.FC = () => {
                     ? "w-8 bg-[#C86D32] ring-1 ring-white/30"
                     : "w-5 bg-white/20"
                 }`}
-                title={`Крок ${stepNum}`}
+                title={t("career.tour.stepProgressTitle", { num: stepNum, defaultValue: `Крок ${stepNum}` })}
               />
             );
           })}

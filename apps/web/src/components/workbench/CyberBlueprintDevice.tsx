@@ -8,6 +8,7 @@
  */
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   ShieldAlert,
   Search,
@@ -27,6 +28,7 @@ import { useShallow } from "zustand/react/shallow";
 import { dissectPacket } from "@iw/sim-engine";
 
 export const CyberBlueprintDevice: React.FC = () => {
+  const { t } = useTranslation();
   const {
     cyberFilteredLogs,
     cyberLogQuery,
@@ -158,13 +160,13 @@ export const CyberBlueprintDevice: React.FC = () => {
 
               {/* Quick Query Presets */}
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                <span className="font-semibold text-slate-500">Швидкі пресети:</span>
+                <span className="font-semibold text-slate-500">{t("cyber.blueprint.quickPresets", "Швидкі пресети:")}</span>
                 {[
-                  { label: "Усі Critical алерти", q: "severity = CRITICAL" },
+                  { label: t("cyber.blueprint.presetAllCrit", "Усі Critical алерти"), q: "severity = CRITICAL" },
                   { label: "SSH Brute Force", q: "eventCategory = auth AND message contains SSH" },
                   { label: "WAF SQL Injection", q: "message contains SQL" },
                   { label: "DNS Tunneling", q: "eventCategory = dns" },
-                  { label: "Скинути фільтр (*)", q: "*" },
+                  { label: t("cyber.blueprint.presetResetFilter", "Скинути фільтр (*)"), q: "*" },
                 ].map((p, idx) => (
                   <button
                     key={idx}
@@ -183,7 +185,7 @@ export const CyberBlueprintDevice: React.FC = () => {
             {/* SIEM Log Telemetry Table */}
             <div className="rounded-xl bg-slate-900/40 border border-slate-800/80 overflow-hidden">
               <div className="px-4 py-2.5 bg-slate-950/70 border-b border-slate-800 flex items-center justify-between text-xs font-mono text-slate-400">
-                <span>Журнал Подій Безпеки ({cyberFilteredLogs.length} записів)</span>
+                <span>{t("cyber.blueprint.logTableTitle", { count: cyberFilteredLogs.length })}</span>
                 <span className="text-[10px] text-red-400">Chronicle Ingestion: Active</span>
               </div>
               <div className="divide-y divide-slate-800/60 max-h-[360px] overflow-y-auto font-mono text-xs">
@@ -329,7 +331,7 @@ export const CyberBlueprintDevice: React.FC = () => {
                         className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold font-mono transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
                       >
                         <ShieldAlert size={13} />
-                        <span>Блокувати IP</span>
+                        <span>{t("cyber.blueprint.blockIpBtn", "Блокувати IP")}</span>
                       </button>
                     </div>
                   )}
