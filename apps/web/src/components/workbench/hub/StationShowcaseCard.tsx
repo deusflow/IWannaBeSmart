@@ -40,6 +40,9 @@ export interface StationShowcaseCardProps {
   onEnter?: () => void;
   onViewCert?: () => void;
   certTooltip?: string;
+  isHeroCard?: boolean;
+  isWaitingStation?: boolean;
+  waitingBadgeText?: string;
 }
 
 export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
@@ -62,6 +65,9 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
   onEnter,
   onViewCert,
   certTooltip,
+  isHeroCard = false,
+  isWaitingStation = false,
+  waitingBadgeText,
 }) => {
   const { t } = useTranslation();
 
@@ -69,7 +75,9 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
     const isRoadmap = statusType === "roadmap" || lockCriteria?.isRoadmap;
     return (
       <div
-        className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#1E2227]/15 space-y-3 relative overflow-hidden shadow-xs"
+        className={`flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#1E2227]/15 space-y-3 relative overflow-hidden shadow-xs ${
+          isWaitingStation ? "opacity-60 hover:opacity-85 transition-opacity" : ""
+        }`}
       >
         <div className="space-y-2.5">
           {/* Top row: Module code on left, Status badge on right */}
@@ -157,7 +165,11 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
   return (
     <div
       className={`flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border transition-all space-y-3 shadow-xs hover:shadow-paper-sm ${
-        isTrackStation
+        isHeroCard
+          ? "col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 border-[#C86D32] ring-2 ring-[#C86D32]/35 shadow-md bg-gradient-to-br from-white via-white to-[#FDF8F3]"
+          : isWaitingStation
+          ? "border-[#1E2227]/15 opacity-60 hover:opacity-85 bg-[#FAF9F5]"
+          : isTrackStation
           ? "border-[#C86D32]/50 shadow-sm ring-2 ring-[#C86D32]/20"
           : isRecommended
           ? "border-[#3B6B88]/40 shadow-sm ring-2 ring-[#3B6B88]/15"
@@ -179,25 +191,37 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
               </span>
             )}
           </div>
-          <span
-            className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
-              statusType === "mastered"
-                ? "bg-[#F5EDE6] border-[#C86D32]/30 text-[#C86D32]"
+          {isWaitingStation ? (
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border bg-[#1E2227]/5 border-[#1E2227]/15 text-[#1E2227]/70">
+              <Lock size={10} className="text-[#1E2227]/60 shrink-0" />
+              <span>{waitingBadgeText || t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01")}</span>
+            </span>
+          ) : (
+            <span
+              className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
+                statusType === "mastered"
+                  ? "bg-[#F5EDE6] border-[#C86D32]/30 text-[#C86D32]"
+                  : statusType === "completed"
+                  ? "bg-[#EAF3EE] border-[#3E7A5E]/30 text-[#3E7A5E]"
+                  : "bg-[#EAF0F4] border-[#3B6B88]/30 text-[#3B6B88]"
+              }`}
+            >
+              {statusType === "mastered"
+                ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${maxStars}/${maxStars} ★)`
                 : statusType === "completed"
-                ? "bg-[#EAF3EE] border-[#3E7A5E]/30 text-[#3E7A5E]"
-                : "bg-[#EAF0F4] border-[#3B6B88]/30 text-[#3B6B88]"
-            }`}
-          >
-            {statusType === "mastered"
-              ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${maxStars}/${maxStars} ★)`
-              : statusType === "completed"
-              ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${currentStars}/${maxStars} ★)`
-              : `${t("hub.stationAvailable", "ДОСТУПНО")} (${currentStars}/${maxStars} ★)`}
-          </span>
+                ? `${t("hub.stationCompleted", "ЗАВЕРШЕНО")} (${currentStars}/${maxStars} ★)`
+                : `${t("hub.stationAvailable", "ДОСТУПНО")} (${currentStars}/${maxStars} ★)`}
+            </span>
+          )}
         </div>
 
-        {/* Row 2: Track strip or Recommended strip (placed cleanly above title) */}
-        {isTrackStation ? (
+        {/* Row 2: Track strip, Hero strip, or Recommended strip */}
+        {isHeroCard ? (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/40 text-[#C86D32] text-xs sm:text-sm font-mono font-extrabold shadow-2xs">
+            <Sparkles size={15} className="text-[#C86D32] shrink-0 animate-pulse" />
+            <span>{beaconText || t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД")}</span>
+          </div>
+        ) : isTrackStation ? (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 text-[#C86D32] text-xs font-mono font-bold shadow-2xs">
             <Sparkles size={13} className="text-[#C86D32] shrink-0" />
             <span>{trackBadgeText || t("career.yourTrackBadge", "★ Твій трек")}</span>
@@ -275,14 +299,24 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         <button
           onClick={onEnter}
           className={`flex-1 py-2 px-3.5 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-xs ${
-            isTrackStation
+            isHeroCard
+              ? "py-2.5 text-xs sm:text-sm bg-[#C86D32] hover:bg-[#B35E28] text-white shadow-sm ring-2 ring-[#C86D32]/25"
+              : isWaitingStation
+              ? "bg-[#1E2227]/10 hover:bg-[#1E2227]/15 text-[#1E2227]/70 border border-[#1E2227]/15"
+              : isTrackStation
               ? "bg-[#C86D32] hover:bg-[#B35E28] text-white"
               : isRecommended
               ? "bg-[#3B6B88] hover:bg-[#2F566E] text-white"
               : "bg-[#1E2227] hover:bg-black text-white"
           }`}
         >
-          <span>{t("hub.enterStation", "Увійти на станцію")}</span>
+          <span>
+            {isHeroCard
+              ? t("hub.startHereBtn", "Почати за 60 секунд")
+              : isWaitingStation
+              ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01")
+              : t("hub.enterStation", "Увійти на станцію")}
+          </span>
           <ArrowRight size={13} />
         </button>
 

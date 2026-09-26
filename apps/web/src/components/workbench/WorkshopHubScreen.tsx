@@ -248,6 +248,7 @@ export const WorkshopHubScreen: React.FC = () => {
   }, [userTrack, isStationCompleted]);
 
   // Station 3 unlock condition (200+ XP or both modules finished)
+  const isCleanStart = xp === 0;
   const isStation3Unlocked = xp >= 200 || (tvStats.isCompleted && posStats.isEligible);
   const station3XpTarget = 200;
   const station3ProgressPercent = isStation3Unlocked
@@ -382,7 +383,7 @@ export const WorkshopHubScreen: React.FC = () => {
       </div>
 
       {/* ── Career Focus Banner (Directly under Hub Header) ── */}
-      {!userTrack ? (
+      {xp > 0 && (!userTrack ? (
         <div className="relative overflow-hidden rounded-2xl bg-white border border-[#1E2227]/15 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="absolute inset-0 bg-notebook-grid opacity-20 pointer-events-none" />
           <div className="flex items-start sm:items-center gap-3.5 relative z-10">
@@ -492,17 +493,21 @@ export const WorkshopHubScreen: React.FC = () => {
             <span>{t("career.changeTrackBtn", "Змінити 🔄")}</span>
           </button>
         </div>
-      )}
+      ))}
+
 
       {/* ── Global Engineer Dossier Bar ── */}
-      <EngineerDossierBar
-        xp={xp}
-        patterns={patterns}
-        station3ProgressPercent={station3ProgressPercent}
-      />
+      {xp > 0 && (
+        <EngineerDossierBar
+          xp={xp}
+          patterns={patterns}
+          station3ProgressPercent={station3ProgressPercent}
+        />
+      )}
 
       {/* ── 🚨 Incident War Room Emergency Industrial Console ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-[#24282D] border border-[#1E2227]/25 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
+      {xp > 0 && (
+        <div className="relative overflow-hidden rounded-2xl bg-[#24282D] border border-[#1E2227]/25 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
         {/* Subtle Matte Drafting Grid */}
         <div className="absolute inset-0 bg-notebook-grid opacity-10 pointer-events-none" />
 
@@ -551,9 +556,11 @@ export const WorkshopHubScreen: React.FC = () => {
           <ArrowRight size={14} />
         </button>
       </div>
+      )}
 
       {/* ── Interactive Track / Category Filter Tabs ── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none scrollbar-none" role="tablist">
+      {xp > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none scrollbar-none" role="tablist">
         {hubTabs.map((tab) => {
           const isActive = selectedTab === tab.id;
           return (
@@ -576,6 +583,7 @@ export const WorkshopHubScreen: React.FC = () => {
           );
         })}
       </div>
+      )}
 
       {/* ── Station Showcase Cards Grid (Strict Order 01 -> 10) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
@@ -584,19 +592,20 @@ export const WorkshopHubScreen: React.FC = () => {
           <StationShowcaseCard
             stationId="tv"
             codeLabel={`${t("hub.stations.tv.code", "Модуль 1")} • 01`}
-            title={t("hub.stations.tv.title", "Станція 01: Телевізійна станція")}
+            title={t("hub.stations.tv.title", "Станція 01: Розумний телевізор")}
             subtitle={t(
               "hub.stations.tv.subtitle",
-              "Фундаментальні патерни, змінні, інкапсуляція та диспетчеризація команд"
+              "Вчимося керувати приладом через код: подаємо живлення, перемикаємо канали та налаштовуємо звук пультом."
             )}
             blueprint={<TvBlueprintSvg />}
-            specs={t("hub.stations.tv.specs", `${CODING_TASKS.length} tasks • Smart TV • C# / Go`)}
+            specs={t("hub.stations.tv.specs", "Перші змінні, умови та команди.")}
             currentStars={tvStats.current}
             maxStars={tvStats.max}
             statusType={tvStats.statusType}
             {...getTrackCardProps("tv")}
-            isRecommended={!userTrack ? (!tvStats.isCompleted || xp < 100) : false}
-            beaconText={t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
+            isHeroCard={isCleanStart}
+            isRecommended={isCleanStart ? true : !userTrack ? (!tvStats.isCompleted || xp < 100) : false}
+            beaconText={isCleanStart ? t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
             onEnter={() => handleEnterStation("tv")}
             onViewCert={
               tvStats.isEligible
@@ -615,17 +624,19 @@ export const WorkshopHubScreen: React.FC = () => {
           <StationShowcaseCard
             stationId="pos"
             codeLabel={`${t("hub.stations.pos.code", "Модуль 2")} • 02`}
-            title={t("hub.stations.pos.title", "Станція 02: Фінтех POS-термінал")}
+            title={t("hub.stations.pos.title", "Станція 02: Термінал оплати")}
             subtitle={t(
               "hub.stations.pos.subtitle",
-              "Фінансова безпека, Guard Clauses, поліморфізм шлюзів та Dependency Injection"
+              "Пишемо захист платежів: перевіряємо PIN-код, блокуємо картку після 3 помилок і захищаємо баланс від списання в мінус."
             )}
             blueprint={<PosBlueprintSvg />}
-            specs={t("hub.stations.pos.specs", `${FINTECH_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            specs={t("hub.stations.pos.specs", "Перевірка умов, статуси оплати та захист карток.")}
             currentStars={posStats.current}
             maxStars={posStats.max}
             statusType={posStats.statusType}
             {...getTrackCardProps("pos")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             starColorClass="text-amber-700"
             onEnter={() => handleEnterStation("pos")}
             onViewCert={
@@ -656,6 +667,8 @@ export const WorkshopHubScreen: React.FC = () => {
             maxStars={0}
             statusType="roadmap"
             {...getTrackCardProps("iot")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             lockCriteria={{
               conditionText: t("hub.roadmapStatus", "Статус модуля"),
               progressText: t("hub.stations.iot.releaseDate", "Реліз у 2 семестрі"),
@@ -671,17 +684,19 @@ export const WorkshopHubScreen: React.FC = () => {
           <StationShowcaseCard
             stationId="api"
             codeLabel={`${t("hub.stations.api.code", "Модуль 4")} • 04`}
-            title={t("hub.stations.api.title", "Станція 04: API Кузня")}
+            title={t("hub.stations.api.title", "Станція 04: Інтернет-зв'язок (API)")}
             subtitle={t(
               "hub.stations.api.subtitle",
-              "Клієнт-серверний зв'язок, HTTP кабелі, DTO контракти, авторизація та 504 Retries"
+              "З'єднуємо додаток із сервером: відправляємо запити, перевіряємо доступ та налаштовуємо повторну спробу, якщо зник Wi-Fi."
             )}
             blueprint={<ApiForgeBlueprintSvg />}
-            specs={t("hub.stations.api.specs", `${API_FORGE_TASKS.length} tasks • Code Gym (4-Star) • C# / Go`)}
+            specs={t("hub.stations.api.specs", "HTTP-запити, передача даних та стабільність зв'язку.")}
             currentStars={apiStats.current}
             maxStars={apiStats.max}
             statusType={apiStats.statusType}
             {...getTrackCardProps("api")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-cyan-600/60"
             starColorClass="text-cyan-700"
             onEnter={() => handleEnterStation("api")}
@@ -712,7 +727,9 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={gitStats.current}
             maxStars={gitStats.max}
             statusType={gitStats.statusType}
-            {...getTrackCardProps("git")}
+                        {...getTrackCardProps("git")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("git")}
@@ -743,7 +760,9 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={banditStats.current}
             maxStars={banditStats.max}
             statusType={banditStats.statusType}
-            {...getTrackCardProps("bandit")}
+                        {...getTrackCardProps("bandit")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-emerald-600/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("bandit")}
@@ -774,7 +793,9 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={vertexStats.current}
             maxStars={vertexStats.max}
             statusType={vertexStats.statusType}
-            {...getTrackCardProps("vertex")}
+                        {...getTrackCardProps("vertex")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-blue-600/60"
             starColorClass="text-blue-800"
             onEnter={() => handleEnterStation("vertex")}
@@ -805,7 +826,9 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={fdeStats.current}
             maxStars={fdeStats.max}
             statusType={fdeStats.statusType}
-            {...getTrackCardProps("fde")}
+                        {...getTrackCardProps("fde")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-purple-600/60"
             starColorClass="text-purple-800"
             onEnter={() => handleEnterStation("fde")}
@@ -836,7 +859,9 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={ragStats.current}
             maxStars={ragStats.max}
             statusType={ragStats.statusType}
-            {...getTrackCardProps("rag")}
+                        {...getTrackCardProps("rag")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-cyan-500/60"
             starColorClass="text-cyan-800"
             onEnter={() => handleEnterStation("rag")}
@@ -867,7 +892,9 @@ export const WorkshopHubScreen: React.FC = () => {
             currentStars={cyberStats.current}
             maxStars={cyberStats.max}
             statusType={cyberStats.statusType}
-            {...getTrackCardProps("cyber")}
+                        {...getTrackCardProps("cyber")}
+            isWaitingStation={isCleanStart}
+            waitingBadgeText={isCleanStart ? t("onboarding.unlocksAfterStation01", "Відкриється після Станції 01") : undefined}
             accentBorderClass="hover:border-emerald-500/60"
             starColorClass="text-emerald-800"
             onEnter={() => handleEnterStation("cyber")}

@@ -95,11 +95,25 @@ export const createMentorSlice: StateCreator<
         // Safe catch
       }
 
+      const isTvTask = tvTaskIds.includes(taskId);
+      const hasNoTrackYet = !get().userTrack;
+      const onboardingNotDone =
+        typeof window === "undefined" ||
+        localStorage.getItem("iw_career_onboarding_completed") !== "true";
+
       set((s) => ({
         completedCodingTasks: nextCompleted,
         xp: nextXp,
         isStationVictoryModalOpen: allTvCompleted ? true : s.isStationVictoryModalOpen,
       }));
+
+      // Progressive disclosure: trigger career onboarding modal only after successful completion on Station 01
+      if (isTvTask && hasNoTrackYet && onboardingNotDone && !allTvCompleted) {
+        setTimeout(() => {
+          set({ isCareerModalOpen: true });
+        }, 1200);
+      }
+
       return true;
     }
     return false;
@@ -461,20 +475,7 @@ export const createMentorSlice: StateCreator<
     return false;
   })(),
 
-  isCareerModalOpen: (() => {
-    try {
-      if (typeof window !== "undefined") {
-        const completed = Boolean(
-          localStorage.getItem("iw_career_onboarding_completed") === "true" ||
-          localStorage.getItem("iw_user_track")
-        );
-        return !completed;
-      }
-    } catch {
-      return false;
-    }
-    return false;
-  })(),
+  isCareerModalOpen: false,
 
   setUserTrack: (track: CareerTrack | null) => {
     try {

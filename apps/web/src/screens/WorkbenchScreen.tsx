@@ -393,104 +393,109 @@ export const WorkbenchScreen: React.FC = () => {
 
         {/* Right */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0 flex-wrap sm:flex-nowrap">
-          {/* Incident War Room SEV-1 Button */}
-          <button
-            id="btn-incident-war-room"
-            onClick={() => {
-              audioFx.playWarRoomSiren();
-              setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
-            }}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap ${
-              currentView === "WAR_ROOM"
-                ? "bg-rose-600 text-white shadow-rose-900/50 border border-rose-500"
-                : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 border border-rose-500/30 hover:border-rose-500/60"
-            }`}
-            title="Incident War Room (SEV-1 Production Outage Drills)"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
-            </span>
-            <span className="tracking-tight">WAR ROOM</span>
-          </button>
+          {/* Engineering Power Tools (Progressive disclosure: hidden at 0 XP clean start) */}
+          {xp > 0 && (
+            <>
+              {/* Incident War Room SEV-1 Button */}
+              <button
+                id="btn-incident-war-room"
+                onClick={() => {
+                  audioFx.playWarRoomSiren();
+                  setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
+                }}
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap ${
+                  currentView === "WAR_ROOM"
+                    ? "bg-rose-600 text-white shadow-rose-900/50 border border-rose-500"
+                    : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 border border-rose-500/30 hover:border-rose-500/60"
+                }`}
+                title="Incident War Room (SEV-1 Production Outage Drills)"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                </span>
+                <span className="tracking-tight">WAR ROOM</span>
+              </button>
 
-          {/* Command Palette Trigger [ ⌘K Search ] */}
-          <button
-            id="btn-command-palette"
-            onClick={() => setIsCommandPaletteOpen(true)}
-            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-ink/40 text-xs text-ink/80 hover:text-ink transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap"
-            title="Open Command Palette (Cmd + K / Ctrl + K)"
-          >
-            <Search size={13} className="text-ink-muted shrink-0" />
-            <span className="hidden lg:inline font-bold text-xs truncate max-w-[60px]">
-              {t("cmdPalette.hintSelect", "Search")}...
-            </span>
-            <kbd className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[10px] font-mono font-bold text-ink-muted shrink-0">
-              ⌘K
-            </kbd>
-          </button>
+              {/* Command Palette Trigger [ ⌘K Search ] */}
+              <button
+                id="btn-command-palette"
+                onClick={() => setIsCommandPaletteOpen(true)}
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-ink/40 text-xs text-ink/80 hover:text-ink transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap"
+                title="Open Command Palette (Cmd + K / Ctrl + K)"
+              >
+                <Search size={13} className="text-ink-muted shrink-0" />
+                <span className="hidden lg:inline font-bold text-xs truncate max-w-[60px]">
+                  {t("cmdPalette.hintSelect", "Search")}...
+                </span>
+                <kbd className="px-1.5 py-0.5 rounded bg-black/5 border border-black/10 text-[10px] font-mono font-bold text-ink-muted shrink-0">
+                  ⌘K
+                </kbd>
+              </button>
 
-          {/* Career Track Trigger Button */}
-          <button
-            id="btn-career-track"
-            onClick={() => {
-              audioFx.playRelayClick();
-              setIsCareerModalOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-amber-600/60 text-ink/80 hover:text-amber-700 font-display font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
-            title={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
-            aria-label={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
-          >
-            <Compass size={13} className="text-amber-600 shrink-0" />
-            <span className="hidden sm:inline">
-              {userTrack
-                ? t(`career.tracks.${userTrack}.shortBadge`, "Трек")
-                : t("career.chooseTrack", "Напрямок")}
-            </span>
-          </button>
+              {/* Career Track Trigger Button */}
+              <button
+                id="btn-career-track"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setIsCareerModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-amber-600/60 text-ink/80 hover:text-amber-700 font-display font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+                title={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
+                aria-label={t("career.changeTrackTitle", "Змінити кар'єрний трек")}
+              >
+                <Compass size={13} className="text-amber-600 shrink-0" />
+                <span className="hidden sm:inline">
+                  {userTrack
+                    ? t(`career.tracks.${userTrack}.shortBadge`, "Трек")
+                    : t("career.chooseTrack", "Напрямок")}
+                </span>
+              </button>
 
-          {/* Engineering Onboarding Briefing Button */}
-          <button
-            id="btn-onboarding-tour"
-            onClick={() => {
-              audioFx.playRelayClick();
-              setIsOnboardingOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink/80 hover:text-accent-blue font-display font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
-            title={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
-            aria-label={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
-          >
-            <Sparkles size={13} className="text-accent-blue shrink-0" />
-            <span className="hidden sm:inline">{t("onboarding.tourTitle", "Інструктаж")}</span>
-          </button>
+              {/* Engineering Onboarding Briefing Button */}
+              <button
+                id="btn-onboarding-tour"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setIsOnboardingOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink/80 hover:text-accent-blue font-display font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+                title={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
+                aria-label={t("onboarding.tourButtonTitle", "Вступний інструктаж")}
+              >
+                <Sparkles size={13} className="text-accent-blue shrink-0" />
+                <span className="hidden sm:inline">{t("onboarding.tourTitle", "Інструктаж")}</span>
+              </button>
 
-          {/* Keyboard Shortcuts Trigger Button */}
-          <button
-            id="btn-shortcuts-helper"
-            onClick={() => {
-              audioFx.playRelayClick();
-              setIsShortcutsOpen(true);
-            }}
-            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-ink/40 text-ink/70 hover:text-ink font-mono font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
-            title={t("shortcuts.title", "Гарячі клавіші (?)")}
-            aria-label={t("shortcuts.title", "Гарячі клавіші (?)")}
-          >
-            ?
-          </button>
+              {/* Keyboard Shortcuts Trigger Button */}
+              <button
+                id="btn-shortcuts-helper"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setIsShortcutsOpen(true);
+                }}
+                className="hidden sm:flex items-center justify-center w-8 h-8 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-ink/40 text-ink/70 hover:text-ink font-mono font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+                title={t("shortcuts.title", "Гарячі клавіші (?)")}
+                aria-label={t("shortcuts.title", "Гарячі клавіші (?)")}
+              >
+                ?
+              </button>
 
-          {/* Sim-Engine Telemetry Chip */}
-          <div
-            className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono select-none shrink-0 whitespace-nowrap"
-            title="Real-time Web Audio & Virtual State Engine Active • Latency <1ms"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.8)] shrink-0" />
-            <span className="font-bold tracking-wider">SIM-ENGINE</span>
-            <span className="opacity-40">•</span>
-            <span className="opacity-80">&lt;1ms</span>
-          </div>
+              {/* Sim-Engine Telemetry Chip */}
+              <div
+                className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono select-none shrink-0 whitespace-nowrap"
+                title="Real-time Web Audio & Virtual State Engine Active • Latency <1ms"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.8)] shrink-0" />
+                <span className="font-bold tracking-wider">SIM-ENGINE</span>
+                <span className="opacity-40">•</span>
+                <span className="opacity-80">&lt;1ms</span>
+              </div>
 
-          {/* Interactive Master Audio Synthesizer Widget */}
-          <AudioVolumeWidget />
+              {/* Interactive Master Audio Synthesizer Widget */}
+              <AudioVolumeWidget />
+            </>
+          )}
 
           {/* Station Mastery Trophy (Re-opens Victory Modal if all station tasks passed) */}
           {isCurrentStationCompleted && (
