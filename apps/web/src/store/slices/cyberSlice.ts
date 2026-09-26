@@ -117,6 +117,10 @@ export const createCyberSlice: StateCreator<
       nistIncident: updatedIncident,
       containmentAuditLog: [logMessage, ...containmentAuditLog],
     });
+
+    if (get().isExplorerTourActive && get().explorerStep === 3 && actionType === "BLOCK_IP" && get().tourStepJustCompleted !== 3) {
+      get().completeExplorerStep(3);
+    }
   },
 
   advanceNistStageAction: () => {

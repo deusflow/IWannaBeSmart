@@ -31,6 +31,7 @@ export const CareerOnboardingModal: React.FC = () => {
     isCareerModalOpen,
     setUserTrack,
     setIsCareerModalOpen,
+    startExplorerTour,
   } = useWorkbenchStore(
     useShallow((s) => ({
       userTrack: s.userTrack,
@@ -38,6 +39,7 @@ export const CareerOnboardingModal: React.FC = () => {
       isCareerModalOpen: s.isCareerModalOpen,
       setUserTrack: s.setUserTrack,
       setIsCareerModalOpen: s.setIsCareerModalOpen,
+      startExplorerTour: s.startExplorerTour,
     }))
   );
 
@@ -53,8 +55,12 @@ export const CareerOnboardingModal: React.FC = () => {
   };
 
   const handleConfirm = () => {
-    audioFx.playSuccessFanfare();
-    setUserTrack(selectedTrack);
+    if (selectedTrack === "explorer") {
+      startExplorerTour();
+    } else {
+      audioFx.playSuccessFanfare();
+      setUserTrack(selectedTrack);
+    }
   };
 
   const handleDismiss = () => {
@@ -259,7 +265,11 @@ export const CareerOnboardingModal: React.FC = () => {
               onClick={handleConfirm}
               className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1E2227] hover:bg-black text-white font-mono font-bold text-xs sm:text-sm shadow-sm hover:shadow transition-all cursor-pointer active:scale-95"
             >
-              <span>{t("career.confirmChoice", "Розпочати навчання за цим треком")}</span>
+              <span>
+                {selectedTrack === "explorer"
+                  ? t("career.tour.startTourBtn", "Розпочати експрес-тур (3 кроки)")
+                  : t("career.confirmChoice", "Розпочати навчання за цим треком")}
+              </span>
               <ArrowRight size={15} />
             </button>
           </div>

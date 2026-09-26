@@ -30,6 +30,7 @@ import { createFdeSlice } from "./slices/fdeSlice";
 import { createRagAgentSlice } from "./slices/ragAgentSlice";
 import { createCyberSlice } from "./slices/cyberSlice";
 import { createWarRoomSlice } from "./slices/warRoomSlice";
+import { createExplorerTourSlice } from "./slices/explorerTourSlice";
 
 export const useWorkbenchStore = create<WorkbenchStore>((...a) => ({
   ...createTvSlice(...a),
@@ -48,6 +49,7 @@ export const useWorkbenchStore = create<WorkbenchStore>((...a) => ({
   ...createRagAgentSlice(...a),
   ...createCyberSlice(...a),
   ...createWarRoomSlice(...a),
+  ...createExplorerTourSlice(...a),
 }));
 
 export * from "./types";

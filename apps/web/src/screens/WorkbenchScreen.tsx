@@ -53,6 +53,9 @@ import { CommandPaletteModal } from "../components/workbench/CommandPaletteModal
 import { KeyboardShortcutsModal } from "../components/workbench/KeyboardShortcutsModal";
 import { OnboardingTourModal } from "../components/workbench/OnboardingTourModal";
 import { CareerOnboardingModal } from "../components/workbench/career/CareerOnboardingModal";
+import { ExplorerTourHeaderBar } from "../components/workbench/career/ExplorerTourHeaderBar";
+import { ExplorerTourStepModal } from "../components/workbench/career/ExplorerTourStepModal";
+import { ExplorerTourFinaleModal } from "../components/workbench/career/ExplorerTourFinaleModal";
 import { AudioVolumeWidget } from "../components/workbench/AudioVolumeWidget";
 import { audioFx } from "../utils/audioFx";
 import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Search, Sparkles, Compass } from "lucide-react";
@@ -557,6 +560,9 @@ export const WorkbenchScreen: React.FC = () => {
         </div>
       </header>
 
+      {/* ── Express Guided Tasting Route Sticky Bar ── */}
+      <ExplorerTourHeaderBar />
+
       {/* Mobile Viewport Advisory Banner (<md displays) */}
       {!isMobileDismissed && (
         <aside
@@ -1003,6 +1009,12 @@ export const WorkbenchScreen: React.FC = () => {
 
       {/* Freshman Career Onboarding Modal */}
       <CareerOnboardingModal />
+
+      {/* Express Guided Tasting Tour Transition Modal (Steps 1 -> 2, 2 -> 3) */}
+      <ExplorerTourStepModal />
+
+      {/* Express Guided Tasting Tour Finale Verdict Modal (Career Track Selection) */}
+      <ExplorerTourFinaleModal />
     </div>
   );
 };

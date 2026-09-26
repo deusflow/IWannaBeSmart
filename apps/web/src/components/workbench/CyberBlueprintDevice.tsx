@@ -317,9 +317,20 @@ export const CyberBlueprintDevice: React.FC = () => {
                     )}
                   </div>
                   {selectedPacket.threatReason && (
-                    <div className="p-2.5 rounded-lg bg-red-950/60 border border-red-800/70 text-red-200 text-xs flex items-center gap-2">
-                      <AlertTriangle size={15} className="shrink-0 text-red-400" />
-                      <span>{selectedPacket.threatReason}</span>
+                    <div className="p-2.5 rounded-lg bg-red-950/60 border border-red-800/70 text-red-200 text-xs flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle size={15} className="shrink-0 text-red-400" />
+                        <span>{selectedPacket.threatReason}</span>
+                      </div>
+                      <button
+                        type="button"
+                        id="btn-block-ip-wireshark"
+                        onClick={() => executeContainmentAction("BLOCK_IP")}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold font-mono transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <ShieldAlert size={13} />
+                        <span>Блокувати IP</span>
+                      </button>
                     </div>
                   )}
                 </div>

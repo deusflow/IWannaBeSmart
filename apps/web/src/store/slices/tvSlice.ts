@@ -170,6 +170,10 @@ export const createTvSlice: StateCreator<
         },
       },
     });
+
+    if (nextPower && get().isExplorerTourActive && get().explorerStep === 1 && get().tourStepJustCompleted !== 1) {
+      get().completeExplorerStep(1);
+    }
   },
 
   chassisTogglePower: () => {

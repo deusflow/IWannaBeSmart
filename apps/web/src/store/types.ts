@@ -404,6 +404,21 @@ export interface WarRoomSlice {
   resetWarRoomState: () => void;
 }
 
+export interface ExplorerTourSlice {
+  isExplorerTourActive: boolean;
+  explorerStep: 1 | 2 | 3;
+  isTourStepModalOpen: boolean;
+  isTourFinaleModalOpen: boolean;
+  tourStepJustCompleted: (1 | 2 | 3) | null;
+  startExplorerTour: () => void;
+  nextExplorerStep: () => void;
+  completeExplorerStep: (step: 1 | 2 | 3) => void;
+  finishExplorerTour: (selectedTrack: CareerTrack) => void;
+  exitExplorerTour: () => void;
+  setTourStepModalOpen: (open: boolean) => void;
+  setTourFinaleModalOpen: (open: boolean) => void;
+}
+
 export type WorkbenchStore = TVStateSlice &
   ConnectionsSlice &
   CircuitSlice &
@@ -420,5 +435,6 @@ export type WorkbenchStore = TVStateSlice &
   RagAgentSlice &
   CyberSlice &
   WarRoomSlice &
+  ExplorerTourSlice &
   WorkbenchActions;
 

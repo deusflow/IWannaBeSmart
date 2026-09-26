@@ -16,7 +16,12 @@ export const createArchitectureSlice: StateCreator<
   ArchitectureSlice
 > = (set, get) => ({
   isArchitecturePowerWired: false,
-  setArchitecturePowerWired: (wired: boolean) => set({ isArchitecturePowerWired: wired }),
+  setArchitecturePowerWired: (wired: boolean) => {
+    set({ isArchitecturePowerWired: wired });
+    if (wired && get().isExplorerTourActive && get().explorerStep === 1 && get().tourStepJustCompleted !== 1) {
+      get().completeExplorerStep(1);
+    }
+  },
 
   archNodes: [],
   archEdges: [],

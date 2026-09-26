@@ -81,6 +81,10 @@ export const createRagAgentSlice: StateCreator<
       ragChunkOverlap: chunkOverlap,
       ragActiveChunks: newChunks,
     });
+
+    if (get().isExplorerTourActive && get().explorerStep === 2 && get().tourStepJustCompleted !== 2) {
+      get().completeExplorerStep(2);
+    }
   },
 
   setRagQueryInput: (query: string) => {
