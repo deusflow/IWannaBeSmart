@@ -61,10 +61,10 @@ export const SyntaxAnatomyCard: React.FC<SyntaxAnatomyCardProps> = ({
             ? "bg-[#1A1D20] text-white border-[#1A1D20] shadow-sm"
             : "bg-[#EBE5D8] hover:bg-[#DFD8CA] border-[#1A1D20]/30 text-[#1A1D20]"
         }`}
-        title={t("theory.badgeBtn", "📖 Теорія та анатомія коду")}
+        title={t("theory.badgeBtn", " Теорія та анатомія коду")}
       >
         <BookOpen size={13} className={isOpen ? "text-amber-400" : "text-[#1A1D20]"} />
-        <span>{t("theory.badgeBtn", "📖 Теорія та анатомія коду")}</span>
+        <span>{t("theory.badgeBtn", " Теорія та анатомія коду")}</span>
         {isOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
       </button>
 
@@ -75,7 +75,7 @@ export const SyntaxAnatomyCard: React.FC<SyntaxAnatomyCardProps> = ({
           <div className="flex items-center justify-between border-b border-[#1A1D20]/20 pb-2">
             <div className="flex items-center gap-2">
               <span className="font-mono text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20]">
-                [ 📖 {t("theory.headerTitle", "Теорія та анатомія коду")} ]
+                [  {t("theory.headerTitle", "Теорія та анатомія коду")} ]
               </span>
               <span className="text-[11px] font-mono font-bold text-[#1A1D20]/60 uppercase">
                 {codeLang === "csharp" ? "C# (.NET)" : "Go (Golang)"}

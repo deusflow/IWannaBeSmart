@@ -111,7 +111,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
           </span>
           {nodeData.isPulsing && (
             <span className="font-mono text-[8px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase shrink-0 animate-pulse">
-              ⚡ EXEC
+              EXEC
             </span>
           )}
         </div>
@@ -128,7 +128,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
               className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-100 hover:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all cursor-pointer flex items-center gap-1"
             >
               <span>:{nodeData.implementsInterface}</span>
-              <span className="text-[8px] text-purple-400">🔍</span>
+              <span className="text-[8px] text-purple-400"></span>
             </button>
           )}
           {nodeData.entityType === "interface" && (
@@ -142,7 +142,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
               className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-100 hover:shadow-[0_0_12px_rgba(168,85,247,0.4)] transition-all cursor-pointer flex items-center gap-1"
             >
               <span>interface</span>
-              <span className="text-[8px] text-purple-400">🔍</span>
+              <span className="text-[8px] text-purple-400"></span>
             </button>
           )}
           <button
@@ -235,7 +235,7 @@ export const ArchitectureNode: React.FC<NodeProps> = ({ id, data, selected }) =>
                       </span>
                       {isDiInput && (
                         <span className="text-[8px] text-amber-400/80 font-mono shrink-0" title={t("journey.inspectDi", "Дослідити шлях впровадження DI")}>
-                          🔍
+                          
                         </span>
                       )}
                     </div>

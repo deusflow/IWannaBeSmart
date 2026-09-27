@@ -93,8 +93,8 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
               title={
                 !isUnlocked
                   ? tier === 1
-                    ? t("codegym.tier1Locked", "🔒 Потрібно 6 ★ у Ранзі 0")
-                    : t("codegym.tier2Locked", "🔒 Пройдіть Ранг 1 (≥10 ★)")
+                    ? t("codegym.tier1Locked", " Потрібно 6 ★ у Ранзі 0")
+                    : t("codegym.tier2Locked", " Пройдіть Ранг 1 (≥10 ★)")
                   : `${tierMeta[tier].label} (${currentTierStars}/${maxStars} ★)`
               }
             >
@@ -114,8 +114,8 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
               {!isUnlocked ? (
                 <div className="mt-1 text-[9px] font-mono text-amber-900/80 font-semibold truncate">
                   {tier === 1
-                    ? t("codegym.tier1Locked", "🔒 Потрібно 6 ★ у Ранзі 0")
-                    : t("codegym.tier2Locked", "🔒 Пройдіть Ранг 1 (≥10 ★)")}
+                    ? t("codegym.tier1Locked", " Потрібно 6 ★ у Ранзі 0")
+                    : t("codegym.tier2Locked", " Пройдіть Ранг 1 (≥10 ★)")}
                 </div>
               ) : (
                 <div className="mt-1 flex items-center gap-1 text-[9px]">
@@ -339,7 +339,7 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
                 </span>
                 {starsEarned >= round && (
                   <span className={round === 4 ? "text-cyan-400 text-xs drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "text-amber-400 text-xs"}>
-                    {round === 4 ? "💎" : "⭐"}
+                    {round === 4 ? "" : "⭐"}
                   </span>
                 )}
               </div>

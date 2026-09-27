@@ -143,7 +143,7 @@ export function useCallFlowTrace({
         type: "error",
         subsystem: "FAULT",
         operation: "NULL_REF",
-        message: "NullReferenceException: TVController._cmd is null ⚠️",
+        message: "NullReferenceException: TVController._cmd is null",
         targetNodeId: "node-class-tv-controller",
         details: "Object reference not set to an instance of an object at TVController.Dispatch()",
         codeContext:

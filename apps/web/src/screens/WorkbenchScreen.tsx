@@ -345,7 +345,7 @@ export const WorkbenchScreen: React.FC = () => {
           {currentView === "HUB" ? (
             <div className="flex items-center gap-2 select-none shrink-0">
               <div className="w-8 h-8 rounded-xl bg-[#1A1D20] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                📐
+                
               </div>
               <span className="font-display font-extrabold text-sm sm:text-base text-[#1A1D20] tracking-tight whitespace-nowrap">
                 IWannaBeSmart
@@ -368,7 +368,7 @@ export const WorkbenchScreen: React.FC = () => {
                 <span>{t("expressTour.exitToHub", "До верстака / Hub")}</span>
               </button>
               <span className="hidden sm:inline-block font-mono text-xs font-bold text-[#C86D32] bg-[#F5EDE6] px-2 py-0.5 rounded border border-[#C86D32]/30">
-                ⚡ ЕКСПРЕС ТЕСТ-ДРАЙВ
+                ЕКСПРЕС ТЕСТ-ДРАЙВ
               </span>
             </div>
           ) : (
@@ -469,10 +469,10 @@ export const WorkbenchScreen: React.FC = () => {
             {!isNewUser && (
               <FeatureNudge
                 storageKey="iw_nudge_war_room_unlocked"
-                badge={t("nudges.warRoomUnlocked.badge", "⚡ СЕКТОР РОЗБЛОКОВАНО")}
+                badge={t("nudges.warRoomUnlocked.badge", "СЕКТОР РОЗБЛОКОВАНО")}
                 text={t(
                   "nudges.warRoomUnlocked.text",
-                  "⚡ War Room розблоковано! Сюди йдуть тренувати ліквідацію аварій на продакшні під звук сирени."
+                  "War Room розблоковано! Сюди йдуть тренувати ліквідацію аварій на продакшні під звук сирени."
                 )}
                 dismissText={t("nudges.warRoomUnlocked.understood", "Зрозуміло")}
                 position="bottom-right"
@@ -583,7 +583,7 @@ export const WorkbenchScreen: React.FC = () => {
             }}
             className="px-2 py-0.5 rounded-lg bg-amber-500/25 hover:bg-amber-500/40 text-amber-950 font-mono font-bold text-[10px] shrink-0 cursor-pointer"
           >
-            {t("mobileAdvisory.dismiss", "Зрозуміло")} ✕
+            {t("mobileAdvisory.dismiss", "Зрозуміло")}
           </button>
         </aside>
       )}

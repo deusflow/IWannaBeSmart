@@ -47,7 +47,7 @@ export const HotSwapModal: React.FC<HotSwapModalProps> = ({
               </span>
             </div>
             <h3 className="text-base font-bold text-gray-100 mt-0.5">
-              {t("architecture.hotSwapTitle", "💡 Фокус Поліморфізму (The Hot Swap)")}
+              {t("architecture.hotSwapTitle", " Фокус Поліморфізму (The Hot Swap)")}
             </h3>
           </div>
         </div>
@@ -55,7 +55,7 @@ export const HotSwapModal: React.FC<HotSwapModalProps> = ({
         <div className="space-y-3 font-sans text-xs text-gray-300 leading-relaxed">
           <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200">
             <p className="font-bold text-purple-100 text-sm mb-1">
-              ⚡ {t("architecture.hotSwapInsight", "У файлі TVController.cs НЕ ЗМІНИЛОСЯ ЖОДНОГО СИМВОЛУ!")}
+              {t("architecture.hotSwapInsight", "У файлі TVController.cs НЕ ЗМІНИЛОСЯ ЖОДНОГО СИМВОЛУ!")}
             </p>
             <p className="text-[11.5px] text-purple-200/90">
               {t("architecture.hotSwapSubtitle", "Підміна реалізації через єдиний контракт")}: {t("architecture.hotSwapDesc", "ми замінили деталь на нову (VolumeUpCommand замість PowerCommand), а телевізор продовжує працювати без перекомпіляції.")}
@@ -95,7 +95,7 @@ export const HotSwapModal: React.FC<HotSwapModalProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs shadow-[0_0_15px_rgba(245,158,11,0.4)] cursor-pointer transition-all active:scale-95"
           >
             <Zap size={13} className="fill-black" />
-            {t("architecture.testCall", "⚡ Трасувати виклик")}
+            {t("architecture.testCall", "Трасувати виклик")}
           </button>
           <button
             onClick={onClose}

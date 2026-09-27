@@ -1,11 +1,11 @@
 /**
  * @file apps/web/src/components/workbench/playground/GuidedStepBar.tsx
  * @description Interactive Tutorial Briefing & Reference Solution Card:
- *   Step 1: [ 🎯 Зразок і контекст ] — ready solution code, memory allocation & project file architecture
- *   Step 2: [ 💡 Простими словами ] — plain-language intuition analogy
- *   Step 3: [ ⚙️ Інженерна суть ] — strict CS engineering definitions & mechanics
- *   Step 4: [ 🧩 Анатомія токенів ] — syntax breakdown (why dot, parenthesis, semicolon, interface)
- *   Step 5: [ 🗺️ Карта архітектури ] — project files hierarchy & Architecture Canvas node wiring
+ *   Step 1: [  Зразок і контекст ] — ready solution code, memory allocation & project file architecture
+ *   Step 2: [  Простими словами ] — plain-language intuition analogy
+ *   Step 3: [ ⚙ Інженерна суть ] — strict CS engineering definitions & mechanics
+ *   Step 4: [  Анатомія токенів ] — syntax breakdown (why dot, parenthesis, semicolon, interface)
+ *   Step 5: [  Карта архітектури ] — project files hierarchy & Architecture Canvas node wiring
  *
  * Design: Blueprint parchment (#EBE5D8 bg, #1A1D20 graphite text, elegant tactile borders)
  */
@@ -253,7 +253,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               }`}
             >
               <Code2 size={11} className={activeLayer === "solution" && isExpanded ? "text-amber-400" : ""} />
-              <span>{t("guide.solutionTab", "🎯 Зразок")}</span>
+              <span>{t("guide.solutionTab", " Зразок")}</span>
             </button>
 
             {/* Tab 2: Simple words */}
@@ -270,7 +270,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }`}
               >
                 <Lightbulb size={11} className={activeLayer === "simple" && isExpanded ? "text-amber-300" : ""} />
-                <span>{t("guide.simpleTab", "💡 Аналогія")}</span>
+                <span>{t("guide.simpleTab", " Аналогія")}</span>
               </button>
             )}
 
@@ -288,7 +288,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }`}
               >
                 <Cpu size={11} className={activeLayer === "engineering" && isExpanded ? "text-emerald-400" : ""} />
-                <span>{t("guide.engineeringTab", "⚙️ Інженерія")}</span>
+                <span>{t("guide.engineeringTab", "Інженерія")}</span>
               </button>
             )}
 
@@ -306,7 +306,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }`}
               >
                 <Network size={11} className={activeLayer === "architecture" && isExpanded ? "text-purple-400" : ""} />
-                <span>{t("guide.architectureTab", "🗺️ Архітектура")}</span>
+                <span>{t("guide.architectureTab", " Архітектура")}</span>
               </button>
             )}
 
@@ -324,7 +324,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }`}
               >
                 <Layers size={11} className={activeLayer === "tokens" && isExpanded ? "text-cyan-400" : ""} />
-                <span>{t("guide.tokensTab", "🧩 Токени")}</span>
+                <span>{t("guide.tokensTab", " Токени")}</span>
               </button>
             )}
 
@@ -343,7 +343,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }`}
               >
                 <Compass size={11} className={activeLayer === "deepdive" && isExpanded ? "text-indigo-400" : ""} />
-                <span>{t("guide.deepDiveTab", "🌐 Deep Dive")}</span>
+                <span>{t("guide.deepDiveTab", " Deep Dive")}</span>
               </button>
             )}
           </div>
@@ -364,7 +364,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
       {isExpanded && (
         <div className="animate-in fade-in slide-in-from-top-1 duration-200 p-4 space-y-3.5">
           {/* ══════════════════════════════════════════════════════════════════
-               LAYER 1: [ 🎯 Зразок і контекст ] (Reference Solution & Context)
+               LAYER 1: [  Зразок і контекст ] (Reference Solution & Context)
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "solution" && (
             <GuidedSolutionLayer
@@ -384,7 +384,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
-               LAYER 2: [ 💡 Простими словами ] (Plain Intuition)
+               LAYER 2: [  Простими словами ] (Plain Intuition)
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "simple" && (
             <div className="space-y-2">
@@ -401,7 +401,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
-               LAYER 3: [ ⚙️ Інженерна суть ] (Technical Engineering)
+               LAYER 3: [ ⚙ Інженерна суть ] (Technical Engineering)
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "engineering" && (
             <div className="space-y-2">
@@ -418,7 +418,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
-               LAYER 4: [ 🗺️ Архітектура ] (Full Architecture Map)
+               LAYER 4: [  Архітектура ] (Full Architecture Map)
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "architecture" && (
             <GuidedArchitectureLayer
@@ -429,7 +429,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
-               LAYER 5: [ 🧩 Токени ] (Syntax Token Anatomy Breakdown)
+               LAYER 5: [  Токени ] (Syntax Token Anatomy Breakdown)
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "tokens" && theory?.tokens && (
             <GuidedTokensLayer
@@ -439,7 +439,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
-               LAYER 6: [ 🌐 Deep Dive ] (Curated Authoritative Sources)
+               LAYER 6: [  Deep Dive ] (Curated Authoritative Sources)
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "deepdive" && didactic?.curatedResources && (
             <GuidedDeepDiveCard
@@ -467,7 +467,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               title={t("guide.startPracticeTooltip", "Згорнути інструкцію та перейти до практики")}
             >
               <PenLine size={13} className="text-stone-950" />
-              <span>{t("guide.understoodStartPractice", "👉 Я зрозумів! До практики →")}</span>
+              <span>{t("guide.understoodStartPractice", " Я зрозумів! До практики →")}</span>
             </button>
           </div>
         </div>

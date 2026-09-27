@@ -219,7 +219,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         {isHeroCard ? (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/40 text-[#C86D32] text-xs sm:text-sm font-mono font-extrabold shadow-2xs">
             <Sparkles size={15} className="text-[#C86D32] shrink-0 animate-pulse" />
-            <span>{beaconText || t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД")}</span>
+            <span>{beaconText || t("onboarding.startHere60s", " СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД")}</span>
           </div>
         ) : isTrackStation ? (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 text-[#C86D32] text-xs font-mono font-bold shadow-2xs">
@@ -229,7 +229,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
         ) : isRecommended ? (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EAF0F4] border border-[#3B6B88]/30 text-[#3B6B88] text-xs font-mono font-bold">
             <Sparkles size={13} className="text-[#3B6B88] shrink-0" />
-            <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", "🌟 Базовий контур: рекомендовано для старту інженера"))}</span>
+            <span>{beaconText || t("onboarding.beaconStart", t("hub.recommendedStart", " Базовий контур: рекомендовано для старту інженера"))}</span>
           </div>
         ) : null}
 

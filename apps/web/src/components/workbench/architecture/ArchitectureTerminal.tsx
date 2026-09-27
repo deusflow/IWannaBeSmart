@@ -393,7 +393,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                         className="px-1.5 py-0.2 rounded bg-white/10 hover:bg-accent-blue hover:text-white text-gray-400 text-[8px] font-mono shrink-0 transition-colors flex items-center gap-1 cursor-pointer"
                         title={t("architecture.focusNodeOnCanvas", "Центрувати ноду на полотні")}
                       >
-                        <span>🎯 Focus</span>
+                        <span> Focus</span>
                       </button>
                     )}
                   </div>

@@ -217,7 +217,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase">
-                    🎓 КРОК 1: БЕКЕНД & ЛОГІКА СИСТЕМ
+                     КРОК 1: БЕКЕНД & ЛОГІКА СИСТЕМ
                   </span>
                 </div>
                 <p className="text-sm font-display font-medium text-[#1E2227]/80">
@@ -301,8 +301,8 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                     <span className="w-3.5 h-3.5 rounded-full bg-blue-500 animate-ping" />
                     <span className="font-mono font-bold text-xs sm:text-sm text-blue-300">
                       {isWireConnected
-                        ? `⚡ ${t("expressTour.step1.wireConnected", "Ланцюг живлення замкнено!")}`
-                        : `🔌 ${t("expressTour.step1.wireHint", "Клікни на синій провід для з'єднання")}`}
+                        ? t("expressTour.step1.wireConnected", "Ланцюг живлення замкнено!")
+                        : t("expressTour.step1.wireHint", "Клікни на синій провід для з'єднання")}
                     </span>
                   </div>
 
@@ -417,7 +417,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1E3A8A]/15 text-[#1E3A8A] uppercase">
-                    🎓 КРОК 2: ШТУЧНИЙ ІНТЕЛЕКТ & СЕНСИ
+                     КРОК 2: ШТУЧНИЙ ІНТЕЛЕКТ & СЕНСИ
                   </span>
                 </div>
                 <p className="text-sm font-display font-medium text-[#1E2227]/80">
@@ -481,7 +481,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                         : "bg-slate-900 border-blue-400/30 text-white/80"
                     }`}
                   >
-                    <span>🍕</span>
+                    <span></span>
                     <span>{t("expressTour.step2.pizza", "Піца")}</span>
                     {isRadarAnalyzed && (
                       <span className="text-[10px] bg-emerald-500/30 px-1.5 py-0.5 rounded text-emerald-300">
@@ -500,7 +500,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                         : "bg-slate-900 border-blue-400/30 text-white/80"
                     }`}
                   >
-                    <span>🍔</span>
+                    <span></span>
                     <span>{t("expressTour.step2.burger", "Бургер")}</span>
                     {isRadarAnalyzed && (
                       <span className="text-[10px] bg-emerald-500/30 px-1.5 py-0.5 rounded text-emerald-300">
@@ -517,7 +517,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                   }`}
                 >
                   <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-white/10 font-mono font-bold text-xs text-white/60 flex items-center gap-1.5">
-                    <span>🌌</span>
+                    <span></span>
                     <span>{t("expressTour.step2.galaxy", "Галактика")}</span>
                   </div>
                 </div>
@@ -529,7 +529,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                   }`}
                 >
                   <div className="px-3 py-1.5 rounded-xl bg-slate-900 border border-white/10 font-mono font-bold text-xs text-white/60 flex items-center gap-1.5">
-                    <span>⚙️</span>
+                    <span>●</span>
                     <span>{t("expressTour.step2.engine", "Двигун")}</span>
                   </div>
                 </div>
@@ -575,7 +575,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                     <span>
                       {isRadarScanning
                         ? t("expressTour.step2.analyzing", "Сканування смислового простору...")
-                        : t("expressTour.step2.analyzeBtn", "⚡ Аналізувати запит: «Хочу перекусити»")}
+                        : t("expressTour.step2.analyzeBtn", "Аналізувати запит: «Хочу перекусити»")}
                     </span>
                   </button>
                 ) : (
@@ -637,7 +637,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 uppercase">
-                    🎓 КРОК 3: КІБЕРБЕЗПЕКА & ЗАХИСТ СЕРВЕРА
+                     КРОК 3: КІБЕРБЕЗПЕКА & ЗАХИСТ СЕРВЕРА
                   </span>
                 </div>
                 <p className="text-sm font-display font-medium text-[#1E2227]/80">
@@ -709,7 +709,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                         : "bg-rose-500 text-white animate-bounce"
                     }`}
                   >
-                    {isFirewallBlocked ? "✓ NEUTRALIZED" : "🔴 КЛІКНИ СЮДИ!"}
+                    {isFirewallBlocked ? "✓ NEUTRALIZED" : " КЛІКНИ СЮДИ!"}
                   </span>
                 </button>
 
@@ -744,7 +744,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                     {isFirewallBlocked
                       ? "FIREWALL: АТАКУ ВІДБИТО"
                       : isAttackPacketSelected
-                      ? t("expressTour.step3.targetAlert", "⚠️ ВИЯВЛЕНО ШКІДЛИВИЙ ТРАФІК")
+                      ? t("expressTour.step3.targetAlert", "[!] ВИЯВЛЕНО ШКІДЛИВИЙ ТРАФІК")
                       : "FIREWALL: МОНІТОРИНГ"}
                   </div>
 
@@ -768,7 +768,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                       className="mt-4 w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-mono font-bold text-xs shadow-lg shadow-rose-900/50 flex items-center justify-center gap-2 cursor-pointer active:scale-95 animate-bounce"
                     >
                       <Shield size={15} />
-                      <span>{t("expressTour.step3.blockBtn", "🛡️ Заблокувати IP (Firewall Shield)")}</span>
+                      <span>{t("expressTour.step3.blockBtn", " Заблокувати IP (Firewall Shield)")}</span>
                     </button>
                   )}
                 </div>
@@ -790,7 +790,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm sm:text-base text-emerald-950">
-                      {t("expressTour.step3.neutralizedBadge", "🛡️ АТАКУ НЕЙТРАЛІЗОВАНО! IP 198.51.100.42 заблоковано")}
+                      {t("expressTour.step3.neutralizedBadge", " АТАКУ НЕЙТРАЛІЗОВАНО! IP 198.51.100.42 заблоковано")}
                     </h4>
                     <p className="text-xs text-emerald-800/80">
                       Всі 3 мікросцени успішно пройдено! Час визначитися з кар'єрним напрямком.
@@ -942,7 +942,7 @@ export const ExpressTastingScreen: React.FC<ExpressTastingScreenProps> = ({ onCl
                 className="px-6 py-2.5 rounded-xl border border-[#1E2227]/20 bg-white hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1E2227]/80 hover:text-[#1E2227] transition-all cursor-pointer inline-flex items-center gap-2 active:scale-95 shadow-paper-xs"
               >
                 <Compass size={15} />
-                <span>{t("expressTour.finale.allTracksBtn", "🧭 Мені сподобалося все! (Explorer Mode)")}</span>
+                <span>{t("expressTour.finale.allTracksBtn", " Мені сподобалося все! (Explorer Mode)")}</span>
               </button>
             </div>
           </div>

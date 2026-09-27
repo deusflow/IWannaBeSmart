@@ -138,7 +138,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
           <span className="font-mono font-bold text-[11px] text-white">
             {isInterfaceMode
               ? t("journey.interfaceTitle", "⬡ Шлях контракту: IRemoteCommand")
-              : t("journey.diTitle", "⚡ Шлях впровадження залежності (DI)")}
+              : t("journey.diTitle", "Шлях впровадження залежності (DI)")}
           </span>
           <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/25 text-purple-300 border border-purple-500/40 font-bold">
             {t("journey.stepBadge", { current: journeyState.activeStep, total: 4 })}
@@ -149,7 +149,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
           {onFitAll && (
             <button
               onClick={onFitAll}
-              title={t("journey.showAllPath", "👁 Весь шлях на дошці")}
+              title={t("journey.showAllPath", " Весь шлях на дошці")}
               className="p-1 rounded-md hover:bg-white/10 text-purple-300 hover:text-white transition-colors cursor-pointer"
             >
               <Eye size={13} />
@@ -188,7 +188,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
               <span className="font-mono font-bold text-xs text-white">
                 {isInterfaceMode
                   ? t("journey.interfaceTitle", "⬡ Шлях контракту: IRemoteCommand")
-                  : t("journey.diTitle", "⚡ Шлях впровадження залежності (DI)")}
+                  : t("journey.diTitle", "Шлях впровадження залежності (DI)")}
               </span>
               <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/25 text-purple-300 border border-purple-500/40 font-bold">
                 {t("journey.stepBadge", { current: journeyState.activeStep, total: 4 })}
@@ -304,7 +304,7 @@ export const InterfaceJourneyHUD: React.FC<InterfaceJourneyHUDProps> = ({
             {currentStepData.code}
           </pre>
           <p className="text-[10.5px] text-gray-300 mt-1.5 leading-snug">
-            💡 <strong>{t("journey.insightTitle", "Що це означає")}:</strong> {currentStepData.desc}
+             <strong>{t("journey.insightTitle", "Що це означає")}:</strong> {currentStepData.desc}
           </p>
         </div>
 

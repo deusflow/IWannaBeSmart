@@ -173,7 +173,7 @@ export const PreciseErrorPointer: React.FC<PreciseErrorPointerProps> = ({
         </p>
         {error.eli5 && (
           <div className="mt-2 pt-1.5 border-t border-red-500/20 flex items-start gap-1.5 text-[11px] font-sans text-amber-200/90">
-            <span className="font-bold text-amber-400 shrink-0">💡 {t("eli5.tipTitle", "Простими словами (ELI5):")}</span>
+            <span className="font-bold text-amber-400 shrink-0"> {t("eli5.tipTitle", "Простими словами (ELI5):")}</span>
             <span className="leading-snug">{error.eli5}</span>
           </div>
         )}

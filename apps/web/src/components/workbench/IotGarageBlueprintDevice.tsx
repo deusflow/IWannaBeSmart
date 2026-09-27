@@ -197,7 +197,7 @@ export const IotGarageBlueprintDevice: React.FC = () => {
                 />
                 {(isSimulatingObstacle || iotState.obstacleDetected) && (
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 rounded bg-rose-950 border border-rose-500 text-rose-300 font-mono text-[9px] font-bold tracking-wider uppercase whitespace-nowrap shadow-md">
-                    ⚠️ OBSTACLE TRIPPED
+                    OBSTACLE TRIPPED
                   </div>
                 )}
               </div>
@@ -242,7 +242,7 @@ export const IotGarageBlueprintDevice: React.FC = () => {
             className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white font-bold transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <Radio size={14} className="text-white" />
-            <span>{t("iotStation.remoteBtn", "⚡ ПУЛЬТ (CLICK)")}</span>
+            <span>{t("iotStation.remoteBtn", "ПУЛЬТ (CLICK)")}</span>
           </button>
 
           {/* Simulate Obstacle Toggle */}
@@ -259,8 +259,8 @@ export const IotGarageBlueprintDevice: React.FC = () => {
             <AlertTriangle size={14} className={isSimulatingObstacle ? "text-white" : "text-amber-400"} />
             <span>
               {isSimulatingObstacle
-                ? t("iotStation.obstacleActive", "🛑 ЗАВАДА АКТИВНА")
-                : t("iotStation.tripObstacle", "⚠️ ПЕРЕШКОДА (IR BEAM)")}
+                ? t("iotStation.obstacleActive", " ЗАВАДА АКТИВНА")
+                : t("iotStation.tripObstacle", "ПЕРЕШКОДА (IR BEAM)")}
             </span>
           </button>
 

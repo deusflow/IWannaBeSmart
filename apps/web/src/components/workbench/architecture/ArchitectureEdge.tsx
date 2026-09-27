@@ -152,7 +152,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
         >
           {isPulsing ? (
             <div className="px-2.5 py-1 rounded-full bg-amber-500 text-stone-950 font-mono font-bold text-[10px] flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.8)] animate-pulse">
-              <span>⚡</span>
+              <span>→</span>
               <span>{edgeData.pulseLabel || "Execute()"}</span>
             </div>
           ) : isWithoutDi ? (
@@ -187,7 +187,7 @@ export const ArchitectureEdge: React.FC<EdgeProps> = ({
             >
               <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isJourneyActive ? "bg-purple-400 animate-pulse" : "bg-emerald-400"}`} />
               <span className="font-semibold">{edgeData.commandName || "DI"}</span>
-              <span className="text-[8px] text-purple-400/90 font-mono">🔍</span>
+              <span className="text-[8px] text-purple-400/90 font-mono"></span>
               <button
                 onClick={handleDelete}
                 title={t("architecture.disconnect", "Від'єднати")}

@@ -400,7 +400,7 @@ export const POSBlueprintDevice: React.FC = () => {
             )}
             {isBlocked && (
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-900/80 border border-red-500/80 text-red-200 animate-pulse">
-                {t("posDevice.blocked", "БЛОКОВАНО ⛔")}
+                {t("posDevice.blocked", "БЛОКОВАНО")}
               </span>
             )}
           </div>

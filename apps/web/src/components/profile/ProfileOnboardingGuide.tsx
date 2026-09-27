@@ -193,7 +193,7 @@ export const ProfileOnboardingGuide: React.FC = () => {
               className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
             >
               <Check size={14} strokeWidth={2.4} />
-              <span>{t("profile.onboarding.finish", "Зрозуміло! 🚀")}</span>
+              <span>{t("profile.onboarding.finish", "Зрозуміло! ")}</span>
             </button>
           )}
         </div>

@@ -131,7 +131,7 @@ export function useInterfaceJourney({
       type: "info",
       subsystem: "IoC",
       operation: "INSPECT_DI",
-      message: t("journey.inspectDiMsg", "⚡ Повний шлях Dependency Injection: зовні -> конструктор -> RAM -> Dispatch"),
+      message: t("journey.inspectDiMsg", "Повний шлях Dependency Injection: зовні -> конструктор -> RAM -> Dispatch"),
       targetNodeId: "node-class-tv-controller",
       details: t("journey.inspectDiDetails", "Створення деталі зовні та передача в TVController.ctor(IRemoteCommand cmd)"),
       codeContext: t(
@@ -255,11 +255,11 @@ export function useInterfaceJourney({
 
       let badge: string | undefined = undefined;
       if (n.id === "node-interface-remote-command") {
-        badge = t("journey.badgeStation1", "📍 1. ЗВІДКИ БЕРЕТЬСЯ (Контракт)");
+        badge = t("journey.badgeStation1", " 1. ЗВІДКИ БЕРЕТЬСЯ (Контракт)");
       } else if (n.id === activeCmdNodeId) {
-        badge = t("journey.badgeStation2", "📍 2. ХТО РЕАЛІЗУЄ (:IRemoteCommand)");
+        badge = t("journey.badgeStation2", " 2. ХТО РЕАЛІЗУЄ (:IRemoteCommand)");
       } else if (n.id === "node-class-tv-controller") {
-        badge = t("journey.badgeStation34", "📍 3. ВПРОВАДЖЕННЯ (DI) ➔ 4. ВИКОРИСТАННЯ");
+        badge = t("journey.badgeStation34", " 3. ВПРОВАДЖЕННЯ (DI) ➔ 4. ВИКОРИСТАННЯ");
       }
 
       return {

@@ -504,7 +504,7 @@ export const GitCodeGymRunner: React.FC = () => {
                           : "text-amber-400 text-xs"
                       }
                     >
-                      {round === 4 ? "💎" : "⭐"}
+                      {round === 4 ? "" : "⭐"}
                     </span>
                   )}
                 </div>

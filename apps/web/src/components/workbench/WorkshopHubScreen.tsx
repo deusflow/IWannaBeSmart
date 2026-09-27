@@ -367,7 +367,7 @@ export const WorkshopHubScreen: React.FC = () => {
             </div>
             <div>
               <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase tracking-wider mb-1">
-                <span>⚡ ONBOARDING NUDGE</span>
+                <span>ONBOARDING NUDGE</span>
               </div>
               <p className="text-xs sm:text-sm font-display font-extrabold text-[#1E2227] leading-snug">
                 {t(
@@ -386,7 +386,7 @@ export const WorkshopHubScreen: React.FC = () => {
             }}
             className="px-4 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#C86D32] hover:bg-[#B35E28] text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start sm:self-auto"
           >
-            <span>{t("career.chooseTrackBtn", "Обрати трек 🧭")}</span>
+            <span>{t("career.chooseTrackBtn", "Обрати трек")}</span>
           </button>
         </div>
       )}
@@ -429,7 +429,7 @@ export const WorkshopHubScreen: React.FC = () => {
             }}
             className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#1E2227] hover:bg-black text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
-            <span>{t("career.chooseTrackBtn", "Обрати трек 🧭")}</span>
+            <span>{t("career.chooseTrackBtn", "Обрати трек")}</span>
           </button>
         </div>
       ) : (
@@ -446,13 +446,13 @@ export const WorkshopHubScreen: React.FC = () => {
                 </span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1E2227]/5 text-[#1E2227] border border-[#1E2227]/15 uppercase">
                   {userTrack === "explorer"
-                    ? `🧭 ${t("career.tracks.explorer.title", "Спробувати все (Explorer)")}`
+                    ? t("career.tracks.explorer.title", "Спробувати все (Explorer)")
                     : userTrack === "backend"
-                    ? `🖥️ ${t("career.tracks.backend.title", "Backend & Distributed Systems")}`
+                    ? t("career.tracks.backend.title", "Backend & Distributed Systems")
                     : userTrack === "ai"
-                    ? `🤖 ${t("career.tracks.ai.title", "AI & MLOps Architecture")}`
+                    ? t("career.tracks.ai.title", "AI & MLOps Architecture")
                     : userTrack === "security"
-                    ? `🛡️ ${t("career.tracks.security.title", "Кібербезпека & SOC Analyst")}`
+                    ? t("career.tracks.security.title", "Кібербезпека & SOC Analyst")
                     : t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
                 </span>
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#3E7A5E]/10 text-[#3E7A5E] border border-[#3E7A5E]/30">
@@ -499,7 +499,7 @@ export const WorkshopHubScreen: React.FC = () => {
             }}
             className="relative z-10 px-4 py-2 rounded-xl font-mono font-bold text-xs bg-white hover:bg-[#F0EDE6] text-[#1E2227] border border-[#1E2227]/20 shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
-            <span>{t("career.changeTrackBtn", "Змінити 🔄")}</span>
+            <span>{t("career.changeTrackBtn", "Змінити")}</span>
           </button>
         </div>
       ))}
@@ -573,7 +573,7 @@ export const WorkshopHubScreen: React.FC = () => {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C86D32]" />
           </span>
           <Zap size={13} className="text-[#C86D32] fill-current" />
-          <span>{t("hub.expressTourBtn", "⚡ ЕКСПРЕС ТЕСТ-ДРАЙВ (3 ХВ)")}</span>
+          <span>{t("hub.expressTourBtn", "ЕКСПРЕС ТЕСТ-ДРАЙВ (3 ХВ)")}</span>
         </button>
       </div>
 
@@ -591,12 +591,12 @@ export const WorkshopHubScreen: React.FC = () => {
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C86D32]" />
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase tracking-wider border border-[#C86D32]/30">
-                    {t("hub.starterCards.cardA.badge", "⚡ ЕКСПРЕС ТЕСТ-ДРАЙВ • 5 ХВИЛИН")}
+                    {t("hub.starterCards.cardA.badge", "ЕКСПРЕС ТЕСТ-ДРАЙВ • 5 ХВИЛИН")}
                   </span>
                 </div>
 
                 <h3 className="font-display font-extrabold text-lg sm:text-xl text-[#1E2227] tracking-tight leading-snug">
-                  {t("hub.starterCards.cardA.title", "⚡ Експрес тест-драйв: Спробувати все (5 хвилин)")}
+                  {t("hub.starterCards.cardA.title", "Експрес тест-драйв: Спробувати все (5 хвилин)")}
                 </h3>
                 <p className="text-xs sm:text-sm text-[#1E2227]/75 mt-1.5 font-sans leading-relaxed">
                   {t("hub.starterCards.cardA.subtitle", "Не знаєш з чого почати? Спробуй 3 ключові професії по черзі:")}
@@ -643,7 +643,7 @@ export const WorkshopHubScreen: React.FC = () => {
                   className="w-full py-3.5 px-5 rounded-2xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Rocket size={17} />
-                  <span>{t("hub.starterCards.cardA.button", "Розпочати тест-драйв ➔")}</span>
+                  <span>{t("hub.starterCards.cardA.button", "Розпочати тест-драйв →")}</span>
                 </button>
               </div>
             </div>
@@ -654,12 +654,12 @@ export const WorkshopHubScreen: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#1E2227]/10 text-[#1E2227] uppercase tracking-wider border border-[#1E2227]/20">
-                    {t("hub.starterCards.cardB.badge", "🎯 КАР'ЄРНИЙ ФОКУС")}
+                    {t("hub.starterCards.cardB.badge", "КАР'ЄРНИЙ ФОКУС")}
                   </span>
                 </div>
 
                 <h3 className="font-display font-extrabold text-lg sm:text-xl text-[#1E2227] tracking-tight leading-snug">
-                  {t("hub.starterCards.cardB.title", "🎯 Обрати професійний трек")}
+                  {t("hub.starterCards.cardB.title", "Обрати професійний трек")}
                 </h3>
                 <p className="text-xs sm:text-sm text-[#1E2227]/75 mt-1.5 font-sans leading-relaxed">
                   {t("hub.starterCards.cardB.subtitle", "Вже знаєш, чого хочеш? Обери один із 3 кар'єрних шляхів:")}
@@ -694,7 +694,7 @@ export const WorkshopHubScreen: React.FC = () => {
                   className="w-full py-3.5 px-5 rounded-2xl bg-[#1E2227] hover:bg-black active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Compass size={17} />
-                  <span>{t("hub.starterCards.cardB.button", "Обрати трек 🧭")}</span>
+                  <span>{t("hub.starterCards.cardB.button", "Обрати трек")}</span>
                 </button>
               </div>
             </div>
@@ -714,7 +714,7 @@ export const WorkshopHubScreen: React.FC = () => {
               <span>
                 {showAllStationsSpoiler
                   ? t("hub.starterCards.spoilerClose", "Сховати станції верстака ▲")
-                  : t("hub.starterCards.spoilerOpen", "🛠️ Переглянути всі 10 станцій верстака ▼")}
+                  : t("hub.starterCards.spoilerOpen", "Переглянути всі 10 станцій верстака ▼")}
               </span>
             </button>
           </div>
@@ -742,7 +742,7 @@ export const WorkshopHubScreen: React.FC = () => {
             {...getTrackCardProps("tv")}
             isHeroCard={isNewUser}
             isRecommended={isNewUser ? true : !userTrack ? (!tvStats.isCompleted || xp < 100) : false}
-            beaconText={isNewUser ? t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
+            beaconText={isNewUser ? t("onboarding.startHere60s", "СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
             onEnter={() => handleEnterStation("tv")}
             onViewCert={
               tvStats.isEligible
@@ -1066,7 +1066,7 @@ export const WorkshopHubScreen: React.FC = () => {
             {...getTrackCardProps("tv")}
             isHeroCard={isNewUser}
             isRecommended={isNewUser ? true : !userTrack ? (!tvStats.isCompleted || xp < 100) : false}
-            beaconText={isNewUser ? t("onboarding.startHere60s", "💡 СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "⚡ РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
+            beaconText={isNewUser ? t("onboarding.startHere60s", "СТАРТ ТУТ: ПЕРШІ 60 СЕКУНД") : t("onboarding.beaconStart", "РЕКОМЕНДОВАНИЙ СТАРТ • 2 ХВ")}
             onEnter={() => handleEnterStation("tv")}
             onViewCert={
               tvStats.isEligible

@@ -288,7 +288,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
                   className="px-5 py-2 text-xs font-mono font-bold rounded-xl bg-[#3E7A5E] hover:bg-[#34664F] text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                 >
                   <CheckCircle2 size={15} />
-                  {t("onboarding.start", "Почати роботу 🚀")}
+                  {t("onboarding.start", "Почати роботу ")}
                 </button>
               )}
             </div>

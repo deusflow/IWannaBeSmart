@@ -119,20 +119,20 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
         addXp(totalXp);
         toast.success(
           currentLang === "en"
-            ? `🎉 Flow Trace Mastered! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} predictions)`
+            ? ` Flow Trace Mastered! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} predictions)`
             : currentLang === "da"
-            ? `🎉 Flow Trace Mestret! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} forudsigelser)`
-            : `🎉 Потік виконання опановано! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} передбачень)`
+            ? ` Flow Trace Mestret! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} forudsigelser)`
+            : ` Потік виконання опановано! +${totalXp} XP (${playerState.poeScore.correct}/${playerState.poeScore.total} передбачень)`
         );
         audioFx.playSuccessFanfare();
       } else {
         addXp(10);
         toast.info(
           currentLang === "en"
-            ? "👁️ Demo Mode completed (+10 XP). Enable POE to earn full mastery stars!"
+            ? " Demo Mode completed (+10 XP). Enable POE to earn full mastery stars!"
             : currentLang === "da"
-            ? "👁️ Demo Mode fuldført (+10 XP). Aktiver POE for fuld mestring!"
-            : "👁️ Демо-перегляд завершено (+10 XP). Увімкніть POE для повних балів майстерності!"
+            ? " Demo Mode fuldført (+10 XP). Aktiver POE for fuld mestring!"
+            : " Демо-перегляд завершено (+10 XP). Увімкніть POE для повних балів майстерності!"
         );
       }
     }
@@ -622,7 +622,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                           </span>
                           <span className="w-4 text-center pr-1 text-[10px] shrink-0 select-none">
                             {isTargetLine ? (
-                              <span className="text-cyan-400 animate-pulse font-bold">➔</span>
+                              <span className="text-cyan-400 animate-pulse font-bold">→</span>
                             ) : (
                               <span className="text-slate-700">·</span>
                             )}

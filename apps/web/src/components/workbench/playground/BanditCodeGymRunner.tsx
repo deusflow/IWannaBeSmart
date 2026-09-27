@@ -476,7 +476,7 @@ export const BanditCodeGymRunner: React.FC = () => {
                   </span>
                   {starsEarned >= round && (
                     <span className="text-amber-400 text-xs">
-                      {round === 4 ? "💎" : "⭐"}
+                      {round === 4 ? "" : "⭐"}
                     </span>
                   )}
                 </div>

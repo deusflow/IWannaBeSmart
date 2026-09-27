@@ -265,7 +265,7 @@ export const CodeGymRunner: React.FC = () => {
       saveTaskProgress(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
       addXp(30);
-      setFeedback(t("codegym.round3Complete", "🏆 Спринт пройдено! Ідеальна швидкість та точність."));
+      setFeedback(t("codegym.round3Complete", " Спринт пройдено! Ідеальна швидкість та точність."));
 
       const allCompleted = FINTECH_TASKS.every(
         (task) =>
@@ -322,7 +322,7 @@ export const CodeGymRunner: React.FC = () => {
       saveTaskProgress(currentTask.id, 4);
       completeCodingTask(currentTask.id);
       addXp(40);
-      setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
+      setFeedback(t("codegym.round4Complete", " Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
 
       const allCompleted = FINTECH_TASKS.every(
         (task) =>
@@ -642,7 +642,7 @@ export const CodeGymRunner: React.FC = () => {
                   </span>
                   {starsEarned >= round && (
                     <span className={round === 4 ? "text-cyan-400 text-xs drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "text-amber-400 text-xs"}>
-                      {round === 4 ? "💎" : "⭐"}
+                      {round === 4 ? "" : "⭐"}
                     </span>
                   )}
                 </div>

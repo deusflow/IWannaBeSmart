@@ -309,7 +309,7 @@ export function CodeGymEditor<
         <div className="flex items-center gap-2">
           {roundStats && roundStats.wpm > 0 && (
             <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[10px] font-bold">
-              ⚡ {roundStats.wpm} WPM
+              {roundStats.wpm} WPM
             </span>
           )}
           {roundStats && (
@@ -344,7 +344,7 @@ export function CodeGymEditor<
       <div className="px-4 py-2.5 bg-[#17191E] border-b border-[#2B2D33] text-xs font-mono space-y-1 select-none">
         <div className="flex items-start gap-2">
           <span className="text-amber-400 font-bold shrink-0">
-            {t("guide.missionGoalLabel", "🎯 Мета:")}
+            {t("guide.missionGoalLabel", " Мета:")}
           </span>
           <span className="text-gray-200 font-medium leading-relaxed">
             {t(currentTask.descKey)}
@@ -352,7 +352,7 @@ export function CodeGymEditor<
         </div>
         <div className="flex items-start gap-2">
           <span className="text-cyan-400 font-bold shrink-0">
-            {t("guide.missionActionLabel", "✍️ Дія:")}
+            {t("guide.missionActionLabel", "Дія:")}
           </span>
           <span className="text-gray-300 leading-relaxed">
             {actionDescription}
@@ -542,7 +542,7 @@ export function CodeGymEditor<
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-mono font-extrabold text-xs shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
                 >
                   <BookOpen size={14} />
-                  <span>{t("codegym.openTheoryBtn", "📖 Відкрити пояснення вчителя")}</span>
+                  <span>{t("codegym.openTheoryBtn", " Відкрити пояснення вчителя")}</span>
                 </button>
               )}
               {onUnlockPractice && (

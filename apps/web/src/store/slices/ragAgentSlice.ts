@@ -99,7 +99,7 @@ export const createRagAgentSlice: StateCreator<
     // Check prompt injection guardrail
     const injection = detectPromptInjection(query);
     const alert = injection.isThreat
-      ? "🚨 Security Alert: Prompt injection attempt detected and blocked!"
+      ? "[ALERT] Security Alert: Prompt injection attempt detected and blocked!"
       : null;
 
     if (injection.isThreat) {
@@ -145,7 +145,7 @@ export const createRagAgentSlice: StateCreator<
         isReActRunning: false,
         reActSteps: threatResult.steps,
         reActFinalAnswer: threatResult.finalAnswer,
-        guardrailAlert: "🚨 Security Alert: Prompt injection attempt detected and blocked!",
+        guardrailAlert: "[ALERT] Security Alert: Prompt injection attempt detected and blocked!",
       });
       return threatResult;
     }

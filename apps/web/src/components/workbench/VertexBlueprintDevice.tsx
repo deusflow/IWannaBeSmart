@@ -262,7 +262,7 @@ export const VertexBlueprintDevice: React.FC = () => {
           </div>
           <div className="font-mono text-[10px]">
             {vertexState.alerts.length > 0
-              ? `⚠ ${vertexState.alerts.length} alert(s)`
+              ? `[!] ${vertexState.alerts.length} alert(s)`
               : `Healthy (drift: ${vertexState.driftScore.toFixed(2)})`}
           </div>
         </div>

@@ -132,9 +132,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     },
     primitiveMemoryNote: {
       csharp:
-        "⚡ ПАМ'ЯТЬ ПРОЦЕСОРА:\n• Число `1` (Integer) пишеться БЕЗ ЛАПОК: процесор записує його у 32-бітний регістр пам'яті (4 байти) як пряме двійкове значення (0b00000001). З ним можна проводити математичні операції.\n• Текст `\"NEWS\"` (String) пишеться СТРОГО У ЛАПКАХ: для тексту створюється об'єкт у купі (Heap), де зберігається масив символів у кодуванні UTF-16, а змінна отримує вказівник на початок цього масиву.\n⚠️ Якщо написати `SetChannel(\"1\")` — компілятор повідомить про помилку несумісності типів. Якщо написати `SetLabel(NEWS)` без лапок — компілятор шукатиме неіснуючу змінну `NEWS`.",
+        "ПАМ'ЯТЬ ПРОЦЕСОРА:\n• Число `1` (Integer) пишеться БЕЗ ЛАПОК: процесор записує його у 32-бітний регістр пам'яті (4 байти) як пряме двійкове значення (0b00000001). З ним можна проводити математичні операції.\n• Текст `\"NEWS\"` (String) пишеться СТРОГО У ЛАПКАХ: для тексту створюється об'єкт у купі (Heap), де зберігається масив символів у кодуванні UTF-16, а змінна отримує вказівник на початок цього масиву.\n⚠ Якщо написати `SetChannel(\"1\")` — компілятор повідомить про помилку несумісності типів. Якщо написати `SetLabel(NEWS)` без лапок — компілятор шукатиме неіснуючу змінну `NEWS`.",
       go:
-        "⚡ ПАМ'ЯТЬ ПРОЦЕСОРА:\n• `1` — числовий літерал `int`, займає прямий машинний стек/регістр.\n• `\"NEWS\"` — незмінний зріз байтів (immutable byte slice) у купі пам'яті.\n⚠️ Числа для обчислень — без лапок. Текст для людей — завжди у лапках.",
+        "ПАМ'ЯТЬ ПРОЦЕСОРА:\n• `1` — числовий літерал `int`, займає прямий машинний стек/регістр.\n• `\"NEWS\"` — незмінний зріз байтів (immutable byte slice) у купі пам'яті.\n⚠ Числа для обчислень — без лапок. Текст для людей — завжди у лапках.",
     },
     curatedResources: [
       {
@@ -271,9 +271,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     },
     primitiveMemoryNote: {
       csharp:
-        "⚡ СТЕК ТА КУПА (Stack vs Heap):\n• Змінна `myTv` розміщується на Стеку (Stack) і займає лише 8 байтів — вона тримає виключно 64-бітну адресу (вказівник).\n• Сам об'єкт телевізора зі своїми полями (`isOn`, `channel`, `volume`) створюється в керованій Купі (Managed Heap).\n• Без оператора `new` креслення не оживе: спроба викликати `TV.PowerOn()` призведе до помилки, адже клас без екземпляра не має реального екрана та тюнера.",
+        "СТЕК ТА КУПА (Stack vs Heap):\n• Змінна `myTv` розміщується на Стеку (Stack) і займає лише 8 байтів — вона тримає виключно 64-бітну адресу (вказівник).\n• Сам об'єкт телевізора зі своїми полями (`isOn`, `channel`, `volume`) створюється в керованій Купі (Managed Heap).\n• Без оператора `new` креслення не оживе: спроба викликати `TV.PowerOn()` призведе до помилки, адже клас без екземпляра не має реального екрана та тюнера.",
       go:
-        "⚡ ПАМ'ЯТЬ В GO:\n• `TV{}` ініціалізує поля структури нульовими значеннями за замовчуванням.\n• Якщо розмір структури відомий і вона не втікає за межі функції, компілятор Go розмістить її на стеку. Інакше (Escape Analysis) — виділить пам'ять у купі.",
+        "ПАМ'ЯТЬ В GO:\n• `TV{}` ініціалізує поля структури нульовими значеннями за замовчуванням.\n• Якщо розмір структури відомий і вона не втікає за межі функції, компілятор Go розмістить її на стеку. Інакше (Escape Analysis) — виділить пам'ять у купі.",
     },
     architectureMap: {
       contractFile: "src/devices/ITvDevice.cs",
@@ -296,9 +296,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     },
     primitiveMemoryNote: {
       csharp:
-        "⚡ ПЕРЕДАЧА ДАНИХ ЧЕРЕЗ СТЕК:\n• Коли метод повертає `int`, значення кладеться в регістр процесора (EAX/RAX) або на вершину стека.\n• Рядок `int vol = tv.GetVolume();` забирає це значення й резервує 4 байти в поточному фреймі стека.\n• Вираз `vol + 10` обчислюється арифметико-логічним пристроєм (ALU) процесора без зміни самого телевізора, доки ми явно не викличемо `SetVolume()`.",
+        "ПЕРЕДАЧА ДАНИХ ЧЕРЕЗ СТЕК:\n• Коли метод повертає `int`, значення кладеться в регістр процесора (EAX/RAX) або на вершину стека.\n• Рядок `int vol = tv.GetVolume();` забирає це значення й резервує 4 байти в поточному фреймі стека.\n• Вираз `vol + 10` обчислюється арифметико-логічним пристроєм (ALU) процесора без зміни самого телевізора, доки ми явно не викличемо `SetVolume()`.",
       go:
-        "⚡ ПОВЕРНЕННЯ З ФУНКЦІЇ:\n• Значення повернення копіюється в стек виклику.\n• `vol + 10` створює тимчасове чисельне значення, яке передається аргументом у метод `SetVolume`.",
+        "ПОВЕРНЕННЯ З ФУНКЦІЇ:\n• Значення повернення копіюється в стек виклику.\n• `vol + 10` створює тимчасове чисельне значення, яке передається аргументом у метод `SetVolume`.",
     },
     architectureMap: {
       contractFile: "src/audio/IAudioState.cs",
@@ -321,9 +321,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     },
     primitiveMemoryNote: {
       csharp:
-        "⚡ АНАТОМІЯ КРАХУ (0x00000000):\n• Змінна `TV broken = null;` створює на стеку вказівник із нульовою адресою `0x00000000`.\n• Спроба прочитати пам'ять за адресою 0x0 блокується операційною системою (Memory Protection Fault), і середовище .NET негайно викидає виняток `NullReferenceException`.\n• Перевірка `if (broken != null)` не чіпає купу — процесор за один такт порівнює регістр з нулем. Якщо там 0 — блок коду безпечно оминається.",
+        "АНАТОМІЯ КРАХУ (0x00000000):\n• Змінна `TV broken = null;` створює на стеку вказівник із нульовою адресою `0x00000000`.\n• Спроба прочитати пам'ять за адресою 0x0 блокується операційною системою (Memory Protection Fault), і середовище .NET негайно викидає виняток `NullReferenceException`.\n• Перевірка `if (broken != null)` не чіпає купу — процесор за один такт порівнює регістр з нулем. Якщо там 0 — блок коду безпечно оминається.",
       go:
-        "⚡ NIL POINTER DEREFERENCE:\n• Вказівник `*TV = nil` не вказує на жоден виділений блок пам'яті.\n• Перевірка `broken != nil` запобігає паніці процесу, гарантуючи безперебійність роботи сервісу.",
+        "NIL POINTER DEREFERENCE:\n• Вказівник `*TV = nil` не вказує на жоден виділений блок пам'яті.\n• Перевірка `broken != nil` запобігає паніці процесу, гарантуючи безперебійність роботи сервісу.",
     },
     architectureMap: {
       contractFile: "src/safety/INullGuard.cs",
@@ -749,15 +749,15 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     taskId: "task-api-1-heartbeat",
     whyThisCode: {
       csharp:
-        "👨‍🏫 Демонстрація вчителя:\n1. `app.MapGet` — реєструє маршрут для вхідного HTTP-методу GET.\n2. `\"/health\"` — адреса, за якою клієнт шукатиме сервіс.\n3. `() => Results.Ok(...)` — лямбда-функція, що повертає статус HTTP 200 OK з анонімним об'єктом `{ status = \"UP\", service = \"api-forge\" }`. Kestrel автоматично серіалізує цей об'єкт у формат JSON.",
+        "‍ Демонстрація вчителя:\n1. `app.MapGet` — реєструє маршрут для вхідного HTTP-методу GET.\n2. `\"/health\"` — адреса, за якою клієнт шукатиме сервіс.\n3. `() => Results.Ok(...)` — лямбда-функція, що повертає статус HTTP 200 OK з анонімним об'єктом `{ status = \"UP\", service = \"api-forge\" }`. Kestrel автоматично серіалізує цей об'єкт у формат JSON.",
       go:
-        "👨‍🏫 Демонстрація вчителя:\n1. `http.HandleFunc` прив'язує функцію-обробник до маршруту `\"/health\"`.\n2. `w.Header().Set(\"Content-Type\", \"application/json\")` повідомляє клієнту, що тіло містить JSON.\n3. `w.WriteHeader(http.StatusOK)` відправляє статус 200 OK у сокет.\n4. `w.Write([]byte(...))` записує байти JSON у потік відповіді.",
+        "‍ Демонстрація вчителя:\n1. `http.HandleFunc` прив'язує функцію-обробник до маршруту `\"/health\"`.\n2. `w.Header().Set(\"Content-Type\", \"application/json\")` повідомляє клієнту, що тіло містить JSON.\n3. `w.WriteHeader(http.StatusOK)` відправляє статус 200 OK у сокет.\n4. `w.Write([]byte(...))` записує байти JSON у потік відповіді.",
     },
     primitiveMemoryNote: {
       csharp:
-        "🌐 Мережевий пакет:\nМетод Results.Ok() упаковує відповідь у текстовий потік протоколу HTTP:\nHTTP/1.1 200 OK\\r\\nContent-Type: application/json\\r\\n\\r\\n{\"status\":\"UP\",\"service\":\"api-forge\"}\nКлієнт отримує цей потік байтів і розуміє, що бекенд готовий до роботи.",
+        " Мережевий пакет:\nМетод Results.Ok() упаковує відповідь у текстовий потік протоколу HTTP:\nHTTP/1.1 200 OK\\r\\nContent-Type: application/json\\r\\n\\r\\n{\"status\":\"UP\",\"service\":\"api-forge\"}\nКлієнт отримує цей потік байтів і розуміє, що бекенд готовий до роботи.",
       go:
-        "🌐 Мережевий пакет:\nУ Go запис відбувається напряму у TCP сокет через `http.ResponseWriter`. Метод WriteHeader блокує подальшу зміну заголовків.",
+        " Мережевий пакет:\nУ Go запис відбувається напряму у TCP сокет через `http.ResponseWriter`. Метод WriteHeader блокує подальшу зміну заголовків.",
     },
     architectureMap: {
       contractFile: "src/Contracts/IHealthCheck.cs",
@@ -802,9 +802,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     taskId: "task-api-2-path-params",
     whyThisCode: {
       csharp:
-        "👨‍🏫 Демонстрація вчителя:\n1. `\"/api/devices/{id}\"` — фрагмент `{id}` у фігурних дужках позначає динамічний параметр шляху.\n2. `(string id, IDeviceRepository repo)` — ASP.NET автоматично підставляє значення з URL у змінну `id`, а репозиторій інжектує через DI.\n3. `return device != null ? Results.Ok(device) : Results.NotFound(...)` — захисна умова (Guard Clause). Якщо ресурс відсутній, повертаємо 404 Not Found замість помилки сервера 500.",
+        "‍ Демонстрація вчителя:\n1. `\"/api/devices/{id}\"` — фрагмент `{id}` у фігурних дужках позначає динамічний параметр шляху.\n2. `(string id, IDeviceRepository repo)` — ASP.NET автоматично підставляє значення з URL у змінну `id`, а репозиторій інжектує через DI.\n3. `return device != null ? Results.Ok(device) : Results.NotFound(...)` — захисна умова (Guard Clause). Якщо ресурс відсутній, повертаємо 404 Not Found замість помилки сервера 500.",
       go:
-        "👨‍🏫 Демонстрація вчителя:\n1. `strings.TrimPrefix(r.URL.Path, \"/api/devices/\")` витягує ідентифікатор пристрою з URL.\n2. `device, exists := repo.Find(id)` — перевірка наявності запису.\n3. `if !exists { http.Error(w, ..., http.StatusNotFound); return }` — негайне переривання виконання зі статусом 404.",
+        "‍ Демонстрація вчителя:\n1. `strings.TrimPrefix(r.URL.Path, \"/api/devices/\")` витягує ідентифікатор пристрою з URL.\n2. `device, exists := repo.Find(id)` — перевірка наявності запису.\n3. `if !exists { http.Error(w, ..., http.StatusNotFound); return }` — негайне переривання виконання зі статусом 404.",
     },
     primitiveMemoryNote: {
       csharp:
@@ -818,9 +818,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     taskId: "task-api-3-dto-validation",
     whyThisCode: {
       csharp:
-        "👨‍🏫 Демонстрація вчителя:\n1. `app.MapPost(\"/api/orders\", ...)` — слухає HTTP POST запити на створення ресурсу.\n2. `CreateOrderDto dto` — Kestrel зчитує тіло запиту (Request Body) і перетворює JSON на C# об'єкт (Model Binding).\n3. `if (string.IsNullOrWhiteSpace(...) || dto.Quantity <= 0)` — валідація контракту. При порушенні повертаємо `Results.BadRequest()` (400).\n4. При успіху повертаємо `Results.Created($\"/api/orders/{order.Id}\", order)` (201 Created).",
+        "‍ Демонстрація вчителя:\n1. `app.MapPost(\"/api/orders\", ...)` — слухає HTTP POST запити на створення ресурсу.\n2. `CreateOrderDto dto` — Kestrel зчитує тіло запиту (Request Body) і перетворює JSON на C# об'єкт (Model Binding).\n3. `if (string.IsNullOrWhiteSpace(...) || dto.Quantity <= 0)` — валідація контракту. При порушенні повертаємо `Results.BadRequest()` (400).\n4. При успіху повертаємо `Results.Created($\"/api/orders/{order.Id}\", order)` (201 Created).",
       go:
-        "👨‍🏫 Демонстрація вчителя:\n1. `json.NewDecoder(r.Body).Decode(&dto)` десеріалізує потік тіла запиту у структуру Go.\n2. Валідація: перевіряємо порожній рядок та кількість `dto.Quantity <= 0`. Повертаємо `http.StatusBadRequest` (400).\n3. При успіху створюємо сутність, пишемо `w.WriteHeader(http.StatusCreated)` (201) та серіалізуємо створений об'єкт.",
+        "‍ Демонстрація вчителя:\n1. `json.NewDecoder(r.Body).Decode(&dto)` десеріалізує потік тіла запиту у структуру Go.\n2. Валідація: перевіряємо порожній рядок та кількість `dto.Quantity <= 0`. Повертаємо `http.StatusBadRequest` (400).\n3. При успіху створюємо сутність, пишемо `w.WriteHeader(http.StatusCreated)` (201) та серіалізуємо створений об'єкт.",
     },
     primitiveMemoryNote: {
       csharp:
@@ -834,9 +834,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     taskId: "task-api-4-bearer-auth",
     whyThisCode: {
       csharp:
-        "👨‍🏫 Демонстрація вчителя:\n1. `context.Request.Headers.Authorization.ToString()` — зчитує заголовок авторизації з HTTP запиту.\n2. `if (!auth.StartsWith(\"Bearer forge-token-secure-99\"))` — перевіряє наявність схеми Bearer та валідного секретного токена.\n3. При відсутності або невалідності токена повертаємо `Results.Unauthorized()` (401) без виклику захищеної бізнес-логіки.",
+        "‍ Демонстрація вчителя:\n1. `context.Request.Headers.Authorization.ToString()` — зчитує заголовок авторизації з HTTP запиту.\n2. `if (!auth.StartsWith(\"Bearer forge-token-secure-99\"))` — перевіряє наявність схеми Bearer та валідного секретного токена.\n3. При відсутності або невалідності токена повертаємо `Results.Unauthorized()` (401) без виклику захищеної бізнес-логіки.",
       go:
-        "👨‍🏫 Демонстрація вчителя:\n1. `r.Header.Get(\"Authorization\")` витягує рядок авторизаційного заголовка.\n2. `strings.HasPrefix(auth, \"Bearer forge-token-secure-99\")` перевіряє підпис.\n3. Якщо перевірка провалена, повертаємо `http.StatusUnauthorized` (401) і завершуємо виконання.",
+        "‍ Демонстрація вчителя:\n1. `r.Header.Get(\"Authorization\")` витягує рядок авторизаційного заголовка.\n2. `strings.HasPrefix(auth, \"Bearer forge-token-secure-99\")` перевіряє підпис.\n3. Якщо перевірка провалена, повертаємо `http.StatusUnauthorized` (401) і завершуємо виконання.",
     },
     primitiveMemoryNote: {
       csharp:
@@ -878,9 +878,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     taskId: "task-api-5-client-consumer",
     whyThisCode: {
       csharp:
-        "👨‍🏫 Демонстрація вчителя:\n1. `using var client = new HttpClient()` — створює екземпляр клієнта для вихідних запитів.\n2. `var response = await client.GetAsync(url)` — асинхронно відправляє GET запит до API сервера.\n3. `response.EnsureSuccessStatusCode()` — перевіряє що статус лежить у діапазоні 200..299. Якщо сервер повернув 404 або 500 — генерує помилку.\n4. `await response.Content.ReadFromJsonAsync<HealthDto>()` — десеріалізує JSON у строгий C# об'єкт.",
+        "‍ Демонстрація вчителя:\n1. `using var client = new HttpClient()` — створює екземпляр клієнта для вихідних запитів.\n2. `var response = await client.GetAsync(url)` — асинхронно відправляє GET запит до API сервера.\n3. `response.EnsureSuccessStatusCode()` — перевіряє що статус лежить у діапазоні 200..299. Якщо сервер повернув 404 або 500 — генерує помилку.\n4. `await response.Content.ReadFromJsonAsync<HealthDto>()` — десеріалізує JSON у строгий C# об'єкт.",
       go:
-        "👨‍🏫 Демонстрація вчителя:\n1. `resp, err := http.Get(url)` робить вихідний HTTP виклик.\n2. `if err != nil || resp.StatusCode != http.StatusOK` — обов'язкова перевірка помилки та коду статусу.\n3. `defer resp.Body.Close()` — обов'язкове звільнення з'єднання після завершення читання.\n4. `json.NewDecoder(resp.Body).Decode(&health)` парсить JSON у Go структуру.",
+        "‍ Демонстрація вчителя:\n1. `resp, err := http.Get(url)` робить вихідний HTTP виклик.\n2. `if err != nil || resp.StatusCode != http.StatusOK` — обов'язкова перевірка помилки та коду статусу.\n3. `defer resp.Body.Close()` — обов'язкове звільнення з'єднання після завершення читання.\n4. `json.NewDecoder(resp.Body).Decode(&health)` парсить JSON у Go структуру.",
     },
     primitiveMemoryNote: {
       csharp:
@@ -894,9 +894,9 @@ export const TASK_DIDACTIC_MAP: Record<string, TaskDidacticInfo> = {
     taskId: "task-api-6-resilient-retry",
     whyThisCode: {
       csharp:
-        "👨‍🏫 Демонстрація вчителя:\n1. `for (int attempt = 1; attempt <= 3; attempt++)` — цикл із 3 спроб для боротьби з тимчасовими обривами мережі.\n2. `try { var res = await client.GetAsync(url); if (res.IsSuccessStatusCode) return; }` — спроба виконати запит.\n3. `catch (HttpRequestException) when (attempt < 3)` — перехоплюємо мережеві помилки і лише на останній спробі дозволяємо їм впасти.\n4. `await Task.Delay(100 * attempt)` — експоненційна затримка (Backoff), що дає мережі час відновитися.",
+        "‍ Демонстрація вчителя:\n1. `for (int attempt = 1; attempt <= 3; attempt++)` — цикл із 3 спроб для боротьби з тимчасовими обривами мережі.\n2. `try { var res = await client.GetAsync(url); if (res.IsSuccessStatusCode) return; }` — спроба виконати запит.\n3. `catch (HttpRequestException) when (attempt < 3)` — перехоплюємо мережеві помилки і лише на останній спробі дозволяємо їм впасти.\n4. `await Task.Delay(100 * attempt)` — експоненційна затримка (Backoff), що дає мережі час відновитися.",
       go:
-        "👨‍🏫 Демонстрація вчителя:\n1. Цикл `for attempt := 1; attempt <= 3; attempt++` обмежує кількість повторів.\n2. Якщо `err == nil && resp.StatusCode == http.StatusOK`, повертаємо результат.\n3. Інакше робимо паузу `time.Sleep(time.Duration(attempt * 100) * time.Millisecond)` перед наступною спробою.",
+        "‍ Демонстрація вчителя:\n1. Цикл `for attempt := 1; attempt <= 3; attempt++` обмежує кількість повторів.\n2. Якщо `err == nil && resp.StatusCode == http.StatusOK`, повертаємо результат.\n3. Інакше робимо паузу `time.Sleep(time.Duration(attempt * 100) * time.Millisecond)` перед наступною спробою.",
     },
     primitiveMemoryNote: {
       csharp:

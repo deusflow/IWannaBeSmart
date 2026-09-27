@@ -75,7 +75,7 @@ export const StationTrackNavigator: React.FC<StationTrackNavigatorProps> = ({
           className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C86D32] hover:bg-[#B35F2B] text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
         >
           <Zap size={14} className="text-amber-300 animate-pulse shrink-0" />
-          <span>{t("career.warRoomGraduation", "Випускне випробування: Перейти в War Room ⚡")}</span>
+          <span>{t("career.warRoomGraduation", "Випускне випробування: Перейти в War Room")}</span>
           <ArrowRight size={14} className="shrink-0" />
         </button>
       ) : nextStationId ? (

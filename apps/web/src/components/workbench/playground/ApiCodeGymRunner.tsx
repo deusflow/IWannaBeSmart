@@ -293,7 +293,7 @@ export const ApiCodeGymRunner: React.FC = () => {
       saveTaskProgress(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
       addXp(30);
-      setFeedback(t("codegym.round3Complete", "🏆 Спринт пройдено! Ідеальна швидкість та точність."));
+      setFeedback(t("codegym.round3Complete", " Спринт пройдено! Ідеальна швидкість та точність."));
 
       const allCompleted = API_FORGE_TASKS.every(
         (task) =>
@@ -347,7 +347,7 @@ export const ApiCodeGymRunner: React.FC = () => {
       saveTaskProgress(currentTask.id, 4);
       completeCodingTask(currentTask.id);
       addXp(40);
-      setFeedback(t("codegym.round4Complete", "💎 Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
+      setFeedback(t("codegym.round4Complete", " Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
 
       const allCompleted = API_FORGE_TASKS.every(
         (task) =>
@@ -641,7 +641,7 @@ export const ApiCodeGymRunner: React.FC = () => {
                           : "text-amber-400 text-xs"
                       }
                     >
-                      {round === 4 ? "💎" : "⭐"}
+                      {round === 4 ? "" : "⭐"}
                     </span>
                   )}
                 </div>

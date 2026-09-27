@@ -671,7 +671,7 @@ The production pipeline consists of a multi-agent system wired through LangGraph
                   </span>
                   {starsEarned >= round && (
                     <span className="text-amber-400 text-xs">
-                      {round === 4 ? "💎" : "⭐"}
+                      {round === 4 ? "" : "⭐"}
                     </span>
                   )}
                 </div>

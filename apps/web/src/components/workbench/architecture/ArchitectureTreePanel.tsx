@@ -175,7 +175,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
             className="p-1 rounded bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-left truncate transition-colors cursor-pointer"
             title={t("architecture.autonomyRouteDirect", "Шлях А: Пряме впровадження PowerCommand")}
           >
-            ⚡ {t("architecture.autonomyRouteDirect", "Шлях А: Power")}
+            {t("architecture.autonomyRouteDirect", "Шлях А: Power")}
           </button>
           <button
             type="button"
@@ -186,7 +186,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
             className="p-1 rounded bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-left truncate transition-colors cursor-pointer"
             title={t("architecture.autonomyRouteHotSwap", "Шлях Б: Поліморфний Hot Swap (VolumeUp)")}
           >
-            🔄 {t("architecture.autonomyRouteHotSwap", "Шлях Б: Volume")}
+             {t("architecture.autonomyRouteHotSwap", "Шлях Б: Volume")}
           </button>
         </div>
       </div>

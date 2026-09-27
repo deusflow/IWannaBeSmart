@@ -38,19 +38,19 @@ export const GuidedArchitectureLayer: React.FC<GuidedArchitectureLayerProps> = (
         <div className="space-y-1.5 text-xs font-mono">
           {didactic.architectureMap.contractFile && (
             <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
-              <span className="text-purple-700 font-bold">📄 {t("architecture.interfaceLabel", "Інтерфейс")}:</span>
+              <span className="text-purple-700 font-bold"> {t("architecture.interfaceLabel", "Інтерфейс")}:</span>
               <code className="text-[#1A1D20]">{didactic.architectureMap.contractFile}</code>
             </div>
           )}
           {didactic.architectureMap.implementationFile && (
             <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
-              <span className="text-emerald-700 font-bold">⚙️ {t("architecture.implementationLabel", "Реалізація")}:</span>
+              <span className="text-emerald-700 font-bold">{t("architecture.implementationLabel", "Реалізація")}:</span>
               <code className="text-[#1A1D20]">{didactic.architectureMap.implementationFile}</code>
             </div>
           )}
           {didactic.architectureMap.clientFile && (
             <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
-              <span className="text-blue-700 font-bold">🔌 {t("architecture.dispatcherLabel", "Диспетчер")}:</span>
+              <span className="text-blue-700 font-bold"> {t("architecture.dispatcherLabel", "Диспетчер")}:</span>
               <code className="text-[#1A1D20]">{didactic.architectureMap.clientFile}</code>
             </div>
           )}
