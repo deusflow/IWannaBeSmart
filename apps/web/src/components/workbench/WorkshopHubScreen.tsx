@@ -16,6 +16,7 @@ import {
   BrainCircuit,
   ShieldAlert,
   LayoutGrid,
+  ChevronDown,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { audioFx } from "../../utils/audioFx";
@@ -429,6 +430,7 @@ export const WorkshopHubScreen: React.FC = () => {
             }}
             className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#1E2227] hover:bg-black text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
+            <Compass size={15} className="shrink-0" />
             <span>{t("career.chooseTrackBtn", "Обрати трек")}</span>
           </button>
         </div>
@@ -711,11 +713,18 @@ export const WorkshopHubScreen: React.FC = () => {
               }}
               className="px-5 py-2.5 rounded-xl border border-[#1E2227]/20 bg-[#FAF8F2] hover:bg-white text-xs font-mono font-bold text-[#1E2227] shadow-paper-xs transition-all cursor-pointer flex items-center gap-2 active:scale-95"
             >
+              <LayoutGrid size={15} className="shrink-0 text-[#1E2227]/70" />
               <span>
                 {showAllStationsSpoiler
-                  ? t("hub.starterCards.spoilerClose", "Сховати станції верстака ▲")
-                  : t("hub.starterCards.spoilerOpen", "Переглянути всі 10 станцій верстака ▼")}
+                  ? t("hub.starterCards.spoilerClose", "Сховати станції верстака")
+                  : t("hub.starterCards.spoilerOpen", "Переглянути всі 10 станцій верстака")}
               </span>
+              <ChevronDown
+                size={14}
+                className={`shrink-0 text-[#1E2227]/60 transition-transform duration-200 ${
+                  showAllStationsSpoiler ? "rotate-180" : ""
+                }`}
+              />
             </button>
           </div>
 

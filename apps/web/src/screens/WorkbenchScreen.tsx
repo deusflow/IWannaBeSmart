@@ -68,7 +68,7 @@ import { ExplorerTourStepModal } from "../components/workbench/career/ExplorerTo
 import { ExplorerTourFinaleModal } from "../components/workbench/career/ExplorerTourFinaleModal";
 import { AudioVolumeWidget } from "../components/workbench/AudioVolumeWidget";
 import { audioFx } from "../utils/audioFx";
-import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Sparkles } from "lucide-react";
+import { ArrowLeft, Terminal, Network, Trophy, LayoutGrid, Sparkles, X } from "lucide-react";
 
 /**
  * Engineering Microchip XP icon — silicon die with contact pins.
@@ -339,7 +339,7 @@ export const WorkbenchScreen: React.FC = () => {
       <div className="absolute inset-0 bg-notebook-grid opacity-75 pointer-events-none" />
 
       {/* ── Header ── */}
-      <header className="relative z-30 min-h-14 py-1.5 sm:py-0 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-2.5 sm:px-4 lg:px-6 flex items-center justify-between gap-2 sm:gap-3 max-w-full overflow-hidden flex-wrap sm:flex-nowrap">
+      <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-2.5 sm:px-4 lg:px-6 flex items-center justify-between gap-2 sm:gap-3 max-w-full overflow-hidden flex-nowrap">
         {/* Left */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           {currentView === "HUB" ? (
@@ -438,7 +438,7 @@ export const WorkbenchScreen: React.FC = () => {
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0 flex-nowrap">
           {/* Incident War Room SEV-1 Button (Always visible; gated with warning siren for new users) */}
           <div className="relative">
             <button
@@ -451,18 +451,19 @@ export const WorkbenchScreen: React.FC = () => {
                   setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
                 }
               }}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap ${
                 currentView === "WAR_ROOM"
                   ? "bg-rose-600 text-white shadow-rose-900/50 border border-rose-500"
                   : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 border border-rose-500/30 hover:border-rose-500/60"
               }`}
               title="Incident War Room (SEV-1 Production Outage Drills)"
             >
-              <span className="relative flex h-2 w-2">
+              <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
               </span>
-              <span className="tracking-tight">WAR ROOM</span>
+              <span className="hidden sm:inline tracking-tight">WAR ROOM</span>
+              <span className="sm:hidden tracking-tight">WAR</span>
             </button>
 
             {/* Feature Discovery Nudge: War Room Unlocked */}
@@ -558,21 +559,22 @@ export const WorkbenchScreen: React.FC = () => {
       {!isMobileDismissed && (
         <aside
           aria-label={t("mobileAdvisory.badge", "МОБІЛЬНИЙ ПЕРЕГЛЯД")}
-          className="md:hidden relative z-25 bg-amber-500/10 border-b border-amber-500/30 px-3.5 py-2 text-amber-950 flex items-center justify-between gap-2.5 animate-fade-in"
+          className="md:hidden relative z-25 bg-amber-500/10 border-b border-amber-500/30 px-3.5 py-2.5 text-amber-950 flex items-start justify-between gap-3 animate-fade-in"
         >
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-900 font-mono text-[9px] font-bold tracking-wider uppercase shrink-0">
+          <div className="flex items-start gap-2 min-w-0">
+            <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-900 font-mono text-[9px] font-bold tracking-wider uppercase shrink-0 mt-0.5">
               {t("mobileAdvisory.badge", "МОБІЛЬНИЙ ПЕРЕГЛЯД")}
             </span>
-            <span className="text-[11px] font-sans truncate">
+            <span className="text-[11px] font-sans leading-snug">
               {t(
                 "mobileAdvisory.message",
-                "Для повноцінної роботи зі схемами, шинами даних та редактором коду рекомендуємо екран від 13\" (ПК або ноутбук)."
+                "Для зручного з\u2019єднання схем і коду відкрийте верстак на комп\u2019ютері або планшеті."
               )}
             </span>
           </div>
           <button
             type="button"
+            aria-label={t("mobileAdvisory.dismiss", "Закрити")}
             onClick={() => {
               setIsMobileDismissed(true);
               try {
@@ -581,9 +583,9 @@ export const WorkbenchScreen: React.FC = () => {
                 // Ignore storage error
               }
             }}
-            className="px-2 py-0.5 rounded-lg bg-amber-500/25 hover:bg-amber-500/40 text-amber-950 font-mono font-bold text-[10px] shrink-0 cursor-pointer"
+            className="w-6 h-6 rounded-lg bg-amber-500/25 hover:bg-amber-500/40 text-amber-950 flex items-center justify-center shrink-0 cursor-pointer transition-colors mt-0.5"
           >
-            {t("mobileAdvisory.dismiss", "Зрозуміло")}
+            <X size={14} strokeWidth={2.5} />
           </button>
         </aside>
       )}

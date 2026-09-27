@@ -83,8 +83,8 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
             <LogIn size={13} strokeWidth={2.2} />
           </div>
 
-          {/* Two-tier Engineering Telemetry Typography */}
-          <div className="text-left flex flex-col justify-center leading-none min-w-0">
+          {/* Two-tier Engineering Telemetry Typography — hidden on mobile */}
+          <div className="text-left flex-col justify-center leading-none min-w-0 hidden sm:flex">
             <div className="flex items-center gap-1 text-[8.5px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/60 group-hover:text-accent-blue transition-colors truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
               <span className="truncate">{t("auth.guestStatus", "Гість • Offline")}</span>
@@ -98,6 +98,10 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
               />
             </div>
           </div>
+          {/* Mobile-only: just the action label */}
+          <span className="sm:hidden font-display font-extrabold text-xs text-[#1A1D20] group-hover:text-accent-blue transition-colors whitespace-nowrap">
+            {t("auth.guestLoginAction", "Вхід")}
+          </span>
         </button>
       ) : (
         /* ── State 2: Authenticated (Active Engineer Profile) ── */
