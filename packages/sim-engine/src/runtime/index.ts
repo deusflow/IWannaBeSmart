@@ -29,6 +29,8 @@ export * from "./tasks-cyber";
 export * from "./warRoomEngine";
 export * from "./iotContext";
 export * from "./tasks-iot";
+export * from "./tasterRegistry";
+export * from "./tasterEngine";
 
 import { CODING_TASKS } from "./tasks";
 import { FINTECH_TASKS } from "./tasks-fintech";

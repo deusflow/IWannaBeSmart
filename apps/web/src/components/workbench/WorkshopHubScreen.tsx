@@ -559,23 +559,23 @@ export const WorkshopHubScreen: React.FC = () => {
           })}
         </div>
 
-        {/* Permanent Express Flight (Test-Drive) Button */}
+        {/* Permanent Express Flight (Career Speed-Dating) Button */}
         <button
           type="button"
           id="btn-permanent-express-tour"
           onClick={() => {
             audioFx.playRelayClick();
-            setCurrentView("EXPRESS_TOUR");
+            setCurrentView("SPEED_DATING");
           }}
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#C86D32]/10 via-[#C86D32]/15 to-[#C86D32]/20 hover:from-[#C86D32]/20 hover:to-[#C86D32]/30 border border-[#C86D32]/40 hover:border-[#C86D32] text-[#C86D32] font-mono uppercase text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0 ml-auto"
-          title={t("hub.expressTourTooltip", "Швидкий ознайомчий тур для новачків (3 хвилини)")}
+          title={t("taster.catalogSubtitle", "Швидкий ознайомчий тур по IT-професіях")}
         >
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C86D32] opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C86D32]" />
           </span>
           <Zap size={13} className="text-[#C86D32] fill-current" />
-          <span>{t("hub.expressTourBtn", "ЕКСПРЕС ТЕСТ-ДРАЙВ (3 ХВ)")}</span>
+          <span>{t("taster.badge", "CAREER SPEED-DATING")}</span>
         </button>
       </div>
 
@@ -640,7 +640,7 @@ export const WorkshopHubScreen: React.FC = () => {
                   id="btn-start-express-tour"
                   onClick={() => {
                     audioFx.playRelayClick();
-                    setCurrentView("EXPRESS_TOUR");
+                    setCurrentView("SPEED_DATING");
                   }}
                   className="w-full py-3.5 px-5 rounded-2xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
