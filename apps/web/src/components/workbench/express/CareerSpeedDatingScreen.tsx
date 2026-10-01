@@ -1,23 +1,13 @@
 /**
  * @file apps/web/src/components/workbench/express/CareerSpeedDatingScreen.tsx
- * @description Career Speed-Dating Screen (~15 min taste-test for beginners).
- * Follows the didactic framework: Scene (1) -> I Do (2) -> We Do + Verify (3) -> You Do (4) -> Honest Routine (5).
- * Completely zero-hardcode, pure deterministic engine validation from @iw/sim-engine.
+ * @description Guided Walkthrough ("Career Speed-Dating", ~15 min).
+ * Pure atomic focus: At any single moment: ONE highlighted element (Spotlight),
+ * ONE imperative sentence, ONE active action. Everything else is dimmed.
  */
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  HelpCircle,
-  Play,
-  Clock,
-  ChevronRight,
-  Shield,
-  Swords,
-  Cpu,
-} from "lucide-react";
+import { ArrowLeft, Clock, Play, ArrowRight, CheckCircle2 } from "lucide-react";
 import {
   ROLE_TASTER_REGISTRY,
   type RoleTasterDefinition,
@@ -32,82 +22,72 @@ import {
   type DuelParams,
   type DuelSimulationSummary,
 } from "@iw/sim-engine";
-import { useWorkbenchStore } from "../../../store/workbenchStore";
-import { useShallow } from "zustand/react/shallow";
 import { audioFx } from "../../../utils/audioFx";
 import { ShopStand } from "./stands/ShopStand";
 import { TrafficStand } from "./stands/TrafficStand";
 import { DuelArenaStand } from "./stands/DuelArenaStand";
-import type { CareerTrack } from "../../../store/types";
+import { CatalogStep } from "./guided/CatalogStep";
+import { FinaleStep, type RoleSessionTelemetry } from "./guided/FinaleStep";
+import { RoutineStepCard } from "./guided/RoutineStepCard";
+import { SpotlightOverlay } from "./guided/SpotlightOverlay";
+import { GUIDED_STEPS_BY_ROLE } from "./guided/walkthroughStateMachine";
 
 interface CareerSpeedDatingScreenProps {
   onClose: () => void;
-}
-
-interface RoleSessionTelemetry {
-  timeSec: number;
-  attempts: number;
-  hintsUsedCount: number;
-  solutionRevealed: boolean;
-  passedIndependently: boolean;
-  continueRating?: number; // 1-5
-  boringRating?: number;   // 1-5
 }
 
 export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { setUserTrack, setCurrentStationId, setCurrentView } = useWorkbenchStore(
-    useShallow((s) => ({
-      setUserTrack: s.setUserTrack,
-      setCurrentStationId: s.setCurrentStationId,
-      setCurrentView: s.setCurrentView,
-    }))
-  );
 
-  // ── Mode: 'CATALOG' | 'TASTING' | 'FINALE' ──
+  // Screen mode: CATALOG -> TASTING -> FINALE
   const [screenMode, setScreenMode] = useState<"CATALOG" | "TASTING" | "FINALE">("CATALOG");
 
   // Selected roles queue
-  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([
+    "role-backend",
+    "role-cyber",
+    "role-gamedesign",
+  ]);
   const [activeRoleIndex, setActiveRoleIndex] = useState<number>(0);
 
-  // 5-step framework: 1: Scene | 2: I Do | 3: We Do | 4: You Do | 5: Routine
-  const [tastingStep, setTastingStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  // Active sub-step index in current role
+  const [currentSubStepIndex, setCurrentSubStepIndex] = useState<number>(0);
 
-  // Telemetry map per role id
+  // Failure attempts counter for current sub-step (to show "Show how it's done" after 2 failures)
+  const [failureCount, setFailureCount] = useState<number>(0);
+
+  // Telemetry map per role
   const [telemetry, setTelemetry] = useState<Record<string, RoleSessionTelemetry>>({});
   const [timerSeconds, setTimerSeconds] = useState<number>(0);
 
-  // Active hints ladder state (level 0: none, 1, 2, 3)
-  const [currentHintLevel, setCurrentHintLevel] = useState<number>(0);
-
   // ── Role Specific Interactive States ──
   // Backend
-  const [backendCode, setBackendCode] = useState<string>("");
-  const [backendBoundaryInputs, setBackendBoundaryInputs] = useState<number[]>([4, 5, 6]);
-  const [backendWeDoAssertChecked, setBackendWeDoAssertChecked] = useState<boolean>(false);
+  const [backendWeDoOperator, setBackendWeDoOperator] = useState<string>("");
+  const [backendYouDoCondition, setBackendYouDoCondition] = useState<string>("");
+  const [backendYouDoBoundaries, setBackendYouDoBoundaries] = useState<number[]>([]);
 
   // Cyber
-  const [cyberSelectedIp, setCyberSelectedIp] = useState<string>("");
+  const [cyberWeDoFilterInput, setCyberWeDoFilterInput] = useState<string>("");
+  const [cyberWeDoBlockInput, setCyberWeDoBlockInput] = useState<string>("");
+  const [cyberYouDoIpInput, setCyberYouDoIpInput] = useState<string>("");
   const [cyberBlockedIp, setCyberBlockedIp] = useState<string | null>(null);
   const [cyberIsFalsePositive, setCyberIsFalsePositive] = useState<boolean>(false);
-  const [cyberWeDoVerified, setCyberWeDoVerified] = useState<boolean>(false);
 
   // Game Design
   const [gdArmor, setGdArmor] = useState<number>(0);
   const [gdParams, setGdParams] = useState<DuelParams>({
     bossDamage: 80,
     bossCooldownSec: 1.8,
-    potionHeal: 20,
+    potionHeal: 45,
     potionCount: 1,
   });
   const [gdLastSim, setGdLastSim] = useState<DuelSimulationSummary | null>(null);
 
-  // Validation output logs & status
+  // Validation feedback
   const [lastValidationLogs, setLastValidationLogs] = useState<string[]>([]);
-  const [isStepPassed, setIsStepPassed] = useState<boolean>(false);
+  const [isActionSuccess, setIsActionSuccess] = useState<boolean>(false);
 
   // Timer interval for speed-dating
   useEffect(() => {
@@ -118,34 +98,40 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
     return () => clearInterval(interval);
   }, [screenMode]);
 
-  // Current active role definition
+  // Active role definition
   const activeRole: RoleTasterDefinition | undefined = ROLE_TASTER_REGISTRY.find(
     (r) => r.id === selectedRoleIds[activeRoleIndex]
   );
 
+  const subSteps = activeRole
+    ? GUIDED_STEPS_BY_ROLE[activeRole.id as keyof typeof GUIDED_STEPS_BY_ROLE] || []
+    : [];
+  const currentSubStepDef = subSteps[currentSubStepIndex];
+
   // Initialize or reset role state on switch
   const initRoleSession = (role: RoleTasterDefinition) => {
-    setTastingStep(1);
-    setIsStepPassed(false);
-    setCurrentHintLevel(0);
+    setCurrentSubStepIndex(0);
+    setFailureCount(0);
+    setIsActionSuccess(false);
     setLastValidationLogs([]);
     setTimerSeconds(0);
 
     if (role.id === "role-backend") {
-      setBackendCode(role.youDoStep.initialCode);
-      setBackendBoundaryInputs([4, 5, 6]);
-      setBackendWeDoAssertChecked(false);
+      setBackendWeDoOperator("");
+      setBackendYouDoCondition("");
+      setBackendYouDoBoundaries([]);
     } else if (role.id === "role-cyber") {
-      setCyberSelectedIp("");
+      setCyberWeDoFilterInput("");
+      setCyberWeDoBlockInput("");
+      setCyberYouDoIpInput("");
       setCyberBlockedIp(null);
       setCyberIsFalsePositive(false);
-      setCyberWeDoVerified(false);
     } else if (role.id === "role-gamedesign") {
       setGdArmor(0);
       setGdParams({
         bossDamage: 80,
         bossCooldownSec: 1.8,
-        potionHeal: 20,
+        potionHeal: 45,
         potionCount: 1,
       });
       setGdLastSim(null);
@@ -155,21 +141,16 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
   // Toggle role in catalog (up to 3)
   const handleToggleCatalogRole = (roleId: string) => {
     setSelectedRoleIds((prev) => {
-      if (prev.includes(roleId)) {
-        return prev.filter((id) => id !== roleId);
-      }
+      if (prev.includes(roleId)) return prev.filter((id) => id !== roleId);
       if (prev.length >= 3) return prev;
       return [...prev, roleId];
     });
   };
 
-  // "Don't know" button -> auto-select 3 contrasting roles
   const handleSelectContrastingRoles = () => {
-    const defaultThree = ["role-backend", "role-cyber", "role-gamedesign"];
-    setSelectedRoleIds(defaultThree);
+    setSelectedRoleIds(["role-backend", "role-cyber", "role-gamedesign"]);
   };
 
-  // Start tasting session
   const handleStartTasting = () => {
     if (selectedRoleIds.length === 0) return;
     setActiveRoleIndex(0);
@@ -179,8 +160,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
     audioFx.playRelayClick();
   };
 
-  // Record an attempt for current role
-  const recordAttempt = () => {
+  const recordAttempt = (passed: boolean) => {
     if (!activeRole) return;
     setTelemetry((prev) => {
       const current = prev[activeRole.id] || {
@@ -198,18 +178,21 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
         },
       };
     });
+
+    if (!passed) {
+      setFailureCount((prev) => prev + 1);
+    }
   };
 
-  // Handle Hint Request
-  const handleRequestHint = () => {
-    if (!activeRole || currentHintLevel >= 3) return;
-    const nextLevel = currentHintLevel + 1;
-    setCurrentHintLevel(nextLevel);
+  // Auto-fill solution when student clicks "Show how it's done" after 2 failures
+  const handleShowSolution = () => {
+    if (!activeRole || !currentSubStepDef) return;
 
+    // Log penalty in telemetry
     setTelemetry((prev) => {
       const current = prev[activeRole.id] || {
         timeSec: 0,
-        attempts: 0,
+        attempts: 1,
         hintsUsedCount: 0,
         solutionRevealed: false,
         passedIndependently: true,
@@ -218,120 +201,65 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
         ...prev,
         [activeRole.id]: {
           ...current,
-          hintsUsedCount: Math.max(current.hintsUsedCount, nextLevel),
-          solutionRevealed: nextLevel === 3 ? true : current.solutionRevealed,
-          passedIndependently: nextLevel === 3 ? false : current.passedIndependently,
+          solutionRevealed: true,
+          passedIndependently: false,
+          hintsUsedCount: 3,
         },
       };
     });
 
-    // Auto-fill solution if level 3
-    if (nextLevel === 3) {
-      if (activeRole.id === "role-backend") {
-        setBackendCode(activeRole.youDoStep.solutionCode);
-        setBackendBoundaryInputs([4, 5, 6]);
-      } else if (activeRole.id === "role-cyber") {
-        setCyberSelectedIp(activeRole.youDoStep.solutionCode);
-      } else if (activeRole.id === "role-gamedesign") {
-        setGdParams({
-          bossDamage: 40,
-          bossCooldownSec: 1.8,
-          potionHeal: 45,
-          potionCount: 2,
-        });
-      }
+    // Auto-fill exact solution based on current sub-step
+    if (currentSubStepDef.id === "backend-wedo") {
+      setBackendWeDoOperator(">=");
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
+    } else if (currentSubStepDef.id === "backend-youdo-cond") {
+      setBackendYouDoCondition("purchasesCount >= 5");
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
+    } else if (currentSubStepDef.id === "backend-youdo-bounds") {
+      setBackendYouDoBoundaries([4, 5, 6]);
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
+    } else if (currentSubStepDef.id === "cyber-wedo-filter") {
+      setCyberWeDoFilterInput("status=401");
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
+    } else if (currentSubStepDef.id === "cyber-wedo-block") {
+      setCyberWeDoBlockInput("block 203.0.113.77");
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
+    } else if (currentSubStepDef.id === "cyber-youdo") {
+      setCyberYouDoIpInput("192.0.2.144");
+      setCyberBlockedIp("192.0.2.144");
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
+    } else if (currentSubStepDef.id === "gamedesign-wedo-armor") {
+      setGdArmor(20);
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
+    } else if (currentSubStepDef.id === "gamedesign-youdo") {
+      setGdParams({
+        bossDamage: 40,
+        bossCooldownSec: 1.8,
+        potionHeal: 45,
+        potionCount: 2,
+      });
+      setIsActionSuccess(true);
+      audioFx.playSuccessFanfare();
     }
   };
 
-  // ── Validation Handlers ──
-  const handleValidateWeDo = () => {
-    if (!activeRole) return;
-
-    if (activeRole.id === "role-backend") {
-      const res = validateBackendWeDo(activeRole.weDoStep.targetSnippet, backendWeDoAssertChecked);
-      setLastValidationLogs(res.logs);
-      if (res.passed) {
-        setIsStepPassed(true);
-        audioFx.playSuccessFanfare();
-      } else {
-        setIsStepPassed(false);
-        audioFx.playErrorBuzz();
-      }
-    } else if (activeRole.id === "role-cyber") {
-      const res = validateCyberWeDo(cyberSelectedIp, cyberWeDoVerified);
-      setLastValidationLogs(res.logs);
-      if (res.passed) {
-        setIsStepPassed(true);
-        setCyberBlockedIp(cyberSelectedIp);
-        audioFx.playSuccessFanfare();
-      } else {
-        setIsStepPassed(false);
-        audioFx.playErrorBuzz();
-      }
-    } else if (activeRole.id === "role-gamedesign") {
-      const res = validateGameDesignWeDo(gdArmor, true);
-      setLastValidationLogs(res.logs);
-      if (res.passed) {
-        setIsStepPassed(true);
-        audioFx.playSuccessFanfare();
-      } else {
-        setIsStepPassed(false);
-        audioFx.playErrorBuzz();
-      }
-    }
-  };
-
-  const handleValidateYouDo = () => {
-    if (!activeRole) return;
-    recordAttempt();
-
-    if (activeRole.id === "role-backend") {
-      const res = validateBackendYouDo(backendCode, backendBoundaryInputs);
-      setLastValidationLogs(res.logs);
-      if (res.passed) {
-        setIsStepPassed(true);
-        audioFx.playSuccessFanfare();
-      } else {
-        setIsStepPassed(false);
-        audioFx.playErrorBuzz();
-      }
-    } else if (activeRole.id === "role-cyber") {
-      const res = validateCyberYouDo(cyberSelectedIp);
-      setLastValidationLogs(res.logs);
-      setCyberBlockedIp(cyberSelectedIp);
-      setCyberIsFalsePositive(res.isFalsePositive);
-
-      if (res.passed) {
-        setIsStepPassed(true);
-        audioFx.playSuccessFanfare();
-      } else {
-        setIsStepPassed(false);
-        audioFx.playErrorBuzz();
-      }
-    } else if (activeRole.id === "role-gamedesign") {
-      const res = validateGameDesignYouDo(gdParams, [42, 99, 1337]);
-      setGdLastSim(res);
-      setLastValidationLogs(res.logs);
-      if (res.passed) {
-        setIsStepPassed(true);
-        audioFx.playSuccessFanfare();
-      } else {
-        setIsStepPassed(false);
-        audioFx.playErrorBuzz();
-      }
-    }
-  };
-
-  // Step Advancement
-  const handleAdvanceStep = () => {
-    if (tastingStep < 5) {
-      const nextStep = (tastingStep + 1) as 1 | 2 | 3 | 4 | 5;
-      setTastingStep(nextStep);
-      setIsStepPassed(false);
+  // Next step transition
+  const handleAdvanceSubStep = () => {
+    if (currentSubStepIndex + 1 < subSteps.length) {
+      setCurrentSubStepIndex((prev) => prev + 1);
+      setFailureCount(0);
+      setIsActionSuccess(false);
       setLastValidationLogs([]);
       audioFx.playRelayClick();
     } else {
-      // Step 5 completed -> update total elapsed time for this role
+      // Completed role -> record total time
       if (activeRole) {
         setTelemetry((prev) => ({
           ...prev,
@@ -347,14 +275,12 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
         }));
       }
 
-      // Check if there are more roles in queue
       if (activeRoleIndex + 1 < selectedRoleIds.length) {
         const nextIdx = activeRoleIndex + 1;
         setActiveRoleIndex(nextIdx);
         const nextRole = ROLE_TASTER_REGISTRY.find((r) => r.id === selectedRoleIds[nextIdx]);
         if (nextRole) initRoleSession(nextRole);
       } else {
-        // Finale screen
         setScreenMode("FINALE");
         audioFx.playSuccessFanfare();
       }
@@ -366,111 +292,13 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
   // ═════════════════════════════════════════════════════════════════════
   if (screenMode === "CATALOG") {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none p-4 sm:p-8">
-        <header className="max-w-4xl mx-auto w-full flex items-center justify-between pb-6 border-b border-[#1E2227]/15">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#1E2227]/20 font-mono font-bold text-xs hover:bg-[#FAF8F2] active:scale-95 transition-all shadow-paper-xs"
-          >
-            <ArrowLeft size={14} className="text-[#C86D32]" />
-            <span>{t("taster.exitToHub", "До верстака / Hub")}</span>
-          </button>
-          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-black bg-[#C86D32]/15 text-[#C86D32] border border-[#C86D32]/30 uppercase">
-            {t("taster.badge", "CAREER SCOUT")}
-          </span>
-        </header>
-
-        <main className="max-w-4xl mx-auto w-full flex-1 flex flex-col justify-center py-8 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#1E2227]">
-              {t("taster.catalogTitle", "Обери до 3 професій для тест-драйву")}
-            </h1>
-            <p className="text-sm text-[#1E2227]/75 max-w-xl mx-auto">
-              {t("taster.catalogSubtitle", "Спробуй ядро кожної ролі на реальних мікро-задачах за 15 хвилин.")}
-            </p>
-          </div>
-
-          {/* Role Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            {ROLE_TASTER_REGISTRY.map((role) => {
-              const isSelected = selectedRoleIds.includes(role.id);
-              const categoryLabel =
-                role.category === "build"
-                  ? t("taster.categoryBuild", "Будуєш")
-                  : role.category === "investigate"
-                  ? t("taster.categoryInvestigate", "Шукаєш і захищаєш")
-                  : t("taster.categoryBalance", "Налаштовуєш");
-
-              return (
-                <div
-                  key={role.id}
-                  onClick={() => handleToggleCatalogRole(role.id)}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between select-none ${
-                    isSelected
-                      ? "bg-white border-[#C86D32] shadow-md ring-2 ring-[#C86D32]/20"
-                      : "bg-white/70 border-[#1E2227]/15 hover:border-[#1E2227]/40 hover:bg-white"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#FAF8F2] border border-[#1E2227]/15 text-[#1E2227]/70 uppercase">
-                        {categoryLabel}
-                      </span>
-                      {isSelected && <CheckCircle2 size={18} className="text-[#C86D32]" />}
-                    </div>
-
-                    <div className="flex items-center gap-2.5">
-                      {role.id === "role-backend" && <Cpu size={22} className="text-[#C86D32]" />}
-                      {role.id === "role-cyber" && <Shield size={22} className="text-emerald-700" />}
-                      {role.id === "role-gamedesign" && <Swords size={22} className="text-purple-700" />}
-                      <h3 className="font-display font-bold text-sm text-[#1E2227]">
-                        {t(role.roleTitleKey)}
-                      </h3>
-                    </div>
-
-                    <p className="text-xs text-[#1E2227]/70 line-clamp-3">
-                      {t(role.mentorIntroKey)}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 flex items-center justify-between border-t border-[#1E2227]/10 mt-3 text-[11px] font-mono">
-                    <span className="text-[#1E2227]/50">~4,5 хв</span>
-                    <span className={`font-bold ${isSelected ? "text-[#C86D32]" : "text-[#1E2227]/60"}`}>
-                      {isSelected ? "Обрано" : "Обрати +"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Action Row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#1E2227]/15">
-            <button
-              type="button"
-              onClick={handleSelectContrastingRoles}
-              className="px-4 py-2.5 rounded-xl border border-[#1E2227]/25 bg-white hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1E2227] transition-all cursor-pointer shadow-paper-xs"
-            >
-              {t("taster.dontKnowBtn", "Не знаю (Дати 3 контрастні ролі)")}
-            </button>
-
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono font-bold text-[#1E2227]/60">
-                {t("taster.selectedCount", { count: selectedRoleIds.length })}
-              </span>
-              <button
-                type="button"
-                onClick={handleStartTasting}
-                disabled={selectedRoleIds.length === 0}
-                className="px-6 py-2.5 rounded-xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {t("taster.startTastingBtn", "Розпочати Speed-Dating →")}
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
+      <CatalogStep
+        selectedRoleIds={selectedRoleIds}
+        onToggleRole={handleToggleCatalogRole}
+        onSelectContrasting={handleSelectContrastingRoles}
+        onStart={handleStartTasting}
+        onClose={onClose}
+      />
     );
   }
 
@@ -479,218 +307,372 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
   // ═════════════════════════════════════════════════════════════════════
   if (screenMode === "FINALE") {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none p-4 sm:p-8">
-        <header className="max-w-4xl mx-auto w-full flex items-center justify-between pb-6 border-b border-[#1E2227]/15">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#1E2227]/20 font-mono font-bold text-xs hover:bg-[#FAF8F2] active:scale-95 transition-all shadow-paper-xs"
-          >
-            <ArrowLeft size={14} className="text-[#C86D32]" />
-            <span>{t("taster.exitToHub", "До верстака / Hub")}</span>
-          </button>
-          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-black bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase">
-            3 OF 3 COMPLETED
-          </span>
-        </header>
-
-        <main className="max-w-4xl mx-auto w-full flex-1 flex flex-col justify-center py-6 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#1E2227]">
-              {t("taster.finale.title", "Підсумки Career Speed-Dating")}
-            </h1>
-            <p className="text-sm text-[#1E2227]/75 max-w-xl mx-auto">
-              {t("taster.finale.subtitle", "Об'єктивні сигнали та спостереження за твоєю роботою.")}
-            </p>
-          </div>
-
-          {/* Results Summary per Role */}
-          <div className="space-y-4">
-            {selectedRoleIds.map((roleId) => {
-              const rDef = ROLE_TASTER_REGISTRY.find((r) => r.id === roleId);
-              const data = telemetry[roleId] || {
+      <FinaleStep
+        selectedRoleIds={selectedRoleIds}
+        telemetry={telemetry}
+        onUpdateRating={(roleId, key, value) => {
+          setTelemetry((prev) => ({
+            ...prev,
+            [roleId]: {
+              ...(prev[roleId] || {
                 timeSec: 45,
                 attempts: 1,
                 hintsUsedCount: 0,
                 solutionRevealed: false,
                 passedIndependently: true,
-              };
-              if (!rDef) return null;
-
-              return (
-                <div
-                  key={roleId}
-                  className="p-5 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-4"
-                >
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#1E2227]/10 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="font-display font-bold text-base text-[#1E2227]">
-                        {t(rDef.roleTitleKey)}
-                      </span>
-                      <span
-                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
-                          data.passedIndependently
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                            : "bg-amber-100 text-amber-900 border border-amber-300"
-                        }`}
-                      >
-                        {data.passedIndependently
-                          ? t("taster.solSelfBadge", "Пройдено самостійно")
-                          : t("taster.solAssistedBadge", "Використано розв'язок")}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs font-mono text-[#1E2227]/70">
-                      <span>{t("taster.finale.metricTime", "Час")}: <strong>{Math.floor(data.timeSec / 60)}хв {data.timeSec % 60}с</strong></span>
-                      <span>{t("taster.finale.metricAttempts", "Спроб")}: <strong>{data.attempts}</strong></span>
-                      <span>{t("taster.finale.metricHints", "Підказок")}: <strong>{data.hintsUsedCount}/3</strong></span>
-                    </div>
-                  </div>
-
-                  {/* Objective Signal */}
-                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#1E2227]/10 text-xs font-sans text-[#1E2227]/85 space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-[#C86D32] uppercase">
-                      {t("taster.finale.signalHeading", "Об'єктивний сигнал платформи:")}
-                    </span>
-                    <p>
-                      {data.passedIndependently && data.attempts === 1
-                        ? "Завдання вирішено з першої спроби без відкриття готового рішення. Ти впевнено відчуваєш базову логіку цієї дисципліни."
-                        : data.passedIndependently
-                        ? "Завдання вирішено самостійно, знадобилося кілька спроб для вирівнювання крайових умов."
-                        : "Використано підказку з розв'язком — це нормально для першого знайомства з незвичним синтаксисом або форматом логів."}
-                    </p>
-                  </div>
-
-                  {/* Self Assessment (1-5) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-[#1E2227]/80 block font-sans">
-                        {t("taster.finale.questionContinue", "Хотілося продовжувати цю задачу?")}
-                      </label>
-                      <div className="flex gap-1.5">
-                        {[1, 2, 3, 4, 5].map((score) => (
-                          <button
-                            key={score}
-                            type="button"
-                            onClick={() =>
-                              setTelemetry((prev) => ({
-                                ...prev,
-                                [roleId]: { ...(prev[roleId] || data), continueRating: score },
-                              }))
-                            }
-                            className={`w-8 h-8 rounded-lg font-mono text-xs font-bold transition-all ${
-                              data.continueRating === score
-                                ? "bg-[#C86D32] text-white shadow-xs"
-                                : "bg-[#FAF8F2] border border-[#1E2227]/15 text-[#1E2227]/70 hover:bg-white"
-                            }`}
-                          >
-                            {score}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-[#1E2227]/80 block font-sans">
-                        {t("taster.finale.questionBoring", "Було нудно або втомливо?")}
-                      </label>
-                      <div className="flex gap-1.5">
-                        {[1, 2, 3, 4, 5].map((score) => (
-                          <button
-                            key={score}
-                            type="button"
-                            onClick={() =>
-                              setTelemetry((prev) => ({
-                                ...prev,
-                                [roleId]: { ...(prev[roleId] || data), boringRating: score },
-                              }))
-                            }
-                            className={`w-8 h-8 rounded-lg font-mono text-xs font-bold transition-all ${
-                              data.boringRating === score
-                                ? "bg-[#1E2227] text-white shadow-xs"
-                                : "bg-[#FAF8F2] border border-[#1E2227]/15 text-[#1E2227]/70 hover:bg-white"
-                            }`}
-                          >
-                            {score}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Career Track Destination CTA */}
-                  <div className="pt-3 border-t border-[#1E2227]/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div>
-                      <span className="text-[11px] text-[#1E2227]/60 block font-mono">
-                        {t("taster.finale.readyToStartTrack", "Рекомендований стартовий трек:")}
-                      </span>
-                      <strong className="text-xs text-[#1E2227] font-mono">
-                        {rDef.targetTrack.toUpperCase()} TRACK
-                      </strong>
-                    </div>
-
-                    {rDef.targetStationId !== null ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          audioFx.playSuccessFanfare();
-                          setUserTrack(rDef.targetTrack as CareerTrack);
-                          setCurrentStationId(rDef.targetStationId as string);
-                          setCurrentView("STATION");
-                        }}
-                        className="px-5 py-2 rounded-xl bg-[#1E2227] hover:bg-black text-white font-mono font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
-                      >
-                        <span>{t("taster.finale.startTrackBtn", "Перейти до треку станцій ➔")}</span>
-                        <ChevronRight size={14} />
-                      </button>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-300 font-mono text-xs font-bold">
-                          {t("taster.finale.comingSoonBadge", "Трек у розробці (незабаром)")}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audioFx.playRelayClick();
-                            setUserTrack("explorer");
-                            setCurrentView("HUB");
-                          }}
-                          className="px-4 py-1.5 rounded-xl bg-white border border-[#1E2227]/20 text-xs font-mono font-bold text-[#1E2227] hover:bg-[#FAF8F2] active:scale-95 transition-all cursor-pointer"
-                        >
-                          {t("taster.finale.exploreOtherBtn", "Переглянути всі станції (Explorer) ➔")}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="pt-4 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                audioFx.playRelayClick();
-                setCurrentView("HUB");
-              }}
-              className="px-6 py-2.5 rounded-xl border border-[#1E2227]/25 bg-white hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1E2227] transition-all cursor-pointer shadow-paper-xs"
-            >
-              {t("taster.exitToHub", "До верстака / Hub")}
-            </button>
-          </div>
-        </main>
-      </div>
+              }),
+              [key]: value,
+            },
+          }));
+        }}
+        onClose={onClose}
+      />
     );
   }
 
   // ═════════════════════════════════════════════════════════════════════
-  // RENDER: TASTING WORKBENCH (3 ZONES + 5 STEPS)
+  // RENDER: TASTING SCREEN WITH ATOMIC SPOTLIGHT FOCUS
   // ═════════════════════════════════════════════════════════════════════
-  if (!activeRole) return null;
+  if (!activeRole || !currentSubStepDef) return null;
+
+  // Compute Mentor Text dynamically for current sub-step
+  let mentorPrompt = "";
+  let mentorSubText = "";
+
+  if (activeRole.id === "role-backend") {
+    if (currentSubStepDef.id === "backend-scene") {
+      mentorPrompt = t(
+        "taster.backend.iDo.problemDesc",
+        "Покупець зібрав кошик рівно на 1000 крон, але не отримав знижку 10%. Замовлення зависло в суперечці."
+      );
+      mentorSubText = "Поглянь на підсумок кошика: 1000 DKK, знижка не застосована.";
+    } else if (currentSubStepDef.id === "backend-ido") {
+      mentorPrompt = t(
+        "taster.backend.iDo.explanation",
+        "Дивись: розробник написав 'cartTotal > 1000' замість '>='. Значення 1000 випало з умови. Виправляємо на '>=' і запускаємо тест."
+      );
+      mentorSubText = "Суворе '>' не враховує граничне число 1000.";
+    } else if (currentSubStepDef.id === "backend-wedo") {
+      mentorPrompt = "Твоя черга: надрукуй оператор '>=' для безкоштовної доставки від 500 крон включно.";
+      mentorSubText = "Введи '>=' в поле нижче та натисни «Запустити Assertion».";
+    } else if (currentSubStepDef.id === "backend-youdo-cond") {
+      mentorPrompt = t(
+        "taster.backend.youDo.requirement",
+        "Вимога бізнесу: нараховувати бонусні бали клієнту починаючи з 5-ї покупки включно. Налаштуй коректну умову та обери граничні значення для перевірки."
+      );
+      mentorSubText = "Надрукуй умову (наприклад: purchasesCount >= 5).";
+    } else if (currentSubStepDef.id === "backend-youdo-bounds") {
+      mentorPrompt = "Обери 3 граничні значення (до межі, на межі, після межі): 4, 5, 6.";
+      mentorSubText = "Клікни потрібні числа для повного покриття тесту.";
+    }
+  } else if (activeRole.id === "role-cyber") {
+    if (currentSubStepDef.id === "cyber-scene") {
+      mentorPrompt = t(
+        "taster.cyber.iDo.problemDesc",
+        "Автентифікаційний шлюз перевантажений. Лог сипле нескінченними помилками."
+      );
+      mentorSubText = "Поглянь на монітор: потік запитів заповнений рядками 401 Auth Storm.";
+    } else if (currentSubStepDef.id === "cyber-ido") {
+      mentorPrompt = t(
+        "taster.cyber.iDo.explanation",
+        "Дивимося на статуси: бот шле POST /login зі статусом 401 Unauthorized кілька разів на секунду з одного IP. Легітимні клієнти отримують 200. Блокуємо IP бота."
+      );
+      mentorSubText = "Зверни увагу на колонку статусів: 401 проти 200.";
+    } else if (currentSubStepDef.id === "cyber-wedo-filter") {
+      mentorPrompt = "Надрукуй фільтр точнісінько: status=401 щоб виокремити підозрілий трафік.";
+      mentorSubText = "Введи status=401 в термінал.";
+    } else if (currentSubStepDef.id === "cyber-wedo-block") {
+      mentorPrompt = "Бот знайдений! Надрукуй команду блокування: block 203.0.113.77";
+      mentorSubText = "Введи команду блокування бота.";
+    } else if (currentSubStepDef.id === "cyber-youdo") {
+      mentorPrompt = t(
+        "taster.cyber.youDo.requirement",
+        "Сервер під навантаженням. Проаналізуй потік запитів, вияви атакуючий IP та заблокуй його. Помилкове блокування легітимного клієнта неприпустиме."
+      );
+      mentorSubText = "Знайди IP, що спамить 401, введи його та натисни «Заблокувати».";
+    }
+  } else if (activeRole.id === "role-gamedesign") {
+    if (currentSubStepDef.id === "gamedesign-scene") {
+      // Dynamic numbers strictly matching tasterEngine
+      mentorPrompt = t("taster.gamedesign.iDo.problemDesc", {
+        brokenDmg: 120,
+        brokenCd: 0.5,
+        brokenTtk: 1.0,
+      });
+      mentorSubText = "Бос б'є занадто швидко і сильно — гравець не має шансів зреагувати.";
+    } else if (currentSubStepDef.id === "gamedesign-ido") {
+      // Dynamic numbers strictly matching tasterEngine
+      mentorPrompt = t("taster.gamedesign.iDo.explanation", {
+        fixedCd: 1.8,
+        fixedDmg: 45,
+        fixedTtk: 11,
+      });
+      mentorSubText = "Зменшення шкоди і збільшення кулдауну створюють здорове вікно реакції.";
+    } else if (currentSubStepDef.id === "gamedesign-wedo-armor") {
+      mentorPrompt = "Перетягни повзунок броні гравця (playerArmor) рівно на 20.";
+      mentorSubText = "Броня зменшить шкоду боса і збалансує бій.";
+    } else if (currentSubStepDef.id === "gamedesign-wedo-sim") {
+      mentorPrompt = "Чудово! Тепер натисни «Запустити 100 боїв», щоб перевірити середній час виживання.";
+      mentorSubText = "Ціль: середня тривалість бою 10–12 секунд.";
+    } else if (currentSubStepDef.id === "gamedesign-youdo") {
+      mentorPrompt = t(
+        "taster.gamedesign.youDo.requirement",
+        "Збалансуй параметри дуелі: налаштуй шкоду боса (bossDamage) та запас зіллів (potionHeal, potionCount), щоб одночасно: середня тривалість була 10-15с І вінрейт гравця складав 45-55% на 500 боях на різних seed."
+      );
+      mentorSubText = "Налаштуй 2 повзунки (Шкода боса та Кількість зіллів) і натисни симуляцію.";
+    }
+  }
+
+  // ── Sub-step Action Button Slot inside Spotlight Bubble ──
+  const renderActionSlot = () => {
+    if (currentSubStepDef.actionType === "next") {
+      return (
+        <button
+          type="button"
+          onClick={handleAdvanceSubStep}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <span>{t("taster.nextStepBtn", "Далі ➔")}</span>
+          <ArrowRight size={14} />
+        </button>
+      );
+    }
+
+    if (isActionSuccess) {
+      return (
+        <button
+          type="button"
+          onClick={handleAdvanceSubStep}
+          className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 animate-in fade-in"
+        >
+          <CheckCircle2 size={14} />
+          <span>{t("taster.nextStepBtn", "Успішно! Далі ➔")}</span>
+        </button>
+      );
+    }
+
+    // Step-specific action buttons
+    if (currentSubStepDef.id === "backend-wedo") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            const res = validateBackendWeDo(backendWeDoOperator, true);
+            setLastValidationLogs(res.logs);
+            recordAttempt(res.passed);
+            if (res.passed) {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <Play size={13} className="text-emerald-400" />
+          <span>{t("taster.runAssertBtn", "Запустити Assertion")}</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "backend-youdo-cond") {
+      const isCondEntered = backendYouDoCondition.trim().length > 0;
+      return (
+        <button
+          type="button"
+          disabled={!isCondEntered}
+          onClick={() => {
+            if (backendYouDoCondition.trim()) {
+              handleAdvanceSubStep();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+        >
+          <span>Зберегти умову ➔</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "backend-youdo-bounds") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            const res = validateBackendYouDo(backendYouDoCondition, backendYouDoBoundaries);
+            setLastValidationLogs(res.logs);
+            recordAttempt(res.passed);
+            if (res.passed) {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <Play size={13} className="text-emerald-400" />
+          <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "cyber-wedo-filter") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            if (cyberWeDoFilterInput.trim().toLowerCase() === "status=401") {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              recordAttempt(false);
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <span>Застосувати фільтр ➔</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "cyber-wedo-block") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            const clean = cyberWeDoBlockInput.trim().toLowerCase();
+            const res = validateCyberWeDo(
+              clean.replace("block ", "").trim(),
+              true
+            );
+            setLastValidationLogs(res.logs);
+            recordAttempt(res.passed);
+            if (res.passed) {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <Play size={13} className="text-emerald-400" />
+          <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "cyber-youdo") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            const res = validateCyberYouDo(cyberYouDoIpInput.trim());
+            setLastValidationLogs(res.logs);
+            setCyberBlockedIp(cyberYouDoIpInput.trim());
+            setCyberIsFalsePositive(res.isFalsePositive);
+            recordAttempt(res.passed);
+            if (res.passed) {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <Play size={13} className="text-emerald-400" />
+          <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "gamedesign-wedo-armor") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            if (gdArmor === 20) {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              recordAttempt(false);
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <span>Зафіксувати броню ➔</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "gamedesign-wedo-sim") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            const res = validateGameDesignWeDo(gdArmor, true);
+            setLastValidationLogs(res.logs);
+            recordAttempt(res.passed);
+            if (res.passed) {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <Play size={13} className="text-purple-400" />
+          <span>{t("taster.runSimBtn", "Запустити 100 боїв")}</span>
+        </button>
+      );
+    }
+
+    if (currentSubStepDef.id === "gamedesign-youdo") {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            const res = validateGameDesignYouDo(gdParams, [42, 99, 1337]);
+            setGdLastSim(res);
+            setLastValidationLogs(res.logs);
+            recordAttempt(res.passed);
+            if (res.passed) {
+              setIsActionSuccess(true);
+              audioFx.playSuccessFanfare();
+            } else {
+              audioFx.playErrorBuzz();
+            }
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <Play size={13} className="text-purple-400" />
+          <span>{t("taster.runMultiSimBtn", "Прогнати 500 боїв (3 Seed)")}</span>
+        </button>
+      );
+    }
+
+    return null;
+  };
+
+  // Render Step 5 (Honest Routine) full screen
+  if (currentSubStepDef.id.includes("routine")) {
+    return (
+      <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none p-4 sm:p-8 justify-center">
+        <RoutineStepCard
+          role={activeRole}
+          isLastRole={activeRoleIndex + 1 >= selectedRoleIds.length}
+          onNext={handleAdvanceSubStep}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none pb-8">
+    <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none pb-8 relative">
       {/* Top Header */}
       <header className="border-b border-[#1E2227]/15 bg-white/80 backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between gap-3 sticky top-0 z-30">
         <div className="flex items-center gap-3">
@@ -707,519 +689,334 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
           </h2>
         </div>
 
-        {/* 5 Steps Badges */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {[1, 2, 3, 4, 5].map((s) => (
-            <div
-              key={s}
-              className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all ${
-                tastingStep === s
-                  ? "bg-[#C86D32] text-white shadow-xs"
-                  : tastingStep > s
-                  ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                  : "bg-white/60 border border-[#1E2227]/10 text-[#1E2227]/40"
-              }`}
-            >
-              {s === 1 && "1. Сцена"}
-              {s === 2 && "2. Я роблю"}
-              {s === 3 && "3. Повтори"}
-              {s === 4 && "4. Сам"}
-              {s === 5 && "5. Рутина"}
-            </div>
-          ))}
-
-          <div className="hidden sm:flex items-center gap-1 font-mono text-xs text-[#1E2227]/60 ml-2">
+        {/* Step indicator */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono font-bold text-[#1E2227]/70">
+            {t("taster.guidedStepLabel", {
+              step: currentSubStepDef.stepNumber,
+              total: currentSubStepDef.totalSubSteps,
+            })}
+          </span>
+          <div className="flex items-center gap-1 font-mono text-xs text-[#1E2227]/60 ml-2">
             <Clock size={13} />
-            <span>{Math.floor(timerSeconds / 60)}:{(timerSeconds % 60).toString().padStart(2, "0")}</span>
+            <span>
+              {Math.floor(timerSeconds / 60)}:
+              {(timerSeconds % 60).toString().padStart(2, "0")}
+            </span>
           </div>
         </div>
       </header>
 
-      {/* ── Main 3-Column Interactive Layout ── */}
-      <main className="max-w-7xl mx-auto w-full p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1">
-        {/* ══════════════════════════════════════════════════════════════
-            ZONE 1 (LEFT, 4 cols): MENTOR, CONTEXT, HINT LADDER
-           ══════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-4 flex flex-col gap-4">
-          {/* Mentor Speech Card */}
-          <div className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-mono font-bold text-[#1E2227]/60 uppercase">
-                {tastingStep === 1 && t("taster.stepPacingBadge", "КРОК 1: СЦЕНА")}
-                {tastingStep === 2 && t("taster.stepIDoBadge", "КРОК 2: Я РОБЛЮ (МЕНТОР)")}
-                {tastingStep === 3 && t("taster.stepWeDoBadge", "КРОК 3: ПОВТОРИ + ПЕРЕВІРКА")}
-                {tastingStep === 4 && t("taster.stepYouDoBadge", "КРОК 4: САМ (МІКРО-ЗАДАЧА)")}
-                {tastingStep === 5 && t("taster.stepRoutineBadge", "КРОК 5: ЧЕСТНА РУТИНА")}
+      {/* Main Workbench Stage (Hosts Stands & Inputs) */}
+      <main className="max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-1 flex flex-col justify-center">
+        {/* ── BACKEND ROLE CONTENT ── */}
+        {activeRole.id === "role-backend" && (
+          <div className="space-y-6">
+            {/* Shop Stand */}
+            <div id="express-shop-stand">
+              <ShopStand
+                cartTotal={1000}
+                discountApplied={currentSubStepIndex >= 2}
+                freeShippingApplied={currentSubStepIndex >= 3}
+                purchasesCount={5}
+                bonusPointsEarned={currentSubStepIndex >= 4}
+              />
+            </div>
+
+            {/* I Do Code Snippet */}
+            <div
+              id="express-backend-code-snippet"
+              className="p-4 rounded-2xl bg-[#0D1117] border border-[#30363D] font-mono text-xs text-stone-300 space-y-2"
+            >
+              <span className="text-[10px] text-zinc-500 uppercase block">DiscountRule.cs</span>
+              <div className="text-rose-400 line-through bg-rose-950/30 p-2 rounded">
+                if (cartTotal &gt; 1000) applyDiscount(0.10);
+              </div>
+              <div className="text-emerald-400 bg-emerald-950/30 p-2 rounded font-bold">
+                if (cartTotal &gt;= 1000) applyDiscount(0.10);
+              </div>
+            </div>
+
+            {/* We Do Typing Box */}
+            <div
+              id="express-backend-wedo-box"
+              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
+            >
+              <span className="text-xs font-mono font-bold text-[#1E2227]">
+                ShippingRule.cs (Правило доставки від 500 крон):
+              </span>
+              <div className="flex items-center gap-2 font-mono text-sm bg-[#0D1117] p-3 rounded-xl border border-zinc-700 text-stone-300">
+                <span>hasFreeShipping = cartTotal</span>
+                <input
+                  type="text"
+                  value={backendWeDoOperator}
+                  onChange={(e) => setBackendWeDoOperator(e.target.value)}
+                  placeholder=">="
+                  className="w-16 px-2 py-1 bg-black border border-emerald-500 rounded text-emerald-400 font-bold text-center focus:outline-none"
+                />
+                <span>500;</span>
+              </div>
+            </div>
+
+            {/* You Do Condition Box (Screen 4A) */}
+            <div
+              id="express-backend-youdo-cond-box"
+              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
+            >
+              <span className="text-xs font-mono font-bold text-[#1E2227]">
+                LoyaltyService.cs (Умова для нарахування бонусів від 5 покупок):
+              </span>
+              <input
+                type="text"
+                value={backendYouDoCondition}
+                onChange={(e) => setBackendYouDoCondition(e.target.value)}
+                placeholder="purchasesCount >= 5"
+                className="w-full p-3 rounded-xl bg-black border border-zinc-700 text-emerald-400 font-mono font-bold text-sm focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            {/* You Do Boundary Picker (Screen 4B) */}
+            <div
+              id="express-backend-boundary-picker"
+              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
+            >
+              <span className="text-xs font-mono font-bold text-[#1E2227]">
+                Обери 3 граничні значення (до межі, на межі, після):
+              </span>
+              <div className="flex gap-2">
+                {[3, 4, 5, 6, 7].map((num) => {
+                  const isPicked = backendYouDoBoundaries.includes(num);
+                  return (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => {
+                        setBackendYouDoBoundaries((prev) =>
+                          prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num]
+                        );
+                      }}
+                      className={`w-10 h-10 rounded-xl font-mono font-bold text-sm flex items-center justify-center cursor-pointer transition-all ${
+                        isPicked
+                          ? "bg-emerald-600 text-white shadow-xs"
+                          : "bg-[#FAF8F2] border border-[#1E2227]/15 text-[#1E2227]/70 hover:bg-white"
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── CYBER ROLE CONTENT ── */}
+        {activeRole.id === "role-cyber" && (
+          <div className="space-y-6">
+            {/* Traffic Stand */}
+            <div id="express-traffic-stand">
+              <TrafficStand
+                logs={currentSubStepIndex >= 4 ? CYBER_YOU_DO_LOGS : CYBER_WE_DO_LOGS}
+                selectedIp={cyberYouDoIpInput}
+                blockedIp={cyberBlockedIp}
+                isFalsePositive={cyberIsFalsePositive}
+                onSelectIp={(ip) => setCyberYouDoIpInput(ip)}
+              />
+            </div>
+
+            {/* I Do Highlight */}
+            <div
+              id="express-cyber-ido-highlight"
+              className="p-4 rounded-2xl bg-[#0D1017] border border-[#202636] font-mono text-xs text-zinc-300 space-y-2"
+            >
+              <span className="text-[10px] text-zinc-500 uppercase block">
+                SOC Analysis: Pattern Recognition
+              </span>
+              <div className="text-rose-400 bg-rose-950/30 p-2.5 rounded border border-rose-900/50">
+                POST /login - 401 Unauthorized (10 запитів/сек з IP 203.0.113.77) ➔ Атака брутфорсу!
+              </div>
+            </div>
+
+            {/* We Do Terminal */}
+            <div
+              id="express-cyber-wedo-terminal"
+              className="p-4 rounded-2xl bg-[#07090D] border border-[#1A202C] font-mono text-xs text-zinc-300 space-y-3"
+            >
+              <span className="text-[10px] text-zinc-500 uppercase block">iptables terminal</span>
+              {currentSubStepDef.id === "cyber-wedo-filter" ? (
+                <div className="space-y-2">
+                  <span className="text-zinc-400 block text-[11px]">Фільтр потоку логів:</span>
+                  <input
+                    type="text"
+                    value={cyberWeDoFilterInput}
+                    onChange={(e) => setCyberWeDoFilterInput(e.target.value)}
+                    placeholder="status=401"
+                    className="w-full p-2.5 rounded-lg bg-black border border-zinc-700 text-emerald-400 font-mono font-bold focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <span className="text-zinc-400 block text-[11px]">Команда блокування:</span>
+                  <input
+                    type="text"
+                    value={cyberWeDoBlockInput}
+                    onChange={(e) => setCyberWeDoBlockInput(e.target.value)}
+                    placeholder="block 203.0.113.77"
+                    className="w-full p-2.5 rounded-lg bg-black border border-zinc-700 text-rose-400 font-mono font-bold focus:border-rose-500 focus:outline-none"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* You Do Box */}
+            <div
+              id="express-cyber-youdo-box"
+              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
+            >
+              <span className="text-xs font-mono font-bold text-[#1E2227]">
+                Введи знайдений IP атакуючого для блокування:
+              </span>
+              <input
+                type="text"
+                value={cyberYouDoIpInput}
+                onChange={(e) => setCyberYouDoIpInput(e.target.value)}
+                placeholder="192.0.2.144"
+                className="w-full p-3 rounded-xl bg-black border border-zinc-700 text-emerald-400 font-mono font-bold text-sm focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ── GAME DESIGN ROLE CONTENT ── */}
+        {activeRole.id === "role-gamedesign" && (
+          <div className="space-y-6">
+            {/* Duel Arena Stand */}
+            <div id="express-duel-arena-stand">
+              <DuelArenaStand params={gdParams} lastSimResult={gdLastSim} />
+            </div>
+
+            {/* I Do Box */}
+            <div
+              id="express-duel-ido-box"
+              className="p-4 rounded-2xl bg-[#13111C] border border-[#2D2640] font-mono text-xs text-purple-300 space-y-2"
+            >
+              <span className="text-[10px] text-zinc-500 uppercase block">TTK Balancing Rule</span>
+              <div className="bg-purple-950/40 p-2.5 rounded border border-purple-800/40 text-purple-200">
+                Зменшення шкоди боса зі 120 до 45 і кулдаун 1.8с дають гравцеві 11 секунд на захист.
+              </div>
+            </div>
+
+            {/* We Do Armor Slider */}
+            <div
+              id="express-gd-armor-slider-box"
+              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-2"
+            >
+              <div className="flex justify-between items-center text-xs font-mono font-bold text-[#1E2227]">
+                <span>Броня гравця (playerArmor):</span>
+                <span className="text-emerald-700 text-sm font-black">{gdArmor}</span>
+              </div>
+              <input
+                id="express-armor-slider"
+                type="range"
+                min="0"
+                max="30"
+                value={gdArmor}
+                onChange={(e) => setGdArmor(Number(e.target.value))}
+                className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#C86D32]"
+              />
+            </div>
+
+            {/* We Do Run Sim Box */}
+            <div
+              id="express-gd-wedo-run-box"
+              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm text-center"
+            >
+              <span className="text-xs font-mono font-bold text-[#1E2227]">
+                Готово до перевірочної симуляції на 100 боїв
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm text-[#1E2227]/85 leading-relaxed font-sans">
-              {tastingStep === 1 && t(activeRole.mentorIntroKey)}
-              {tastingStep === 2 && t(activeRole.iDoStep.explanationKey)}
-              {tastingStep === 3 && t(activeRole.weDoStep.instructionKey)}
-              {tastingStep === 4 && t(activeRole.youDoStep.requirementTextKey)}
-              {tastingStep === 5 && t(activeRole.routineFactKey)}
-            </p>
+            {/* You Do Duel Controls (Screen 4, Max 2 Controls) */}
+            <div
+              id="express-gd-youdo-box"
+              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-4"
+            >
+              <span className="text-xs font-mono font-bold text-[#1E2227] block">
+                Налаштування балансу дуелі:
+              </span>
+
+              {/* Control 1: Boss Damage */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-[#1E2227]/70">Шкода боса (bossDamage):</span>
+                  <span className="font-bold text-rose-700">{gdParams.bossDamage}</span>
+                </div>
+                <input
+                  type="range"
+                  min="20"
+                  max="100"
+                  step="5"
+                  value={gdParams.bossDamage}
+                  onChange={(e) =>
+                    setGdParams((prev) => ({ ...prev, bossDamage: Number(e.target.value) }))
+                  }
+                  className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
+                />
+              </div>
+
+              {/* Control 2: Potion Count */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-[#1E2227]/70">Кількість зіллів (potionCount):</span>
+                  <span className="font-bold text-amber-700">{gdParams.potionCount}x</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="4"
+                  value={gdParams.potionCount}
+                  onChange={(e) =>
+                    setGdParams((prev) => ({ ...prev, potionCount: Number(e.target.value) }))
+                  }
+                  className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                />
+              </div>
+            </div>
           </div>
+        )}
 
-          {/* Hints Ladder (Strictly for Step 4 "You Do") */}
-          {tastingStep === 4 && (
-            <div className="p-4 rounded-2xl bg-[#FFFBF0] border border-amber-300 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-amber-900 flex items-center gap-1.5">
-                  <HelpCircle size={14} className="text-amber-700" />
-                  <span>Лесенка підказок</span>
-                </span>
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-200 text-amber-900">
-                  {currentHintLevel}/3
-                </span>
-              </div>
-
-              {currentHintLevel >= 1 && (
-                <div className="p-2.5 rounded-xl bg-white border border-amber-200 text-xs text-amber-950 font-sans">
-                  <strong>{t("taster.hintLevel1", "Рівень 1: На що подивитися")}:</strong>{" "}
-                  {t(activeRole.youDoStep.hintsKeys[0])}
-                </div>
-              )}
-
-              {currentHintLevel >= 2 && (
-                <div className="p-2.5 rounded-xl bg-white border border-amber-200 text-xs text-amber-950 font-sans">
-                  <strong>{t("taster.hintLevel2", "Рівень 2: Яке правило")}:</strong>{" "}
-                  {t(activeRole.youDoStep.hintsKeys[1])}
-                </div>
-              )}
-
-              {currentHintLevel >= 3 && (
-                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-xs text-rose-950 font-sans">
-                  <strong>{t("taster.hintLevel3Solution", "Рівень 3: Показати рішення")}:</strong>{" "}
-                  {t(activeRole.youDoStep.hintsKeys[2])}
-                </div>
-              )}
-
-              {currentHintLevel < 3 && (
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={handleRequestHint}
-                    className="w-full py-2 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-mono font-bold text-xs border border-amber-300 cursor-pointer active:scale-95 transition-all text-center"
-                  >
-                    {currentHintLevel === 0 && "Отримати підказку 1 (На що подивитися)"}
-                    {currentHintLevel === 1 && "Отримати підказку 2 (Яке правило)"}
-                    {currentHintLevel === 2 && "Показати готове рішення (Фіксується штраф)"}
-                  </button>
-                  {currentHintLevel === 2 && (
-                    <p className="text-[10px] text-amber-800/80 mt-1 leading-tight text-center">
-                      {t("taster.hintWarning", "Увага: відкриття рішення зафіксує підказку і крок не вважатиметься пройденим самостійно.")}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Validation Logs Terminal */}
-          {lastValidationLogs.length > 0 && (
-            <div className="p-3 rounded-2xl bg-[#0F141C] border border-[#21262D] space-y-1 font-mono text-[11px] text-zinc-300">
-              <span className="text-[10px] text-zinc-500 uppercase">Engine Diagnostic Stream:</span>
-              <div className="space-y-0.5 max-h-36 overflow-y-auto">
-                {lastValidationLogs.map((log, idx) => (
-                  <div
-                    key={idx}
-                    className={
-                      log.includes("[PASS]")
-                        ? "text-emerald-400"
-                        : log.includes("[FAIL]") || log.includes("[ERROR]") || log.includes("[CRITICAL")
-                        ? "text-rose-400 font-bold"
-                        : "text-zinc-400"
-                    }
-                  >
-                    {log}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Action / Next Step Button */}
-          <div className="mt-auto pt-4">
-            {tastingStep < 3 && (
-              <button
-                type="button"
-                onClick={handleAdvanceStep}
-                className="w-full py-3 rounded-xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+        {/* Validation Output Logs */}
+        {lastValidationLogs.length > 0 && (
+          <div className="p-3 rounded-2xl bg-[#0F141C] border border-[#21262D] space-y-1 font-mono text-[11px] text-zinc-300">
+            {lastValidationLogs.map((log, idx) => (
+              <div
+                key={idx}
+                className={
+                  log.includes("[PASS]")
+                    ? "text-emerald-400"
+                    : log.includes("[FAIL]") || log.includes("[ERROR]")
+                    ? "text-rose-400 font-bold"
+                    : "text-zinc-400"
+                }
               >
-                <span>{t("taster.nextStepBtn", "Далі ➔")}</span>
-              </button>
-            )}
-
-            {tastingStep === 3 && (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={handleValidateWeDo}
-                  className="w-full py-2.5 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Play size={14} className="text-emerald-400" />
-                  <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
-                </button>
-                {isStepPassed && (
-                  <button
-                    type="button"
-                    onClick={handleAdvanceStep}
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 animate-in fade-in"
-                  >
-                    <span>{t("taster.nextStepBtn", "Далі до кроку «Сам» ➔")}</span>
-                  </button>
-                )}
+                {log}
               </div>
-            )}
-
-            {tastingStep === 4 && (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={handleValidateYouDo}
-                  className="w-full py-2.5 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Play size={14} className="text-emerald-400" />
-                  <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
-                </button>
-                {isStepPassed && (
-                  <button
-                    type="button"
-                    onClick={handleAdvanceStep}
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 animate-in fade-in"
-                  >
-                    <span>{t("taster.nextStepBtn", "Далі до рутини ➔")}</span>
-                  </button>
-                )}
-              </div>
-            )}
-
-            {tastingStep === 5 && (
-              <button
-                type="button"
-                onClick={handleAdvanceStep}
-                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>
-                  {activeRoleIndex + 1 < selectedRoleIds.length
-                    ? t("taster.routineNextRoleBtn", "До наступної ролі ➔")
-                    : t("taster.routineToFinaleBtn", "До підсумків тесту ➔")}
-                </span>
-                <ChevronRight size={15} />
-              </button>
-            )}
+            ))}
           </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════
-            ZONE 2 (CENTER, 5 cols): CODE / CONFIG / TERMINAL WORKBENCH
-           ══════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-5 flex flex-col gap-3">
-          {/* BACKEND EDITOR */}
-          {activeRole.id === "role-backend" && (
-            <div className="rounded-2xl bg-[#0D1117] border border-[#30363D] overflow-hidden flex flex-col shadow-lg flex-1">
-              <div className="p-3 bg-[#161B22] border-b border-[#30363D] flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-stone-200">
-                  {tastingStep <= 3 ? "OrderService.cs (We Do)" : "LoyaltyService.cs (You Do)"}
-                </span>
-                <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">
-                  C# / Go Syntax
-                </span>
-              </div>
-
-              <div className="p-4 flex-1 font-mono text-xs text-stone-300 space-y-4">
-                {tastingStep === 2 && (
-                  <div className="space-y-3">
-                    <div className="text-rose-400 line-through bg-rose-950/30 p-2 rounded">
-                      {activeRole.iDoStep.initialSnippet}
-                    </div>
-                    <div className="text-emerald-400 bg-emerald-950/30 p-2 rounded font-bold">
-                      {activeRole.iDoStep.fixedSnippet}
-                    </div>
-                  </div>
-                )}
-
-                {tastingStep === 3 && (
-                  <div className="space-y-3">
-                    <p className="text-zinc-400 text-xs">Правило безкоштовної доставки (від 500 DKK):</p>
-                    <div className="p-2.5 rounded bg-black/50 border border-zinc-700 text-emerald-400 font-bold">
-                      cartTotal &gt;= 500
-                    </div>
-
-                    <div className="pt-2 border-t border-zinc-800 space-y-2">
-                      <label className="flex items-center gap-2 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={backendWeDoAssertChecked}
-                          onChange={(e) => setBackendWeDoAssertChecked(e.target.checked)}
-                          className="w-4 h-4 rounded text-emerald-500"
-                        />
-                        <span className="text-xs text-zinc-300 font-bold">
-                          Assert.Equal(true, hasFreeShipping(500))
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {tastingStep === 4 && (
-                  <div className="space-y-3">
-                    <p className="text-zinc-400 text-xs">
-                      Введи булеве правило (напр. purchasesCount &gt;= 5):
-                    </p>
-                    <input
-                      type="text"
-                      value={backendCode}
-                      onChange={(e) => setBackendCode(e.target.value)}
-                      placeholder="purchasesCount >= 5"
-                      className="w-full p-2.5 rounded-xl bg-black border border-zinc-700 text-emerald-400 font-mono font-bold text-sm focus:border-emerald-500 focus:outline-none"
-                    />
-
-                    <div className="pt-2 border-t border-zinc-800 space-y-2">
-                      <span className="text-[11px] text-zinc-400 block">
-                        Вибери 3 граничні значення для тесту (n-1, n, n+1):
-                      </span>
-                      <div className="flex gap-2">
-                        {[3, 4, 5, 6, 7].map((num) => {
-                          const isPicked = backendBoundaryInputs.includes(num);
-                          return (
-                            <button
-                              key={num}
-                              type="button"
-                              onClick={() => {
-                                setBackendBoundaryInputs((prev) =>
-                                  prev.includes(num)
-                                    ? prev.filter((n) => n !== num)
-                                    : [...prev, num]
-                                );
-                              }}
-                              className={`w-9 h-9 rounded-lg font-mono font-bold text-xs flex items-center justify-center cursor-pointer transition-all ${
-                                isPicked
-                                  ? "bg-emerald-600 text-white shadow-xs"
-                                  : "bg-[#1E2227] text-zinc-400 hover:text-white"
-                              }`}
-                            >
-                              {num}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {tastingStep >= 5 && (
-                  <div className="p-4 rounded-xl bg-[#161B22] text-zinc-300 text-xs">
-                    Завдання успішно верифіковано!
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* CYBERSECURITY TERMINAL */}
-          {activeRole.id === "role-cyber" && (
-            <div className="rounded-2xl bg-[#0D1017] border border-[#202636] p-4 flex flex-col gap-3 shadow-lg flex-1">
-              <div className="flex items-center justify-between border-b border-[#202636] pb-2">
-                <span className="text-xs font-mono font-bold text-zinc-200">
-                  FIREWALL CONTAINMENT CONSOLE
-                </span>
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded">
-                  iptables CLI
-                </span>
-              </div>
-
-              {tastingStep === 3 && (
-                <div className="space-y-3 text-xs font-mono">
-                  <p className="text-zinc-400">
-                    Вибери в правому моніторі підозрілий IP (який спамить 401 на /login):
-                  </p>
-                  <div className="p-2.5 rounded bg-black border border-zinc-800 text-zinc-200">
-                    sudo iptables -I INPUT 1 -s {cyberSelectedIp || "<SELECT_IP>"} -j DROP
-                  </div>
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={cyberWeDoVerified}
-                      onChange={(e) => setCyberWeDoVerified(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-500"
-                    />
-                    <span className="text-zinc-300 font-bold">
-                      Підтверджую перевірку: легітимний трафік 200 OK зберігся
-                    </span>
-                  </label>
-                </div>
-              )}
-
-              {tastingStep === 4 && (
-                <div className="space-y-3 text-xs font-mono">
-                  <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-600/40 text-amber-200 text-xs">
-                    ⚠ ПАСТКА: Найактивніший IP у лозі — легітимний клієнт (200 OK). Бан невиновного призведе до штрафу.
-                  </div>
-                  <p className="text-zinc-400">
-                    Ціль для блокування: <strong className="text-white">{cyberSelectedIp || "Клікни рядок у правому лозі"}</strong>
-                  </p>
-                  <div className="p-2.5 rounded bg-black border border-zinc-800 text-rose-400 font-bold">
-                    ACTION: DROP {cyberSelectedIp || "???.???.???.???"}
-                  </div>
-                </div>
-              )}
-
-              {tastingStep !== 3 && tastingStep !== 4 && (
-                <div className="p-4 rounded-xl bg-[#141923] text-zinc-300 text-xs font-mono">
-                  Готово до моніторингу черги інцидентів.
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* GAME DESIGN BALANCER */}
-          {activeRole.id === "role-gamedesign" && (
-            <div className="rounded-2xl bg-[#13111C] border border-[#2D2640] p-4 flex flex-col gap-3 shadow-lg flex-1">
-              <div className="flex items-center justify-between border-b border-[#2D2640] pb-2">
-                <span className="text-xs font-mono font-bold text-purple-300">
-                  COMBAT NUMERIC BALANCER
-                </span>
-                <span className="text-[10px] font-mono text-purple-400 bg-purple-950 px-2 py-0.5 rounded">
-                  Config Sliders
-                </span>
-              </div>
-
-              {tastingStep === 3 && (
-                <div className="space-y-3 text-xs font-mono">
-                  <div className="flex justify-between items-center">
-                    <span className="text-zinc-300">Броня гравця (playerArmor):</span>
-                    <span className="text-emerald-400 font-bold text-sm">{gdArmor}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="30"
-                    step="1"
-                    value={gdArmor}
-                    onChange={(e) => setGdArmor(parseInt(e.target.value, 10))}
-                    className="w-full accent-emerald-500 cursor-pointer"
-                  />
-                  <p className="text-[11px] text-zinc-400">
-                    Ціль: підбери броню так, щоб середня тривалість бою була 10-12с (підказка: спробуй біля 20).
-                  </p>
-                </div>
-              )}
-
-              {tastingStep === 4 && (
-                <div className="space-y-3 text-xs font-mono">
-                  {/* Boss Damage */}
-                  <div>
-                    <div className="flex justify-between items-center text-zinc-300">
-                      <span>Шкода боса (bossDamage):</span>
-                      <span className="text-rose-400 font-bold text-sm">{gdParams.bossDamage}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="20"
-                      max="100"
-                      step="5"
-                      value={gdParams.bossDamage}
-                      onChange={(e) =>
-                        setGdParams((prev) => ({ ...prev, bossDamage: parseInt(e.target.value, 10) }))
-                      }
-                      className="w-full accent-rose-500 cursor-pointer"
-                    />
-                  </div>
-
-                  {/* Potion Heal */}
-                  <div>
-                    <div className="flex justify-between items-center text-zinc-300">
-                      <span>Сила зілля (potionHeal):</span>
-                      <span className="text-amber-400 font-bold text-sm">{gdParams.potionHeal} HP</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="10"
-                      max="80"
-                      step="5"
-                      value={gdParams.potionHeal}
-                      onChange={(e) =>
-                        setGdParams((prev) => ({ ...prev, potionHeal: parseInt(e.target.value, 10) }))
-                      }
-                      className="w-full accent-amber-500 cursor-pointer"
-                    />
-                  </div>
-
-                  {/* Potion Count */}
-                  <div>
-                    <div className="flex justify-between items-center text-zinc-300">
-                      <span>Кількість зіллів:</span>
-                      <span className="text-amber-400 font-bold text-sm">{gdParams.potionCount} шт</span>
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      {[1, 2, 3].map((cnt) => (
-                        <button
-                          key={cnt}
-                          type="button"
-                          onClick={() => setGdParams((prev) => ({ ...prev, potionCount: cnt }))}
-                          className={`flex-1 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
-                            gdParams.potionCount === cnt
-                              ? "bg-purple-600 text-white"
-                              : "bg-[#201B2E] text-zinc-400"
-                          }`}
-                        >
-                          {cnt}x
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {tastingStep !== 3 && tastingStep !== 4 && (
-                <div className="p-4 rounded-xl bg-[#1D192B] text-zinc-300 text-xs font-mono">
-                  Готово до симуляції боїв.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════
-            ZONE 3 (RIGHT, 3 cols): REACTIVE LIVE TEST-STAND
-           ══════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-3 flex flex-col gap-3">
-          {activeRole.id === "role-backend" && (
-            <ShopStand
-              cartTotal={1000}
-              discountApplied={tastingStep >= 2}
-              freeShippingApplied={tastingStep >= 3}
-              purchasesCount={5}
-              bonusPointsEarned={isStepPassed && tastingStep >= 4}
-            />
-          )}
-
-          {activeRole.id === "role-cyber" && (
-            <TrafficStand
-              logs={tastingStep <= 3 ? CYBER_WE_DO_LOGS : CYBER_YOU_DO_LOGS}
-              selectedIp={cyberSelectedIp}
-              blockedIp={cyberBlockedIp}
-              isFalsePositive={cyberIsFalsePositive}
-              onSelectIp={(ip) => setCyberSelectedIp(ip)}
-            />
-          )}
-
-          {activeRole.id === "role-gamedesign" && (
-            <DuelArenaStand
-              params={
-                tastingStep === 3
-                  ? { bossDamage: 45, bossCooldownSec: 1.8, potionHeal: 0, potionCount: 0, playerArmor: gdArmor }
-                  : gdParams
-              }
-              lastSimResult={gdLastSim}
-            />
-          )}
-        </div>
+        )}
       </main>
+
+      {/* ── ATOMIC SPOTLIGHT OVERLAY ── */}
+      <SpotlightOverlay
+        targetId={currentSubStepDef.targetId}
+        badgeText={t(currentSubStepDef.badgeKey)}
+        mentorText={mentorPrompt}
+        subText={mentorSubText}
+        actionSlot={renderActionSlot()}
+        failureCount={failureCount}
+        onShowSolution={currentSubStepDef.canShowSolutionAfterFails ? handleShowSolution : undefined}
+        onClose={onClose}
+      />
     </div>
   );
 };

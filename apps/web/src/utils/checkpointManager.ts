@@ -175,7 +175,8 @@ export function getGlobalSession(): GlobalSessionState | null {
     const raw = localStorage.getItem(KEY_GLOBAL_SESSION);
     if (!raw) {
       const station = localStorage.getItem("iw_current_station");
-      const view = localStorage.getItem("iw_current_view") as "HUB" | "STATION" | null;
+      const rawView = localStorage.getItem("iw_current_view");
+      const view = (rawView === "EXPRESS_TOUR" ? "SPEED_DATING" : rawView) as "HUB" | "STATION" | "WAR_ROOM" | "SPEED_DATING" | null;
       if (station || view) {
         return {
           currentStationId: station || "tv",
@@ -185,7 +186,11 @@ export function getGlobalSession(): GlobalSessionState | null {
       }
       return null;
     }
-    return JSON.parse(raw) as GlobalSessionState;
+    const session = JSON.parse(raw) as GlobalSessionState & { currentView: string };
+    if (session && session.currentView === ("EXPRESS_TOUR" as any)) {
+      session.currentView = "SPEED_DATING";
+    }
+    return session as GlobalSessionState;
   } catch {
     return null;
   }

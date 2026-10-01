@@ -9,8 +9,10 @@
 // 1. BACKEND VALIDATORS (C# / Go logic tasting)
 // ═════════════════════════════════════════════════════════════════════
 
+import { evaluateCondition } from "./parser";
+
 /**
- * Safely evaluates an arithmetic/comparison expression for a single numeric variable.
+ * Safely evaluates an arithmetic/comparison expression for a single numeric variable using parser.ts.
  * Supports operators: >, >=, <, <=, ==, !=
  * Reversible variable positioning: e.g. "purchasesCount >= 5" or "5 <= purchasesCount"
  */
@@ -20,46 +22,7 @@ export function evaluateNumericCondition(
   val: number
 ): boolean {
   const clean = expression.trim().replace(/;+$/, "").replace(/^{|}$/g, "").trim();
-  
-  // Pattern: <varOrNum> <op> <varOrNum>
-  const match = clean.match(
-    /^([a-zA-Z_]\w*|-?\d+)\s*(>=|<=|>|<|==|!=)\s*([a-zA-Z_]\w*|-?\d+)$/
-  );
-  if (!match) {
-    throw new Error(`Invalid boolean condition syntax: "${clean}"`);
-  }
-
-  const leftToken = match[1];
-  const op = match[2];
-  const rightToken = match[3];
-
-  let leftVal: number;
-  if (/^-?\d+$/.test(leftToken)) {
-    leftVal = parseInt(leftToken, 10);
-  } else if (leftToken === varName) {
-    leftVal = val;
-  } else {
-    throw new Error(`Unknown variable: "${leftToken}", expected "${varName}" or a number`);
-  }
-
-  let rightVal: number;
-  if (/^-?\d+$/.test(rightToken)) {
-    rightVal = parseInt(rightToken, 10);
-  } else if (rightToken === varName) {
-    rightVal = val;
-  } else {
-    throw new Error(`Unknown variable: "${rightToken}", expected "${varName}" or a number`);
-  }
-
-  switch (op) {
-    case ">=": return leftVal >= rightVal;
-    case "<=": return leftVal <= rightVal;
-    case ">":  return leftVal > rightVal;
-    case "<":  return leftVal < rightVal;
-    case "==": return leftVal === rightVal;
-    case "!=": return leftVal !== rightVal;
-    default:   return false;
-  }
+  return evaluateCondition(clean, undefined, { [varName]: val });
 }
 
 export interface BackendTasterResult {
@@ -91,10 +54,16 @@ export function validateBackendWeDo(
     };
   }
 
+  // Support operator-only input (e.g. ">=" or "<=") or full expression ("cartTotal >= 500")
+  const trimmed = conditionExpr.trim();
+  const cleanExpr = /^(>=|<=|>|<|==|!=)$/.test(trimmed)
+    ? `cartTotal ${trimmed} 500`
+    : trimmed;
+
   try {
-    const at499 = evaluateNumericCondition(conditionExpr, "cartTotal", 499);
-    const at500 = evaluateNumericCondition(conditionExpr, "cartTotal", 500);
-    const at501 = evaluateNumericCondition(conditionExpr, "cartTotal", 501);
+    const at499 = evaluateNumericCondition(cleanExpr, "cartTotal", 499);
+    const at500 = evaluateNumericCondition(cleanExpr, "cartTotal", 500);
+    const at501 = evaluateNumericCondition(cleanExpr, "cartTotal", 501);
 
     if (at499 === false && at500 === true && at501 === true) {
       logs.push("[PASS] cartTotal = 499 -> false (no free shipping)");

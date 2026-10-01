@@ -39,7 +39,7 @@ export function stripComments(rawCode: string): string {
 /**
  * Resolve numeric literal, binary arithmetic expression, or local variable from scope
  */
-function resolveNumValue(expr: string, scope: Record<string, number>, tv?: VirtualTV): number {
+export function resolveNumValue(expr: string, scope: Record<string, number>, tv?: VirtualTV): number {
   const trimmed = expr.trim();
   if (/^-?\d+$/.test(trimmed)) {
     return parseInt(trimmed, 10);
@@ -68,9 +68,9 @@ function resolveNumValue(expr: string, scope: Record<string, number>, tv?: Virtu
 /**
  * Evaluate a boolean condition on VirtualTV or local scope
  */
-function evaluateCondition(
+export function evaluateCondition(
   condStr: string,
-  tv: VirtualTV,
+  tv?: VirtualTV,
   scope: Record<string, number> = {},
   ctx?: ExecutionContext
 ): boolean {
@@ -83,7 +83,7 @@ function evaluateCondition(
     const isNull = Boolean(ctx?.nullScope && ctx.nullScope[varName]);
     if (isNull) {
       // Null guard was executed and safely prevented execution
-      tv.triggerSafeGuard();
+      tv?.triggerSafeGuard();
       return false;
     }
     return true;
@@ -96,87 +96,89 @@ function evaluateCondition(
     return Boolean(ctx?.nullScope && ctx.nullScope[varName]);
   }
 
-  // Negation: !tv.IsOn or !tv.isOn
-  if (/^!\s*tv\s*\.\s*(IsOn|isOn)$/i.test(c)) {
-    return !tv.IsOn;
-  }
-
-  // Direct boolean: tv.IsOn or tv.isOn
-  if (/^tv\s*\.\s*(IsOn|isOn)$/i.test(c)) {
-    return tv.IsOn;
-  }
-
-  // Equality: tv.IsOn == true or tv.IsOn == false
-  const eqMatch = c.match(/^tv\s*\.\s*(IsOn|isOn)\s*==\s*(true|false)$/i);
-  if (eqMatch) {
-    const expected = eqMatch[2].toLowerCase() === "true";
-    return tv.IsOn === expected;
-  }
-
-  // Inequality: tv.IsOn != true or tv.IsOn != false
-  const neqMatch = c.match(/^tv\s*\.\s*(IsOn|isOn)\s*!=\s*(true|false)$/i);
-  if (neqMatch) {
-    const notExpected = neqMatch[2].toLowerCase() === "true";
-    return tv.IsOn !== notExpected;
-  }
-
-  // Number comparison for Channel, Volume, or Brightness (e.g. tv.Channel > 4, tv.Volume <= 100, tv.Brightness <= 100)
-  const numMatch = c.match(
-    /^tv\s*\.\s*(Channel|Volume|Brightness|channel|volume|brightness)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
-  );
-  if (numMatch) {
-    const propName = numMatch[1].toLowerCase();
-    const prop =
-      propName === "channel"
-        ? tv.Channel
-        : propName === "volume"
-        ? tv.Volume
-        : tv.Brightness;
-    const op = numMatch[2];
-    const val = resolveNumValue(numMatch[3], scope, tv);
-    switch (op) {
-      case "==":
-        return prop === val;
-      case "!=":
-        return prop !== val;
-      case ">":
-        return prop > val;
-      case "<":
-        return prop < val;
-      case ">=":
-        return prop >= val;
-      case "<=":
-        return prop <= val;
+  if (tv) {
+    // Negation: !tv.IsOn or !tv.isOn
+    if (/^!\s*tv\s*\.\s*(IsOn|isOn)$/i.test(c)) {
+      return !tv.IsOn;
     }
-  }
 
-  // Inverted comparison: e.g. 4 < tv.Channel
-  const invNumMatch = c.match(
-    /^([a-zA-Z_]\w*|-?\d+)\s*(==|!=|>|<|>=|<=)\s*tv\s*\.\s*(Channel|Volume|Brightness|channel|volume|brightness)$/i
-  );
-  if (invNumMatch) {
-    const val = resolveNumValue(invNumMatch[1], scope, tv);
-    const op = invNumMatch[2];
-    const propName = invNumMatch[3].toLowerCase();
-    const prop =
-      propName === "channel"
-        ? tv.Channel
-        : propName === "volume"
-        ? tv.Volume
-        : tv.Brightness;
-    switch (op) {
-      case "==":
-        return val === prop;
-      case "!=":
-        return val !== prop;
-      case ">":
-        return val > prop;
-      case "<":
-        return val < prop;
-      case ">=":
-        return val >= prop;
-      case "<=":
-        return val <= prop;
+    // Direct boolean: tv.IsOn or tv.isOn
+    if (/^tv\s*\.\s*(IsOn|isOn)$/i.test(c)) {
+      return tv.IsOn;
+    }
+
+    // Equality: tv.IsOn == true or tv.IsOn == false
+    const eqMatch = c.match(/^tv\s*\.\s*(IsOn|isOn)\s*==\s*(true|false)$/i);
+    if (eqMatch) {
+      const expected = eqMatch[2].toLowerCase() === "true";
+      return tv.IsOn === expected;
+    }
+
+    // Inequality: tv.IsOn != true or tv.IsOn != false
+    const neqMatch = c.match(/^tv\s*\.\s*(IsOn|isOn)\s*!=\s*(true|false)$/i);
+    if (neqMatch) {
+      const notExpected = neqMatch[2].toLowerCase() === "true";
+      return tv.IsOn !== notExpected;
+    }
+
+    // Number comparison for Channel, Volume, or Brightness (e.g. tv.Channel > 4, tv.Volume <= 100, tv.Brightness <= 100)
+    const numMatch = c.match(
+      /^tv\s*\.\s*(Channel|Volume|Brightness|channel|volume|brightness)\s*(==|!=|>|<|>=|<=)\s*([a-zA-Z_]\w*|-?\d+)$/i
+    );
+    if (numMatch) {
+      const propName = numMatch[1].toLowerCase();
+      const prop =
+        propName === "channel"
+          ? tv.Channel
+          : propName === "volume"
+          ? tv.Volume
+          : tv.Brightness;
+      const op = numMatch[2];
+      const val = resolveNumValue(numMatch[3], scope, tv);
+      switch (op) {
+        case "==":
+          return prop === val;
+        case "!=":
+          return prop !== val;
+        case ">":
+          return prop > val;
+        case "<":
+          return prop < val;
+        case ">=":
+          return prop >= val;
+        case "<=":
+          return prop <= val;
+      }
+    }
+
+    // Inverted comparison: e.g. 4 < tv.Channel
+    const invNumMatch = c.match(
+      /^([a-zA-Z_]\w*|-?\d+)\s*(==|!=|>|<|>=|<=)\s*tv\s*\.\s*(Channel|Volume|Brightness|channel|volume|brightness)$/i
+    );
+    if (invNumMatch) {
+      const val = resolveNumValue(invNumMatch[1], scope, tv);
+      const op = invNumMatch[2];
+      const propName = invNumMatch[3].toLowerCase();
+      const prop =
+        propName === "channel"
+          ? tv.Channel
+          : propName === "volume"
+          ? tv.Volume
+          : tv.Brightness;
+      switch (op) {
+        case "==":
+          return val === prop;
+        case "!=":
+          return val !== prop;
+        case ">":
+          return val > prop;
+        case "<":
+          return val < prop;
+        case ">=":
+          return val >= prop;
+        case "<=":
+          return val <= prop;
+      }
     }
   }
 
