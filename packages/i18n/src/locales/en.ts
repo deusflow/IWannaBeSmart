@@ -929,6 +929,7 @@ export const enTranslation = {
         stepRoutineBadge: "STEP 5: HONEST ROUTINE",
         nextStepBtn: "Next ➔",
         runVerifyBtn: "Run Verification",
+        runBackendTestsBtn: "Run Tests ▶",
         runAssertBtn: "Run Assertion Test",
         runSimBtn: "Simulate 100 Battles",
         runMultiSimBtn: "Simulate 500 Battles (3 Seeds)",
@@ -962,10 +963,10 @@ export const enTranslation = {
             verification: "Assert: ensure that cartTotal = 500 evaluates to true.",
           },
           youDo: {
-            requirement: "Business requirement: apply bonus points to a customer starting from the 5th purchase inclusive. Set the correct condition and choose boundary values to test.",
-            hint1: "Notice the words 'starting from' and 'inclusive'. Does strict greater '>' work here?",
-            hint2: "To verify a numeric boundary, check three adjacent numbers: the value before, the boundary itself, and the value after.",
-            hint3Solution: "Condition: purchasesCount >= 5. Boundary test values: 4, 5, 6.",
+            requirement: "Store business rule: a customer gets VIP status and a permanent discount from 5 purchases inclusive. The IsVip method has a defect: a junior teammate wrote purchasesCount > 5, so customers with exactly 5 purchases lose VIP status. Fix the condition in code and run the automatic tests.",
+            hint1: "The key word is 'inclusive'. Verify whether value 5 is included in the true branch.",
+            hint2: "Change only the comparison operator in the return line. Use ASCII symbols: > and =.",
+            hint3Solution: "Include boundary value 5 in the VIP condition (do not use Unicode symbol ≥).",
           },
         },
         cyber: {

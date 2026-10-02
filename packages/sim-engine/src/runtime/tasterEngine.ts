@@ -99,19 +99,27 @@ export function validateBackendWeDo(
 }
 
 /**
- * Validates step 4 "You Do" (Сам) for Backend:
- * Requirement: "Начиная с 5-й покупки включительно" -> purchasesCount >= 5.
- * User must provide the condition AND choose boundary values.
- * Validator checks:
- * 1. userBoundaryValues contains at least 4, 5, 6 (n-1, n, n+1).
- * 2. condition evaluates to false at 4, true at 5, true at 6.
+ * Validates step 4 "You Do" (Сам) for Backend.
+ * Requirement: VIP status starts at the 5th purchase inclusive -> purchasesCount >= 5.
+ * Boundary checks are always executed automatically for 4, 5, and 6.
  */
 export function validateBackendYouDo(
   conditionExpr: string,
-  userBoundaryValues: number[]
+  userBoundaryValues: number[] = [4, 5, 6]
 ): BackendTasterResult {
   const logs: string[] = [];
-  logs.push("[BACKEND_RUNNER] Running unit test suite with boundary value analysis...");
+  logs.push("[BACKEND_TEST_RUNNER] Running VIP boundary test suite...");
+
+  if (conditionExpr.includes("≥")) {
+    logs.push("[ERROR] Unicode operator detected: use ASCII operators only ('>='), not '≥'.");
+    return {
+      passed: false,
+      boundaryTestsPassed: false,
+      conditionCorrect: false,
+      error: "Use ASCII operator '>=' instead of Unicode '≥'",
+      logs,
+    };
+  }
 
   // Check boundary test suite coverage
   const has4 = userBoundaryValues.includes(4);
@@ -120,7 +128,7 @@ export function validateBackendYouDo(
 
   if (!has4 || !has5 || !has6) {
     logs.push(
-      `[COVERAGE_FAIL] Boundary test suite is incomplete. Missing essential edge values (needs n-1, n, n+1 -> 4, 5, 6). Provided: [${userBoundaryValues.join(", ")}]`
+      `[COVERAGE_FAIL] Missing boundary inputs. Required set: 4, 5, 6. Provided: [${userBoundaryValues.join(", ")}]`
     );
     return {
       passed: false,
@@ -130,21 +138,20 @@ export function validateBackendYouDo(
       logs,
     };
   }
-  logs.push("[COVERAGE_PASS] Boundary test set contains critical triplet: [4, 5, 6].");
+  logs.push("[COVERAGE_PASS] Boundary set includes 4, 5, 6.");
 
   try {
     const at4 = evaluateNumericCondition(conditionExpr, "purchasesCount", 4);
     const at5 = evaluateNumericCondition(conditionExpr, "purchasesCount", 5);
     const at6 = evaluateNumericCondition(conditionExpr, "purchasesCount", 6);
 
-    logs.push(`[TEST] purchasesCount = 4 -> Result: ${at4} (Expected: false)`);
-    logs.push(`[TEST] purchasesCount = 5 -> Result: ${at5} (Expected: true)`);
-    logs.push(`[TEST] purchasesCount = 6 -> Result: ${at6} (Expected: true)`);
-
     const conditionCorrect = at4 === false && at5 === true && at6 === true;
 
     if (conditionCorrect) {
-      logs.push("[ALL_TESTS_PASS] Edge cases validated! Logic correctly handles 5th purchase onwards.");
+      logs.push("✓ ВСІ ТЕСТИ ПРОЙДЕНО:");
+      logs.push("• 4 покупки (до межі 5) -> false (OK, статус ще не надано)");
+      logs.push("• 5 покупок (рівно на межі) -> true (УСПІХ! Межу 5 включено)");
+      logs.push("• 6 покупок (після межі 5) -> true (OK, статус діє)");
       return {
         passed: true,
         boundaryTestsPassed: true,
@@ -152,7 +159,12 @@ export function validateBackendYouDo(
         logs,
       };
     } else {
-      logs.push("[TEST_FAIL] Condition failed on one or more boundary tests.");
+      logs.push("❌ ТЕСТ ПРОВАЛЕНО:");
+      logs.push(`• 4 покупки -> ${at4} (${at4 === false ? "OK, ще не VIP" : "ПОМИЛКА! До межі має бути false"})`);
+      logs.push(
+        `• 5 покупок -> ${at5} (${at5 === true ? "OK" : "ПОМИЛКА! Очікувався VIP = true, але отримано false. Покупець на межі втратив знижку"})`
+      );
+      logs.push(`• 6 покупок -> ${at6} (${at6 === true ? "OK" : "ПОМИЛКА! Після межі має бути true"})`);
       return {
         passed: false,
         boundaryTestsPassed: true, // inputs were provided, but evaluation failed

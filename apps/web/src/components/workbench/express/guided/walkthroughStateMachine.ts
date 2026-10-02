@@ -12,7 +12,6 @@ export type GuidedSubStepId =
   | "backend-ido"
   | "backend-wedo"
   | "backend-youdo-cond"
-  | "backend-youdo-bounds"
   | "backend-routine"
   // Cyber
   | "cyber-scene"
@@ -81,19 +80,9 @@ export const GUIDED_STEPS_BY_ROLE: Record<RoleId, GuidedStepDefinition[]> = {
       badgeKey: "taster.stepYouDoBadge",
       stepNumber: 4,
       totalSubSteps: 5,
-      actionType: "next",
-      typingTarget: "purchasesCount >= 5",
-      canShowSolutionAfterFails: true,
-    },
-    {
-      id: "backend-youdo-bounds",
-      roleId: "role-backend",
-      targetId: "express-backend-boundary-picker",
-      badgeKey: "taster.stepYouDoBadge",
-      stepNumber: 4,
-      totalSubSteps: 5,
       actionType: "run",
-      canShowSolutionAfterFails: true,
+      typingTarget: "return purchasesCount >= 5;",
+      canShowSolutionAfterFails: false,
     },
     {
       id: "backend-routine",

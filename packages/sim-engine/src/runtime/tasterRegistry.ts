@@ -58,13 +58,15 @@ export const ROLE_TASTER_REGISTRY: RoleTasterDefinition[] = [
     },
     youDoStep: {
       requirementTextKey: "taster.backend.youDo.requirement",
-      initialCode: "purchasesCount > 5",
+      initialCode:
+        "// Rule: VIP starts from 5 purchases inclusive\npublic bool IsVip(int purchasesCount) {\n    return purchasesCount > 5;\n}",
       hintsKeys: [
         "taster.backend.youDo.hint1",
         "taster.backend.youDo.hint2",
         "taster.backend.youDo.hint3Solution",
       ],
-      solutionCode: "purchasesCount >= 5",
+      solutionCode:
+        "// Rule: VIP starts from 5 purchases inclusive\npublic bool IsVip(int purchasesCount) {\n    return purchasesCount >= 5;\n}",
     },
   },
   {

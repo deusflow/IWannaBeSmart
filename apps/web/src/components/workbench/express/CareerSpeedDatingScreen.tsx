@@ -36,6 +36,16 @@ interface CareerSpeedDatingScreenProps {
   onClose: () => void;
 }
 
+const BACKEND_YOUDO_BROKEN_METHOD = `// Правило: VIP надається від 5 покупок включно
+public bool IsVip(int purchasesCount) {
+    return purchasesCount > 5; // <-- Виправ знак тут
+}`;
+
+const extractBackendVipCondition = (methodCode: string): string | null => {
+  const match = methodCode.match(/return\s+([^;]+);/);
+  return match?.[1]?.trim() ?? null;
+};
+
 export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = ({
   onClose,
 }) => {
@@ -65,8 +75,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
   // ── Role Specific Interactive States ──
   // Backend
   const [backendWeDoOperator, setBackendWeDoOperator] = useState<string>("");
-  const [backendYouDoCondition, setBackendYouDoCondition] = useState<string>("");
-  const [backendYouDoBoundaries, setBackendYouDoBoundaries] = useState<number[]>([]);
+  const [backendYouDoMethodCode, setBackendYouDoMethodCode] = useState<string>(
+    BACKEND_YOUDO_BROKEN_METHOD
+  );
 
   // Cyber
   const [cyberWeDoFilterInput, setCyberWeDoFilterInput] = useState<string>("");
@@ -118,8 +129,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
 
     if (role.id === "role-backend") {
       setBackendWeDoOperator("");
-      setBackendYouDoCondition("");
-      setBackendYouDoBoundaries([]);
+      setBackendYouDoMethodCode(BACKEND_YOUDO_BROKEN_METHOD);
     } else if (role.id === "role-cyber") {
       setCyberWeDoFilterInput("");
       setCyberWeDoBlockInput("");
@@ -214,11 +224,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
       setIsActionSuccess(true);
       audioFx.playSuccessFanfare();
     } else if (currentSubStepDef.id === "backend-youdo-cond") {
-      setBackendYouDoCondition("purchasesCount >= 5");
-      setIsActionSuccess(true);
-      audioFx.playSuccessFanfare();
-    } else if (currentSubStepDef.id === "backend-youdo-bounds") {
-      setBackendYouDoBoundaries([4, 5, 6]);
+      setBackendYouDoMethodCode(BACKEND_YOUDO_BROKEN_METHOD.replace("> 5", ">= 5"));
       setIsActionSuccess(true);
       audioFx.playSuccessFanfare();
     } else if (currentSubStepDef.id === "cyber-wedo-filter") {
@@ -358,12 +364,10 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
     } else if (currentSubStepDef.id === "backend-youdo-cond") {
       mentorPrompt = t(
         "taster.backend.youDo.requirement",
-        "Вимога бізнесу: нараховувати бонусні бали клієнту починаючи з 5-ї покупки включно. Налаштуй коректну умову та обери граничні значення для перевірки."
+        "В інтернет-магазині діє правило: клієнт стає VIP від 5 покупок включно. Колега помилився та написав суворе '> 5', через що клієнт із рівно 5 покупками не отримує знижку. Виправ метод IsVip і запусти тести."
       );
-      mentorSubText = "Надрукуй умову (наприклад: purchasesCount >= 5).";
-    } else if (currentSubStepDef.id === "backend-youdo-bounds") {
-      mentorPrompt = "Обери 3 граничні значення (до межі, на межі, після межі): 4, 5, 6.";
-      mentorSubText = "Клікни потрібні числа для повного покриття тесту.";
+      mentorSubText =
+        "Заміни в коді 'return purchasesCount > 5;' на 'return purchasesCount >= 5;' і натисни «Запустити тести ▶».";
     }
   } else if (activeRole.id === "role-cyber") {
     if (currentSubStepDef.id === "cyber-scene") {
@@ -476,29 +480,23 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
     }
 
     if (currentSubStepDef.id === "backend-youdo-cond") {
-      const isCondEntered = backendYouDoCondition.trim().length > 0;
+      const hasReturn = /return\s+[^;]+;/.test(backendYouDoMethodCode);
       return (
         <button
           type="button"
-          disabled={!isCondEntered}
+          disabled={!hasReturn}
           onClick={() => {
-            if (backendYouDoCondition.trim()) {
-              handleAdvanceSubStep();
+            const condition = extractBackendVipCondition(backendYouDoMethodCode);
+            if (!condition) {
+              setLastValidationLogs([
+                "[SYNTAX_ERROR] Не знайдено рядок return ...; у методі IsVip.",
+              ]);
+              recordAttempt(false);
+              audioFx.playErrorBuzz();
+              return;
             }
-          }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-        >
-          <span>Зберегти умову ➔</span>
-        </button>
-      );
-    }
 
-    if (currentSubStepDef.id === "backend-youdo-bounds") {
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            const res = validateBackendYouDo(backendYouDoCondition, backendYouDoBoundaries);
+            const res = validateBackendYouDo(condition);
             setLastValidationLogs(res.logs);
             recordAttempt(res.passed);
             if (res.passed) {
@@ -508,10 +506,10 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
         >
           <Play size={13} className="text-emerald-400" />
-          <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
+          <span>{t("taster.runBackendTestsBtn", "Запустити тести ▶")}</span>
         </button>
       );
     }
@@ -719,7 +717,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
                 discountApplied={currentSubStepIndex >= 2}
                 freeShippingApplied={currentSubStepIndex >= 3}
                 purchasesCount={5}
-                bonusPointsEarned={currentSubStepIndex >= 4}
+                bonusPointsEarned={
+                  currentSubStepDef.id === "backend-youdo-cond" ? isActionSuccess : currentSubStepIndex >= 4
+                }
               />
             </div>
 
@@ -764,48 +764,17 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
             >
               <span className="text-xs font-mono font-bold text-[#1E2227]">
-                LoyaltyService.cs (Умова для нарахування бонусів від 5 покупок):
+                LoyaltyService.cs (Виправ правило VIP для межі 5):
               </span>
-              <input
-                type="text"
-                value={backendYouDoCondition}
-                onChange={(e) => setBackendYouDoCondition(e.target.value)}
-                placeholder="purchasesCount >= 5"
-                className="w-full p-3 rounded-xl bg-black border border-zinc-700 text-emerald-400 font-mono font-bold text-sm focus:border-emerald-500 focus:outline-none"
+              <textarea
+                value={backendYouDoMethodCode}
+                onChange={(e) => setBackendYouDoMethodCode(e.target.value)}
+                spellCheck={false}
+                className="w-full min-h-[128px] p-3 rounded-xl bg-black border border-zinc-700 text-emerald-400 font-mono text-sm leading-6 focus:border-emerald-500 focus:outline-none [font-variant-ligatures:none]"
               />
-            </div>
-
-            {/* You Do Boundary Picker (Screen 4B) */}
-            <div
-              id="express-backend-boundary-picker"
-              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
-            >
-              <span className="text-xs font-mono font-bold text-[#1E2227]">
-                Обери 3 граничні значення (до межі, на межі, після):
-              </span>
-              <div className="flex gap-2">
-                {[3, 4, 5, 6, 7].map((num) => {
-                  const isPicked = backendYouDoBoundaries.includes(num);
-                  return (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => {
-                        setBackendYouDoBoundaries((prev) =>
-                          prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num]
-                        );
-                      }}
-                      className={`w-10 h-10 rounded-xl font-mono font-bold text-sm flex items-center justify-center cursor-pointer transition-all ${
-                        isPicked
-                          ? "bg-emerald-600 text-white shadow-xs"
-                          : "bg-[#FAF8F2] border border-[#1E2227]/15 text-[#1E2227]/70 hover:bg-white"
-                      }`}
-                    >
-                      {num}
-                    </button>
-                  );
-                })}
-              </div>
+              <p className="text-[11px] text-[#1E2227]/65 font-mono">
+                Пиши лише ASCII-оператори: <code>&gt;=</code> (не символ <code>≥</code>).
+              </p>
             </div>
           </div>
         )}

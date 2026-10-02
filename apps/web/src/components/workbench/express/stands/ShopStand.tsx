@@ -77,11 +77,11 @@ export const ShopStand: React.FC<ShopStandProps> = ({
         <div className="flex justify-between items-center text-[11px]">
           <span className="flex items-center gap-1.5 text-stone-400">
             <Sparkles size={12} className={bonusPointsEarned ? "text-amber-400 animate-pulse" : "text-stone-500"} />
-            <span>Бонусні бали (+500 балів):</span>
+            <span>VIP Клієнт (від 5 покупок):</span>
           </span>
           {bonusPointsEarned ? (
             <span className="text-amber-300 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/40">
-              НАРАХОВАНО (+500)
+              VIP АКТИВНИЙ ✓
             </span>
           ) : (
             <span className="text-stone-500">Потрібно від 5 покупок</span>

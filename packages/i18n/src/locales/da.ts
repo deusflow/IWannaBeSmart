@@ -929,6 +929,7 @@ export const daTranslation = {
         stepRoutineBadge: "TRIN 5: ÆRLIG RUTINE",
         nextStepBtn: "Næste ➔",
         runVerifyBtn: "Kør verifikation",
+        runBackendTestsBtn: "Kør test ▶",
         runAssertBtn: "Kør Assertion-test",
         runSimBtn: "Simulér 100 kampe",
         runMultiSimBtn: "Simulér 500 kampe (3 Seeds)",
@@ -962,10 +963,10 @@ export const daTranslation = {
             verification: "Assert: bekræft at cartTotal = 500 evaluerer til true.",
           },
           youDo: {
-            requirement: "Forretningskrav: tildel bonuspoint til kunden fra og med det 5. køb. Indstil den korrekte betingelse og vælg grænseværdier til testen.",
-            hint1: "Læg mærke til ordene 'fra og med'. Passer en streng større-end '>' her?",
-            hint2: "For at teste en talgrænse skal du bruge tre tal: værdien før, selve grænsen og værdien efter.",
-            hint3Solution: "Betingelse: purchasesCount >= 5. Grænsetestværdier: 4, 5, 6.",
+            requirement: "Butikkens forretningsregel: kunden får VIP-status og fast rabat fra og med 5 køb. Metoden IsVip har en fejl: en kollega skrev purchasesCount > 5, så kunder med præcis 5 køb mister VIP-status. Ret betingelsen i koden og kør de automatiske test.",
+            hint1: "Nøgleordet er 'inklusive'. Tjek om værdien 5 indgår i true-grenen.",
+            hint2: "Skift kun sammenligningsoperatoren i return-linjen. Brug ASCII-tegn: > og =.",
+            hint3Solution: "Grænseværdien 5 skal med i VIP-betingelsen (brug ikke Unicode-symbolet ≥).",
           },
         },
         cyber: {
