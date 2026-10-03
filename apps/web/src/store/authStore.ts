@@ -9,15 +9,6 @@ import { i18n } from "@iw/i18n";
 import { supabase, isSupabaseConfigured, type Profile } from "../lib/supabaseClient";
 import { toast } from "./toastStore";
 
-export interface LocalUserRecord {
-  id: string;
-  email: string;
-  callsign: string;
-  avatar_url: string;
-  created_at: string;
-  total_stars: number;
-}
-
 export interface StoredActiveSession {
   user: User;
   session: Session;
@@ -133,17 +124,6 @@ function isNetworkOrTimeoutError(err: unknown): boolean {
     lower.includes("connection") ||
     lower.includes("offline")
   );
-}
-
-function getLocalUsers(): Record<string, LocalUserRecord> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(STORAGE_LOCAL_USERS);
-    if (!raw) return {};
-    return JSON.parse(raw) as Record<string, LocalUserRecord>;
-  } catch {
-    return {};
-  }
 }
 
 export function migrateLegacyLocalUsers(): void {
@@ -717,15 +697,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(STORAGE_CACHED_PROFILE, JSON.stringify(nextProfile));
-        if (user?.email) {
-          const localUsers = getLocalUsers();
-          const cleanEmail = user.email.toLowerCase();
-          if (localUsers[cleanEmail]) {
-            localUsers[cleanEmail].callsign = nextProfile.callsign || localUsers[cleanEmail].callsign;
-            localUsers[cleanEmail].avatar_url = nextProfile.avatar_url || localUsers[cleanEmail].avatar_url;
-            localStorage.setItem(STORAGE_LOCAL_USERS, JSON.stringify(localUsers));
-          }
-        }
       } catch {
         // Safe catch
       }

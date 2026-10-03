@@ -49,7 +49,6 @@ export const SACRED_PROGRESS_KEYS = new Set([
   "iw_task_best_wpm",
   "iw_active_session",
   "iw_cached_profile",
-  "iw_local_users",
 ]);
 
 // ─────────────────────────────────────────────────────────────
