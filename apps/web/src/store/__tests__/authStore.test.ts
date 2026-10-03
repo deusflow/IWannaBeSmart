@@ -1,10 +1,10 @@
 /**
  * @file apps/web/src/store/__tests__/authStore.test.ts
- * @description Comprehensive unit tests for self-healing, offline-first AuthStore
+ * @description Comprehensive unit tests for self-healing, offline-first AuthStore with mocked Supabase client
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { supabase } from "../../lib/supabaseClient";
+import type { User, Session } from "@supabase/supabase-js";
 
 // Mock localStorage and window for Node test environment
 const storageMap = new Map<string, string>();
@@ -40,11 +40,74 @@ Object.defineProperty(globalThis, "window", {
   configurable: true,
 });
 
+// Mock supabaseClient to prevent real network calls
+vi.mock("../../lib/supabaseClient", () => {
+  const createQueryBuilder = () => {
+    const builder: Record<string, unknown> = {};
+    const chainMethods = [
+      "select", "insert", "update", "upsert", "delete",
+      "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike",
+      "is", "in", "contains", "containedBy", "range",
+      "match", "filter", "not", "or", "order", "limit", "offset",
+      "single", "maybeSingle",
+    ];
+    for (const method of chainMethods) {
+      builder[method] = vi.fn(() => builder);
+    }
+    builder.then = (onfulfilled?: (value: unknown) => unknown) =>
+      Promise.resolve({ data: null, error: null }).then(onfulfilled);
+    builder.catch = (onrejected?: (reason: unknown) => unknown) =>
+      Promise.resolve({ data: null, error: null }).catch(onrejected);
+    return builder;
+  };
+
+  const mockClient = {
+    auth: {
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: { unsubscribe: vi.fn() } },
+        error: null,
+      })),
+      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      signInWithOAuth: vi.fn().mockResolvedValue({
+        data: { provider: "google", url: "https://mock.supabase.co/oauth" },
+        error: null,
+      }),
+      signInWithPassword: vi.fn().mockResolvedValue({
+        data: { user: null, session: null },
+        error: new Error("Cloud signIn fallback"),
+      }),
+      signUp: vi.fn().mockResolvedValue({
+        data: { user: null, session: null },
+        error: new Error("Cloud signUp fallback"),
+      }),
+      signOut: vi.fn().mockResolvedValue({ error: null }),
+      resetPasswordForEmail: vi.fn().mockResolvedValue({ data: null, error: null }),
+      updateUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+    from: vi.fn(() => createQueryBuilder()),
+    rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+    })),
+  };
+
+  return {
+    supabase: mockClient,
+    isSupabaseConfigured: true,
+  };
+});
+
+import { supabase } from "../../lib/supabaseClient";
 import { useAuthStore } from "../authStore";
 
 describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
   beforeEach(async () => {
     storageMap.clear();
+    window.location.href = "http://localhost:5173";
+    vi.clearAllMocks();
     await useAuthStore.getState().signOut();
     useAuthStore.getState().clearError();
   });
@@ -93,9 +156,9 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     });
   });
 
-  describe("signInWithEmail (Local Offline Login)", () => {
-    it("logs in with correct password after registration", async () => {
-      // 1. Register first
+  describe("signInWithEmail (Local Offline & Cloud Login)", () => {
+    it("blocks password login for offline local profiles without password", async () => {
+      // 1. Register offline first
       await useAuthStore.getState().signUpWithEmail(
         "alex@cyber.net",
         "validPass99",
@@ -104,34 +167,47 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
       await useAuthStore.getState().signOut();
       expect(useAuthStore.getState().user).toBeNull();
 
-      // 2. Sign in
+      // 2. Sign in via password must be blocked for offline profiles
       const { error } = await useAuthStore.getState().signInWithEmail(
         "alex@cyber.net",
         "validPass99"
       );
 
-      expect(error).toBeNull();
-      const state = useAuthStore.getState();
-      expect(state.user?.email).toBe("alex@cyber.net");
-      expect(state.profile?.callsign).toBe("Alex-01");
+      expect(error).not.toBeNull();
+      expect(error?.message).toContain("офлайн-профіль");
+      expect(useAuthStore.getState().user).toBeNull();
     });
 
-    it("rejects login if password does not match", async () => {
-      await useAuthStore.getState().signUpWithEmail(
-        "serhiy@mesh.org",
-        "correctPass",
-        "Serhiy"
-      );
-      await useAuthStore.getState().signOut();
+    it("logs in with valid cloud credentials when online", async () => {
+      const mockUser = {
+        id: "cloud-user-123",
+        email: "cloud.cadet@smart.com",
+        app_metadata: { provider: "email" },
+        user_metadata: { callsign: "CloudCadet" },
+        aud: "authenticated",
+        created_at: new Date().toISOString(),
+      };
+      const mockSession = {
+        access_token: "mock-jwt-token",
+        token_type: "bearer",
+        expires_in: 3600,
+        refresh_token: "mock-refresh-token",
+        user: mockUser,
+      };
+
+      vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
+        data: { user: mockUser as unknown as User, session: mockSession as unknown as Session },
+        error: null,
+      });
 
       const { error } = await useAuthStore.getState().signInWithEmail(
-        "serhiy@mesh.org",
-        "wrongPass"
+        "cloud.cadet@smart.com",
+        "secretCloudPass"
       );
 
-      expect(error).not.toBeNull();
-      expect(error?.message).toContain("Невірний пароль");
-      expect(useAuthStore.getState().user).toBeNull();
+      expect(error).toBeNull();
+      const state = useAuthStore.getState();
+      expect(state.user?.email).toBe("cloud.cadet@smart.com");
     });
 
     it("guides unregistered users to the registration tab", async () => {
@@ -149,18 +225,20 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
   describe("signInWithGoogle (Online & Offline Resilience)", () => {
     it("redirects to OAuth URL when Supabase is online or activates offline profile when offline", async () => {
       const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
+      vi.mocked(supabase.auth.signInWithOAuth).mockResolvedValueOnce({
+        data: { provider: "google", url: "https://mock.supabase.co/oauth" },
+        error: null,
+      });
+
       const { error } = await useAuthStore.getState().signInWithGoogle();
       fetchSpy.mockRestore();
+
       expect(error).toBeNull();
-      if (window.location.href.includes("supabase.co")) {
-        expect(window.location.href).toContain("supabase.co");
-      } else {
-        expect(useAuthStore.getState().user?.email).toBe("cadet.engineer@google.internal");
-      }
+      expect(window.location.href).toContain("mock.supabase.co");
     });
 
     it("immediately authenticates cadet engineer when Google OAuth is triggered offline", async () => {
-      vi.spyOn(supabase.auth, "signInWithOAuth").mockRejectedValueOnce(new Error("fetch failed"));
+      vi.mocked(supabase.auth.signInWithOAuth).mockRejectedValueOnce(new Error("fetch failed"));
       const { error } = await useAuthStore.getState().signInWithGoogle();
 
       expect(error).toBeNull();
@@ -179,7 +257,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
 
   describe("updateProfile & Session Persistence", () => {
     it("updates callsign and avatar locally and persists to session cache", async () => {
-      vi.spyOn(supabase.auth, "signInWithOAuth").mockRejectedValueOnce(new Error("fetch failed"));
+      vi.mocked(supabase.auth.signInWithOAuth).mockRejectedValueOnce(new Error("fetch failed"));
       await useAuthStore.getState().signInWithGoogle();
 
       const { error } = await useAuthStore.getState().updateProfile({
@@ -220,7 +298,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     });
 
     it("clears local session on signOut", async () => {
-      vi.spyOn(supabase.auth, "signInWithOAuth").mockRejectedValueOnce(new Error("fetch failed"));
+      vi.mocked(supabase.auth.signInWithOAuth).mockRejectedValueOnce(new Error("fetch failed"));
       await useAuthStore.getState().signInWithGoogle();
       expect(useAuthStore.getState().user).not.toBeNull();
       expect(localStorage.getItem("iw_active_session")).toBeTruthy();
