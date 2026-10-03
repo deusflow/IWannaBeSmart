@@ -371,6 +371,17 @@ export const enTranslation = {
           architecture: "Architecture",
         },
       },
+      trace: {
+        activeCallStack: "Active Call Stack ({{count}} frames) — {{file}}",
+        localVariables: "Local Variables in Scope:",
+        level: "Level",
+        exceptionStackUnwind: "Exception Stack Unwind",
+        stackReturnPoint: "Stack Return Point",
+        whyExceptionThrown: "Why exception was thrown (Notional Machine):",
+        whyMethodTerminated: "Why method terminated (Notional Machine):",
+        unwindingCaughtIn: "Unwinding caught in:",
+        returningTo: "Returning to:",
+      },
       drawer: {
         objectiveTitle: "Engineering Objective:",
         syntaxVerified: "Syntax verified",

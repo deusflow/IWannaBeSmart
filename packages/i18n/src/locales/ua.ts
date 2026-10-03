@@ -371,6 +371,17 @@ export const uaTranslation = {
           architecture: "Архітектура",
         },
       },
+      trace: {
+        activeCallStack: "Активний стек викликів ({{count}} фреймів) — {{file}}",
+        localVariables: "Локальні змінні у Scope:",
+        level: "Рівень",
+        exceptionStackUnwind: "Розмотка стеку через виключення",
+        stackReturnPoint: "Точка повернення зі стеку",
+        whyExceptionThrown: "Чому виникло виключення (Notional Machine):",
+        whyMethodTerminated: "Чому метод завершився (Notional Machine):",
+        unwindingCaughtIn: "Перехоплено у:",
+        returningTo: "Повернення у:",
+      },
       drawer: {
         objectiveTitle: "Інженерне завдання:",
         syntaxVerified: "Синтаксис перевірено",

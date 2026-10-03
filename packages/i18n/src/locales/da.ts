@@ -371,6 +371,17 @@ export const daTranslation = {
           architecture: "Arkitektur",
         },
       },
+      trace: {
+        activeCallStack: "Aktiv Kalde-stak ({{count}} rammer) — {{file}}",
+        localVariables: "Lokale variable i scope:",
+        level: "Niveau",
+        exceptionStackUnwind: "Undtagelse Stak-afvikling",
+        stackReturnPoint: "Stak Returpunkt",
+        whyExceptionThrown: "Hvorfor undtagelsen opstod (Notional Machine):",
+        whyMethodTerminated: "Hvorfor metoden afsluttedes (Notional Machine):",
+        unwindingCaughtIn: "Afvikling fanget i:",
+        returningTo: "Returnerer til:",
+      },
       drawer: {
         objectiveTitle: "Ingeniørmål:",
         syntaxVerified: "Syntaks verificeret",

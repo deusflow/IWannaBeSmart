@@ -27,7 +27,7 @@ export const ReturnValueInspector: React.FC<ReturnValueInspectorProps> = ({
   scopeVariables,
   className = "",
 }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentLang = (i18n.language?.startsWith("da")
     ? "da"
     : i18n.language?.startsWith("en")
@@ -35,22 +35,14 @@ export const ReturnValueInspector: React.FC<ReturnValueInspectorProps> = ({
     : "ua") as "ua" | "en" | "da";
 
   if (!returnValue) {
-    const stackTitle =
-      currentLang === "en"
-        ? `Active Call Stack (${callStack.length} frames) — ${currentLocation.fileName}`
-        : currentLang === "da"
-        ? `Aktiv Kalde-stak (${callStack.length} rammer) — ${currentLocation.fileName}`
-        : `Активний стек викликів (${callStack.length} фреймів) — ${currentLocation.fileName}`;
+    const stackTitle = t("trace.activeCallStack", {
+      count: callStack.length,
+      file: currentLocation.fileName,
+      defaultValue: `Active Call Stack (${callStack.length} frames) — ${currentLocation.fileName}`,
+    });
 
-    const varsLabel =
-      currentLang === "en"
-        ? "Local Variables in Scope:"
-        : currentLang === "da"
-        ? "Lokale variable i scope:"
-        : "Локальні змінні у Scope:";
-
-    const levelLabel =
-      currentLang === "en" ? "Level" : currentLang === "da" ? "Niveau" : "Рівень";
+    const varsLabel = t("trace.localVariables", "Local Variables in Scope:");
+    const levelLabel = t("trace.level", "Level");
 
     return (
       <div className={`p-3 rounded-lg border border-slate-800 bg-[#0B0F17] text-xs ${className}`}>
@@ -111,40 +103,16 @@ export const ReturnValueInspector: React.FC<ReturnValueInspectorProps> = ({
       : returnValue.terminationReason[currentLang] || returnValue.terminationReason.ua || "";
 
   const returnPointLabel = isException
-    ? currentLang === "en"
-      ? "Exception Stack Unwind"
-      : currentLang === "da"
-      ? "Undtagelse Stak-afvikling"
-      : "Розмотка стеку через виключення"
-    : currentLang === "en"
-    ? "Stack Return Point"
-    : currentLang === "da"
-    ? "Stak Returpunkt"
-    : "Точка повернення зі стеку";
+    ? t("trace.exceptionStackUnwind", "Exception Stack Unwind")
+    : t("trace.stackReturnPoint", "Stack Return Point");
 
   const whyTerminatedLabel = isException
-    ? currentLang === "en"
-      ? "Why exception was thrown (Notional Machine):"
-      : currentLang === "da"
-      ? "Hvorfor undtagelsen opstod (Notional Machine):"
-      : "Чому виникло виключення (Notional Machine):"
-    : currentLang === "en"
-    ? "Why method terminated (Notional Machine):"
-    : currentLang === "da"
-    ? "Hvorfor metoden afsluttedes (Notional Machine):"
-    : "Чому метод завершився (Notional Machine):";
+    ? t("trace.whyExceptionThrown", "Why exception was thrown (Notional Machine):")
+    : t("trace.whyMethodTerminated", "Why method terminated (Notional Machine):");
 
   const returningToLabel = isException
-    ? currentLang === "en"
-      ? "Unwinding caught in:"
-      : currentLang === "da"
-      ? "Afvikling fanget i:"
-      : "Перехоплено у:"
-    : currentLang === "en"
-    ? "Returning to:"
-    : currentLang === "da"
-    ? "Returnerer til:"
-    : "Повернення у:";
+    ? t("trace.unwindingCaughtIn", "Unwinding caught in:")
+    : t("trace.returningTo", "Returning to:");
 
   return (
     <div
