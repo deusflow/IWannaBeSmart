@@ -13,7 +13,6 @@ export interface LocalUserRecord {
   email: string;
   callsign: string;
   avatar_url: string;
-  password?: string;
   created_at: string;
   total_stars: number;
 }
@@ -398,32 +397,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const existing = localUsers[cleanEmail];
 
       if (existing) {
-        if (existing.password && existing.password !== password) {
-          const err = new Error("Невірний пароль для цього профілю.");
-          set({ error: err.message, isLoading: false });
-          return { error: err };
-        }
-
-        const localSession = createLocalAuthSession(
-          existing.id,
-          existing.email,
-          existing.callsign,
-          existing.avatar_url,
-          "local"
+        // Offline profiles have no password stored, so password login is blocked
+        const err = new Error(
+          "Цей профіль не містить пароля (офлайн-профіль). Вхід за паролем заблоковано."
         );
-        localSession.profile.total_stars = existing.total_stars || 0;
-        saveActiveSession(localSession.user, localSession.session, localSession.profile);
-
-        set({
-          user: localSession.user,
-          session: localSession.session,
-          profile: localSession.profile,
-          isLoading: false,
-          error: null,
-        });
-
-        toast.success("Вхід виконано", `З поверненням, ${existing.callsign}!`);
-        return { error: null };
+        set({ error: err.message, isLoading: false });
+        return { error: err };
       }
 
       // If user is not yet registered locally, guide them to registration
@@ -488,34 +467,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // 2. Offline / Local Registration Fallback
       const localUsers = getLocalUsers();
       if (localUsers[cleanEmail]) {
-        if (localUsers[cleanEmail].password === password) {
-          const existing = localUsers[cleanEmail];
-          const localSession = createLocalAuthSession(
-            existing.id,
-            existing.email,
-            existing.callsign,
-            existing.avatar_url,
-            "local"
-          );
-          localSession.profile.total_stars = existing.total_stars || 0;
-          saveActiveSession(localSession.user, localSession.session, localSession.profile);
-          set({
-            user: localSession.user,
-            session: localSession.session,
-            profile: localSession.profile,
-            isLoading: false,
-            error: null,
-          });
-          toast.success("Вхід виконано", `З поверненням, ${existing.callsign}!`);
-          return { error: null };
-        } else {
-          const err = new Error("Цей email вже зареєстровано. Будь ласка, перейдіть на вкладку 'Вхід'.");
-          set({ error: err.message, isLoading: false });
-          return { error: err };
-        }
+        const err = new Error("Цей email вже зареєстровано в локальній системі.");
+        set({ error: err.message, isLoading: false });
+        return { error: err };
       }
 
-      // Create new local user
+      // Create new local user without password
       const localUserId = `local-${Math.random().toString(36).substring(2, 10)}`;
       const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanCallsign)}`;
       const newRecord: LocalUserRecord = {
@@ -523,7 +480,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         email: cleanEmail,
         callsign: cleanCallsign,
         avatar_url: avatarUrl,
-        password,
         created_at: new Date().toISOString(),
         total_stars: 0,
       };
