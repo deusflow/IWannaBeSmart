@@ -119,7 +119,12 @@ export const daTranslation = {
         masteryStars: "Mesterstjerner:",
         signOut: "Log ud",
         online: "ONLINE",
+        offline: "OFFLINE",
         syncBadge: "SYNC",
+        localBadge: "LOCAL",
+        guestAccount: "Gæsteprofil (kun lokalt)",
+        connectCloudAccount: "Tilslut skykonto",
+        exitGuestMode: "Afslut gæstesession",
         profileTooltip: "Åbn ingeniørpanel og telemetri",
       },
       profile: {

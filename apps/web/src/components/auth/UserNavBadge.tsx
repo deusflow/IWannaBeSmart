@@ -64,6 +64,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
   }, [isMenuOpen]);
 
   // Derived user display info
+  const isGuest = Boolean(user?.id.startsWith("guest-") || user?.app_metadata?.provider === "guest");
   const callsign = profile?.callsign || user?.user_metadata?.callsign || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Engineer";
   const initials = callsign.slice(0, 2).toUpperCase();
 
@@ -128,8 +129,17 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
           {/* Callsign & Cloud Pulse */}
           <div className="text-left leading-none hidden md:flex flex-col justify-center min-w-0">
             <div className="flex items-center gap-1 text-[8px] sm:text-[8.5px] font-mono uppercase tracking-wider text-[#1A1D20]/60 font-bold truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span>{t("auth.syncBadge", "SYNC")}</span>
+              {isGuest ? (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <span>{t("auth.localBadge", "LOCAL")}</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span>{t("auth.syncBadge", "SYNC")}</span>
+                </>
+              )}
             </div>
             <div className="font-display font-extrabold text-xs text-[#1A1D20] truncate max-w-[80px] lg:max-w-[110px] mt-0.5">
               {callsign}
@@ -180,7 +190,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
               {callsign}
             </div>
             <div className="font-mono text-[11px] text-[#1A1D20]/60 truncate">
-              {user.email}
+              {isGuest ? t("auth.guestAccount", "Гостьовий профіль (без хмари)") : user.email}
             </div>
           </div>
 
@@ -194,10 +204,17 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
             </div>
             <div className="flex items-center justify-between">
               <span>{t("auth.cloudSync", "Хмарна синхронізація:")}</span>
-              <span className="text-emerald-700 font-bold flex items-center gap-1 bg-emerald-500/15 border border-emerald-600/30 px-1.5 py-0.5 rounded text-[10px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                {t("auth.online", "ONLINE")}
-              </span>
+              {isGuest ? (
+                <span className="text-amber-800 font-bold flex items-center gap-1 bg-amber-500/15 border border-amber-600/30 px-1.5 py-0.5 rounded text-[10px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  {t("auth.offline", "OFFLINE")}
+                </span>
+              ) : (
+                <span className="text-emerald-700 font-bold flex items-center gap-1 bg-emerald-500/15 border border-emerald-600/30 px-1.5 py-0.5 rounded text-[10px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {t("auth.online", "ONLINE")}
+                </span>
+              )}
             </div>
             <div className="flex items-center justify-between">
               <span>{t("auth.masteryStars", "Зірки майстерності:")}</span>
@@ -210,6 +227,21 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
 
           {/* Actions */}
           <div className="pt-2 space-y-1">
+            {isGuest && (
+              <button
+                id="btn-guest-connect-account"
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsModalOpen(true);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-display font-bold text-accent-blue bg-accent-blue/10 hover:bg-accent-blue/20 border border-accent-blue/25 transition-colors cursor-pointer"
+              >
+                <LogIn size={15} className="text-accent-blue shrink-0" />
+                <span>{t("auth.connectCloudAccount", "Підключити хмарний акаунт")}</span>
+              </button>
+            )}
+
             <button
               id="btn-open-user-profile"
               type="button"
@@ -233,7 +265,7 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-display font-bold text-accent-break hover:bg-accent-break/10 border border-transparent hover:border-accent-break/20 transition-colors cursor-pointer"
             >
               <LogOut size={15} className="text-accent-break shrink-0" />
-              <span>{t("auth.signOut", "Вийти з акаунту")}</span>
+              <span>{isGuest ? t("auth.exitGuestMode", "Завершити гостьову сесію") : t("auth.signOut", "Вийти з акаунту")}</span>
             </button>
           </div>
         </div>

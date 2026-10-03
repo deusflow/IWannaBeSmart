@@ -119,7 +119,12 @@ export const uaTranslation = {
         masteryStars: "Зірки майстерності:",
         signOut: "Вийти з акаунту",
         online: "ONLINE",
+        offline: "OFFLINE",
         syncBadge: "SYNC",
+        localBadge: "LOCAL",
+        guestAccount: "Гостьовий профіль (без хмари)",
+        connectCloudAccount: "Підключити хмарний акаунт",
+        exitGuestMode: "Завершити гостьову сесію",
         profileTooltip: "Відкрити панель інженера та телеметрію",
       },
       profile: {

@@ -119,7 +119,12 @@ export const enTranslation = {
         masteryStars: "Mastery Stars:",
         signOut: "Sign Out",
         online: "ONLINE",
+        offline: "OFFLINE",
         syncBadge: "SYNC",
+        localBadge: "LOCAL",
+        guestAccount: "Guest profile (local only)",
+        connectCloudAccount: "Connect Cloud Account",
+        exitGuestMode: "Exit Guest Session",
         profileTooltip: "Open engineer panel and telemetry",
       },
       profile: {
