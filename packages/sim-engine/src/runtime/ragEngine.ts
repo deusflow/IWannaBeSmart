@@ -392,8 +392,6 @@ export class ReActAgentEngine {
       durationMs: 45,
     });
 
-    let currentContext = "";
-
     // Loop iterations
     for (let iter = 1; iter <= maxIterations; iter++) {
       // 2. Action Step (Choose tool)
@@ -418,7 +416,6 @@ export class ReActAgentEngine {
 
       // 3. Observation Step (Tool output)
       const observation = await selectedTool.execute(toolArgs);
-      currentContext = observation;
       stepCount++;
       steps.push({
         stepIndex: stepCount,
@@ -439,7 +436,7 @@ export class ReActAgentEngine {
       });
 
       // Formulate final answer based on retrieved context
-      finalAnswer = `[RAG Grounded Response]: На основі регламенту бази знань: ${currentContext.slice(0, 180)}...`;
+      finalAnswer = `[RAG Grounded Response]: На основі регламенту бази знань: ${observation.slice(0, 180)}...`;
       break;
     }
 

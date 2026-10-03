@@ -18,7 +18,7 @@ describe("UX Integrity & Codebase Fixes", () => {
       const recordedMaxWpm = 0;
       const accuracyRate =
         computedStars > 0 || recordedMaxWpm > 0
-          ? Number((96.2 + Math.min(3.6, (computedStars / (TOTAL_MAX_STARS || 292)) * 3.6)).toFixed(1))
+          ? Number((96.2 + Math.min(3.6, (computedStars / TOTAL_MAX_STARS) * 3.6)).toFixed(1))
           : null;
 
       expect(accuracyRate).toBeNull();
@@ -29,14 +29,14 @@ describe("UX Integrity & Codebase Fixes", () => {
       const recordedMaxWpm = 45;
       const accuracyRate =
         computedStars > 0 || recordedMaxWpm > 0
-          ? Number((96.2 + Math.min(3.6, (computedStars / (TOTAL_MAX_STARS || 292)) * 3.6)).toFixed(1))
+          ? Number((96.2 + Math.min(3.6, (computedStars / TOTAL_MAX_STARS) * 3.6)).toFixed(1))
           : null;
 
       expect(accuracyRate).not.toBeNull();
       expect(accuracyRate).toBeGreaterThanOrEqual(96.2);
       expect(accuracyRate).toBeLessThanOrEqual(100.0);
       const expectedAccuracy = Number(
-        (96.2 + Math.min(3.6, (computedStars / (TOTAL_MAX_STARS || 356)) * 3.6)).toFixed(1)
+        (96.2 + Math.min(3.6, (computedStars / TOTAL_MAX_STARS) * 3.6)).toFixed(1)
       );
       expect(accuracyRate).toBe(expectedAccuracy);
     });

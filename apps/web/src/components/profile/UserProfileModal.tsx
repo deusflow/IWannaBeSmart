@@ -203,7 +203,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const computedStars = Math.max(starSum, profile?.total_stars || 0);
     const accuracyRate =
       computedStars > 0 || recordedMaxWpm > 0
-        ? Number((96.2 + Math.min(3.6, (computedStars / (TOTAL_MAX_STARS || 292)) * 3.6)).toFixed(1))
+        ? Number((96.2 + Math.min(3.6, (computedStars / TOTAL_MAX_STARS) * 3.6)).toFixed(1))
         : null;
 
     return {
