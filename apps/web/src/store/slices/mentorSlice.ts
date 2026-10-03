@@ -207,7 +207,12 @@ export const createMentorSlice: StateCreator<
     if (isSupabaseConfigured) {
       try {
         const userId = useAuthStore.getState().user?.id;
-        if (userId) {
+        if (
+          userId &&
+          !userId.startsWith("guest-") &&
+          !userId.startsWith("local-") &&
+          !userId.startsWith("google-")
+        ) {
           const { stationId: targetStationId, tier: targetTier } = deriveStationAndTier(
             taskId,
             get().currentStationId
