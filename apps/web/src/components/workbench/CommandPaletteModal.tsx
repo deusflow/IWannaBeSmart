@@ -86,11 +86,19 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     }))
   );
 
-  // Focus search input when modal opens
-  useEffect(() => {
+  // Reset query and selection when modal opens
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setQuery("");
       setSelectedIndex(0);
+    }
+  }
+
+  // Focus search input when modal opens
+  useEffect(() => {
+    if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);

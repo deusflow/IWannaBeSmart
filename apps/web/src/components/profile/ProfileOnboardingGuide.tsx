@@ -4,7 +4,7 @@
  * Displays rank explanation, patterns dossier, and quick shortcuts with localStorage persistence.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Award, ShieldCheck, Command, X, ChevronRight, ChevronLeft, Check } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
@@ -12,19 +12,14 @@ import { audioFx } from "../../utils/audioFx";
 export const ProfileOnboardingGuide: React.FC = () => {
   const { t } = useTranslation();
   const storageKey = "iw_profile_onboarding_completed";
-  const [isDismissed, setIsDismissed] = useState<boolean>(true);
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  useEffect(() => {
+  const [isDismissed, setIsDismissed] = useState<boolean>(() => {
     try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored !== "true") {
-        setIsDismissed(false);
-      }
+      return localStorage.getItem(storageKey) === "true";
     } catch {
-      setIsDismissed(false);
+      return false;
     }
-  }, []);
+  });
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
   if (isDismissed) return null;
 

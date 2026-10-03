@@ -51,18 +51,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  // Sync mode with initialMode
-  useEffect(() => {
+  // Sync mode with initialMode if prop changed
+  const [prevInitialMode, setPrevInitialMode] = useState(initialMode);
+  if (prevInitialMode !== initialMode) {
+    setPrevInitialMode(initialMode);
     setMode(initialMode);
-  }, [initialMode]);
+    setLocalError(null);
+  }
 
-  // Clear errors when modal opens/closes or mode changes
-  useEffect(() => {
+  // Clear errors when modal transitions to open
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       clearError();
       setLocalError(null);
     }
-  }, [isOpen, mode, clearError]);
+  }
+
+  const handleSwitchMode = (newMode: "signIn" | "signUp") => {
+    setMode(newMode);
+    setLocalError(null);
+    clearError();
+  };
 
   // Close on Escape key
   useEffect(() => {
@@ -180,7 +191,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="grid grid-cols-2 p-1 bg-[#E6DEC9] rounded-2xl border border-[#1A1D20]/20">
             <button
               type="button"
-              onClick={() => setMode("signIn")}
+              onClick={() => handleSwitchMode("signIn")}
               className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-display transition-all cursor-pointer ${
                 mode === "signIn"
                   ? "bg-[#1E3A8A] text-white font-extrabold shadow-paper-sm"
@@ -192,7 +203,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setMode("signUp")}
+              onClick={() => handleSwitchMode("signUp")}
               className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-display transition-all cursor-pointer ${
                 mode === "signUp"
                   ? "bg-[#1E3A8A] text-white font-extrabold shadow-paper-sm"

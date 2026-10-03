@@ -324,11 +324,13 @@ export const WorkbenchScreen: React.FC = () => {
       ? `${completedCyberCount}/${CYBER_TASKS.length} ✓`
       : `${completedTvCount}/${CODING_TASKS.length} ✓`;
 
-  useEffect(() => {
+  const [prevStationId, setPrevStationId] = useState(currentStationId);
+  if (prevStationId !== currentStationId) {
+    setPrevStationId(currentStationId);
     if (currentStationId === "tv" && !isTvCompleted) {
       setIsDrawerOpen(true);
     }
-  }, [currentStationId, isTvCompleted]);
+  }
 
   const isDrawerActive = isDrawerOpen || isDrawerPinned;
 

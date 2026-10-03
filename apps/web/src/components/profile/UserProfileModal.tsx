@@ -116,10 +116,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [savedNotice, setSavedNotice] = useState(false);
 
   // Sync profile values when profile changes
-  useEffect(() => {
+  const [prevProfileKey, setPrevProfileKey] = useState(
+    `${profile?.id ?? ""}-${profile?.callsign ?? ""}-${profile?.avatar_url ?? ""}`
+  );
+  const currentProfileKey = `${profile?.id ?? ""}-${profile?.callsign ?? ""}-${profile?.avatar_url ?? ""}`;
+  if (prevProfileKey !== currentProfileKey) {
+    setPrevProfileKey(currentProfileKey);
     if (profile?.callsign) setCallsign(profile.callsign);
     if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
-  }, [profile?.callsign, profile?.avatar_url]);
+  }
 
   // Close on Escape key
   useEffect(() => {

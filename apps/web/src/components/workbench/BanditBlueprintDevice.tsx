@@ -4,7 +4,7 @@
  * Network Sniffer & Packet Tampering Studio, and Blue Team SOC Defense Inspector.
  */
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Terminal,
@@ -68,7 +68,13 @@ export const BanditBlueprintDevice: React.FC = () => {
 
   const [directFlagInput, setDirectFlagInput] = useState("");
   const [decoderInput, setDecoderInput] = useState("YmFuZGl0e2I2NF9kM2MwZDNkX3QwazNuX2MwbmYxcm0zZH0=");
-  const [decoderResult, setDecoderResult] = useState("");
+  const decoderResult = useMemo(() => {
+    try {
+      return atob(decoderInput.trim());
+    } catch {
+      return "[Invalid Base64 string]";
+    }
+  }, [decoderInput]);
   const [feedbackMessage, setFeedbackMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
   const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -77,15 +83,6 @@ export const BanditBlueprintDevice: React.FC = () => {
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [banditState.cliOutput]);
-
-  // Decode helper
-  useEffect(() => {
-    try {
-      setDecoderResult(atob(decoderInput.trim()));
-    } catch {
-      setDecoderResult("[Invalid Base64 string]");
-    }
-  }, [decoderInput]);
 
   const handleCliSubmit = (e: React.FormEvent) => {
     e.preventDefault();

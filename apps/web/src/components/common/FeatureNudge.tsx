@@ -4,7 +4,7 @@
  * and localStorage persistence for guided progressive onboarding.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 
@@ -29,18 +29,23 @@ export const FeatureNudge: React.FC<FeatureNudgeProps> = ({
   className = "",
   onDismiss,
 }) => {
-  const [isDismissed, setIsDismissed] = useState<boolean>(true);
-
-  useEffect(() => {
+  const [isDismissed, setIsDismissed] = useState<boolean>(() => {
     try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored !== "true") {
-        setIsDismissed(false);
-      }
+      return localStorage.getItem(storageKey) === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const [prevKey, setPrevKey] = useState(storageKey);
+  if (prevKey !== storageKey) {
+    setPrevKey(storageKey);
+    try {
+      setIsDismissed(localStorage.getItem(storageKey) === "true");
     } catch {
       setIsDismissed(false);
     }
-  }, [storageKey]);
+  }
 
   if (isDismissed) return null;
 
