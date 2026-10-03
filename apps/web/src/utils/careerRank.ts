@@ -12,6 +12,7 @@
 import {
   CODING_TASKS,
   FINTECH_TASKS,
+  IOT_TASKS,
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
@@ -113,6 +114,7 @@ export function countCompletedStations(
   const allStationTasks = [
     CODING_TASKS,
     FINTECH_TASKS,
+    IOT_TASKS,
     API_FORGE_TASKS,
     GIT_TASKS,
     BANDIT_TASKS,

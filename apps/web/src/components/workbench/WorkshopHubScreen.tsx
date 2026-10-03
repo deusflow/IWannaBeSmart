@@ -218,6 +218,7 @@ export const WorkshopHubScreen: React.FC = () => {
   const totalStars =
     tvStats.current +
     posStats.current +
+    iotStats.current +
     apiStats.current +
     gitStats.current +
     banditStats.current +
@@ -234,6 +235,8 @@ export const WorkshopHubScreen: React.FC = () => {
           return tvStats.isCompleted;
         case "pos":
           return posStats.isCompleted;
+        case "iot":
+          return iotStats.isCompleted;
         case "api":
           return apiStats.isCompleted;
         case "git":
@@ -255,6 +258,7 @@ export const WorkshopHubScreen: React.FC = () => {
     [
       tvStats.isCompleted,
       posStats.isCompleted,
+      iotStats.isCompleted,
       apiStats.isCompleted,
       gitStats.isCompleted,
       banditStats.isCompleted,
