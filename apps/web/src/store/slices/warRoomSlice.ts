@@ -194,7 +194,9 @@ export const createWarRoomSlice: StateCreator<
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem("iw_resolved_incidents", JSON.stringify(updatedResolved));
-        } catch {}
+        } catch {
+          // Safe catch: ignore storage write errors
+        }
       }
 
       set({
