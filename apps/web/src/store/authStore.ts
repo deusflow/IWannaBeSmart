@@ -56,13 +56,62 @@ function saveActiveSession(user: User, session: Session, profile: Profile): void
   }
 }
 
-function clearActiveSession(): void {
+type SignOutListener = () => void;
+const signOutListeners = new Set<SignOutListener>();
+
+export function onSignOut(listener: SignOutListener): () => void {
+  signOutListeners.add(listener);
+  return () => {
+    signOutListeners.delete(listener);
+  };
+}
+
+export function clearUserProgressStorage(): void {
   if (typeof window === "undefined") return;
   try {
-    localStorage.removeItem(STORAGE_ACTIVE_SESSION);
-    localStorage.removeItem(STORAGE_CACHED_PROFILE);
+    const keysToRemove = [
+      STORAGE_ACTIVE_SESSION,
+      STORAGE_CACHED_PROFILE,
+      "iw_user_xp",
+      "iw_completed_tasks",
+      "iw_mastery_stars",
+      "iw_task_best_wpm",
+      "iw_user_track",
+      "iw_career_onboarding_completed",
+      "iw_starter_xp_awarded",
+      "iw_profile_onboarding_completed",
+      "iw_nudge_war_room_unlocked",
+      "iw_checkpoint_manifest",
+    ];
+    for (const key of keysToRemove) {
+      localStorage.removeItem(key);
+    }
+    const dynamicKeys: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (
+        k &&
+        (k.startsWith("iw_cp_") ||
+          k.startsWith("iw_checkpoint_") ||
+          k.startsWith("iw_draft_"))
+      ) {
+        dynamicKeys.push(k);
+      }
+    }
+    dynamicKeys.forEach((k) => localStorage.removeItem(k));
   } catch {
     // Safe catch
+  }
+}
+
+function clearActiveSession(): void {
+  clearUserProgressStorage();
+  for (const listener of signOutListeners) {
+    try {
+      listener();
+    } catch {
+      // Safe catch
+    }
   }
 }
 

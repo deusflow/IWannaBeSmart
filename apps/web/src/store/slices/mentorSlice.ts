@@ -6,7 +6,7 @@
 import type { StateCreator } from "zustand";
 import { CODING_TASKS } from "@iw/sim-engine";
 import { supabase, isSupabaseConfigured } from "../../lib/supabaseClient";
-import { useAuthStore } from "../authStore";
+import { useAuthStore, onSignOut } from "../authStore";
 import { saveGlobalSession, getGlobalSession } from "../../utils/checkpointManager";
 import type {
   WorkbenchStore,
@@ -58,8 +58,18 @@ export const createMentorSlice: StateCreator<
   [],
   [],
   MentorSlice
-> = (set, get) => ({
-  mentorPhase: "GUIDED",
+> = (set, get) => {
+  // Listen for user signOut to wipe in-memory progress and reset stations
+  onSignOut(() => {
+    try {
+      get().resetUserProgress();
+    } catch {
+      // Safe catch
+    }
+  });
+
+  return {
+    mentorPhase: "GUIDED",
   guidedStep: 1,
   isHintActive: false,
   isStationVictoryModalOpen: false,
@@ -521,5 +531,37 @@ export const createMentorSlice: StateCreator<
   },
 
   setIsCareerModalOpen: (open: boolean) => set({ isCareerModalOpen: open }),
-});
+
+  resetUserProgress: () => {
+    set({
+      xp: 0,
+      completedCodingTasks: {},
+      taskMasteryStars: {},
+      taskBestWpm: {},
+      userTrack: null,
+      hasCompletedOnboarding: false,
+      guidedStep: 1,
+      isHintActive: false,
+      isStationVictoryModalOpen: false,
+    });
+    try {
+      get().resetCircuit?.();
+      get().resetBypasses?.();
+      get().resetPosState?.();
+      get().resetApiState?.();
+      get().resetGitRepo?.();
+      get().resetBanditStationToLevel?.(1);
+      get().resetVertexState?.();
+      get().resetFdeState?.();
+      get().resetRagState?.();
+      get().resetCyberState?.();
+      get().resetWarRoomState?.();
+      get().resetIotState?.();
+    } catch {
+      // Safe catch
+    }
+  },
+  };
+};
+
 

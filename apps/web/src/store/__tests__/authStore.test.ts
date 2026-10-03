@@ -103,6 +103,7 @@ vi.mock("../../lib/supabaseClient", () => {
 
 import { supabase } from "../../lib/supabaseClient";
 import { useAuthStore } from "../authStore";
+import { useWorkbenchStore } from "../workbenchStore";
 
 describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
   beforeEach(async () => {
@@ -355,16 +356,32 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
       expect(state.profile?.callsign).toBe("RestoreCadet");
     });
 
-    it("clears local session on signOut", async () => {
+    it("clears local session and user progress on signOut", async () => {
       await useAuthStore.getState().continueAsGuest();
       expect(useAuthStore.getState().user).not.toBeNull();
       expect(localStorage.getItem("iw_active_session")).toBeTruthy();
+
+      // Seed progress in localStorage and in workbenchStore
+      localStorage.setItem("iw_user_xp", "450");
+      localStorage.setItem("iw_mastery_stars", JSON.stringify({ "task-iot-01": 3 }));
+      localStorage.setItem("iw_completed_tasks", JSON.stringify({ "task-iot-01": true }));
+      useWorkbenchStore.setState({
+        xp: 450,
+        taskMasteryStars: { "task-iot-01": 3 },
+        completedCodingTasks: { "task-iot-01": true },
+      });
 
       await useAuthStore.getState().signOut();
 
       expect(useAuthStore.getState().user).toBeNull();
       expect(useAuthStore.getState().profile).toBeNull();
       expect(localStorage.getItem("iw_active_session")).toBeNull();
+      expect(localStorage.getItem("iw_user_xp")).toBeNull();
+      expect(localStorage.getItem("iw_mastery_stars")).toBeNull();
+      expect(localStorage.getItem("iw_completed_tasks")).toBeNull();
+      expect(useWorkbenchStore.getState().xp).toBe(0);
+      expect(useWorkbenchStore.getState().taskMasteryStars).toEqual({});
+      expect(useWorkbenchStore.getState().completedCodingTasks).toEqual({});
     });
   });
 
