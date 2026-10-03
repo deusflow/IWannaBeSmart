@@ -4,8 +4,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { toast } from "../../store/toastStore";
-import { TOTAL_MAX_STARS } from "@iw/sim-engine";
+import { TOTAL_MAX_STARS, IOT_TASKS } from "@iw/sim-engine";
+import { useWorkbenchStore } from "../../store/workbenchStore";
+import { i18n } from "@iw/i18n";
 
 describe("UX Integrity & Codebase Fixes", () => {
   beforeEach(() => {
@@ -42,53 +43,38 @@ describe("UX Integrity & Codebase Fixes", () => {
     });
   });
 
-  describe("Station 03 Navigation & Victory Modal State", () => {
-    it("allows direct navigation to Station 03 and handles station selection", () => {
-      const setCurrentStationIdMock = vi.fn();
-      const setCurrentViewMock = vi.fn();
+  describe("Station 03 Navigation & Workbench State", () => {
+    it("allows direct navigation to Station 03 in workbenchStore without blockers", () => {
+      useWorkbenchStore.getState().setCurrentStationId("iot");
+      useWorkbenchStore.getState().setCurrentView("STATION");
 
-      const handleJumpStation = (stationId: string) => {
-        setCurrentStationIdMock(stationId);
-        setCurrentViewMock("STATION");
-      };
+      const state = useWorkbenchStore.getState();
+      expect(state.currentStationId).toBe("iot");
+      expect(state.currentView).toBe("STATION");
+    });
 
-      handleJumpStation("iot");
-      expect(setCurrentStationIdMock).toHaveBeenCalledWith("iot");
-      expect(setCurrentViewMock).toHaveBeenCalledWith("STATION");
+    it("verifies Station 03 has live tasks and can select iot target task", () => {
+      expect(IOT_TASKS.length).toBeGreaterThan(0);
+      expect(IOT_TASKS[0].id).toBe("task-iot-1-motion-stop");
 
-      // Non-locked station jumps properly
-      handleJumpStation("pos");
-      expect(setCurrentStationIdMock).toHaveBeenCalledWith("pos");
-      expect(setCurrentViewMock).toHaveBeenCalledWith("STATION");
+      useWorkbenchStore.getState().setTargetTaskId("task-iot-1-motion-stop");
+      expect(useWorkbenchStore.getState().targetTaskId).toBe("task-iot-1-motion-stop");
     });
   });
 
   describe("First-Entry Modal Localization & Language Switcher", () => {
-    it("provides language switching across UA, EN, DA with feedback", () => {
-      const toastInfoSpy = vi.spyOn(toast, "info");
-      const changeLanguageMock = vi.fn();
+    it("switches language across UA, EN, DA on the shared i18n instance", () => {
+      i18n.changeLanguage("en");
+      expect(i18n.language).toBe("en");
+      expect(i18n.t("auth.guestAccount")).toBe("Guest profile (local only)");
 
-      const switchLang = (locale: string) => {
-        changeLanguageMock(locale);
-        const langLabels: Record<string, string> = {
-          ua: "Мову перемкнуто: Українська",
-          en: "Language switched: English",
-          da: "Sprog skiftet: Dansk",
-        };
-        toast.info(langLabels[locale] || locale.toUpperCase());
-      };
+      i18n.changeLanguage("da");
+      expect(i18n.language).toBe("da");
+      expect(i18n.t("auth.guestAccount")).toBe("Gæsteprofil (kun lokalt)");
 
-      switchLang("en");
-      expect(changeLanguageMock).toHaveBeenCalledWith("en");
-      expect(toastInfoSpy).toHaveBeenCalledWith("Language switched: English");
-
-      switchLang("da");
-      expect(changeLanguageMock).toHaveBeenCalledWith("da");
-      expect(toastInfoSpy).toHaveBeenCalledWith("Sprog skiftet: Dansk");
-
-      switchLang("ua");
-      expect(changeLanguageMock).toHaveBeenCalledWith("ua");
-      expect(toastInfoSpy).toHaveBeenCalledWith("Мову перемкнуто: Українська");
+      i18n.changeLanguage("ua");
+      expect(i18n.language).toBe("ua");
+      expect(i18n.t("auth.guestAccount")).toBe("Гостьовий профіль (без хмари)");
     });
   });
 });
