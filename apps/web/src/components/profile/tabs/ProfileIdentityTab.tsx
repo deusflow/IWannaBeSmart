@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
+import { generateGuestAvatarSvg } from "../../../store/authStore";
 
 const PRESET_AVATARS = [
   { id: "kernel", label: "Kernel-01", url: "https://api.dicebear.com/7.x/bottts/svg?seed=kernel&backgroundColor=1e293b" },
@@ -134,7 +135,7 @@ export const ProfileIdentityTab: React.FC<ProfileIdentityTabProps> = ({
               alt={callsign}
               className="w-full h-full object-cover"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = PRESET_AVATARS[0].url;
+                (e.target as HTMLImageElement).src = generateGuestAvatarSvg(callsign);
               }}
             />
           ) : (

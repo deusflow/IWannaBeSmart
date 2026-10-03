@@ -6,7 +6,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { User, LogOut, ChevronDown, ShieldCheck, Sparkles, LogIn, ArrowRight } from "lucide-react";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore, generateGuestAvatarSvg } from "../../store/authStore";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { TOTAL_MAX_STARS } from "@iw/sim-engine";
 import { useShallow } from "zustand/react/shallow";
@@ -120,6 +120,9 @@ export const UserNavBadge: React.FC<UserNavBadgeProps> = ({ className = "" }) =>
                 src={profile.avatar_url}
                 alt={callsign}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = generateGuestAvatarSvg(callsign);
+                }}
               />
             ) : (
               <span>{initials}</span>

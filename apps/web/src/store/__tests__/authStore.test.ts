@@ -284,6 +284,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
       expect(state.user?.app_metadata.provider).toBe("guest");
       expect(state.profile?.callsign).toMatch(/^Cadet-/);
       expect(state.profile?.email).toBeNull();
+      expect(state.profile?.avatar_url).toMatch(/^data:image\/svg\+xml/);
 
       // Verify session in localStorage
       const sessionRaw = localStorage.getItem("iw_active_session");

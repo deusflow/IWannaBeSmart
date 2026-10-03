@@ -126,6 +126,22 @@ function isNetworkOrTimeoutError(err: unknown): boolean {
   );
 }
 
+/**
+ * Generates an offline-resilient inline SVG data URI avatar for guest cadets.
+ * Guarantees zero network calls and works reliably in offline and air-gapped environments.
+ */
+export function generateGuestAvatarSvg(callsign: string): string {
+  const seed = (callsign || "CADET").slice(-4).toUpperCase();
+  const colors = ["#1e293b", "#0f172a", "#1e1b4b", "#022c22", "#3b0764", "#172554"];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  const bg = colors[hash % colors.length];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" rx="20" fill="${bg}"/><circle cx="50" cy="38" r="18" fill="#FAF8F2"/><rect x="25" y="62" width="50" height="28" rx="14" fill="#FAF8F2"/><text x="50" y="44" font-family="monospace" font-size="14" font-weight="bold" fill="${bg}" text-anchor="middle">${seed.slice(0, 2)}</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 export function migrateLegacyLocalUsers(): void {
   if (typeof window === "undefined") return;
   try {
@@ -376,7 +392,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const guestId = `guest-${Math.random().toString(36).substring(2, 10)}`;
       const guestCallsign = `Cadet-${guestId.slice(-4).toUpperCase()}`;
-      const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(guestCallsign)}`;
+      const avatarUrl = generateGuestAvatarSvg(guestCallsign);
 
       const guestUser: User = {
         id: guestId,
