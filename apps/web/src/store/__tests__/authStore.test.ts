@@ -371,4 +371,63 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
       expect(localStorage.getItem("iw_active_session")).toBeNull();
     });
   });
+
+  describe("Legacy Local Users Migration", () => {
+    it("removes passwords and email records from iw_local_users on initAuth without affecting active guest session", async () => {
+      // 1. Setup legacy users in iw_local_users
+      const legacyUsers = {
+        "cadet@station.local": {
+          id: "local-user-1",
+          email: "cadet@station.local",
+          password: "legacy-sha256-hash",
+          callsign: "Cadet",
+          avatar_url: "/avatars/cadet.png",
+          created_at: new Date().toISOString(),
+          total_stars: 10,
+        },
+        "engineer@external.io": {
+          id: "local-user-2",
+          email: "engineer@external.io",
+          password: "password123",
+          callsign: "ChiefEngineer",
+        },
+        "device-guest-42": {
+          id: "device-guest-42",
+          password: "stale-password-to-purge",
+          callsign: "OfflineCadet",
+          total_stars: 15,
+        },
+      };
+      localStorage.setItem("iw_local_users", JSON.stringify(legacyUsers));
+
+      // 2. Setup an active guest session
+      await useAuthStore.getState().continueAsGuest();
+      const guestSession = localStorage.getItem("iw_active_session");
+      expect(guestSession).not.toBeNull();
+      const guestUser = useAuthStore.getState().user;
+      expect(guestUser?.id.startsWith("guest-")).toBe(true);
+
+      // 3. Trigger initAuth which runs migration
+      await useAuthStore.getState().initAuth();
+
+      // 4. Assert iw_local_users has been migrated
+      const rawLocal = localStorage.getItem("iw_local_users");
+      expect(rawLocal).not.toBeNull();
+      const cleaned = JSON.parse(rawLocal!);
+
+      // Email records must be removed (cannot log in anymore)
+      expect(cleaned["cadet@station.local"]).toBeUndefined();
+      expect(cleaned["engineer@external.io"]).toBeUndefined();
+
+      // Non-email local record must have password purged and other data preserved
+      expect(cleaned["device-guest-42"]).toBeDefined();
+      expect(cleaned["device-guest-42"].password).toBeUndefined();
+      expect(cleaned["device-guest-42"].callsign).toBe("OfflineCadet");
+      expect(cleaned["device-guest-42"].total_stars).toBe(15);
+
+      // Active guest session must be completely preserved and still logged in
+      expect(localStorage.getItem("iw_active_session")).toBe(guestSession);
+      expect(useAuthStore.getState().user?.id).toBe(guestUser?.id);
+    });
+  });
 });

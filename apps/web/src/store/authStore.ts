@@ -97,6 +97,41 @@ function getLocalUsers(): Record<string, LocalUserRecord> {
   }
 }
 
+export function migrateLegacyLocalUsers(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(STORAGE_LOCAL_USERS);
+    if (!raw) return;
+    const users = JSON.parse(raw);
+    if (!users || typeof users !== "object" || Array.isArray(users)) {
+      localStorage.removeItem(STORAGE_LOCAL_USERS);
+      return;
+    }
+
+    const cleaned: Record<string, Record<string, unknown>> = {};
+    for (const [key, user] of Object.entries(users as Record<string, Record<string, unknown>>)) {
+      if (!user || typeof user !== "object") continue;
+
+      // 1. Delete password field if present in legacy records
+      if ("password" in user) {
+        delete user.password;
+      }
+
+      // 2. Delete user records with email (these cannot log in offline anymore)
+      const hasEmail = Boolean(user.email) || key.includes("@");
+      if (hasEmail) {
+        continue;
+      }
+
+      cleaned[key] = user;
+    }
+
+    localStorage.setItem(STORAGE_LOCAL_USERS, JSON.stringify(cleaned));
+  } catch {
+    // Safe catch to ensure app startup never fails
+  }
+}
+
 function createLocalAuthSession(
   userId: string,
   email: string,
@@ -198,6 +233,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
 
   initAuth: async () => {
+    // 0. Purge legacy offline email records and passwords from iw_local_users
+    migrateLegacyLocalUsers();
+
     // 1. Unsubscribe any existing active listener (prevents duplicate HMR listeners)
     if (authSubscription) {
       try {
