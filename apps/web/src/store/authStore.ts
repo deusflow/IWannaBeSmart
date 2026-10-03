@@ -5,6 +5,7 @@
 
 import { create } from "zustand";
 import type { User, Session } from "@supabase/supabase-js";
+import { i18n } from "@iw/i18n";
 import { supabase, isSupabaseConfigured, type Profile } from "../lib/supabaseClient";
 import { toast } from "./toastStore";
 
@@ -65,6 +66,26 @@ function clearActiveSession(): void {
   }
 }
 
+function isNetworkOrTimeoutError(err: unknown): boolean {
+  if (!err) return false;
+  const msg =
+    err instanceof Error
+      ? err.message
+      : typeof err === "object" && err !== null && "message" in err
+      ? String((err as { message: unknown }).message)
+      : String(err);
+  const lower = msg.toLowerCase();
+  return (
+    lower.includes("fetch") ||
+    lower.includes("network") ||
+    lower.includes("timeout") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("abort") ||
+    lower.includes("connection") ||
+    lower.includes("offline")
+  );
+}
+
 function getLocalUsers(): Record<string, LocalUserRecord> {
   if (typeof window === "undefined") return {};
   try {
@@ -73,17 +94,6 @@ function getLocalUsers(): Record<string, LocalUserRecord> {
     return JSON.parse(raw) as Record<string, LocalUserRecord>;
   } catch {
     return {};
-  }
-}
-
-function saveLocalUser(record: LocalUserRecord): void {
-  if (typeof window === "undefined") return;
-  try {
-    const users = getLocalUsers();
-    users[record.email.toLowerCase()] = record;
-    localStorage.setItem(STORAGE_LOCAL_USERS, JSON.stringify(users));
-  } catch {
-    // Safe catch
   }
 }
 
@@ -356,63 +366,62 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     const cleanEmail = email.trim().toLowerCase();
 
-    try {
-      // 1. If Supabase is configured, attempt cloud sign in
-      if (isSupabaseConfigured) {
-        try {
-          const { data, error } = await withTimeout(
-            supabase.auth.signInWithPassword({
-              email: cleanEmail,
-              password,
-            }),
-            3000,
-            "Cloud signIn timeout"
-          );
-
-          if (!error && data?.user) {
-            set({
-              user: data.user,
-              session: data.session,
-              isLoading: false,
-            });
-            await get().fetchProfile(data.user.id);
-            toast.success("Вхід виконано", "Вітаємо на інженерному верстаку!");
-            return { error: null };
-          }
-
-          if (
-            error &&
-            !error.message.toLowerCase().includes("fetch") &&
-            !error.message.toLowerCase().includes("network")
-          ) {
-            throw error;
-          }
-        } catch (cloudErr) {
-          console.warn("[Auth] Cloud signIn unavailable or failed fetch, falling back to local:", cloudErr);
-        }
-      }
-
-      // 2. Offline / Local Sign-in Fallback
-      const localUsers = getLocalUsers();
-      const existing = localUsers[cleanEmail];
-
-      if (existing) {
-        // Offline profiles have no password stored, so password login is blocked
-        const err = new Error(
-          "Цей профіль не містить пароля (офлайн-профіль). Вхід за паролем заблоковано."
-        );
-        set({ error: err.message, isLoading: false });
-        return { error: err };
-      }
-
-      // If user is not yet registered locally, guide them to registration
+    if (!isSupabaseConfigured) {
       const err = new Error(
-        "Профіль з такою адресою не знайдено локально. Перемкніться на вкладку 'Реєстрація', щоб створити його."
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
+      );
+      set({ error: err.message, isLoading: false });
+      return { error: err };
+    }
+
+    try {
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        }),
+        3000,
+        "Cloud signIn timeout"
+      );
+
+      if (!error && data?.user) {
+        set({
+          user: data.user,
+          session: data.session,
+          isLoading: false,
+          error: null,
+        });
+        await get().fetchProfile(data.user.id);
+        const currentProfile = get().profile;
+        if (data.session && currentProfile) {
+          saveActiveSession(data.user, data.session, currentProfile);
+        }
+        toast.success("Вхід виконано", "Вітаємо на інженерному верстаку!");
+        return { error: null };
+      }
+
+      if (error) {
+        if (isNetworkOrTimeoutError(error)) {
+          const err = new Error(
+            i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
+          );
+          set({ error: err.message, isLoading: false });
+          return { error: err };
+        }
+        throw error;
+      }
+
+      const err = new Error(
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
       );
       set({ error: err.message, isLoading: false });
       return { error: err };
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
+      const error = isNetworkOrTimeoutError(err)
+        ? new Error(i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше"))
+        : err instanceof Error
+        ? err
+        : new Error(String(err));
       set({ error: error.message, isLoading: false });
       return { error };
     }
@@ -423,94 +432,67 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const cleanEmail = email.trim().toLowerCase();
     const cleanCallsign = callsign?.trim() || cleanEmail.split("@")[0] || "Engineer";
 
+    if (!isSupabaseConfigured) {
+      const err = new Error(
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
+      );
+      set({ error: err.message, isLoading: false });
+      return { error: err };
+    }
+
     try {
-      // 1. If Supabase is configured, attempt cloud registration
-      if (isSupabaseConfigured) {
-        try {
-          const { data, error } = await withTimeout(
-            supabase.auth.signUp({
-              email: cleanEmail,
-              password,
-              options: {
-                data: {
-                  callsign: cleanCallsign,
-                },
-              },
-            }),
-            3000,
-            "Cloud signUp timeout"
-          );
+      const { data, error } = await withTimeout(
+        supabase.auth.signUp({
+          email: cleanEmail,
+          password,
+          options: {
+            data: {
+              callsign: cleanCallsign,
+            },
+          },
+        }),
+        3000,
+        "Cloud signUp timeout"
+      );
 
-          if (!error && data?.user) {
-            set({
-              user: data.user,
-              session: data.session,
-              isLoading: false,
-            });
-            await get().fetchProfile(data.user.id);
-            toast.success("Профіль створено", "Ласкаво просимо до Інженерного верстака!");
-            return { error: null };
-          }
-
-          if (
-            error &&
-            !error.message.toLowerCase().includes("fetch") &&
-            !error.message.toLowerCase().includes("network")
-          ) {
-            throw error;
-          }
-        } catch (cloudErr) {
-          console.warn("[Auth] Cloud signUp unavailable or timed out, falling back to local:", cloudErr);
+      if (!error && data?.user) {
+        set({
+          user: data.user,
+          session: data.session,
+          isLoading: false,
+          error: null,
+        });
+        await get().fetchProfile(data.user.id);
+        const currentProfile = get().profile;
+        if (data.session && currentProfile) {
+          saveActiveSession(data.user, data.session, currentProfile);
         }
+        toast.success("Профіль створено", "Ласкаво просимо до Інженерного верстака!");
+        return { error: null };
       }
 
-      // 2. Offline / Local Registration Fallback
-      const localUsers = getLocalUsers();
-      if (localUsers[cleanEmail]) {
-        const err = new Error("Цей email вже зареєстровано в локальній системі.");
-        set({ error: err.message, isLoading: false });
-        return { error: err };
+      if (error) {
+        if (isNetworkOrTimeoutError(error)) {
+          const err = new Error(
+            i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
+          );
+          set({ error: err.message, isLoading: false });
+          return { error: err };
+        }
+        throw error;
       }
 
-      // Create new local user without password
-      const localUserId = `local-${Math.random().toString(36).substring(2, 10)}`;
-      const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanCallsign)}`;
-      const newRecord: LocalUserRecord = {
-        id: localUserId,
-        email: cleanEmail,
-        callsign: cleanCallsign,
-        avatar_url: avatarUrl,
-        created_at: new Date().toISOString(),
-        total_stars: 0,
-      };
-
-      saveLocalUser(newRecord);
-
-      const localSession = createLocalAuthSession(
-        localUserId,
-        cleanEmail,
-        cleanCallsign,
-        avatarUrl,
-        "local"
+      const err = new Error(
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
       );
-      saveActiveSession(localSession.user, localSession.session, localSession.profile);
-
-      set({
-        user: localSession.user,
-        session: localSession.session,
-        profile: localSession.profile,
-        isLoading: false,
-        error: null,
-      });
-
-      toast.success(
-        "Профіль створено",
-        `Інженер ${cleanCallsign} успішно зареєстрований (Офлайн-режим).`
-      );
-
-      return { error: null };
+      set({ error: err.message, isLoading: false });
+      return { error: err };
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
+      const error = isNetworkOrTimeoutError(err)
+        ? new Error(i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше"))
+        : err instanceof Error
+        ? err
+        : new Error(String(err));
       set({ error: error.message, isLoading: false });
       return { error };
     }

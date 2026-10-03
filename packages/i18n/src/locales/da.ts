@@ -88,6 +88,7 @@ export const daTranslation = {
         dismiss: "Forstået",
       },
       auth: {
+        serverUnavailable: "Serveren er utilgængelig, prøv igen senere",
         titleSignIn: "Ingeniørautorisation",
         titleSignUp: "Profilregistrering",
         badge: "INGENIØRTELEMETRI",

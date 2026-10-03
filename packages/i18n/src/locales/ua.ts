@@ -88,6 +88,7 @@ export const uaTranslation = {
         dismiss: "Зрозуміло",
       },
       auth: {
+        serverUnavailable: "Сервер недоступний, спробуйте пізніше",
         titleSignIn: "Авторизація інженера",
         titleSignUp: "Реєстрація профілю",
         badge: "ІНЖЕНЕРНА ТЕЛЕМЕТРІЯ",

@@ -88,6 +88,7 @@ export const enTranslation = {
         dismiss: "Got it",
       },
       auth: {
+        serverUnavailable: "Server is unavailable, please try again later",
         titleSignIn: "Engineer Authorization",
         titleSignUp: "Engineer Registration",
         badge: "ENGINEERING TELEMETRY",

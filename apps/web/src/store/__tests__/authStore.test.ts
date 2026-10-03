@@ -4,7 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import type { User, Session } from "@supabase/supabase-js";
+import { type User, type Session, AuthError } from "@supabase/supabase-js";
+import { i18n } from "@iw/i18n";
 
 // Mock localStorage and window for Node test environment
 const storageMap = new Map<string, string>();
@@ -75,11 +76,11 @@ vi.mock("../../lib/supabaseClient", () => {
       }),
       signInWithPassword: vi.fn().mockResolvedValue({
         data: { user: null, session: null },
-        error: new Error("Cloud signIn fallback"),
+        error: new Error("Cloud signIn timeout"),
       }),
       signUp: vi.fn().mockResolvedValue({
         data: { user: null, session: null },
-        error: new Error("Cloud signUp fallback"),
+        error: new Error("Cloud signUp timeout"),
       }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
       resetPasswordForEmail: vi.fn().mockResolvedValue({ data: null, error: null }),
@@ -120,61 +121,73 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     expect(state.error).toBeNull();
   });
 
-  describe("signUpWithEmail (Local Offline Registration)", () => {
-    it("successfully creates a new local engineer account and active session", async () => {
+  describe("signUpWithEmail (Cloud-Only Email Registration)", () => {
+    it("returns server unavailable error and does not create local profile when Supabase is offline", async () => {
       const { error } = await useAuthStore.getState().signUpWithEmail(
         "cadet@station.local",
         "secret123",
         "Ghost-Engineer"
       );
 
-      expect(error).toBeNull();
+      expect(error).not.toBeNull();
+      expect(error?.message).toContain(
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
+      );
       const state = useAuthStore.getState();
-      expect(state.user).not.toBeNull();
-      expect(state.user?.email).toBe("cadet@station.local");
-      expect(state.profile?.callsign).toBe("Ghost-Engineer");
-      expect(state.profile?.avatar_url).toContain("Ghost-Engineer");
-      expect(state.session?.access_token).toBeDefined();
+      expect(state.user).toBeNull();
 
-      // Check localStorage persistence
-      const activeSessionRaw = localStorage.getItem("iw_active_session");
-      expect(activeSessionRaw).toBeTruthy();
-      const parsedSession = JSON.parse(activeSessionRaw!);
-      expect(parsedSession.user.email).toBe("cadet@station.local");
-      expect(parsedSession.profile.callsign).toBe("Ghost-Engineer");
+      // Ensure no active session or local email profile was saved
+      expect(localStorage.getItem("iw_active_session")).toBeNull();
+      const rawLocal = localStorage.getItem("iw_local_users");
+      const localUsers = rawLocal ? JSON.parse(rawLocal) : {};
+      expect(localUsers["cadet@station.local"]).toBeUndefined();
     });
 
-    it("falls back to email username if callsign is not provided", async () => {
+    it("successfully creates an account via cloud when online", async () => {
+      const mockUser = {
+        id: "cloud-new-123",
+        email: "chief.architect@firmware.org",
+        app_metadata: { provider: "email" },
+        user_metadata: { callsign: "Chief-Architect" },
+        aud: "authenticated",
+        created_at: new Date().toISOString(),
+      };
+      const mockSession = {
+        access_token: "mock-jwt-token",
+        token_type: "bearer",
+        expires_in: 3600,
+        refresh_token: "mock-refresh-token",
+        user: mockUser,
+      };
+
+      vi.mocked(supabase.auth.signUp).mockResolvedValueOnce({
+        data: { user: mockUser as unknown as User, session: mockSession as unknown as Session },
+        error: null,
+      });
+
       const { error } = await useAuthStore.getState().signUpWithEmail(
         "chief.architect@firmware.org",
-        "pass12345"
+        "pass12345",
+        "Chief-Architect"
       );
 
       expect(error).toBeNull();
       const state = useAuthStore.getState();
-      expect(state.profile?.callsign).toBe("chief.architect");
+      expect(state.user?.email).toBe("chief.architect@firmware.org");
     });
   });
 
-  describe("signInWithEmail (Local Offline & Cloud Login)", () => {
-    it("blocks password login for offline local profiles without password", async () => {
-      // 1. Register offline first
-      await useAuthStore.getState().signUpWithEmail(
-        "alex@cyber.net",
-        "validPass99",
-        "Alex-01"
-      );
-      await useAuthStore.getState().signOut();
-      expect(useAuthStore.getState().user).toBeNull();
-
-      // 2. Sign in via password must be blocked for offline profiles
+  describe("signInWithEmail (Cloud-Only Email Login)", () => {
+    it("returns server unavailable error when Supabase is offline or timed out", async () => {
       const { error } = await useAuthStore.getState().signInWithEmail(
         "alex@cyber.net",
         "validPass99"
       );
 
       expect(error).not.toBeNull();
-      expect(error?.message).toContain("офлайн-профіль");
+      expect(error?.message).toContain(
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
+      );
       expect(useAuthStore.getState().user).toBeNull();
     });
 
@@ -210,14 +223,19 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
       expect(state.user?.email).toBe("cloud.cadet@smart.com");
     });
 
-    it("guides unregistered users to the registration tab", async () => {
+    it("passes through cloud auth rejection errors (e.g. invalid credentials)", async () => {
+      vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
+        data: { user: null, session: null },
+        error: new AuthError("Invalid login credentials"),
+      });
+
       const { error } = await useAuthStore.getState().signInWithEmail(
         "unknown@nowhere.com",
-        "somePassword"
+        "wrongPassword"
       );
 
       expect(error).not.toBeNull();
-      expect(error?.message).toContain("Реєстрація");
+      expect(error?.message).toContain("Invalid login credentials");
       expect(useAuthStore.getState().user).toBeNull();
     });
   });
@@ -276,6 +294,27 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     });
 
     it("restores saved session on initAuth without UI flicker", async () => {
+      const mockUser = {
+        id: "restore-user-123",
+        email: "restore@session.dev",
+        app_metadata: { provider: "email" },
+        user_metadata: { callsign: "RestoreCadet" },
+        aud: "authenticated",
+        created_at: new Date().toISOString(),
+      };
+      const mockSession = {
+        access_token: "mock-jwt-token",
+        token_type: "bearer",
+        expires_in: 3600,
+        refresh_token: "mock-refresh-token",
+        user: mockUser,
+      };
+
+      vi.mocked(supabase.auth.signUp).mockResolvedValueOnce({
+        data: { user: mockUser as unknown as User, session: mockSession as unknown as Session },
+        error: null,
+      });
+
       // 1. Create session
       await useAuthStore.getState().signUpWithEmail(
         "restore@session.dev",
