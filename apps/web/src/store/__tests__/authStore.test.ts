@@ -241,7 +241,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
   });
 
   describe("signInWithGoogle (Online & Offline Resilience)", () => {
-    it("redirects to OAuth URL when Supabase is online or activates offline profile when offline", async () => {
+    it("redirects to OAuth URL when Supabase is online", async () => {
       const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 200 }));
       vi.mocked(supabase.auth.signInWithOAuth).mockResolvedValueOnce({
         data: { provider: "google", url: "https://mock.supabase.co/oauth" },
@@ -255,21 +255,19 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
       expect(window.location.href).toContain("mock.supabase.co");
     });
 
-    it("immediately authenticates cadet engineer when Google OAuth is triggered offline", async () => {
+    it("returns serverUnavailable error and does not create offline profile when Google OAuth is triggered offline", async () => {
       vi.mocked(supabase.auth.signInWithOAuth).mockRejectedValueOnce(new Error("fetch failed"));
       const { error } = await useAuthStore.getState().signInWithGoogle();
 
-      expect(error).toBeNull();
+      expect(error).not.toBeNull();
+      expect(error?.message).toContain("Сервер недоступний, спробуйте пізніше");
       const state = useAuthStore.getState();
-      expect(state.user).not.toBeNull();
-      expect(state.user?.email).toBe("cadet.engineer@google.internal");
-      expect(state.user?.app_metadata.provider).toBe("google");
-      expect(state.profile?.callsign).toBe("Google Cadet Engineer");
-      expect(state.profile?.avatar_url).toContain("GoogleCadet");
+      expect(state.user).toBeNull();
+      expect(state.profile).toBeNull();
 
-      // Verify active session saved
+      // Verify no active session saved
       const savedRaw = localStorage.getItem("iw_active_session");
-      expect(savedRaw).toContain("google.internal");
+      expect(savedRaw).toBeNull();
     });
   });
 
@@ -297,8 +295,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
 
   describe("updateProfile & Session Persistence", () => {
     it("updates callsign and avatar locally and persists to session cache", async () => {
-      vi.mocked(supabase.auth.signInWithOAuth).mockRejectedValueOnce(new Error("fetch failed"));
-      await useAuthStore.getState().signInWithGoogle();
+      await useAuthStore.getState().continueAsGuest();
 
       const { error } = await useAuthStore.getState().updateProfile({
         callsign: "Cyber-Vanguard",
@@ -359,8 +356,7 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     });
 
     it("clears local session on signOut", async () => {
-      vi.mocked(supabase.auth.signInWithOAuth).mockRejectedValueOnce(new Error("fetch failed"));
-      await useAuthStore.getState().signInWithGoogle();
+      await useAuthStore.getState().continueAsGuest();
       expect(useAuthStore.getState().user).not.toBeNull();
       expect(localStorage.getItem("iw_active_session")).toBeTruthy();
 

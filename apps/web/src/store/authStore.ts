@@ -132,49 +132,6 @@ export function migrateLegacyLocalUsers(): void {
   }
 }
 
-function createLocalAuthSession(
-  userId: string,
-  email: string,
-  callsign: string,
-  avatarUrl: string,
-  provider = "local"
-): StoredActiveSession {
-  const user: User = {
-    id: userId,
-    app_metadata: { provider },
-    user_metadata: {
-      callsign,
-      avatar_url: avatarUrl,
-      full_name: callsign,
-    },
-    aud: "authenticated",
-    created_at: new Date().toISOString(),
-    email,
-    phone: "",
-    role: "authenticated",
-    updated_at: new Date().toISOString(),
-  };
-
-  const session: Session = {
-    access_token: `local_jwt_${provider}_${userId}_${Date.now()}`,
-    refresh_token: `local_refresh_${provider}_${userId}`,
-    expires_in: 3600 * 24 * 30, // 30 days
-    expires_at: Math.floor(Date.now() / 1000) + 3600 * 24 * 30,
-    token_type: "bearer",
-    user,
-  };
-
-  const profile: Profile = {
-    id: userId,
-    email,
-    callsign,
-    avatar_url: avatarUrl,
-    total_stars: 0,
-    updated_at: new Date().toISOString(),
-  };
-
-  return { user, session, profile };
-}
 
 // Timeout helper to prevent hanging cloud network calls
 function withTimeout<T>(promise: PromiseLike<T>, ms: number, timeoutErrorMsg: string): Promise<T> {
@@ -326,76 +283,60 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signInWithGoogle: async () => {
     set({ isLoading: true, error: null });
+
+    if (!isSupabaseConfigured) {
+      const err = new Error(
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
+      );
+      set({ error: err.message, isLoading: false });
+      return { error: err };
+    }
+
     try {
-      // 1. If Supabase is configured, attempt OAuth URL generation with skipBrowserRedirect
-      if (isSupabaseConfigured) {
-        const redirectUrl =
-          typeof window !== "undefined"
-            ? `${window.location.origin}${import.meta.env.BASE_URL || "/"}`
-            : undefined;
+      const redirectUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}${import.meta.env.BASE_URL || "/"}`
+          : undefined;
 
-        try {
-          const { data, error } = await withTimeout(
-            supabase.auth.signInWithOAuth({
-              provider: "google",
-              options: {
-                redirectTo: redirectUrl,
-                skipBrowserRedirect: true,
-              },
-            }),
-            2500,
-            "Cloud OAuth timeout"
-          );
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: redirectUrl,
+            skipBrowserRedirect: true,
+          },
+        }),
+        2500,
+        "Cloud OAuth timeout"
+      );
 
-          if (!error && data?.url) {
-            // Verify if the host can actually be reached before navigating away
-            try {
-              const urlObj = new URL(data.url);
-              const testPing = await withTimeout(
-                fetch(`${urlObj.origin}/auth/v1/health`, { method: "HEAD", mode: "no-cors" }),
-                1200,
-                "OAuth ping timeout"
-              );
-              if (testPing) {
-                window.location.href = data.url;
-                return { error: null };
-              }
-            } catch {
-              console.warn("[Auth] Supabase endpoint unreachable, activating local Google Engineer profile.");
-            }
-          }
-        } catch (cloudErr) {
-          console.warn("[Auth] Supabase Google OAuth unavailable, falling back to local:", cloudErr);
-        }
+      if (error) {
+        throw error;
       }
 
-      // 2. Fallback: Instant Local Google Cadet Engineer Session
-      const googleSession = createLocalAuthSession(
-        "google-cadet-engineer-01",
-        "cadet.engineer@google.internal",
-        "Google Cadet Engineer",
-        "https://api.dicebear.com/7.x/bottts/svg?seed=GoogleCadet",
-        "google"
+      if (data?.url) {
+        // Verify if the host can actually be reached before navigating away
+        const urlObj = new URL(data.url);
+        await withTimeout(
+          fetch(`${urlObj.origin}/auth/v1/health`, { method: "HEAD", mode: "no-cors" }),
+          1200,
+          "OAuth ping timeout"
+        );
+        window.location.href = data.url;
+        return { error: null };
+      }
+
+      const err = new Error(
+        i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше")
       );
-
-      saveActiveSession(googleSession.user, googleSession.session, googleSession.profile);
-
-      set({
-        user: googleSession.user,
-        session: googleSession.session,
-        profile: googleSession.profile,
-        isLoading: false,
-        error: null,
-      });
-
-      toast.success(
-        "Авторизовано через Google",
-        "Локальний профіль інженера активовано (Офлайн-режим)."
-      );
-
-      return { error: null };
+      set({ error: err.message, isLoading: false });
+      return { error: err };
     } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
+      const error = isNetworkOrTimeoutError(err)
+        ? new Error(i18n.t("auth.serverUnavailable", "Сервер недоступний, спробуйте пізніше"))
+        : err instanceof Error
+        ? err
+        : new Error(String(err));
       set({ error: error.message, isLoading: false });
       return { error };
     }
