@@ -126,6 +126,14 @@ export const uaTranslation = {
         connectCloudAccount: "Підключити хмарний акаунт",
         exitGuestMode: "Завершити гостьову сесію",
         profileTooltip: "Відкрити панель інженера та телеметрію",
+        signInSuccessTitle: "Вхід виконано",
+        signInSuccessMessage: "Вітаємо на інженерному верстаку!",
+        signUpSuccessTitle: "Профіль створено",
+        signUpSuccessMessage: "Ласкаво просимо до Інженерного верстака!",
+        signOutToastTitle: "Вихід з системи",
+        signOutToastMessage: "Сесію інженера завершено.",
+        profileUpdatedTitle: "Профіль оновлено",
+        profileUpdatedMessage: "Зміни збережено в системі.",
       },
       profile: {
         onboarding: {

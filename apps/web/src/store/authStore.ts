@@ -466,7 +466,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (data.session && currentProfile) {
           saveActiveSession(data.user, data.session, currentProfile);
         }
-        toast.success("Вхід виконано", "Вітаємо на інженерному верстаку!");
+        toast.success(
+          i18n.t("auth.signInSuccessTitle", "Вхід виконано"),
+          i18n.t("auth.signInSuccessMessage", "Вітаємо на інженерному верстаку!")
+        );
         return { error: null };
       }
 
@@ -537,7 +540,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (data.session && currentProfile) {
           saveActiveSession(data.user, data.session, currentProfile);
         }
-        toast.success("Профіль створено", "Ласкаво просимо до Інженерного верстака!");
+        toast.success(
+          i18n.t("auth.signUpSuccessTitle", "Профіль створено"),
+          i18n.t("auth.signUpSuccessMessage", "Ласкаво просимо до Інженерного верстака!")
+        );
         return { error: null };
       }
 
@@ -590,7 +596,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: null,
       });
-      toast.info("Вихід з системи", "Сесію інженера завершено.");
+      toast.info(
+        i18n.t("auth.signOutToastTitle", "Вихід з системи"),
+        i18n.t("auth.signOutToastMessage", "Сесію інженера завершено.")
+      );
     }
   },
 
@@ -724,7 +733,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    toast.success("Профіль оновлено", "Зміни збережено в системі.");
+    toast.success(
+      i18n.t("auth.profileUpdatedTitle", "Профіль оновлено"),
+      i18n.t("auth.profileUpdatedMessage", "Зміни збережено в системі.")
+    );
     return { error: null };
   },
 

@@ -126,6 +126,14 @@ export const daTranslation = {
         connectCloudAccount: "Tilslut skykonto",
         exitGuestMode: "Afslut gæstesession",
         profileTooltip: "Åbn ingeniørpanel og telemetri",
+        signInSuccessTitle: "Logget ind",
+        signInSuccessMessage: "Velkommen til ingeniørbænken!",
+        signUpSuccessTitle: "Profil oprettet",
+        signUpSuccessMessage: "Velkommen til ingeniørbænken!",
+        signOutToastTitle: "Logget ud",
+        signOutToastMessage: "Ingeniørsession afsluttet.",
+        profileUpdatedTitle: "Profil opdateret",
+        profileUpdatedMessage: "Ændringer gemt i systemet.",
       },
       profile: {
         onboarding: {

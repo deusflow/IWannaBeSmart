@@ -126,6 +126,14 @@ export const enTranslation = {
         connectCloudAccount: "Connect Cloud Account",
         exitGuestMode: "Exit Guest Session",
         profileTooltip: "Open engineer panel and telemetry",
+        signInSuccessTitle: "Signed In",
+        signInSuccessMessage: "Welcome to the Engineering Workbench!",
+        signUpSuccessTitle: "Profile Created",
+        signUpSuccessMessage: "Welcome to the Engineering Workbench!",
+        signOutToastTitle: "Signed Out",
+        signOutToastMessage: "Engineer session ended.",
+        profileUpdatedTitle: "Profile Updated",
+        profileUpdatedMessage: "Changes saved to system.",
       },
       profile: {
         onboarding: {
