@@ -37,6 +37,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
+    continueAsGuest,
     isLoading,
     error,
     clearError,
@@ -118,6 +119,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setLocalError(null);
     clearError();
     const { error: err } = await signInWithGoogle();
+    if (!err) {
+      onClose();
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    setLocalError(null);
+    clearError();
+    const { error: err } = await continueAsGuest();
     if (!err) {
       onClose();
     }
@@ -220,6 +230,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               />
             </svg>
             <span>{t("auth.googleSignIn", "Продовжити через Google")}</span>
+          </button>
+
+          {/* Guest Mode Quick Button */}
+          <button
+            type="button"
+            onClick={handleGuestSignIn}
+            disabled={isLoading}
+            className="w-full flex flex-col items-center justify-center py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAF8F2] active:scale-[0.99] text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm border-2 border-[#1A1D20]/20 hover:border-[#1E3A8A]/40 transition-all cursor-pointer disabled:opacity-50 group"
+          >
+            <div className="flex items-center gap-2 font-display font-bold text-xs text-[#1A1D20] group-hover:text-[#1E3A8A] transition-colors">
+              <User size={14} className="text-[#1E3A8A]" />
+              <span>{t("auth.continueAsGuest", "Продовжити як гість")}</span>
+            </div>
+            <span className="text-[10px] font-mono text-[#1A1D20]/60 mt-0.5">
+              {t("auth.guestProgressNotice", "Прогрес збережеться тільки на цьому пристрої")}
+            </span>
           </button>
 
           {/* Blueprint Divider */}
@@ -327,10 +353,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </span>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleGuestSignIn}
             className="text-[11px] font-display font-bold text-accent-blue hover:text-accent-blue-hover flex items-center gap-1 cursor-pointer"
           >
-            <span>{t("auth.continueAsGuest", "Продовжити як гість →")}</span>
+            <span>{t("auth.continueAsGuest", "Продовжити як гість")} →</span>
           </button>
         </div>
       </div>

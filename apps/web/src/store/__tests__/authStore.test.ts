@@ -273,6 +273,28 @@ describe("authStore (Offline-First Self-Healing Auth Engine)", () => {
     });
   });
 
+  describe("continueAsGuest (Offline Device-Only Profile)", () => {
+    it("creates a guest session without email or password and persists to localStorage", async () => {
+      const { error } = await useAuthStore.getState().continueAsGuest();
+
+      expect(error).toBeNull();
+      const state = useAuthStore.getState();
+      expect(state.user).not.toBeNull();
+      expect(state.user?.id).toMatch(/^guest-/);
+      expect(state.user?.email).toBeUndefined();
+      expect(state.user?.app_metadata.provider).toBe("guest");
+      expect(state.profile?.callsign).toMatch(/^Cadet-/);
+      expect(state.profile?.email).toBeNull();
+
+      // Verify session in localStorage
+      const sessionRaw = localStorage.getItem("iw_active_session");
+      expect(sessionRaw).toBeTruthy();
+      const parsed = JSON.parse(sessionRaw!);
+      expect(parsed.user.id).toMatch(/^guest-/);
+      expect(parsed.user.email).toBeUndefined();
+    });
+  });
+
   describe("updateProfile & Session Persistence", () => {
     it("updates callsign and avatar locally and persists to session cache", async () => {
       vi.mocked(supabase.auth.signInWithOAuth).mockRejectedValueOnce(new Error("fetch failed"));

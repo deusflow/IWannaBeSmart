@@ -172,6 +172,7 @@ export interface AuthState {
   initAuth: () => Promise<void>;
   cleanupAuth: () => void;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
+  continueAsGuest: () => Promise<{ error: Error | null }>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUpWithEmail: (
     email: string,
@@ -362,6 +363,67 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
+  continueAsGuest: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const guestId = `guest-${Math.random().toString(36).substring(2, 10)}`;
+      const guestCallsign = `Cadet-${guestId.slice(-4).toUpperCase()}`;
+      const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(guestCallsign)}`;
+
+      const guestUser: User = {
+        id: guestId,
+        app_metadata: { provider: "guest" },
+        user_metadata: {
+          callsign: guestCallsign,
+          avatar_url: avatarUrl,
+        },
+        aud: "authenticated",
+        created_at: new Date().toISOString(),
+      };
+
+      const guestSession: Session = {
+        access_token: `guest-token-${guestId}`,
+        token_type: "bearer",
+        expires_in: 315360000,
+        refresh_token: `guest-refresh-${guestId}`,
+        user: guestUser,
+      };
+
+      const guestProfile: Profile = {
+        id: guestId,
+        email: null,
+        callsign: guestCallsign,
+        avatar_url: avatarUrl,
+        total_stars: 0,
+        updated_at: new Date().toISOString(),
+      };
+
+      saveActiveSession(guestUser, guestSession, guestProfile);
+
+      set({
+        user: guestUser,
+        session: guestSession,
+        profile: guestProfile,
+        isLoading: false,
+        error: null,
+      });
+
+      toast.success(
+        i18n.t("auth.guestToastTitle", "Гостьовий режим"),
+        i18n.t(
+          "auth.guestToastMessage",
+          "Ви увійшли як гість. Прогрес збережеться тільки на цьому пристрої."
+        )
+      );
+
+      return { error: null };
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      set({ error: error.message, isLoading: false });
+      return { error };
+    }
+  },
+
   signInWithEmail: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     const cleanEmail = email.trim().toLowerCase();
@@ -502,7 +564,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     clearActiveSession();
     try {
-      if (isSupabaseConfigured) {
+      if (
+        isSupabaseConfigured &&
+        get().user &&
+        !get().user?.id.startsWith("guest-") &&
+        !get().user?.id.startsWith("local-")
+      ) {
         await withTimeout(supabase.auth.signOut(), 1500, "SignOut timeout").catch(() => {});
       }
     } catch {
@@ -532,7 +599,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    if (!isSupabaseConfigured || userId.startsWith("local-") || userId.startsWith("google-")) {
+    if (
+      !isSupabaseConfigured ||
+      userId.startsWith("guest-") ||
+      userId.startsWith("local-") ||
+      userId.startsWith("google-")
+    ) {
       set({ isLoading: false });
       return;
     }
@@ -632,7 +704,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     // 3. If connected to cloud, attempt sync
-    if (isSupabaseConfigured && user && !user.id.startsWith("local-") && !user.id.startsWith("google-")) {
+    if (
+      isSupabaseConfigured &&
+      user &&
+      !user.id.startsWith("guest-") &&
+      !user.id.startsWith("local-") &&
+      !user.id.startsWith("google-")
+    ) {
       try {
         const { error } = await supabase
           .from("profiles")

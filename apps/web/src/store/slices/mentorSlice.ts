@@ -260,7 +260,15 @@ export const createMentorSlice: StateCreator<
   getTaskMastery: (taskId: string) => get().taskMasteryStars[taskId] || 0,
 
   syncCloudProgress: async (userId: string) => {
-    if (!isSupabaseConfigured || !userId) return;
+    if (
+      !isSupabaseConfigured ||
+      !userId ||
+      userId.startsWith("guest-") ||
+      userId.startsWith("local-") ||
+      userId.startsWith("google-")
+    ) {
+      return;
+    }
 
     try {
       const { data, error } = await supabase
