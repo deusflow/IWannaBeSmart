@@ -59,6 +59,7 @@ export const WorkshopHubScreen: React.FC = () => {
     setCurrentView,
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
+    setIotVictoryModalOpen,
     setApiVictoryModalOpen,
     setGitVictoryModalOpen,
     setBanditVictoryModalOpen,
@@ -77,6 +78,7 @@ export const WorkshopHubScreen: React.FC = () => {
       setCurrentView: s.setCurrentView,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      setIotVictoryModalOpen: s.setIotVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
@@ -819,8 +821,17 @@ export const WorkshopHubScreen: React.FC = () => {
             {...getTrackCardProps("iot")}
             isWaitingStation={false}
             waitingBadgeText={undefined}
-            starColorClass="text-sky-600"
+            starColorClass="text-amber-700"
             onEnter={() => handleEnterStation("iot")}
+            onViewCert={
+              iotStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setIotVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewIotCertTooltip", "Переглянути сертифікат Embedded Hardware & IoT інженера")}
           />
         )}
 
@@ -1125,7 +1136,7 @@ export const WorkshopHubScreen: React.FC = () => {
           />
         )}
 
-        {/* Station 03: IoT Garage Gate (In Development / Roadmap) */}
+        {/* Station 03: IoT Garage Gate */}
         {isStationVisible("iot") && (
           <StationShowcaseCard
             stationId="iot"
@@ -1133,23 +1144,27 @@ export const WorkshopHubScreen: React.FC = () => {
             title={t("hub.stations.iot.title", "Станція 03: IoT Гаражні ворота")}
             subtitle={t(
               "hub.stations.iot.subtitle",
-              "Асинхронний EventBus, брокери повідомлень, черги подій та захисні сенсори"
+              "Асинхронний EventBus, брокери повідомлень, реле керування та захисні сенсори руху."
             )}
             blueprint={<IotBlueprintSvg />}
-            specs={t("hub.stations.iot.specs", "В розробці • Event-Driven Architecture • C# / Go")}
-            currentStars={0}
-            maxStars={0}
-            statusType="roadmap"
+            specs={t("hub.stations.iot.specs", "1 задача • Event-Driven Architecture • C# / Go")}
+            currentStars={iotStats.current}
+            maxStars={iotStats.max}
+            statusType={iotStats.statusType}
             {...getTrackCardProps("iot")}
             isWaitingStation={false}
             waitingBadgeText={undefined}
-            lockCriteria={{
-              conditionText: t("hub.roadmapStatus", "Статус модуля"),
-              progressText: t("hub.stations.iot.releaseDate", "Реліз у 2 семестрі"),
-              percent: 100,
-              badgeText: t("hub.stations.iot.badge", "В розробці: Реліз у 2 семестрі"),
-              isRoadmap: true,
-            }}
+            starColorClass="text-amber-700"
+            onEnter={() => handleEnterStation("iot")}
+            onViewCert={
+              iotStats.isEligible
+                ? () => {
+                    audioFx.playSuccessFanfare();
+                    setIotVictoryModalOpen(true);
+                  }
+                : undefined
+            }
+            certTooltip={t("hub.viewIotCertTooltip", "Переглянути сертифікат Embedded Hardware & IoT інженера")}
           />
         )}
 

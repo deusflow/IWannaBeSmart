@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Tv,
   CreditCard,
+  Radio,
   Server,
   GitBranch,
   ShieldAlert,
@@ -31,6 +32,7 @@ import { useShallow } from "zustand/react/shallow";
 import {
   CODING_TASKS,
   FINTECH_TASKS,
+  IOT_TASKS,
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
@@ -72,6 +74,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     setCurrentView,
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
+    setIotVictoryModalOpen,
     setApiVictoryModalOpen,
     setGitVictoryModalOpen,
     setBanditVictoryModalOpen,
@@ -91,6 +94,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       setCurrentView: s.setCurrentView,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      setIotVictoryModalOpen: s.setIotVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       setGitVictoryModalOpen: s.setGitVictoryModalOpen,
       setBanditVictoryModalOpen: s.setBanditVictoryModalOpen,
@@ -223,6 +227,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     const tvStatus = checkCert(CODING_TASKS);
     const posStatus = checkCert(FINTECH_TASKS);
+    const iotStatus = checkCert(IOT_TASKS);
     const apiStatus = checkCert(API_FORGE_TASKS);
     const gitStatus = checkCert(GIT_TASKS);
     const banditStatus = checkCert(BANDIT_TASKS);
@@ -254,6 +259,18 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         onViewCert: () => {
           onClose();
           setPosVictoryModalOpen(true);
+        },
+      },
+      {
+        id: "iot",
+        title: t("profile.badgeCertStation3", "Сертифікат Станції 03 (IoT)"),
+        spec: t("profile.tasksCount", { completed: iotStatus.completedCount, total: iotStatus.total, defaultValue: `${iotStatus.completedCount} / ${iotStatus.total} tasks` }),
+        icon: Radio,
+        iconColor: "text-amber-700",
+        status: iotStatus,
+        onViewCert: () => {
+          onClose();
+          setIotVictoryModalOpen(true);
         },
       },
       {
@@ -348,6 +365,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onClose,
     setStationVictoryModalOpen,
     setPosVictoryModalOpen,
+    setIotVictoryModalOpen,
     setApiVictoryModalOpen,
     setGitVictoryModalOpen,
     setBanditVictoryModalOpen,

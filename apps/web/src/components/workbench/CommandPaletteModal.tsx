@@ -143,7 +143,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: t("hub.stations.iot.specs", "EventBus • Async I/O • C# / Go"),
         icon: Radio,
         color: "text-amber-400",
-        badge: t("hub.stationLocked", "НЕЗАБАРОМ"),
+        badge: "STATION",
       },
       {
         id: "api",

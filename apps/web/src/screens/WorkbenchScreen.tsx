@@ -49,6 +49,7 @@ import { LanguageSwitcher } from "../components/workbench/LanguageSwitcher";
 import { UserNavBadge } from "../components/auth/UserNavBadge";
 import { StationCompletionModal } from "../components/workbench/StationCompletionModal";
 import { FintechStationVictoryModal } from "../components/workbench/FintechStationVictoryModal";
+import { IotStationVictoryModal } from "../components/workbench/IotStationVictoryModal";
 import { ApiStationVictoryModal } from "../components/workbench/ApiStationVictoryModal";
 import { GitStationVictoryModal } from "../components/workbench/GitStationVictoryModal";
 import { BanditStationVictoryModal } from "../components/workbench/BanditStationVictoryModal";
@@ -159,6 +160,8 @@ export const WorkbenchScreen: React.FC = () => {
     setStationVictoryModalOpen,
     isPosVictoryModalOpen,
     setPosVictoryModalOpen,
+    isIotVictoryModalOpen,
+    setIotVictoryModalOpen,
     isApiVictoryModalOpen,
     setApiVictoryModalOpen,
     isGitVictoryModalOpen,
@@ -194,6 +197,8 @@ export const WorkbenchScreen: React.FC = () => {
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       isPosVictoryModalOpen: s.isPosVictoryModalOpen,
       setPosVictoryModalOpen: s.setPosVictoryModalOpen,
+      isIotVictoryModalOpen: s.isIotVictoryModalOpen,
+      setIotVictoryModalOpen: s.setIotVictoryModalOpen,
       isApiVictoryModalOpen: s.isApiVictoryModalOpen,
       setApiVictoryModalOpen: s.setApiVictoryModalOpen,
       isGitVictoryModalOpen: s.isGitVictoryModalOpen,
@@ -492,6 +497,8 @@ export const WorkbenchScreen: React.FC = () => {
                 audioFx.playSuccessFanfare();
                 if (currentStationId === "pos") {
                   setPosVictoryModalOpen(true);
+                } else if (currentStationId === "iot") {
+                  setIotVictoryModalOpen(true);
                 } else if (currentStationId === "api") {
                   setApiVictoryModalOpen(true);
                 } else if (currentStationId === "git") {
@@ -514,6 +521,8 @@ export const WorkbenchScreen: React.FC = () => {
               title={
                 currentStationId === "pos"
                   ? t("fintechVictoryModal.title", "Фінтех POS-термінал: Завершено")
+                  : currentStationId === "iot"
+                  ? t("iotStation.victory.title", "Станція 03: Embedded Hardware & IoT завершено!")
                   : currentStationId === "api"
                   ? t("apiForge.victoryModal.title", "API Forge: Завершено")
                   : currentStationId === "git"
@@ -954,6 +963,13 @@ export const WorkbenchScreen: React.FC = () => {
       <FintechStationVictoryModal
         isOpen={isPosVictoryModalOpen}
         onClose={() => setPosVictoryModalOpen(false)}
+        xp={xp}
+      />
+
+      {/* Module 3: Embedded Hardware & IoT Station Victory Modal */}
+      <IotStationVictoryModal
+        isOpen={isIotVictoryModalOpen}
+        onClose={() => setIotVictoryModalOpen(false)}
         xp={xp}
       />
 

@@ -42,32 +42,19 @@ describe("UX Integrity & Codebase Fixes", () => {
     });
   });
 
-  describe("Station 03 Lock Toast Interception", () => {
-    it("intercepts locked module clicks and shows toast.info instead of switching station", () => {
-      const toastInfoSpy = vi.spyOn(toast, "info");
+  describe("Station 03 Navigation & Victory Modal State", () => {
+    it("allows direct navigation to Station 03 and handles station selection", () => {
       const setCurrentStationIdMock = vi.fn();
       const setCurrentViewMock = vi.fn();
 
-      // Simulating handleJumpStation logic from CommandPaletteModal
       const handleJumpStation = (stationId: string) => {
-        if (stationId === "iot") {
-          toast.info(
-            "НЕЗАБАРОМ: EventBus & Async I/O",
-            "Потрібно 200+ XP або Модулі 1 та 2"
-          );
-          return;
-        }
         setCurrentStationIdMock(stationId);
         setCurrentViewMock("STATION");
       };
 
       handleJumpStation("iot");
-      expect(toastInfoSpy).toHaveBeenCalledWith(
-        "НЕЗАБАРОМ: EventBus & Async I/O",
-        "Потрібно 200+ XP або Модулі 1 та 2"
-      );
-      expect(setCurrentStationIdMock).not.toHaveBeenCalled();
-      expect(setCurrentViewMock).not.toHaveBeenCalled();
+      expect(setCurrentStationIdMock).toHaveBeenCalledWith("iot");
+      expect(setCurrentViewMock).toHaveBeenCalledWith("STATION");
 
       // Non-locked station jumps properly
       handleJumpStation("pos");
