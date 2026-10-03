@@ -185,8 +185,10 @@ export function getGlobalSession(): GlobalSessionState | null {
       }
       return null;
     }
-    const session = JSON.parse(raw) as GlobalSessionState & { currentView: string };
-    if (session && session.currentView === ("EXPRESS_TOUR" as any)) {
+    const session = JSON.parse(raw) as (Omit<GlobalSessionState, "currentView"> & {
+      currentView: GlobalSessionState["currentView"] | "EXPRESS_TOUR";
+    });
+    if (session && session.currentView === "EXPRESS_TOUR") {
       session.currentView = "SPEED_DATING";
     }
     return session as GlobalSessionState;
