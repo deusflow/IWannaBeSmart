@@ -10,6 +10,9 @@ import {
   Trophy,
   Zap,
   X,
+  Flame,
+  Layers,
+  ShieldAlert,
 } from "lucide-react";
 import {
   FINTECH_TASKS,
@@ -26,6 +29,11 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { getStationCheckpoint } from "../../../utils/checkpointManager";
+import {
+  PredictObserveExplainModal,
+  FirmwareLogicBuilderModal,
+  StationCrashTestGateModal,
+} from "../labs";
 
 export const CodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -70,6 +78,10 @@ export const CodeGymRunner: React.FC = () => {
   );
 
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
+
+  const [isPoeModalOpen, setIsPoeModalOpen] = useState(false);
+  const [isLogicBuilderOpen, setIsLogicBuilderOpen] = useState(false);
+  const [isCrashGateOpen, setIsCrashGateOpen] = useState(false);
 
   const currentTaskIndex = FINTECH_TASKS.findIndex((t) => t.id === currentTask.id);
   const nextTask =
@@ -529,6 +541,42 @@ export const CodeGymRunner: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsPoeModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title="Живий симулятор: Що вибухне? (Predict-Observe-Explain)"
+            >
+              <Flame size={13} className="text-amber-700" />
+              <span className="hidden sm:inline">Що вибухне?</span>
+            </button>
+
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsLogicBuilderOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-cyan-600/15 hover:bg-cyan-600/25 border border-cyan-700/30 text-cyan-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title="Конструктор прошивки (No-Typing Logic Lab)"
+            >
+              <Layers size={13} className="text-cyan-800" />
+              <span className="hidden sm:inline">Конструктор</span>
+            </button>
+
+            <button
+              onClick={() => {
+                audioFx.playWarRoomSiren();
+                setIsCrashGateOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-600/30 text-rose-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title="Аттестаційний краш-тест станції (Certification Drill)"
+            >
+              <ShieldAlert size={13} className="text-rose-700" />
+              <span className="hidden sm:inline">Краш-тест</span>
+            </button>
+
             {allPosTasksCompleted && (
               <button
                 onClick={() => {
@@ -721,6 +769,27 @@ export const CodeGymRunner: React.FC = () => {
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
         onUnlockPractice={unlockPractice}
+      />
+
+      <PredictObserveExplainModal
+        isOpen={isPoeModalOpen}
+        onClose={() => setIsPoeModalOpen(false)}
+        stationId="pos"
+      />
+
+      <FirmwareLogicBuilderModal
+        isOpen={isLogicBuilderOpen}
+        onClose={() => setIsLogicBuilderOpen(false)}
+        stationId="pos"
+      />
+
+      <StationCrashTestGateModal
+        isOpen={isCrashGateOpen}
+        onClose={() => setIsCrashGateOpen(false)}
+        stationId="pos"
+        onPassed={() => {
+          setPosVictoryModalOpen(true);
+        }}
       />
     </div>
   );
