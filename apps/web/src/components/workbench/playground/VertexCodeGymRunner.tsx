@@ -120,12 +120,15 @@ export const VertexCodeGymRunner: React.FC = () => {
     initialLang: "python",
     starsEarned,
     stationId: "vertex",
-    onRoundComplete: async (round) => {
+    onRoundComplete: async (round, _code, stats) => {
       const targetStars = round ?? 1;
-      setTaskMastery(currentTask.id, targetStars);
-      saveTaskProgress(currentTask.id, targetStars);
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, stats?.wpm);
+      saveTaskProgress(currentTask.id, targetStars, stats?.wpm);
       completeCodingTask(currentTask.id);
-      addXp(targetStars * 15);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 25);
+      }
       const allCompleted = VERTEX_TASKS.every(
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
@@ -194,7 +197,45 @@ export const VertexCodeGymRunner: React.FC = () => {
       }
     }
 
+    if (activeRound === 3) {
+      const isMatch = typedCode.trim() === targetCode.trim();
+      if (!isMatch) {
+        setHasError(true);
+        audioFx.playErrorBuzz();
+        setFeedback(t("codegym.sprintMismatch", "Код не збігається з еталоном. Перевірте кожен символ!"));
+        return;
+      }
+    }
+
     const beforeState = vertexState;
+    const dummyResult: VertexCommandResult = {
+      success: true,
+      newState: beforeState,
+      output: "Pipeline instruction applied successfully",
+      logs: [],
+    };
+
+    const preValidation = currentTask.validate(
+      currentTask.initialState,
+      beforeState,
+      dummyResult,
+      typedCode
+    );
+
+    if (!preValidation.passed) {
+      audioFx.playErrorBuzz();
+      setHasError(true);
+      setFeedback(
+        String(
+          t(
+            preValidation.messageKey || currentTask.hintKey,
+            "MLOps configuration verification failed."
+          )
+        )
+      );
+      return;
+    }
+
     let result: VertexCommandResult = {
       success: true,
       newState: beforeState,
@@ -289,13 +330,13 @@ export const VertexCodeGymRunner: React.FC = () => {
         setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       }
 
-      if (starsEarned < targetStars) {
-        setTaskMastery(currentTask.id, targetStars, calculatedWpm);
-        addXp(activeRound * 25);
-        completeCodingTask(currentTask.id);
-      }
-
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, calculatedWpm);
       saveTaskProgress(currentTask.id, targetStars, calculatedWpm);
+      completeCodingTask(currentTask.id);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 25);
+      }
 
       const allCompleted = VERTEX_TASKS.every(
         (task) =>
@@ -330,7 +371,6 @@ export const VertexCodeGymRunner: React.FC = () => {
     configureVertexEndpointAction,
     configureVertexIamAction,
     checkVertexMonitoringAction,
-    starsEarned,
     roundStartTimeRef,
     setRoundStats,
     setTaskMastery,
@@ -565,7 +605,7 @@ export const VertexCodeGymRunner: React.FC = () => {
                   </span>
                   {starsEarned >= round && (
                     <span className="text-amber-400 text-xs">
-                      {round === 4 ? "" : "⭐"}
+                      ⭐
                     </span>
                   )}
                 </div>

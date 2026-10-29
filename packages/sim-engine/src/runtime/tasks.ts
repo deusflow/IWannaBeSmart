@@ -6,6 +6,7 @@
 import type { CodingTask } from "./types";
 import { executeTvScript } from "./evaluator";
 import { WORKED_EXAMPLES } from "./workedExamplesData";
+import { stripComments } from "./parser";
 
 export const CODING_TASKS: CodingTask[] = [
   {
@@ -94,13 +95,15 @@ export const CODING_TASKS: CodingTask[] = [
         da: 'C#: tv.SetChannel(4); tv.SetLabel("CINEMA"); | Go: tv.SetChannel(4) tv.SetLabel("CINEMA")',
       },
       targetSnippetExample: 'tv.SetChannel(4);\ntv.SetLabel("CINEMA");',
-      validate: (_before, after, code) => {
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
         const hasChannel = after.channel === 4;
         const hasLabel = after.label === "CINEMA" || after.osdMessage === "CINEMA" || (code && /SetLabel\s*\(\s*"CINEMA"\s*\)/i.test(code));
         return Boolean(hasChannel && hasLabel);
       },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -278,7 +281,10 @@ if tv.IsOn {
         da: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
       },
       targetSnippetExample: "if (tv.IsOn) {\n    tv.Volume = 40;\n} else {\n    tv.IsOn = true;\n}",
-      validate: (_before, after, code) => (after.volume === 40 || after.isOn) && /if\s*\(?tv\.IsOn/i.test(code),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return (after.volume === 40 || after.isOn) && /if\s*\(?tv\.IsOn/i.test(code);
+      },
     },
     validate: (before, after, result) => {
       if (!result.success) {
@@ -331,10 +337,13 @@ tv.Channel++
         da: "C#: tv.Channel--; | Go: tv.Channel--",
       },
       targetSnippetExample: "tv.Channel--;",
-      validate: (before, after, code) =>
-        Boolean(/(?:Channel\s*--|Channel\s*-=\s*1)/i.test(code) && (after.channel === before.channel - 1 || after.channel < before.channel)),
+      validate: (before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return Boolean(/(?:Channel\s*--|Channel\s*-=\s*1)/i.test(code) && (after.channel === before.channel - 1 || after.channel < before.channel));
+      },
     },
-    validate: (before, after, result, code) => {
+    validate: (before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -405,14 +414,16 @@ if tv.Channel > 4 {
         da: "if (tv.Volume > 80) { tv.Volume = 80; }",
       },
       targetSnippetExample: "if (tv.Volume > 80) {\n    tv.Volume = 80;\n}",
-      validate: (_before, _after, code) => {
+      validate: (_before, _after, rawCode) => {
+        const code = stripComments(rawCode || "");
         if (!/if\s*\(?tv\.Volume\s*>\s*80/i.test(code)) return false;
         const testOver = executeTvScript(code, { isOn: true, channel: 1, volume: 95 });
         const testNormal = executeTvScript(code, { isOn: true, channel: 1, volume: 50 });
         return Boolean(testOver.success && testOver.newState.volume === 80 && testNormal.success && testNormal.newState.volume === 50);
       },
     },
-    validate: (before, after, result, code) => {
+    validate: (before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -489,9 +500,13 @@ for i := 1; i <= 4; i++ {
         da: "C#: for (int i = 1; i <= 3; i++) { tv.Channel = i; } | Go: for i := 1; i <= 3; i++ { tv.Channel = i }",
       },
       targetSnippetExample: "for (int i = 1; i <= 3; i++) {\n    tv.Channel = i;\n}",
-      validate: (_before, after, code) => Boolean(/for\s/i.test(code) && (after.channel === 3 || /<=\s*3|<\s*4/i.test(code))),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return Boolean(/for\s/i.test(code) && (after.channel === 3 || /<=\s*3|<\s*4/i.test(code)));
+      },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -552,13 +567,15 @@ myTv.___()`,
         da: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
       },
       targetSnippetExample: "TV livingRoomTv = new TV();\nlivingRoomTv.SetChannel(3);",
-      validate: (_before, after, code) => {
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
         const hasName = /livingRoomTv/i.test(code);
         const hasInst = /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code);
         return Boolean(hasName && hasInst && after.channel === 3);
       },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) return { passed: false, messageKey: "playground.errorSyntax" };
       const hasInst = Boolean(code && /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code));
       const hasCall = Boolean(code && /(?:myTv|[a-zA-Z_]\w*)\.PowerOn\s*\(\s*\)/i.test(code));
@@ -615,13 +632,15 @@ tv.SetVolume(___ + 10)`,
         da: "C#: int currentVol = tv.GetVolume(); tv.SetVolume(currentVol - 15); | Go: currentVol := tv.GetVolume(); tv.SetVolume(currentVol - 15)",
       },
       targetSnippetExample: "int currentVol = tv.GetVolume();\ntv.SetVolume(currentVol - 15);",
-      validate: (before, after, code) => {
+      validate: (before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
         const hasGet = /GetVolume\s*\(\s*\)/i.test(code);
         const hasVar = /currentVol/i.test(code);
         return Boolean(hasGet && hasVar && after.volume === Math.max(0, before.volume - 15));
       },
     },
-    validate: (before, after, result, code) => {
+    validate: (before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) return { passed: false, messageKey: "playground.errorSyntax" };
       const hasGet = Boolean(code && /GetVolume\s*\(\s*\)/i.test(code));
       const hasSet = Boolean(code && /SetVolume\s*\(\s*(?:vol|currentVol|[a-zA-Z_]\w*)\s*\+\s*10\s*\)/i.test(code));
@@ -692,14 +711,16 @@ if broken != ___ {
         da: "C#: TV remote = null; if (remote != null) { remote.PowerOn(); } (eller TV remote = null; remote?.PowerOn();)",
       },
       targetSnippetExample: "TV remote = null;\nif (remote != null) {\n    remote.PowerOn();\n}",
-      validate: (_before, after, code) => {
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
         const hasRemote = /remote/i.test(code);
         const hasNull = /(?:null|nil)/i.test(code);
         const hasGuard = /(?:!=\s*(?:null|nil)|\?\.\s*PowerOn)/i.test(code);
         return Boolean(hasRemote && hasNull && hasGuard && after.isSafeGuardActive);
       },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -776,9 +797,13 @@ ___()`,
         da: "C#: void MaxVolume() { tv.Volume = 100; } MaxVolume(); | Go: func MaxVolume() { tv.Volume = 100 } MaxVolume()",
       },
       targetSnippetExample: "void MaxVolume() {\n    tv.Volume = 100;\n}\n\nMaxVolume();",
-      validate: (_before, after, code) => Boolean(/MaxVolume\s*\(\s*\)/i.test(code) && after.volume === 100),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return Boolean(/MaxVolume\s*\(\s*\)/i.test(code) && after.volume === 100);
+      },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -901,9 +926,13 @@ case "___":
         da: "case \"INFO\": tv.SetMode(\"INFO_MODE\"); break;",
       },
       targetSnippetExample: 'case "INFO":\n    tv.SetMode("INFO_MODE");\n    break;',
-      validate: (_before, after, code) => Boolean(/case\s*["']INFO["']/i.test(code) && (after.osdMessage === "INFO_MODE" || /INFO_MODE/i.test(code))),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return Boolean(/case\s*["']INFO["']/i.test(code) && (after.osdMessage === "INFO_MODE" || /INFO_MODE/i.test(code)));
+      },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -966,9 +995,13 @@ command.___()`,
         da: "C#: IRemoteCommand cmd = new InfoCommand(); cmd.Execute(); | Go: cmd := InfoCommand{}; cmd.Execute()",
       },
       targetSnippetExample: "IRemoteCommand cmd = new InfoCommand();\ncmd.Execute();",
-      validate: (_before, after, code) => Boolean(/cmd\.Execute\s*\(\s*\)/i.test(code) && (after.osdMessage === "INFO_MODE" || /InfoCommand/i.test(code))),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return Boolean(/cmd\.Execute\s*\(\s*\)/i.test(code) && (after.osdMessage === "INFO_MODE" || /InfoCommand/i.test(code)));
+      },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -1023,13 +1056,15 @@ container.Register("calc", NewCalcCommand())
         da: 'C#: services.AddTransient<IRemoteCommand, InfoCommand>(); | Go: container.Register("info", NewInfoCommand())',
       },
       targetSnippetExample: "services.AddTransient<IRemoteCommand, InfoCommand>();",
-      validate: (_before, after, code) => {
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
         const isCs = /services\.(?:AddTransient|AddSingleton|AddScoped)\s*<\s*IRemoteCommand\s*,\s*InfoCommand\s*>\s*\(\s*\)/i.test(code);
         const isGo = /container\.Register\s*\(\s*["']info["']\s*,\s*(?:NewInfoCommand\(\)|InfoCommand\{\})\s*\)/i.test(code);
         return Boolean((isCs || isGo) && (after.osdMessage === "INFO_MODE" || after.osdMessage === "CALC_MODE"));
       },
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -1112,10 +1147,13 @@ registry[___].Execute()`,
         da: 'C#: registry["INFO"] = new InfoCommand(); registry[button].Execute(); | Go: registry["INFO"] = InfoCommand{}; registry[button].Execute()',
       },
       targetSnippetExample: 'registry["INFO"] = new InfoCommand();\nregistry[button].Execute();',
-      validate: (_before, _after, code) =>
-        Boolean(/registry\s*\[\s*["']INFO["']\s*\]/i.test(code) && /registry\s*\[\s*button\s*\]\s*\.\s*Execute\s*\(\s*\)/i.test(code)),
+      validate: (_before, _after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return Boolean(/registry\s*\[\s*["']INFO["']\s*\]/i.test(code) && /registry\s*\[\s*button\s*\]\s*\.\s*Execute\s*\(\s*\)/i.test(code));
+      },
     },
-    validate: (before, after, result, code) => {
+    validate: (before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -1212,7 +1250,8 @@ for ch := 1; ch <= 5; ___ {
       "[DIAGNOSTIC] Variable ch is decreasing (1, 0, -1...) -> (ch <= 5) invariant never breaks",
       "[STATUS] TV Hardware Freeze: REPAIR REQUIRED",
     ],
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }
@@ -1331,7 +1370,8 @@ if ___ <= 100 {
       "[ERROR] CATHODE_RAY_OVERLOAD: Safety fuse blown. Display disabled.",
       "[STATUS] Device in FAULT state. Boundary check required before SetBrightness().",
     ],
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "playground.errorSyntax" };
       }

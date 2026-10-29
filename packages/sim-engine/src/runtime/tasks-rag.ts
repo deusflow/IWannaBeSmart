@@ -13,6 +13,7 @@
  */
 
 import type { WorkedExample } from "./types";
+import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export interface RagTask {
   id: string;
@@ -586,3 +587,9 @@ export function guardrailInputCheck(userQuery: string): { isSafe: boolean; messa
     },
   },
 ];
+
+for (const t of RAG_TASKS) {
+  if (!t.workedExample && WORKED_EXAMPLES[t.id]) {
+    t.workedExample = WORKED_EXAMPLES[t.id];
+  }
+}

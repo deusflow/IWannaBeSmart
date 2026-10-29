@@ -6,12 +6,20 @@
 
 export interface DidacticTranslation {
   whyThisCode: {
-    csharp: string;
-    go: string;
+    csharp?: string;
+    go?: string;
+    python?: string;
+    typescript?: string;
+    yaml?: string;
+    [lang: string]: string | undefined;
   };
   primitiveMemoryNote?: {
-    csharp: string;
-    go: string;
+    csharp?: string;
+    go?: string;
+    python?: string;
+    typescript?: string;
+    yaml?: string;
+    [lang: string]: string | undefined;
   };
   canvasWiring?: string;
   architectureHint?: string;
@@ -245,8 +253,13 @@ export const TASK_DIDACTIC_EN: Record<string, DidacticTranslation> = {
       "csharp": "Resilience policy: wrap HTTP calls with Polly retry pipeline to absorb transient 504 timeouts.",
       "go": "Implement retry loop with exponential backoff for transient network errors."
     }
-  }
-,
+  },
+  "task-api-6-resiliency-retry": {
+    "whyThisCode": {
+      "csharp": "Resilience policy: wrap HTTP calls with Polly retry pipeline to absorb transient 504 timeouts.",
+      "go": "Implement retry loop with exponential backoff for transient network errors."
+    }
+  },
   "task-git-1-genesis": {
     "whyThisCode": {
       "csharp": "Execute Git plumbing via Process.Start: stage tracked files (git add) and create the root genesis commit with a cryptographic SHA-1 hash.",
@@ -340,41 +353,57 @@ export const TASK_DIDACTIC_EN: Record<string, DidacticTranslation> = {
   "task-rag-1-chunking-overlap": {
     "whyThisCode": {
       "csharp": "Document chunking with sliding window overlap: divide source corpus into 500-token chunks with 50-token overlap to preserve semantic continuity across boundaries.",
-      "go": "Segment text documents with configurable chunk overlap for optimal vector embedding generation."
+      "go": "Segment text documents with configurable chunk overlap for optimal vector embedding generation.",
+      "python": "Document chunking with sliding window overlap: divide source corpus into chunks with token overlap to preserve semantic continuity across boundaries.",
+      "typescript": "Segment text documents with sliding window overlap for optimal vector embedding generation."
     },
     "primitiveMemoryNote": {
       "csharp": "Tokens are processed as contiguous spans in ReadOnlySpan<char> memory buffers, eliminating superfluous string allocations during splitting.",
-      "go": "Document snippets are processed as slices in memory to minimize memory copying."
+      "go": "Document snippets are processed as slices in memory to minimize memory copying.",
+      "python": "Text slicing produces views into memory without superfluous full-string allocations.",
+      "typescript": "Document snippets are processed as substring slices in memory to minimize memory copying."
     }
   },
   "task-rag-4-hybrid-rrf": {
     "whyThisCode": {
       "csharp": "Hybrid search via Reciprocal Rank Fusion (RRF): combine sparse lexical results (BM25) and dense semantic vector rankings into a unified relevance score.",
-      "go": "Compute reciprocal rank fusion scores to balance exact keyword matching with semantic embedding search."
+      "go": "Compute reciprocal rank fusion scores to balance exact keyword matching with semantic embedding search.",
+      "python": "Hybrid search via Reciprocal Rank Fusion (RRF): combine sparse lexical results (BM25) and dense semantic vector rankings into a unified relevance score.",
+      "typescript": "Compute reciprocal rank fusion scores to balance exact keyword matching with semantic embedding search."
     },
     "primitiveMemoryNote": {
       "csharp": "Score calculation uses 1.0 / (k + rank) where k=60; results are stored in a priority queue (Min-Heap) for top-K retrieval in O(N log K).",
-      "go": "Top-K documents are sorted in a compact memory heap for lowest query latency."
+      "go": "Top-K documents are sorted in a compact memory heap for lowest query latency.",
+      "python": "Score calculation uses 1.0 / (k + rank) where k=60; results are stored in a priority queue for top-K retrieval in O(N log K).",
+      "typescript": "Top-K documents are sorted in a compact memory heap for lowest query latency."
     }
   },
   "task-cyber-4-syn-flood-detector": {
     "whyThisCode": {
       "csharp": "Detect TCP SYN Flood attacks: track half-open connection ratio and alert when pending handshake queue backlog exceeds capacity threshold.",
-      "go": "Monitor raw network socket packets to identify abnormal bursts of TCP SYN flags without matching ACK responses."
+      "go": "Monitor raw network socket packets to identify abnormal bursts of TCP SYN flags without matching ACK responses.",
+      "python": "Detect TCP SYN Flood attacks: track half-open connection ratio and alert when pending handshake queue backlog exceeds capacity threshold.",
+      "typescript": "Monitor raw network socket packets to identify abnormal bursts of TCP SYN flags without matching ACK responses."
     },
     "primitiveMemoryNote": {
       "csharp": "Packet header flags (SYN=0x02, ACK=0x10) are unpacked via bitwise masking in a circular ring buffer without locking.",
-      "go": "Network packet flags are evaluated with bitwise masks in a ring buffer for low CPU footprint."
+      "go": "Network packet flags are evaluated with bitwise masks in a ring buffer for low CPU footprint.",
+      "python": "Packet header flags (SYN=0x02, ACK=0x10) are unpacked via bitwise masking in a circular ring buffer without locking.",
+      "typescript": "Network packet flags are evaluated with bitwise masks in a ring buffer for low CPU footprint."
     }
   },
   "task-cyber-8-nist-containment": {
     "whyThisCode": {
       "csharp": "Implement NIST SP 800-61 incident containment: isolate compromised hosts via firewall rules, revoke session tokens, and preserve forensic memory logs.",
-      "go": "Enforce network host isolation, terminate active malicious connections, and write tamper-proof audit trails."
+      "go": "Enforce network host isolation, terminate active malicious connections, and write tamper-proof audit trails.",
+      "python": "Implement NIST SP 800-61 incident containment: isolate compromised hosts via firewall rules, revoke session tokens, and preserve forensic memory logs.",
+      "typescript": "Enforce network host isolation, terminate active malicious connections, and write tamper-proof audit trails."
     },
     "primitiveMemoryNote": {
       "csharp": "Forensic state and network ACLs are written to an append-only audit stream with cryptographic checksums for chain of custody.",
-      "go": "Forensic event data is recorded with cryptographic timestamps to safeguard the chain of custody."
+      "go": "Forensic event data is recorded with cryptographic timestamps to safeguard the chain of custody.",
+      "python": "Forensic state and network ACLs are written to an append-only audit stream with cryptographic checksums for chain of custody.",
+      "typescript": "Forensic event data is recorded with cryptographic timestamps to safeguard the chain of custody."
     }
   },
 };
@@ -607,8 +636,13 @@ export const TASK_DIDACTIC_DA: Record<string, DidacticTranslation> = {
       "csharp": "Resilienspolitik: indpak HTTP-kald i Polly retry-pipeline for at håndtere midlertidige 504 timeouts.",
       "go": "Implementer retry-løkke med eksponentiel backoff for midlertidige netværksfejl."
     }
-  }
-,
+  },
+  "task-api-6-resiliency-retry": {
+    "whyThisCode": {
+      "csharp": "Resilienspolitik: indpak HTTP-kald i Polly retry-pipeline for at håndtere midlertidige 504 timeouts.",
+      "go": "Implementer retry-løkke med eksponentiel backoff for midlertidige netværksfejl."
+    }
+  },
   "task-git-1-genesis": {
     "whyThisCode": {
       "csharp": "Udfør Git-plumbing via Process.Start: stage sporede filer (git add) og opret rod-genesiskommit med en kryptografisk SHA-1 hash.",
@@ -702,41 +736,57 @@ export const TASK_DIDACTIC_DA: Record<string, DidacticTranslation> = {
   "task-rag-1-chunking-overlap": {
     "whyThisCode": {
       "csharp": "Dokumentopdeling med glidende vindue (overlap): opdel kildetekst i 500-token bidder med 50-token overlap for at bevare semantisk sammenhæng.",
-      "go": "Segmentér tekstdokumenter med overlap for at opnå optimale vektorindlejringer."
+      "go": "Segmentér tekstdokumenter med overlap for at opnå optimale vektorindlejringer.",
+      "python": "Dokumentopdeling med glidende vindue (overlap): opdel kildetekst med overlap for at bevare semantisk sammenhæng.",
+      "typescript": "Segmentér tekstdokumenter med overlap for at opnå optimale vektorindlejringer."
     },
     "primitiveMemoryNote": {
       "csharp": "Tokens behandles som sammenhængende ReadOnlySpan<char>-blokke uden overflødig strengallokering på heapen.",
-      "go": "Udsnit af dokumenter håndteres direkte via slices for lynhurtig parsing."
+      "go": "Udsnit af dokumenter håndteres direkte via slices for lynhurtig parsing.",
+      "python": "Tekstsegmentering udføres i hukommelsen uden unødige strengallokeringer.",
+      "typescript": "Dokumentudsnit håndteres som delstrenge i hukommelsen for minimal overhead."
     }
   },
   "task-rag-4-hybrid-rrf": {
     "whyThisCode": {
       "csharp": "Hybrid søgning med Reciprocal Rank Fusion (RRF): kombinér leksikalsk søgning (BM25) og semantisk vektorsøgning til en samlet relevansscore.",
-      "go": "Beregn RRF-point for at afbalancere nøgleordssøgning med semantisk vektorforståelse."
+      "go": "Beregn RRF-point for at afbalancere nøgleordssøgning med semantisk vektorforståelse.",
+      "python": "Hybrid søgning med Reciprocal Rank Fusion (RRF): kombinér leksikalsk søgning (BM25) og semantisk vektorsøgning til en samlet relevansscore.",
+      "typescript": "Beregn RRF-point for at afbalancere nøgleordssøgning med semantisk vektorforståelse."
     },
     "primitiveMemoryNote": {
       "csharp": "Pointberegningen anvender formlen 1.0 / (k + rang) med k=60 og lagres i en prioritetskø (Min-Heap) for hurtig top-K søgning.",
-      "go": "Top-K dokumenter sorteres i en kompakt hukommelseskø med minimal beregningsforsinkelse."
+      "go": "Top-K dokumenter sorteres i en kompakt hukommelseskø med minimal beregningsforsinkelse.",
+      "python": "Pointberegningen anvender formlen 1.0 / (k + rang) med k=60 og lagres i en prioritetskø for hurtig top-K søgning.",
+      "typescript": "Top-K dokumenter sorteres i en kompakt hukommelseskø med minimal beregningsforsinkelse."
     }
   },
   "task-cyber-4-syn-flood-detector": {
     "whyThisCode": {
       "csharp": "Registrér TCP SYN Flood angreb: overvåg forholdet mellem halvåbne forbindelser og slå alarm, når baglog-køen overstiger tærsklen.",
-      "go": "Overvåg rå netværkspakker for at identificere unormale stigninger i TCP SYN-flag uden matchende ACK."
+      "go": "Overvåg rå netværkspakker for at identificere unormale stigninger i TCP SYN-flag uden matchende ACK.",
+      "python": "Registrér TCP SYN Flood angreb: overvåg forholdet mellem halvåbne forbindelser og slå alarm, når baglog-køen overstiger tærsklen.",
+      "typescript": "Overvåg rå netværkspakker for at identificere unormale stigninger i TCP SYN-flag uden matchende ACK."
     },
     "primitiveMemoryNote": {
       "csharp": "Pakkeflag (SYN=0x02, ACK=0x10) udpakkes via bitvise masker i en cirkulær ring-buffer uden låsning.",
-      "go": "Netværksflag analyseres med bitmasker i en ringbuffer for ekstremt lav latenstid."
+      "go": "Netværksflag analyseres med bitmasker i en ringbuffer for ekstremt lav latenstid.",
+      "python": "Pakkeflag (SYN=0x02, ACK=0x10) udpakkes via bitvise masker i en cirkulær ring-buffer uden låsning.",
+      "typescript": "Netværksflag analyseres med bitmasker i en ringbuffer for ekstremt lav latenstid."
     }
   },
   "task-cyber-8-nist-containment": {
     "whyThisCode": {
       "csharp": "Implementér hændelsesbegrænsning efter NIST SP 800-61: isolér kompromitterede værter via firewall, tilbagekald sessioner og gem retsmedicinske logfiler.",
-      "go": "Isolér netværksvært, afbryd ondsindede forbindelser og opret en uforanderlig revisionslog."
+      "go": "Isolér netværksvært, afbryd ondsindede forbindelser og opret en uforanderlig revisionslog.",
+      "python": "Implementér hændelsesbegrænsning efter NIST SP 800-61: isolér kompromitterede værter via firewall, tilbagekald sessioner og gem retsmedicinske logfiler.",
+      "typescript": "Isolér netværksvært, afbryd ondsindede forbindelser og opret en uforanderlig revisionslog."
     },
     "primitiveMemoryNote": {
       "csharp": "Retsmedicinske data og netværksregler skrives til en append-only log med kryptografiske kontrolsummer for beviskæde.",
-      "go": "Hændelsesdata registreres med kryptografiske tidsstempler for at sikre bevisernes gyldighed."
+      "go": "Hændelsesdata registreres med kryptografiske tidsstempler for at sikre bevisernes gyldighed.",
+      "python": "Retsmedicinske data og netværksregler skrives til en append-only log med kryptografiske kontrolsummer for beviskæde.",
+      "typescript": "Hændelsesdata registreres med kryptografiske tidsstempler for at sikre bevisernes gyldighed."
     }
   },
 };

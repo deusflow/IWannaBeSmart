@@ -10,6 +10,7 @@ import {
 } from "./apiContext";
 import type { WorkedExample } from "./types";
 import { WORKED_EXAMPLES } from "./workedExamplesData";
+import { stripComments } from "./parser";
 
 export interface ApiForgeTask {
   id: string;
@@ -68,7 +69,7 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     },
     initialState: INITIAL_API_STATE,
     validate: (_before, _after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasRoute =
         normalized.includes("/health") ||
         normalized.includes("mapget") ||
@@ -136,7 +137,7 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     },
     initialState: INITIAL_API_STATE,
     validate: (_before, _after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasNotFound =
         normalized.includes("notfound") ||
         normalized.includes("statusnotfound") ||
@@ -210,7 +211,7 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     },
     initialState: INITIAL_API_STATE,
     validate: (_before, _after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasBadRequest =
         normalized.includes("badrequest") ||
         normalized.includes("statusbadrequest") ||
@@ -280,7 +281,7 @@ export const API_FORGE_TASKS: ApiForgeTask[] = [
     },
     initialState: INITIAL_API_STATE,
     validate: (_before, _after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasAuth =
         normalized.includes("authorization") ||
         normalized.includes("bearer");
@@ -341,7 +342,7 @@ defer resp.Body.Close()`,
     },
     initialState: INITIAL_API_STATE,
     validate: (_before, after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasClient =
         normalized.includes("httpclient") ||
         normalized.includes("http.get") ||
@@ -415,7 +416,7 @@ defer resp.Body.Close()`,
     },
     initialState: INITIAL_API_STATE,
     validate: (_before, after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasLoop =
         normalized.includes("for") &&
         (normalized.includes("attempt") || normalized.includes("retry") || normalized.includes("<="));

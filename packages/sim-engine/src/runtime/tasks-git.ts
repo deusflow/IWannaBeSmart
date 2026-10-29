@@ -10,6 +10,7 @@ import {
 } from "./gitContext";
 import type { WorkedExample } from "./types";
 import { WORKED_EXAMPLES } from "./workedExamplesData";
+import { stripComments } from "./parser";
 
 export interface GitTask {
   id: string;
@@ -74,7 +75,7 @@ exec.Command("git", /* Вкажіть аргументи commit -m */).Run()`,
     },
     initialState: INITIAL_GIT_STATE,
     validate: (before, after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasCommitCmd =
         normalized.includes("commit") &&
         (normalized.includes("-m") || normalized.includes("feat"));
@@ -121,7 +122,7 @@ exec.Command("git", "commit", "-m", "feat: calibrate 38khz ir frequency").Run()`
     },
     initialState: INITIAL_GIT_STATE,
     validate: (_before, after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const mentionsBranch =
         normalized.includes("feature/ir-blaster") ||
         normalized.includes("checkout -b") ||
@@ -195,7 +196,7 @@ exec.Command("git", /* Вкажіть merge */).Run()`,
       commitCounter: 2,
     },
     validate: (_before, after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasCheckoutMain = normalized.includes("checkout main") || normalized.includes("switch main");
       const hasMergeCmd = normalized.includes("merge feature/ir-blaster") || normalized.includes("merge");
 
@@ -285,7 +286,7 @@ exec.Command("git", /* Завершіть злиття commit -m */).Run()`,
       commitCounter: 3,
     },
     validate: (before, after, _result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasMerge = normalized.includes("merge hotfix/baudrate") || normalized.includes("merge");
       const hasAdd = normalized.includes("add device.config") || normalized.includes("add .");
       const hasCommit = normalized.includes("commit");
@@ -369,7 +370,7 @@ exec.Command("git", /* Вкажіть rebase main */).Run()`,
       commitCounter: 3,
     },
     validate: (_before, after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasRebaseCmd = normalized.includes("rebase main");
 
       // After rebase, feature/sensor-driver commit should have parent c3 (or rebased commit)
@@ -424,7 +425,7 @@ exec.Command("git", /* merge */).Run()`,
     },
     initialState: INITIAL_GIT_STATE,
     validate: (_before, _after, result, code = "") => {
-      const normalized = code.toLowerCase();
+      const normalized = stripComments(code).toLowerCase();
       const hasPrBranch =
         normalized.includes("pr/crypto-pin-auth") ||
         normalized.includes("checkout -b");

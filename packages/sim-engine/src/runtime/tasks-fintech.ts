@@ -6,6 +6,7 @@
 import type { VirtualPosState, PosRuntimeResult } from "./terminalContext";
 import type { WorkedExample } from "./types";
 import { WORKED_EXAMPLES } from "./workedExamplesData";
+import { stripComments } from "./parser";
 
 export interface PosTransferVariant {
   prompt: Record<"ua" | "en" | "da", string>;
@@ -95,7 +96,8 @@ export const FINTECH_TASKS: FintechTask[] = [
     return
 }`,
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "fintechTask1.syntaxError" };
       }
@@ -122,9 +124,13 @@ export const FINTECH_TASKS: FintechTask[] = [
         da: "if (amount > 500) { status = \"DECLINED\"; return; }",
       },
       targetSnippetExample: "if (amount > 500) {\n    status = \"DECLINED\";\n    return;\n}",
-      validate: (_before, after, code) =>
-        after.status === "DECLINED" &&
-        Boolean(code && /500/.test(code) && /return/i.test(code)),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return (
+          after.status === "DECLINED" &&
+          Boolean(code && /500/.test(code) && /return/i.test(code))
+        );
+      },
     },
   },
   {
@@ -162,7 +168,8 @@ status = "___";`,
 balance -= ___
 status = "___"`,
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "fintechTask2.syntaxError" };
       }
@@ -259,7 +266,8 @@ status = "___"`,
     }
 }`,
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "fintechTask3.syntaxError" };
       }
@@ -301,10 +309,14 @@ status = "___"`,
         da: "if (pin != enteredPin) { failedAttempts++; if (failedAttempts >= 2) { isLocked = true; status = \"BLOCKED\"; } }",
       },
       targetSnippetExample: "if (pin != enteredPin) {\n    failedAttempts++;\n    if (failedAttempts >= 2) {\n        isLocked = true;\n        status = \"BLOCKED\";\n    }\n}",
-      validate: (_before, after, code) =>
-        after.isLocked === true &&
-        after.status === "BLOCKED" &&
-        Boolean(code && /(?:>=|>)\s*2/.test(code)),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return (
+          after.isLocked === true &&
+          after.status === "BLOCKED" &&
+          Boolean(code && /(?:>=|>)\s*2/.test(code))
+        );
+      },
     },
   },
   {
@@ -343,7 +355,8 @@ status = "___"`,
     dailyTotal += ___[i]
 }`,
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "fintechTask4.syntaxError" };
       }
@@ -455,7 +468,8 @@ if !___ {
 }
 status = "___"`,
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "fintechTask5.syntaxError" };
       }
@@ -485,9 +499,13 @@ status = "___"`,
         da: "if (totalAmount > 500) { status = \"DECLINED\"; return; } bool approved = gateway.Charge(totalAmount);",
       },
       targetSnippetExample: "if (totalAmount > 500) {\n    status = \"DECLINED\";\n    return;\n}\nbool approved = gateway.Charge(totalAmount);\nstatus = \"APPROVED\";",
-      validate: (_before, after, code) =>
-        after.status === "APPROVED" &&
-        Boolean(code && /500/.test(code) && /Charge/i.test(code)),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return (
+          after.status === "APPROVED" &&
+          Boolean(code && /500/.test(code) && /Charge/i.test(code))
+        );
+      },
     },
   },
   {
@@ -519,7 +537,8 @@ status = "___"`,
       csharp: `services.AddScoped<___, DankortGateway>();`,
       go: `container.Register("___", NewDankortGateway())`,
     },
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "fintechTask6.syntaxError" };
       }
@@ -559,9 +578,13 @@ status = "___"`,
         da: "Erstat AddScoped med AddSingleton",
       },
       targetSnippetExample: "services.AddSingleton<IPaymentGateway, DankortGateway>();",
-      validate: (_before, after, code) =>
-        after.isGatewayRegistered === true &&
-        Boolean(code && /AddSingleton|RegisterSingleton/i.test(code)),
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return (
+          after.isGatewayRegistered === true &&
+          Boolean(code && /AddSingleton|RegisterSingleton/i.test(code))
+        );
+      },
     },
   },
   {
@@ -635,7 +658,8 @@ status = "APPROVED"`,
       "[MUTATION TRACE] balance mutated 2 times in single transaction sequence (Double deduction detected)",
       "[STATUS] POS IN FAULT: Redundant mutation must be eliminated.",
     ],
-    validate: (_before, after, result, code) => {
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
       if (!result.success) {
         return { passed: false, messageKey: "fintechTask7.syntaxError" };
       }
@@ -664,13 +688,15 @@ status = "APPROVED"`,
         da: "fee = 25; totalAmount = amount + fee; balance -= totalAmount;",
       },
       targetSnippetExample: "decimal fee = 25;\ndecimal totalAmount = amount + fee;\nbalance -= totalAmount;\nstatus = \"APPROVED\";",
-      validate: (_before, after, code) =>
-        Boolean(
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return Boolean(
           code &&
             !/balance\s*-=\s*fee/i.test(code) &&
             after.status === "APPROVED" &&
             after.balance === 775
-        ),
+        );
+      },
     },
   },
 ];

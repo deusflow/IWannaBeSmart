@@ -31,6 +31,7 @@ import {
 import {
   CODING_TASKS,
   FINTECH_TASKS,
+  IOT_TASKS,
   API_FORGE_TASKS,
   GIT_TASKS,
   BANDIT_TASKS,
@@ -38,6 +39,7 @@ import {
   FDE_TASKS,
   RAG_TASKS,
   CYBER_TASKS,
+  TOTAL_CURRICULUM_TASK_COUNT,
 } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
@@ -222,6 +224,9 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     );
     FINTECH_TASKS.forEach((tk) =>
       list.push({ id: tk.id, title: t(tk.titleKey, tk.id), stationId: "pos", stationName: "POS Terminal", order: tk.order })
+    );
+    IOT_TASKS.forEach((tk) =>
+      list.push({ id: tk.id, title: t(tk.titleKey, tk.id), stationId: "iot", stationName: "Smart IoT", order: tk.order })
     );
     API_FORGE_TASKS.forEach((tk) =>
       list.push({ id: tk.id, title: t(tk.titleKey, tk.id), stationId: "api", stationName: "API Forge", order: tk.order })
@@ -544,7 +549,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           <div className="flex items-center gap-1 text-[10px] text-slate-500">
             <span>IWannaBeSmart</span>
             <span>•</span>
-            <span>73 Tasks</span>
+            <span>{TOTAL_CURRICULUM_TASK_COUNT} Tasks</span>
           </div>
         </div>
       </div>

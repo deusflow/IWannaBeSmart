@@ -3,6 +3,8 @@
  * @description Virtual UNIX bandit wargame, packet sniffer, parameter tampering, SQL injection, and rate limiting simulation engine.
  */
 
+import { stripComments } from "./parser";
+
 export interface BanditFile {
   name: string;
   path: string;
@@ -833,7 +835,7 @@ export function executeBanditScript(
   language: "csharp" | "go",
   taskId: string
 ): { success: boolean; output: string; flagAwarded?: string } {
-  const cleaned = script.trim();
+  const cleaned = stripComments(script).trim();
   if (!cleaned) {
     return { success: false, output: "Error: Code buffer is empty." };
   }

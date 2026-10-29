@@ -1432,6 +1432,7 @@ export const uaTranslation = {
         theoryLockedDesc: "Подивіться зразок вчителя та життєву аналогію вгорі, щоб зрозуміти сенс команди перед набором.",
         openTheoryBtn: "Відкрити пояснення вчителя",
         skipToPractice: "Одразу до коду →",
+        nothingToCopy: "Немає коду для копіювання",
       },
       fintechTask1: {
         title: "Завдання 1: Guard Clause: Захист балансу транзакції",

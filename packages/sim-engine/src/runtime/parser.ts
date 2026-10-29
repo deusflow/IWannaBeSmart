@@ -24,6 +24,7 @@ export interface ExecutionContext {
   commandRegistry: Record<string, string>;
   instanceScope: Record<string, boolean>;
   nullScope: Record<string, boolean>;
+  hasReturned?: boolean;
 }
 
 /**
@@ -33,6 +34,7 @@ export function stripComments(rawCode: string): string {
   return rawCode
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/.*$/gm, "")
+    .replace(/#.*$/gm, "")
     .trim();
 }
 
@@ -66,6 +68,46 @@ export function resolveNumValue(expr: string, scope: Record<string, number>, tv?
 }
 
 /**
+ * Split an expression by an operator ('||' or '&&') at top-level (outside parentheses/quotes)
+ */
+function splitTopLevel(expr: string, op: "||" | "&&"): string[] | null {
+  const parts: string[] = [];
+  let depth = 0;
+  let inString = false;
+  let stringChar = "";
+  let lastIdx = 0;
+  const opLen = op.length;
+
+  for (let i = 0; i < expr.length; i++) {
+    const ch = expr[i];
+    if (inString) {
+      if (ch === stringChar && expr[i - 1] !== "\\") {
+        inString = false;
+      }
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      inString = true;
+      stringChar = ch;
+      continue;
+    }
+    if (ch === "(") depth++;
+    else if (ch === ")") depth = Math.max(0, depth - 1);
+    else if (depth === 0 && expr.slice(i, i + opLen) === op) {
+      parts.push(expr.slice(lastIdx, i).trim());
+      i += opLen - 1;
+      lastIdx = i + 1;
+    }
+  }
+
+  if (parts.length > 0) {
+    parts.push(expr.slice(lastIdx).trim());
+    return parts;
+  }
+  return null;
+}
+
+/**
  * Evaluate a boolean condition on VirtualTV or local scope
  */
 export function evaluateCondition(
@@ -76,7 +118,44 @@ export function evaluateCondition(
 ): boolean {
   const c = condStr.trim();
 
-  // Null inequality: e.g. broken != null or broken != nil
+  // 1. Compound OR (||)
+  const orParts = splitTopLevel(c, "||");
+  if (orParts && orParts.length > 1) {
+    return orParts.some((part) => evaluateCondition(part, tv, scope, ctx));
+  }
+
+  // 2. Compound AND (&&)
+  const andParts = splitTopLevel(c, "&&");
+  if (andParts && andParts.length > 1) {
+    return andParts.every((part) => evaluateCondition(part, tv, scope, ctx));
+  }
+
+  // 3. Balanced outer parentheses: (expr)
+  if (c.startsWith("(") && c.endsWith(")")) {
+    let depth = 0;
+    let wrapsAll = true;
+    for (let i = 0; i < c.length - 1; i++) {
+      if (c[i] === "(") depth++;
+      else if (c[i] === ")") depth--;
+      if (depth === 0) {
+        wrapsAll = false;
+        break;
+      }
+    }
+    if (wrapsAll) {
+      return evaluateCondition(c.slice(1, -1).trim(), tv, scope, ctx);
+    }
+  }
+
+  // 4. Negated parenthesized expression: !(expr)
+  if (c.startsWith("!") && !c.startsWith("!=")) {
+    const inner = c.slice(1).trim();
+    if (inner.startsWith("(") && inner.endsWith(")")) {
+      return !evaluateCondition(inner, tv, scope, ctx);
+    }
+  }
+
+  // 5. Null inequality: e.g. broken != null or broken != nil
   const nullNeqMatch = c.match(/^([a-zA-Z_]\w*)\s*!=\s*(null|nil)$/i);
   if (nullNeqMatch) {
     const varName = nullNeqMatch[1];
@@ -206,6 +285,14 @@ export function evaluateCondition(
     }
   }
 
+  // Scope variable lookup (boolean or numeric truthiness)
+  if (c in scope) {
+    return Boolean(scope[c]);
+  }
+  if (c.startsWith("!") && !c.startsWith("!=") && c.slice(1).trim() in scope) {
+    return !scope[c.slice(1).trim()];
+  }
+
   // Literal boolean: true / false
   if (c.toLowerCase() === "true") return true;
   if (c.toLowerCase() === "false") return false;
@@ -228,6 +315,12 @@ function executeStatement(
 
   // 0. Ignore break statements (used inside switch/case)
   if (/^break$/i.test(s)) {
+    return;
+  }
+
+  // 0.05 Return statement: return; or return <val>;
+  if (/^return(?:\s+.*)?$/i.test(s)) {
+    ctx.hasReturned = true;
     return;
   }
 
@@ -259,9 +352,17 @@ function executeStatement(
       return;
     }
     const method = safeCallMatch[2].toLowerCase();
+    const arg = safeCallMatch[3];
     if (method === "poweron") tv.PowerOn();
     else if (method === "poweroff") tv.PowerOff();
     else if (method === "togglepower") tv.TogglePower();
+    else if (method === "setchannel") {
+      const ch = arg ? resolveNumValue(arg, ctx.numScope, tv) : 1;
+      tv.SetChannel(ch);
+    } else if (method === "setvolume") {
+      const vol = arg ? resolveNumValue(arg, ctx.numScope, tv) : 10;
+      tv.SetVolume(vol);
+    }
     return;
   }
 
@@ -507,9 +608,22 @@ function executeStatement(
   }
 
   // 9.5 Interface/Command declaration: IRemoteCommand command = new CalcCommand(); / command := CalcCommand{}
-  const cmdDeclMatch = s.match(/^(?:(?:IRemoteCommand|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})?$/i);
+  const cmdDeclMatch = s.match(
+    /^(?:(?:IRemoteCommand\s+([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+)?([a-zA-Z_]\w*)(?:\(\s*\)|\{\s*\})?)|(?:(?:var\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*(?:new\s+([a-zA-Z_]\w*)(?:\(\s*\))?|([a-zA-Z_]\w+)(?:\(\s*\)|\{\s*\}))))$/i
+  );
   if (cmdDeclMatch) {
-    ctx.strScope[cmdDeclMatch[1]] = cmdDeclMatch[2];
+    const varName = cmdDeclMatch[1] || cmdDeclMatch[3];
+    const cmdName = cmdDeclMatch[2] || cmdDeclMatch[4] || cmdDeclMatch[5];
+    if (varName && cmdName) {
+      ctx.strScope[varName] = cmdName;
+      return;
+    }
+  }
+
+  // 9.55 String variable copying: string alias = button;
+  const strVarCopyMatch = s.match(/^(?:(?:string|var)\s+)?([a-zA-Z_]\w*)\s*(?::=|=)\s*([a-zA-Z_]\w*)$/i);
+  if (strVarCopyMatch && strVarCopyMatch[2] in ctx.strScope) {
+    ctx.strScope[strVarCopyMatch[1]] = ctx.strScope[strVarCopyMatch[2]];
     return;
   }
 
@@ -602,7 +716,15 @@ function executeStatement(
   if (funcCallMatch) {
     const funcName = funcCallMatch[1];
     if (funcName in ctx.functions) {
-      executeBlock(ctx.functions[funcName], tv, ctx);
+      const funcCtx: ExecutionContext = {
+        ...ctx,
+        numScope: { ...ctx.numScope },
+        strScope: { ...ctx.strScope },
+        hasReturned: false,
+      };
+      executeBlock(ctx.functions[funcName], tv, funcCtx);
+      Object.assign(ctx.numScope, funcCtx.numScope);
+      Object.assign(ctx.strScope, funcCtx.strScope);
       return;
     }
   }
@@ -776,6 +898,7 @@ function executeBlock(
   let remaining = blockStr.trim();
 
   while (remaining.length > 0) {
+    if (ctx.hasReturned) break;
     remaining = remaining.trim();
     if (!remaining) break;
 
@@ -834,6 +957,7 @@ function executeBlock(
         const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
         if (blockToRun) {
           executeBlock(blockToRun, tv, ctx);
+          if (ctx.hasReturned) break;
         }
 
         remaining = remaining.slice(braceResult.endIdx + 1).trim();
@@ -866,6 +990,15 @@ function executeBlock(
             numScope: { ...ctx.numScope, [cfg.varName]: curVal },
           };
           executeBlock(bodyStr, tv, iterCtx);
+          Object.assign(ctx.numScope, iterCtx.numScope);
+          Object.assign(ctx.strScope, iterCtx.strScope);
+          Object.assign(ctx.nullScope, iterCtx.nullScope);
+          Object.assign(ctx.instanceScope, iterCtx.instanceScope);
+          Object.assign(ctx.registeredServices, iterCtx.registeredServices);
+          if (iterCtx.hasReturned) {
+            ctx.hasReturned = true;
+            break;
+          }
           curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
         }
 
@@ -881,36 +1014,57 @@ function executeBlock(
       }
     }
 
-    // 4. If statement (C# with () or Go without ()) with balanced braces and optional else
+    // 4. If statement (C# with () or Go without ()) with balanced braces, else if, and else
     const ifHeader = remaining.match(/^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\s{])?))\s*\{/i);
     if (ifHeader) {
       const braceResult = extractBalancedBraces(remaining, ifHeader[0].length - 1);
       if (braceResult) {
-        const conditionStr = ifHeader[1] || ifHeader[2];
-        const thenBlock = braceResult.body;
-        let elseBlock: string | null = null;
-        let endIdx = braceResult.endIdx;
+        const branches: Array<{ condition: string | null; body: string }> = [
+          { condition: ifHeader[1] || ifHeader[2], body: braceResult.body },
+        ];
+        let currentEndIdx = braceResult.endIdx;
 
-        // Check if followed by else
-        const afterThen = remaining.slice(endIdx + 1).trim();
-        const elseHeader = afterThen.match(/^else\s*\{/i);
-        if (elseHeader) {
-          const elseBrace = extractBalancedBraces(afterThen, elseHeader[0].length - 1);
-          if (elseBrace) {
-            elseBlock = elseBrace.body;
-            const elseStartInRemaining = remaining.indexOf(afterThen);
-            endIdx = elseStartInRemaining + elseBrace.endIdx;
+        while (true) {
+          const afterBranch = remaining.slice(currentEndIdx + 1).trim();
+          const elseIfHeader = afterBranch.match(/^else\s+if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\s{])?))\s*\{/i);
+          if (elseIfHeader) {
+            const elseIfBrace = extractBalancedBraces(afterBranch, elseIfHeader[0].length - 1);
+            if (elseIfBrace) {
+              branches.push({
+                condition: elseIfHeader[1] || elseIfHeader[2],
+                body: elseIfBrace.body,
+              });
+              const matchOffset = remaining.indexOf(afterBranch, currentEndIdx);
+              currentEndIdx = matchOffset + elseIfBrace.endIdx;
+              continue;
+            }
+          }
+
+          const elseHeader = afterBranch.match(/^else\s*\{/i);
+          if (elseHeader) {
+            const elseBrace = extractBalancedBraces(afterBranch, elseHeader[0].length - 1);
+            if (elseBrace) {
+              branches.push({
+                condition: null,
+                body: elseBrace.body,
+              });
+              const matchOffset = remaining.indexOf(afterBranch, currentEndIdx);
+              currentEndIdx = matchOffset + elseBrace.endIdx;
+            }
+          }
+          break;
+        }
+
+        for (const branch of branches) {
+          if (branch.condition === null || evaluateCondition(branch.condition, tv, ctx.numScope, ctx)) {
+            executeBlock(branch.body, tv, ctx);
+            break;
           }
         }
 
-        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope, ctx);
-        if (condResult) {
-          executeBlock(thenBlock, tv, ctx);
-        } else if (elseBlock !== null) {
-          executeBlock(elseBlock, tv, ctx);
-        }
+        if (ctx.hasReturned) break;
 
-        remaining = remaining.slice(endIdx + 1).trim();
+        remaining = remaining.slice(currentEndIdx + 1).trim();
         if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
         continue;
       }
@@ -982,6 +1136,7 @@ async function executeBlockAsync(
   let remaining = blockStr.trim();
 
   while (remaining.length > 0) {
+    if (ctx.hasReturned) break;
     remaining = remaining.trim();
     if (!remaining) break;
 
@@ -1038,6 +1193,7 @@ async function executeBlockAsync(
         const blockToRun = matchedBlock !== null ? matchedBlock : defaultBlock;
         if (blockToRun) {
           await executeBlockAsync(blockToRun, tv, ctx, options);
+          if (ctx.hasReturned) break;
         }
 
         remaining = remaining.slice(braceResult.endIdx + 1).trim();
@@ -1070,6 +1226,11 @@ async function executeBlockAsync(
             numScope: { ...ctx.numScope, [cfg.varName]: curVal },
           };
           await executeBlockAsync(bodyStr, tv, iterCtx, options);
+          Object.assign(ctx.numScope, iterCtx.numScope);
+          Object.assign(ctx.strScope, iterCtx.strScope);
+          Object.assign(ctx.nullScope, iterCtx.nullScope);
+          Object.assign(ctx.instanceScope, iterCtx.instanceScope);
+          Object.assign(ctx.registeredServices, iterCtx.registeredServices);
 
           if (options?.onStepMutation) {
             options.onStepMutation(tv.getSnapshot());
@@ -1079,6 +1240,11 @@ async function executeBlockAsync(
             await new Promise((resolve) =>
               setTimeout(resolve, options.stepDelayMs)
             );
+          }
+
+          if (iterCtx.hasReturned) {
+            ctx.hasReturned = true;
+            break;
           }
 
           curVal = nextLoopVal(curVal, cfg.stepOp, cfg.stepVal);
@@ -1096,35 +1262,57 @@ async function executeBlockAsync(
       }
     }
 
-    // 4. If statement with balanced braces and optional else
+    // 4. If statement with balanced braces, else if, and else
     const ifHeader = remaining.match(/^if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\s{])?))\s*\{/i);
     if (ifHeader) {
       const braceResult = extractBalancedBraces(remaining, ifHeader[0].length - 1);
       if (braceResult) {
-        const conditionStr = ifHeader[1] || ifHeader[2];
-        const thenBlock = braceResult.body;
-        let elseBlock: string | null = null;
-        let endIdx = braceResult.endIdx;
+        const branches: Array<{ condition: string | null; body: string }> = [
+          { condition: ifHeader[1] || ifHeader[2], body: braceResult.body },
+        ];
+        let currentEndIdx = braceResult.endIdx;
 
-        const afterThen = remaining.slice(endIdx + 1).trim();
-        const elseHeader = afterThen.match(/^else\s*\{/i);
-        if (elseHeader) {
-          const elseBrace = extractBalancedBraces(afterThen, elseHeader[0].length - 1);
-          if (elseBrace) {
-            elseBlock = elseBrace.body;
-            const elseStartInRemaining = remaining.indexOf(afterThen);
-            endIdx = elseStartInRemaining + elseBrace.endIdx;
+        while (true) {
+          const afterBranch = remaining.slice(currentEndIdx + 1).trim();
+          const elseIfHeader = afterBranch.match(/^else\s+if\s*(?:\(([^)]+)\)|([^{\s]+(?:[^{]*?[^\s{])?))\s*\{/i);
+          if (elseIfHeader) {
+            const elseIfBrace = extractBalancedBraces(afterBranch, elseIfHeader[0].length - 1);
+            if (elseIfBrace) {
+              branches.push({
+                condition: elseIfHeader[1] || elseIfHeader[2],
+                body: elseIfBrace.body,
+              });
+              const matchOffset = remaining.indexOf(afterBranch, currentEndIdx);
+              currentEndIdx = matchOffset + elseIfBrace.endIdx;
+              continue;
+            }
+          }
+
+          const elseHeader = afterBranch.match(/^else\s*\{/i);
+          if (elseHeader) {
+            const elseBrace = extractBalancedBraces(afterBranch, elseHeader[0].length - 1);
+            if (elseBrace) {
+              branches.push({
+                condition: null,
+                body: elseBrace.body,
+              });
+              const matchOffset = remaining.indexOf(afterBranch, currentEndIdx);
+              currentEndIdx = matchOffset + elseBrace.endIdx;
+            }
+          }
+          break;
+        }
+
+        for (const branch of branches) {
+          if (branch.condition === null || evaluateCondition(branch.condition, tv, ctx.numScope, ctx)) {
+            await executeBlockAsync(branch.body, tv, ctx, options);
+            break;
           }
         }
 
-        const condResult = evaluateCondition(conditionStr, tv, ctx.numScope, ctx);
-        if (condResult) {
-          await executeBlockAsync(thenBlock, tv, ctx, options);
-        } else if (elseBlock !== null) {
-          await executeBlockAsync(elseBlock, tv, ctx, options);
-        }
+        if (ctx.hasReturned) break;
 
-        remaining = remaining.slice(endIdx + 1).trim();
+        remaining = remaining.slice(currentEndIdx + 1).trim();
         if (remaining.startsWith(";")) remaining = remaining.slice(1).trim();
         continue;
       }

@@ -121,12 +121,15 @@ export const BanditCodeGymRunner: React.FC = () => {
     },
     starsEarned,
     stationId: "bandit",
-    onRoundComplete: async (round) => {
+    onRoundComplete: async (round, _code, stats) => {
       const targetStars = round ?? 1;
-      setTaskMastery(currentTask.id, targetStars);
-      saveTaskProgress(currentTask.id, targetStars);
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, stats?.wpm);
+      saveTaskProgress(currentTask.id, targetStars, stats?.wpm);
       completeCodingTask(currentTask.id);
-      addXp(targetStars * 15);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 25);
+      }
       const allCompleted = BANDIT_TASKS.every(
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
@@ -219,13 +222,13 @@ export const BanditCodeGymRunner: React.FC = () => {
         setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       }
 
-      if (starsEarned < targetStars) {
-        setTaskMastery(currentTask.id, targetStars, calculatedWpm);
-        addXp(activeRound * 25);
-        completeCodingTask(currentTask.id);
-      }
-
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, calculatedWpm);
       saveTaskProgress(currentTask.id, targetStars, calculatedWpm);
+      completeCodingTask(currentTask.id);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 25);
+      }
 
       // Check if all 6 Bandit tasks are completed
       const allCompleted = BANDIT_TASKS.every(
@@ -476,7 +479,7 @@ export const BanditCodeGymRunner: React.FC = () => {
                   </span>
                   {starsEarned >= round && (
                     <span className="text-amber-400 text-xs">
-                      {round === 4 ? "" : "⭐"}
+                      ⭐
                     </span>
                   )}
                 </div>

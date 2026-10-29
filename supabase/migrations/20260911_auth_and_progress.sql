@@ -20,8 +20,8 @@ create table if not exists public.user_progress (
   station_id text not null,
   task_id text not null,
   tier int default 0 not null,
-  stars int default 0 not null,
-  best_wpm int default 0,
+  stars int default 0 not null check (stars >= 0 and stars <= 4),
+  best_wpm int default 0 check (best_wpm >= 0 and best_wpm <= 400),
   completed_at timestamptz default now() not null,
   constraint user_station_task_uniq unique (user_id, station_id, task_id)
 );
@@ -52,7 +52,10 @@ create policy "Users can update own profile"
   on public.profiles
   for update
   using (auth.uid() = id)
-  with check (auth.uid() = id);
+  with check (
+    auth.uid() = id and
+    total_stars = (select p.total_stars from public.profiles p where p.id = id)
+  );
 
 -- 5. RLS Policies for User Progress
 drop policy if exists "Users can select own progress" on public.user_progress;

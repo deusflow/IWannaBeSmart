@@ -138,14 +138,14 @@ export function isStationInTrack(stationId: string, track: CareerTrack | null): 
  * Tasting set introductory tasks for Explorer mode.
  */
 export const EXPLORER_INTRO_TASKS: Record<string, string> = {
-  tv: "task-1-command",
-  pos: "task-pos-1",
+  tv: "task-0-1-power-on",
+  pos: "task-pos-guard-clause",
   iot: "task-iot-1-motion-stop",
-  api: "task-api-1",
-  git: "task-git-1",
-  bandit: "task-bandit-1",
-  vertex: "task-vertex-1",
-  fde: "task-fde-1",
-  rag: "task-rag-1",
-  cyber: "task-cyber-1",
+  api: "task-api-1-heartbeat",
+  git: "task-git-1-genesis",
+  bandit: "task-bandit-1-hidden-key",
+  vertex: "task-vertex-1-gcs-connect",
+  fde: "task-fde-1-initial-meeting",
+  rag: "task-rag-1-chunking-overlap",
+  cyber: "task-cyber-1-syslog-parsing",
 };

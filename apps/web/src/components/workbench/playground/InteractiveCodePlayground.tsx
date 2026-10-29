@@ -242,12 +242,15 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     currentTask,
     starsEarned,
     stationId: "tv",
-    onRoundComplete: async (round, code) => {
+    onRoundComplete: async (round, code, stats) => {
       const targetStars = round ?? 1;
-      setTaskMastery(currentTask.id, targetStars);
-      saveTaskProgress(currentTask.id, targetStars);
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, stats?.wpm);
+      saveTaskProgress(currentTask.id, targetStars, stats?.wpm);
       completeCodingTask(currentTask.id);
-      addXp(targetStars * 15);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 15);
+      }
       await runTvExecution(code);
       const allCompleted = CODING_TASKS.every(
         (task) =>
@@ -360,10 +363,13 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
       setTaskMastery(currentTask.id, 2);
       saveTaskProgress(currentTask.id, 2);
       completeCodingTask(currentTask.id);
-      addXp(20);
+      if (2 > currentStars) {
+        addXp(20);
+      }
       setFeedback(t(currentTask.successKey));
 
       const allCompleted = CODING_TASKS.every(
@@ -407,10 +413,13 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
       setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
       setTaskMastery(currentTask.id, 3, calculatedWpm);
       saveTaskProgress(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
-      addXp(30);
+      if (3 > currentStars) {
+        addXp(30);
+      }
       setFeedback(t("codegym.round3Complete", " Спринт пройдено! Ідеальна швидкість та точність."));
 
       const allCompleted = CODING_TASKS.every(
@@ -465,10 +474,13 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
       setTaskMastery(currentTask.id, 4);
       saveTaskProgress(currentTask.id, 4);
       completeCodingTask(currentTask.id);
-      addXp(40);
+      if (4 > currentStars) {
+        addXp(40);
+      }
       setFeedback(t("codegym.round4Complete", " Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
 
       const allCompleted = CODING_TASKS.every(
@@ -512,10 +524,13 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
       setTaskMastery(currentTask.id, 1);
       saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
-      addXp(30);
+      if (1 > currentStars) {
+        addXp(30);
+      }
       setFeedback(
         validation.messageKey
           ? t(validation.messageKey)

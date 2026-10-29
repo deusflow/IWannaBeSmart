@@ -73,6 +73,10 @@ export function clearUserProgressStorage(): void {
       "iw_profile_onboarding_completed",
       "iw_nudge_war_room_unlocked",
       "iw_checkpoint_manifest",
+      "iw_resolved_incidents",
+      "iw_global_session",
+      "iw_current_station",
+      "iw_current_view",
     ];
     for (const key of keysToRemove) {
       localStorage.removeItem(key);
@@ -84,6 +88,7 @@ export function clearUserProgressStorage(): void {
         k &&
         (k.startsWith("iw_cp_") ||
           k.startsWith("iw_checkpoint_") ||
+          k.startsWith("iw_station_checkpoint_") ||
           k.startsWith("iw_draft_"))
       ) {
         dynamicKeys.push(k);
@@ -625,11 +630,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    // Check local session/users first
+    // Optimistically set cached profile if available for instant render
     const stored = getStoredSession();
-    if (stored && stored.user.id === userId) {
-      set({ profile: stored.profile, isLoading: false });
-      return;
+    if (stored && stored.user.id === userId && stored.profile) {
+      set({ profile: stored.profile });
     }
 
     if (

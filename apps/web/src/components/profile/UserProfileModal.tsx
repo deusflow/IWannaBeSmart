@@ -40,7 +40,6 @@ import {
   FDE_TASKS,
   RAG_TASKS,
   CYBER_TASKS,
-  TOTAL_MAX_STARS,
 } from "@iw/sim-engine";
 import { ProfileOnboardingGuide } from "./ProfileOnboardingGuide";
 import { ProfileIdentityTab } from "./tabs/ProfileIdentityTab";
@@ -167,6 +166,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const stationGroups = [
       { tasks: CODING_TASKS, stationId: "tv", stationName: "Smart TV" },
       { tasks: FINTECH_TASKS, stationId: "pos", stationName: "POS Terminal" },
+      { tasks: IOT_TASKS, stationId: "iot", stationName: "Smart IoT Gateway" },
       { tasks: API_FORGE_TASKS, stationId: "api", stationName: "API Forge" },
       { tasks: GIT_TASKS, stationId: "git", stationName: "Git Time Machine" },
       { tasks: BANDIT_TASKS, stationId: "bandit", stationName: "Cyber Bandit" },
@@ -206,10 +206,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const wpmValues = Object.values(taskBestWpm || {});
     const recordedMaxWpm = wpmValues.length > 0 ? Math.max(...wpmValues) : 0;
     const computedStars = Math.max(starSum, profile?.total_stars || 0);
+    const attemptedCount = Object.keys(taskMasteryStars).length;
     const accuracyRate =
-      computedStars > 0 || recordedMaxWpm > 0
-        ? Number((96.2 + Math.min(3.6, (computedStars / TOTAL_MAX_STARS) * 3.6)).toFixed(1))
-        : null;
+      attemptedCount > 0
+        ? Number(Math.min(100, Math.max(60, (starSum / (attemptedCount * 4)) * 100)).toFixed(1))
+        : (computedStars > 0 ? 100.0 : null);
 
     return {
       strengths: strongList,

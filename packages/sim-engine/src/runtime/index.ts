@@ -43,16 +43,21 @@ import { RAG_TASKS } from "./tasks-rag";
 import { CYBER_TASKS } from "./tasks-cyber";
 import { IOT_TASKS } from "./tasks-iot";
 
-export const TOTAL_MAX_STARS =
-  CODING_TASKS.length * 4 +
-  FINTECH_TASKS.length * 4 +
-  API_FORGE_TASKS.length * 4 +
-  GIT_TASKS.length * 4 +
-  BANDIT_TASKS.length * 4 +
-  VERTEX_TASKS.length * 4 +
-  FDE_TASKS.length * 4 +
-  RAG_TASKS.length * 4 +
-  CYBER_TASKS.length * 4 +
-  IOT_TASKS.length * 4;
+export const ALL_CURRICULUM_TASKS = [
+  ...CODING_TASKS,
+  ...FINTECH_TASKS,
+  ...IOT_TASKS,
+  ...API_FORGE_TASKS,
+  ...GIT_TASKS,
+  ...BANDIT_TASKS,
+  ...VERTEX_TASKS,
+  ...FDE_TASKS,
+  ...RAG_TASKS,
+  ...CYBER_TASKS,
+];
+
+export const TOTAL_CURRICULUM_TASK_COUNT = ALL_CURRICULUM_TASKS.length;
+
+export const TOTAL_MAX_STARS = TOTAL_CURRICULUM_TASK_COUNT * 4;
 
 

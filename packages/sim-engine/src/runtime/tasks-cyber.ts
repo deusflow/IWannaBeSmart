@@ -13,6 +13,7 @@
  */
 
 import type { WorkedExample } from "./types";
+import { WORKED_EXAMPLES } from "./workedExamplesData";
 
 export interface CyberTask {
   id: string;
@@ -794,3 +795,9 @@ export function containThreat(adversaryIp: string, hostId: string): ContainmentA
     },
   },
 ];
+
+for (const t of CYBER_TASKS) {
+  if (!t.workedExample && WORKED_EXAMPLES[t.id]) {
+    t.workedExample = WORKED_EXAMPLES[t.id];
+  }
+}

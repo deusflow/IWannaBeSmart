@@ -123,7 +123,7 @@ export const createMentorSlice: StateCreator<
       set((s) => ({
         completedCodingTasks: nextCompleted,
         xp: nextXp,
-        isStationVictoryModalOpen: allTvCompleted ? true : s.isStationVictoryModalOpen,
+        isStationVictoryModalOpen: isTvTask && allTvCompleted ? true : s.isStationVictoryModalOpen,
       }));
 
       // Progressive disclosure: trigger career onboarding modal only after successful completion on Station 01

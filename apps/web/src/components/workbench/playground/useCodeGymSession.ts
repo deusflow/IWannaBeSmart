@@ -50,12 +50,15 @@ function checkClozeConsistency(input: string, target: string): { isComplete: boo
     return { isComplete: true, isValid: true };
   }
 
-  const collapseWs = (s: string) => s.replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ");
-  if (collapseWs(normInput) === collapseWs(normTarget)) {
+  const collapseWs = (s: string) => s.replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").trim();
+  const cInput = collapseWs(normInput);
+  const cTarget = collapseWs(normTarget);
+
+  if (cInput === cTarget) {
     return { isComplete: true, isValid: true };
   }
 
-  // Detect any placeholder format: ___, /* ... */, or [[ ... ]]
+  // 1. Detect any placeholder format: ___, /* ... */, or [[ ... ]]
   const hasPlaceholders =
     normInput.includes("___") ||
     /\/\*[\s\S]*?\*\//.test(normInput) ||
@@ -71,16 +74,36 @@ function checkClozeConsistency(input: string, target: string): { isComplete: boo
       .replace(/(?:\\_\\_\\_)+/g, "[\\s\\S]*?");
     try {
       const re = new RegExp("^" + escaped + "$");
-      if (re.test(normTarget) || re.test(collapseWs(normTarget))) {
+      if (re.test(normTarget) || re.test(cTarget)) {
         return { isComplete: false, isValid: true };
       }
     } catch {
       // Fallback on regex compilation error
     }
-    return { isComplete: false, isValid: false };
   }
 
-  if (normTarget.startsWith(normInput) || collapseWs(normTarget).startsWith(collapseWs(normInput))) {
+  // 2. Direct prefix check (typing from beginning or empty input)
+  if (normTarget.startsWith(normInput) || cTarget.startsWith(cInput)) {
+    return { isComplete: false, isValid: true };
+  }
+
+  // 3. Middle token insertion check between common prefix and common suffix
+  let start = 0;
+  while (start < cInput.length && start < cTarget.length && cInput[start] === cTarget[start]) {
+    start++;
+  }
+
+  let endInput = cInput.length - 1;
+  let endTarget = cTarget.length - 1;
+  while (endInput >= start && endTarget >= start && cInput[endInput] === cTarget[endTarget]) {
+    endInput--;
+    endTarget--;
+  }
+
+  const middleInput = cInput.slice(start, endInput + 1);
+  const middleTarget = cTarget.slice(start, endTarget + 1);
+
+  if (middleTarget.startsWith(middleInput)) {
     return { isComplete: false, isValid: true };
   }
 
@@ -152,13 +175,16 @@ export function useCodeGymSession<
 
   const targetCode = currentTask.targetCode[codeLang] ?? "";
   const clozeTemplate = useMemo(() => {
+    const raw = currentTask.clozeTemplate;
+    if (raw) {
+      const templ = typeof raw === "string" ? raw : raw[codeLang] ?? "";
+      if (templ) return templ;
+    }
     const workedCloze = currentTask.workedExample?.clozeExercise;
     if (workedCloze) {
       return typeof workedCloze === "string" ? workedCloze : workedCloze[codeLang] ?? "";
     }
-    const raw = currentTask.clozeTemplate;
-    if (!raw) return "";
-    return typeof raw === "string" ? raw : raw[codeLang] ?? "";
+    return "";
   }, [currentTask, codeLang]);
 
   const sprintLimit = Math.max(

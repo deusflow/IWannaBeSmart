@@ -18,6 +18,10 @@ import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { getStationCheckpoint } from "../../../utils/checkpointManager";
 
+const collapseWs = (s: string) => s.replace(/\s+/g, " ").trim();
+const stripComments = (str: string) =>
+  str.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, "").replace(/#.*/g, "").trim();
+
 export const RagAgentCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
   const {
@@ -81,6 +85,8 @@ export const RagAgentCodeGymRunner: React.FC = () => {
     timeLeft,
     isTimerRunning,
     roundStats,
+    setRoundStats,
+    roundStartTimeRef,
     gutterWidth,
     editorContainerRef,
     targetCode,
@@ -96,12 +102,15 @@ export const RagAgentCodeGymRunner: React.FC = () => {
     initialLang: "python",
     starsEarned,
     stationId: "rag",
-    onRoundComplete: async (round) => {
+    onRoundComplete: async (round, _code, stats) => {
       const targetStars = round ?? 1;
-      setTaskMastery(currentTask.id, targetStars);
-      saveTaskProgress(currentTask.id, targetStars);
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, stats?.wpm);
+      saveTaskProgress(currentTask.id, targetStars, stats?.wpm);
       completeCodingTask(currentTask.id);
-      addXp(targetStars * 15);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 25);
+      }
       const allCompleted = RAG_TASKS.every(
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
@@ -156,27 +165,40 @@ export const RagAgentCodeGymRunner: React.FC = () => {
 
   // Round Verification logic
   const handleVerify = useCallback(() => {
+    const currentStars = taskMasteryStars[currentTask.id] || 0;
+
     if (activeRound === 1) {
-      if (typedCode.trim() === targetCode.trim()) {
+      if (collapseWs(typedCode) === collapseWs(targetCode)) {
         setRoundCompleted(true);
         audioFx.playSuccessFanfare();
         setTaskMastery(currentTask.id, 1);
         saveTaskProgress(currentTask.id, 1);
         completeCodingTask(currentTask.id);
-        addXp(15);
+        if (1 > currentStars) {
+          addXp(15);
+        }
       } else {
         setHasError(true);
         audioFx.playErrorBuzz();
         setFeedback(t("codegym.mismatchPrompt", "Символ не відповідає трафарету."));
       }
     } else if (activeRound === 2) {
-      if (typedCode.trim() === targetCode.trim()) {
+      const isUnfilled = typedCode.includes("/*") || typedCode.includes("___");
+      if (isUnfilled) {
+        setHasError(true);
+        audioFx.playErrorBuzz();
+        setFeedback(t("codegym.fillBlanksPrompt", "Заповніть усі прогалини перед перевіркою!"));
+        return;
+      }
+      if (collapseWs(typedCode) === collapseWs(targetCode)) {
         setRoundCompleted(true);
         audioFx.playSuccessFanfare();
         setTaskMastery(currentTask.id, 2);
         saveTaskProgress(currentTask.id, 2);
         completeCodingTask(currentTask.id);
-        addXp(30);
+        if (2 > currentStars) {
+          addXp((2 - currentStars) * 25);
+        }
       } else {
         setHasError(true);
         audioFx.playErrorBuzz();
@@ -186,13 +208,21 @@ export const RagAgentCodeGymRunner: React.FC = () => {
       if (!isTimerRunning) {
         handleStartSprint();
       } else {
-        if (typedCode.trim() === targetCode.trim()) {
+        if (collapseWs(typedCode) === collapseWs(targetCode)) {
           setRoundCompleted(true);
           audioFx.playSuccessFanfare();
-          setTaskMastery(currentTask.id, 3);
-          saveTaskProgress(currentTask.id, 3);
+          const elapsedMinutes = Math.max(
+            0.04,
+            (Date.now() - (roundStartTimeRef.current || Date.now())) / 60000
+          );
+          const calculatedWpm = Math.round(targetCode.length / 5 / elapsedMinutes);
+          setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
+          setTaskMastery(currentTask.id, 3, calculatedWpm);
+          saveTaskProgress(currentTask.id, 3, calculatedWpm);
           completeCodingTask(currentTask.id);
-          addXp(45);
+          if (3 > currentStars) {
+            addXp((3 - currentStars) * 25);
+          }
         } else {
           setHasError(true);
           audioFx.playErrorBuzz();
@@ -200,13 +230,25 @@ export const RagAgentCodeGymRunner: React.FC = () => {
         }
       }
     } else if (activeRound === 4) {
-      if (typedCode.trim().length > 20) {
+      const cleanCode = stripComments(typedCode);
+      const hasStructure =
+        cleanCode.length >= 40 &&
+        (cleanCode.includes("def ") ||
+          cleanCode.includes("function ") ||
+          cleanCode.includes("return") ||
+          cleanCode.includes("=>") ||
+          cleanCode.includes("class ") ||
+          cleanCode.includes("export "));
+
+      if (hasStructure) {
         setRoundCompleted(true);
         audioFx.playSuccessFanfare();
         setTaskMastery(currentTask.id, 4);
         saveTaskProgress(currentTask.id, 4);
         completeCodingTask(currentTask.id);
-        addXp(60);
+        if (4 > currentStars) {
+          addXp((4 - currentStars) * 25);
+        }
 
         const allCompleted = RAG_TASKS.every(
           (task) =>
@@ -229,14 +271,18 @@ export const RagAgentCodeGymRunner: React.FC = () => {
     targetCode,
     isTimerRunning,
     currentTask.id,
+    taskMasteryStars,
+    roundStartTimeRef,
     handleStartSprint,
     setRoundCompleted,
     setHasError,
     setFeedback,
+    setRoundStats,
     setTaskMastery,
     saveTaskProgress,
     completeCodingTask,
     addXp,
+    setRagVictoryModalOpen,
     t,
   ]);
 

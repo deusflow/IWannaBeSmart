@@ -138,12 +138,15 @@ export const FdeCodeGymRunner: React.FC = () => {
     initialLang: "python",
     starsEarned,
     stationId: "fde",
-    onRoundComplete: async (round) => {
+    onRoundComplete: async (round, _code, stats) => {
       const targetStars = round ?? 1;
-      setTaskMastery(currentTask.id, targetStars);
-      saveTaskProgress(currentTask.id, targetStars);
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, stats?.wpm);
+      saveTaskProgress(currentTask.id, targetStars, stats?.wpm);
       completeCodingTask(currentTask.id);
-      addXp(targetStars * 15);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 25);
+      }
       const allCompleted = FDE_TASKS.every(
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
@@ -251,7 +254,43 @@ export const FdeCodeGymRunner: React.FC = () => {
       }
     }
 
+    if (activeRound === 3) {
+      const isMatch = typedCode.trim() === targetCode.trim();
+      if (!isMatch) {
+        setHasError(true);
+        audioFx.playErrorBuzz();
+        setFeedback(t("codegym.sprintMismatch", "Код не збігається з еталоном. Перевірте кожен символ!"));
+        return;
+      }
+    }
+
     const beforeState = fdeState;
+    const dummyResult = {
+      success: true,
+      output: "FDE verification passed",
+    };
+
+    const preValidation = currentTask.validate(
+      beforeState,
+      beforeState,
+      dummyResult,
+      typedCode
+    );
+
+    if (!preValidation.passed) {
+      audioFx.playErrorBuzz();
+      setHasError(true);
+      setFeedback(
+        String(
+          t(
+            preValidation.messageKey || currentTask.hintKey,
+            "Applied AI code verification failed."
+          )
+        )
+      );
+      return;
+    }
+
     let result: Parameters<typeof currentTask.validate>[2] = {
       success: true,
       output: "FDE verification passed",
@@ -345,13 +384,13 @@ The production pipeline consists of a multi-agent system wired through LangGraph
         setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       }
 
-      if (starsEarned < targetStars) {
-        setTaskMastery(currentTask.id, targetStars, calculatedWpm);
-        addXp(activeRound * 25);
-        completeCodingTask(currentTask.id);
-      }
-
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, calculatedWpm);
       saveTaskProgress(currentTask.id, targetStars, calculatedWpm);
+      completeCodingTask(currentTask.id);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 25);
+      }
 
       const allCompleted = FDE_TASKS.every(
         (task) =>
@@ -671,7 +710,7 @@ The production pipeline consists of a multi-agent system wired through LangGraph
                   </span>
                   {starsEarned >= round && (
                     <span className="text-amber-400 text-xs">
-                      {round === 4 ? "" : "⭐"}
+                      ⭐
                     </span>
                   )}
                 </div>

@@ -1432,6 +1432,7 @@ export const daTranslation = {
         theoryLockedDesc: "Gennemgå lærerens eksempel og analogi ovenfor for at forstå konceptet før indtastning.",
         openTheoryBtn: "Åbn lærerens forklaring",
         skipToPractice: "Direkte til kode →",
+        nothingToCopy: "Ingen kode at kopiere",
       },
       fintechTask1: {
         title: "Opgave 1: Guard Clause: Kontobeskyttelse",

@@ -1432,6 +1432,7 @@ export const enTranslation = {
         theoryLockedDesc: "Review teacher sample and intuition analogy above to understand the concept before typing.",
         openTheoryBtn: "Open teacher explanation",
         skipToPractice: "Skip to code →",
+        nothingToCopy: "No code available to copy",
       },
       fintechTask1: {
         title: "Task 1: Guard Clause: Balance Protection",

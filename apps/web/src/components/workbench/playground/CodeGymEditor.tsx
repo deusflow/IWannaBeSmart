@@ -103,7 +103,12 @@ export function CodeGymEditor<
   const { t, i18n } = useTranslation();
 
   const handleCopyCode = () => {
-    const codeToCopy = typedCode || targetCode;
+    // In speed sprint (Round 3) and transfer (Round 4), never leak the target code
+    const codeToCopy = activeRound >= 3 ? typedCode : (typedCode || targetCode);
+    if (!codeToCopy) {
+      toast.info(t("codegym.nothingToCopy", "Немає коду для копіювання"));
+      return;
+    }
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(codeToCopy).then(() => {
         audioFx.playKeyClick();
@@ -561,8 +566,18 @@ export function CodeGymEditor<
         {/* Ghost Stencil Overlay for Round 1 (when not bugfix) */}
         {activeRound === 1 && !currentTask.isBugfixTask && (
           <div
-            className="absolute inset-0 pointer-events-none select-none font-mono text-[13px] leading-relaxed p-4 text-slate-400/50 whitespace-pre overflow-hidden z-0"
-            style={{ paddingLeft: `${gutterWidth + 16}px` }}
+            className={`absolute inset-0 pointer-events-none select-none text-slate-400/50 overflow-hidden z-0 ${
+              isWordWrap ? "whitespace-pre-wrap break-words" : "whitespace-pre"
+            }`}
+            style={{
+              paddingTop: "4px",
+              paddingBottom: "4px",
+              paddingLeft: `${gutterWidth + 6}px`,
+              paddingRight: "6px",
+              fontSize: `${fontSize}px`,
+              lineHeight: "1.625",
+              fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+            }}
           >
             {targetCode}
           </div>

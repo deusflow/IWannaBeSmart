@@ -137,24 +137,24 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#030712]/90 backdrop-blur-md animate-in fade-in duration-200 font-sans">
-      <div className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl border-2 border-purple-500/60 bg-[#0B0E14] shadow-[0_0_60px_rgba(168,85,247,0.3)] flex flex-col overflow-hidden text-slate-100 isolate">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
+      <div className="relative w-full max-w-2xl max-h-[90vh] rounded-3xl border-2 border-[#1A1D20]/30 bg-[#EFE9DC] shadow-2xl flex flex-col overflow-hidden text-[#1A1D20] isolate">
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#161D27]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1A1D20]/20 bg-[#E6DEC9]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-950/80 border border-purple-500/40 flex items-center justify-center text-purple-400">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-600/30 flex items-center justify-center text-purple-800">
               <Users className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-900 border border-purple-600/30 uppercase">
                   Station 08 Accredited
                 </span>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-[#1A1D20]/70 font-mono">
                   {currentStars}/{maxStars} ⭐
                 </span>
               </div>
-              <h3 className="font-mono text-base font-bold text-slate-100 mt-0.5">
+              <h3 className="font-display text-base font-bold text-[#1A1D20] mt-0.5">
                 {t("fde.victory.title", "Сертифікований Forward Deployed AI Engineer")}
               </h3>
             </div>
@@ -164,15 +164,15 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
               audioFx.playRelayClick();
               onClose();
             }}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-[#1A1D20]/60 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 text-sm leading-relaxed text-slate-300">
-          <p className="text-slate-300 text-xs sm:text-sm bg-purple-950/20 border border-purple-800/40 p-3.5 rounded-xl">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 text-sm leading-relaxed text-[#1A1D20]">
+          <p className="text-[#1A1D20]/90 text-xs sm:text-sm bg-[#E6DEC9] border border-[#1A1D20]/20 p-3.5 rounded-xl">
             {t(
               "fde.victory.desc",
               "Ви успішно розгорнули автономну агентну RAG-систему, інтегрували ізольовану legacy-інфраструктуру та передали бойові runbook замовнику!"
@@ -180,7 +180,7 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
           </p>
 
           <div className="space-y-2">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-purple-400">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-purple-900">
               {t("fde.victory.competencies", "Підтверджені компетенції інженера впровадження AI (5/5):")}
             </h4>
 
@@ -190,34 +190,34 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
                 return (
                   <div
                     key={skill.id}
-                    className="border border-slate-800 bg-[#06090E] rounded-xl overflow-hidden transition-colors"
+                    className="border border-[#1A1D20]/20 bg-[#FAF8F2] rounded-xl overflow-hidden transition-colors shadow-2xs"
                   >
                     <button
                       onClick={() =>
                         setExpandedSkillId(isExpanded ? null : skill.id)
                       }
-                      className="w-full flex items-center justify-between p-3 text-left hover:bg-slate-800/40 cursor-pointer"
+                      className="w-full flex items-center justify-between p-3 text-left hover:bg-[#FAF8F2]/80 cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5">
-                        <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-purple-700 shrink-0" />
                         <div>
-                          <div className="font-semibold text-xs text-slate-200">
+                          <div className="font-semibold text-xs text-[#1A1D20]">
                             {t(skill.nameKey)}
                           </div>
-                          <div className="text-[10px] text-slate-500 font-mono">
+                          <div className="text-[10px] text-[#1A1D20]/60 font-mono">
                             {skill.category}
                           </div>
                         </div>
                       </div>
                       {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-slate-500" />
+                        <ChevronUp className="w-4 h-4 text-[#1A1D20]/60" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-500" />
+                        <ChevronDown className="w-4 h-4 text-[#1A1D20]/60" />
                       )}
                     </button>
                     {isExpanded && (
-                      <div className="px-3 pb-3 pt-1 border-t border-slate-800/60 bg-black/40">
-                        <pre className="text-[11px] font-mono text-purple-300 overflow-x-auto p-2 rounded bg-[#0A0E17] border border-purple-950">
+                      <div className="px-3 pb-3 pt-1 border-t border-[#1A1D20]/20 bg-[#E6DEC9]">
+                        <pre className="text-[11px] font-mono text-[#1A1D20] overflow-x-auto p-2 rounded bg-[#FAF8F2] border border-[#1A1D20]/20">
                           <code>{skill.codeExample}</code>
                         </pre>
                       </div>
@@ -230,11 +230,11 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-slate-800 bg-[#161D27]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-[#1A1D20]/20 bg-[#E6DEC9]/60">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-bold text-white transition-all cursor-pointer shadow-md shadow-purple-600/30 active:scale-95"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-xs font-mono font-bold text-white transition-all cursor-pointer shadow-sm active:scale-95"
             >
               <Download className="w-4 h-4" />
               <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
@@ -242,17 +242,17 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
 
             <button
               onClick={handleCopyCertificate}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-200 transition-colors cursor-pointer shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-[#FAF8F2] hover:bg-white text-xs font-mono font-bold text-[#1A1D20] border border-[#1A1D20]/30 transition-colors cursor-pointer shadow-sm"
               title={t("common.copyCert", "Скопіювати сертифікат")}
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-purple-400" />
-                  <span className="hidden sm:inline">{t("common.copiedCert", "Скопійовано")}</span>
+                  <Check className="w-4 h-4 text-emerald-700" />
+                  <span className="hidden sm:inline text-emerald-900">{t("common.copiedCert", "Скопійовано")}</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-slate-400" />
+                  <Copy className="w-4 h-4 text-[#1A1D20]/70" />
                   <span className="hidden sm:inline">{t("common.copy", "Копіювати")}</span>
                 </>
               )}

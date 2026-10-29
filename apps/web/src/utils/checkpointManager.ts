@@ -58,7 +58,7 @@ export const SACRED_PROGRESS_KEYS = new Set([
 export function saveStationCheckpoint(
   stationId: string,
   data: {
-    taskId: string;
+    taskId?: string;
     tier?: number;
     round?: 1 | 2 | 3 | 4;
     lang?: string;
@@ -66,12 +66,13 @@ export function saveStationCheckpoint(
 ): void {
   if (typeof window === "undefined") return;
   try {
+    const existing = getStationCheckpoint(stationId);
     const checkpoint: StationCheckpoint = {
       stationId,
-      taskId: data.taskId,
-      tier: data.tier ?? 0,
-      round: data.round ?? 1,
-      lang: data.lang,
+      taskId: data.taskId ?? existing?.taskId ?? "",
+      tier: data.tier !== undefined ? data.tier : (existing?.tier ?? 0),
+      round: data.round !== undefined ? data.round : (existing?.round ?? 1),
+      lang: data.lang !== undefined ? data.lang : existing?.lang,
       updatedAt: Date.now(),
     };
     localStorage.setItem(

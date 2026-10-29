@@ -677,7 +677,7 @@ export function useArchitectureWiring({
       details: t("architecture.hotSwapManualLogDetail", "Поліморфізм: TVController.cs не змінився! Змінено лише прив'язку DI-контейнера."),
       codeContext: `// IoC Container configuration update:\nservices.AddTransient<IRemoteCommand, ${commandName}>();\n// TVController._cmd.Execute() тепер виконує ${commandName}!`,
     });
-  }, [isVolumeWired, addNodeByFileId, handleDeleteEdge, setEdges, diMode, addLog, onOpenHotSwapInsight]);
+  }, [isVolumeWired, addNodeByFileId, handleDeleteEdge, setEdges, diMode, addLog, onOpenHotSwapInsight, t]);
 
   const handleAutoWire = useCallback(() => {
     addNodeByFileId("class-power-command", { x: 60, y: 60 });

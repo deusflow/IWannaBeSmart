@@ -131,12 +131,18 @@ export const CodeGymRunner: React.FC = () => {
     initialLang: "csharp",
     starsEarned,
     stationId: "pos",
-    onRoundComplete: async (round) => {
+    onRoundComplete: async (round, code, stats) => {
       const targetStars = round ?? 1;
-      setTaskMastery(currentTask.id, targetStars);
-      saveTaskProgress(currentTask.id, targetStars);
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, targetStars, stats?.wpm);
+      saveTaskProgress(currentTask.id, targetStars, stats?.wpm);
       completeCodingTask(currentTask.id);
-      addXp(targetStars * 15);
+      if (targetStars > currentStars) {
+        addXp((targetStars - currentStars) * 15);
+      }
+      if (code) {
+        await runPosExecution(code);
+      }
       const allCompleted = FINTECH_TASKS.every(
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1
@@ -215,10 +221,13 @@ export const CodeGymRunner: React.FC = () => {
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
       setTaskMastery(currentTask.id, 2);
       saveTaskProgress(currentTask.id, 2);
       completeCodingTask(currentTask.id);
-      addXp(20);
+      if (2 > currentStars) {
+        addXp((2 - currentStars) * 15);
+      }
       setFeedback(t(currentTask.successKey));
 
       const allCompleted = FINTECH_TASKS.every(
@@ -262,9 +271,13 @@ export const CodeGymRunner: React.FC = () => {
       const calculatedWpm = Math.round((targetCode.length / 5) / elapsedMinutes);
       setRoundStats({ wpm: calculatedWpm, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
+      setTaskMastery(currentTask.id, 3, calculatedWpm);
       saveTaskProgress(currentTask.id, 3, calculatedWpm);
       completeCodingTask(currentTask.id);
-      addXp(30);
+      if (3 > currentStars) {
+        addXp((3 - currentStars) * 15);
+      }
       setFeedback(t("codegym.round3Complete", " Спринт пройдено! Ідеальна швидкість та точність."));
 
       const allCompleted = FINTECH_TASKS.every(
@@ -318,10 +331,13 @@ export const CodeGymRunner: React.FC = () => {
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
       setTaskMastery(currentTask.id, 4);
       saveTaskProgress(currentTask.id, 4);
       completeCodingTask(currentTask.id);
-      addXp(40);
+      if (4 > currentStars) {
+        addXp((4 - currentStars) * 15);
+      }
       setFeedback(t("codegym.round4Complete", " Місія варіації виконана! Ви здобули 4-ту зірку майстра!"));
 
       const allCompleted = FINTECH_TASKS.every(
@@ -365,10 +381,13 @@ export const CodeGymRunner: React.FC = () => {
       setRoundCompleted(true);
       setRoundStats({ wpm: 0, accuracy: 100 });
       audioFx.playSuccessFanfare();
+      const currentStars = taskMasteryStars[currentTask.id] || 0;
       setTaskMastery(currentTask.id, 1);
       saveTaskProgress(currentTask.id, 1);
       completeCodingTask(currentTask.id);
-      addXp(30);
+      if (1 > currentStars) {
+        addXp(15);
+      }
       setFeedback(
         validation.messageKey
           ? t(validation.messageKey)
@@ -642,7 +661,7 @@ export const CodeGymRunner: React.FC = () => {
                   </span>
                   {starsEarned >= round && (
                     <span className={round === 4 ? "text-cyan-400 text-xs drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "text-amber-400 text-xs"}>
-                      {round === 4 ? "" : "⭐"}
+                      ⭐
                     </span>
                   )}
                 </div>
