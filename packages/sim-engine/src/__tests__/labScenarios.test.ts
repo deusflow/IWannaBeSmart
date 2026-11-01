@@ -16,9 +16,9 @@ describe("Educational Micro-Labs Scenarios", () => {
     it("has at least one scenario per primary station with valid structure", () => {
       expect(POE_SCENARIOS.length).toBeGreaterThanOrEqual(10);
       const coveredStations = new Set(POE_SCENARIOS.map((s) => s.stationId));
-      const expectedStations = ["tv", "pos", "iot", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"];
+      const expectedStations = ["tv", "pos", "iot", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"] as const;
       for (const st of expectedStations) {
-        expect(coveredStations.has(st as any)).toBe(true);
+        expect(coveredStations.has(st)).toBe(true);
       }
 
       for (const scenario of POE_SCENARIOS) {

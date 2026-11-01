@@ -185,10 +185,14 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
 
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+    <div
+      data-testid="pos-cert-modal"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+    >
       <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-[#EFE9DC] text-[#1A1D20] rounded-3xl border-2 border-[#1A1D20]/30 shadow-2xl p-6 sm:p-8 space-y-6">
         {/* Close button */}
         <button
+          data-testid="pos-cert-close-btn"
           onClick={onClose}
           className="absolute top-5 right-5 p-2 rounded-full bg-[#1A1D20]/10 hover:bg-[#1A1D20]/20 text-[#1A1D20] transition-colors cursor-pointer"
           aria-label={t("common.close", "Закрити")}

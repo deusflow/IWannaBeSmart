@@ -553,7 +553,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runTvExecution, currentTask, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, taskMasteryStars, t]);
 
   const handleVerify = useCallback(() => {
     if (currentTask.isBugfixTask && activeRound === 1) {

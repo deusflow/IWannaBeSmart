@@ -5,7 +5,7 @@
  *              folders and illuminating executing files with pulsating cues.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Folder,
@@ -65,39 +65,45 @@ export const SyncedProjectFolderTree: React.FC<SyncedProjectFolderTreeProps> = (
     client: true,
   });
 
-  // Auto-expand folder when activeFolderId or activeFileId changes
-  useEffect(() => {
-    if (!activeFileId && !activeFolderId) return;
+  const [prevActiveFile, setPrevActiveFile] = useState(activeFileId);
+  const [prevActiveFolder, setPrevActiveFolder] = useState(activeFolderId);
 
-    setExpandedFolders((prev) => {
-      const next = { ...prev };
-      if (activeFolderId) {
-        next[activeFolderId] = true;
-        next[activeFolderId.toLowerCase()] = true;
-      }
-      if (activeFileId) {
-        const expandAncestors = (items: ProjectFile[]): boolean => {
-          for (const item of items) {
-            if (item.type === "folder" && item.children) {
-              const hasChild = item.children.some(
-                (c) =>
-                  c.id.toLowerCase() === activeFileId.toLowerCase() ||
-                  (activeFileId.length > 2 && c.id.toLowerCase().includes(activeFileId.toLowerCase()))
-              );
-              if (hasChild || expandAncestors(item.children)) {
-                next[item.id] = true;
-                next[item.id.toLowerCase()] = true;
-                return true;
+  // Auto-expand folder when activeFolderId or activeFileId changes
+  if (activeFileId !== prevActiveFile || activeFolderId !== prevActiveFolder) {
+    setPrevActiveFile(activeFileId);
+    setPrevActiveFolder(activeFolderId);
+
+    if (activeFileId || activeFolderId) {
+      setExpandedFolders((prev) => {
+        const next = { ...prev };
+        if (activeFolderId) {
+          next[activeFolderId] = true;
+          next[activeFolderId.toLowerCase()] = true;
+        }
+        if (activeFileId) {
+          const expandAncestors = (items: ProjectFile[]): boolean => {
+            for (const item of items) {
+              if (item.type === "folder" && item.children) {
+                const hasChild = item.children.some(
+                  (c) =>
+                    c.id.toLowerCase() === activeFileId.toLowerCase() ||
+                    (activeFileId.length > 2 && c.id.toLowerCase().includes(activeFileId.toLowerCase()))
+                );
+                if (hasChild || expandAncestors(item.children)) {
+                  next[item.id] = true;
+                  next[item.id.toLowerCase()] = true;
+                  return true;
+                }
               }
             }
-          }
-          return false;
-        };
-        expandAncestors(files);
-      }
-      return next;
-    });
-  }, [activeFileId, activeFolderId, files]);
+            return false;
+          };
+          expandAncestors(files);
+        }
+        return next;
+      });
+    }
+  }
 
   const toggleFolder = (folderId: string) => {
     setExpandedFolders((prev) => ({

@@ -261,7 +261,6 @@ export const BanditCodeGymRunner: React.FC = () => {
     codeLang,
     currentTask,
     banditState,
-    starsEarned,
     roundStartTimeRef,
     setRoundStats,
     setTaskMastery,

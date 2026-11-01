@@ -259,7 +259,6 @@ export const GitCodeGymRunner: React.FC = () => {
     codeLang,
     gitRepoState,
     currentTask,
-    starsEarned,
     roundStartTimeRef,
     setRoundStats,
     setTaskMastery,

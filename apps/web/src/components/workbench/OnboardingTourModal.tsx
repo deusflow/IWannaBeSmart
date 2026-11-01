@@ -155,6 +155,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
+      data-testid="onboarding-modal"
       aria-labelledby="onboarding-tour-title"
       className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#1E2227]/60 backdrop-blur-xs animate-fade-in"
       onClick={(e) => {
@@ -262,6 +263,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
                 </button>
               ) : (
                 <button
+                  data-testid="onboarding-skip-btn"
                   type="button"
                   onClick={handleSkip}
                   className="px-3 py-2 text-xs font-mono font-medium rounded-xl text-[#1E2227]/60 hover:text-[#1E2227] hover:bg-[#1E2227]/5 transition-colors cursor-pointer"
@@ -274,6 +276,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
             <div className="flex items-center gap-2">
               {currentStep < slides.length - 1 ? (
                 <button
+                  data-testid="onboarding-next-btn"
                   type="button"
                   onClick={handleNext}
                   className="px-4.5 py-2 text-xs font-mono font-bold rounded-xl bg-[#1E2227] text-white hover:bg-black transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
@@ -283,6 +286,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
                 </button>
               ) : (
                 <button
+                  data-testid="onboarding-finish-btn"
                   type="button"
                   onClick={handleFinish}
                   className="px-5 py-2 text-xs font-mono font-bold rounded-xl bg-[#3E7A5E] hover:bg-[#34664F] text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"

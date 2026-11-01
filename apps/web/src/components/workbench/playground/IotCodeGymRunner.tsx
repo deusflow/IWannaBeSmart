@@ -259,7 +259,6 @@ export const IotCodeGymRunner: React.FC = () => {
     currentTask,
     iotState,
     applyIotExecution,
-    starsEarned,
     roundStartTimeRef,
     setRoundStats,
     setTaskMastery,

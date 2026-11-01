@@ -349,6 +349,7 @@ export const ApiCodeGymRunner: React.FC = () => {
     setHasError,
     setRoundCompleted,
     setRoundStats,
+    setTaskMastery,
     saveTaskProgress,
     completeCodingTask,
     addXp,

@@ -10,8 +10,10 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Flame,
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
+import { useWorkbenchStore } from "../../../store/workbenchStore";
 
 export interface PatternItem {
   id: string;
@@ -28,10 +30,11 @@ export interface EngineerDossierBarProps {
 export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
   xp,
   patterns,
-  station3ProgressPercent,
+  station3ProgressPercent: _station3ProgressPercent,
 }) => {
   const { t } = useTranslation();
   const [isDossierExpanded, setIsDossierExpanded] = useState<boolean>(false);
+  const dailyStreak = useWorkbenchStore((s) => s.dailyStreak);
 
   return (
     <div className="rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/25 shadow-paper-sm overflow-hidden transition-all duration-300">

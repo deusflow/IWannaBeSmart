@@ -323,6 +323,7 @@ export const CodeGymRunner: React.FC = () => {
     setHasError,
     setRoundCompleted,
     setRoundStats,
+    setTaskMastery,
     saveTaskProgress,
     completeCodingTask,
     addXp,
@@ -417,7 +418,7 @@ export const CodeGymRunner: React.FC = () => {
           : t(currentTask.hintKey)
       );
     }
-  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, t]);
+  }, [typedCode, runPosExecution, currentTask, posState, setHasError, setRoundCompleted, setRoundStats, setTaskMastery, saveTaskProgress, completeCodingTask, addXp, setFeedback, taskMasteryStars, t]);
 
   const handleVerify = useCallback(() => {
     if (currentTask.isBugfixTask && activeRound === 1) {
@@ -543,6 +544,7 @@ export const CodeGymRunner: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <button
+              data-testid="lab-poe-btn"
               onClick={() => {
                 audioFx.playRelayClick();
                 setIsPoeModalOpen(true);
@@ -555,6 +557,7 @@ export const CodeGymRunner: React.FC = () => {
             </button>
 
             <button
+              data-testid="lab-logic-btn"
               onClick={() => {
                 audioFx.playRelayClick();
                 setIsLogicBuilderOpen(true);
@@ -567,6 +570,7 @@ export const CodeGymRunner: React.FC = () => {
             </button>
 
             <button
+              data-testid="lab-crash-btn"
               onClick={() => {
                 if (!allPosTasksCompleted) {
                   audioFx.playErrorBuzz();
@@ -597,6 +601,7 @@ export const CodeGymRunner: React.FC = () => {
 
             {allPosTasksCompleted && (
               <button
+                data-testid="station-cert-btn"
                 onClick={() => {
                   audioFx.playSuccessFanfare();
                   setPosVictoryModalOpen(true);

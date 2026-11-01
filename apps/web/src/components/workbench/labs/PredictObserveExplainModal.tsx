@@ -130,6 +130,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
     <div
       role="dialog"
       aria-modal="true"
+      data-testid="poe-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#1A1D20]/65 backdrop-blur-xs font-sans text-[#1A1D20]"
     >
       <div className="relative w-full max-w-2xl bg-[#FAF8F2] rounded-2xl border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -153,6 +154,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
               +{currentScenario.rewardXp} XP
             </span>
             <button
+              data-testid="poe-close-btn"
               onClick={() => {
                 audioFx.playRelayClick();
                 onClose();
@@ -203,6 +205,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
               return (
                 <button
                   key={option.id}
+                  data-testid={`poe-option-${option.id}`}
                   onClick={() => handleSelectOption(option.id)}
                   disabled={isSimulating || hasSimulated}
                   className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-start gap-2.5 cursor-pointer disabled:cursor-default ${btnStyle}`}
@@ -221,6 +224,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
           {/* Simulation Output Banner */}
           {hasSimulated && selectedOpt && (
             <div
+              data-testid="poe-feedback"
               className={`p-4 rounded-xl border text-xs animate-in fade-in duration-200 ${
                 isCorrect
                   ? "bg-emerald-50 border-emerald-300 text-emerald-950"
@@ -263,6 +267,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                   <span>{t("labs.common.tryAgain", "Спробувати ще")}</span>
                 </button>
                 <button
+                  data-testid="poe-finish-btn"
                   onClick={handleNext}
                   className="px-4 py-1.5 rounded-xl bg-[#1A1D20] text-[#FAF8F2] text-xs font-mono font-bold flex items-center gap-1 hover:bg-black transition-colors cursor-pointer shadow-sm"
                 >
@@ -275,6 +280,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
               </>
             ) : (
               <button
+                data-testid="poe-simulate-btn"
                 onClick={handleRunSimulation}
                 disabled={!selectedOptionId || isSimulating}
                 className="px-4 py-2 rounded-xl bg-amber-600 text-white text-xs font-mono font-bold flex items-center gap-1.5 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm active:scale-95"

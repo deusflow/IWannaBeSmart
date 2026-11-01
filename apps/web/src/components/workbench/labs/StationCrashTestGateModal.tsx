@@ -120,9 +120,6 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
         addXp(gate.rewardXp);
         completeLab(gateKey);
       }
-      if (onPassed) {
-        onPassed();
-      }
     }
   };
 
@@ -134,6 +131,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
     <div
       role="dialog"
       aria-modal="true"
+      data-testid="crash-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#1A1D20]/75 backdrop-blur-xs font-sans text-[#1A1D20]"
     >
       <div className="relative w-full max-w-2xl bg-[#FAF8F2] rounded-2xl border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -198,6 +196,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
 
               <div className="pt-2">
                 <button
+                  data-testid="crash-start-btn"
                   onClick={handleStart}
                   className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono font-bold text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all cursor-pointer inline-flex items-center gap-2"
                 >
@@ -207,7 +206,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
               </div>
             </div>
           ) : isPassed ? (
-            <div className="text-center py-6 px-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div data-testid="crash-success-view" className="text-center py-6 px-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border-2 border-emerald-600/30 text-emerald-900 flex items-center justify-center mx-auto shadow-inner">
                 <Trophy size={32} />
               </div>
@@ -282,6 +281,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                   {currentIncident.actions.map((act) => (
                     <button
                       key={act.id}
+                      data-testid={`crash-action-${act.id}`}
                       onClick={() => handleAction(act)}
                       className="w-full text-left p-3.5 rounded-xl border border-[#1A1D20]/25 bg-[#FAF8F2] hover:bg-[#EFE9DC] hover:border-[#1A1D20]/40 text-xs font-medium text-[#1A1D20] transition-all flex items-center justify-between gap-3 group cursor-pointer"
                     >
@@ -307,9 +307,13 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
           </div>
           {isPassed && (
             <button
+              data-testid="crash-claim-btn"
               onClick={() => {
                 audioFx.playRelayClick();
                 onClose();
+                if (onPassed) {
+                  onPassed();
+                }
               }}
               className="px-4 py-1.5 rounded-xl bg-[#1A1D20] text-[#FAF8F2] text-xs font-mono font-bold hover:bg-black transition-colors cursor-pointer"
             >

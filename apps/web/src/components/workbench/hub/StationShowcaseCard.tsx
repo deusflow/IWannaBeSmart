@@ -46,6 +46,7 @@ export interface StationShowcaseCardProps {
 }
 
 export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
+  stationId,
   codeLabel,
   title,
   subtitle,
@@ -75,6 +76,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
     const isRoadmap = statusType === "roadmap" || lockCriteria?.isRoadmap;
     return (
       <div
+        data-testid={`station-card-${stationId}`}
         className={`flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border border-[#1E2227]/15 space-y-3 relative overflow-hidden shadow-xs ${
           isWaitingStation ? "opacity-40 pointer-events-none select-none cursor-not-allowed" : ""
         }`}
@@ -164,6 +166,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
 
   return (
     <div
+      data-testid={`station-card-${stationId}`}
       className={`flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border transition-all space-y-3 shadow-xs hover:shadow-paper-sm ${
         isHeroCard
           ? "col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 border-[#C86D32] ring-2 ring-[#C86D32]/35 shadow-md bg-gradient-to-br from-white via-white to-[#FDF8F3]"
@@ -297,6 +300,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
       {/* Action Buttons */}
       <div className="pt-1.5 flex items-center gap-2">
         <button
+          data-testid={`enter-station-${stationId}`}
           onClick={isWaitingStation ? undefined : onEnter}
           disabled={isWaitingStation}
           className={`flex-1 py-2 px-3.5 rounded-xl font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 shadow-xs ${

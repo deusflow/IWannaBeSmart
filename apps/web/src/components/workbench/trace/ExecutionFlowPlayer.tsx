@@ -98,14 +98,20 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
   }, [controller]);
 
   useEffect(() => {
-    awardedRef.current = false;
-    setHasCompleted(false);
+    const timer = setTimeout(() => {
+      awardedRef.current = false;
+      setHasCompleted(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [timeline.id]);
 
   useEffect(() => {
     if (isOpen && playerState.currentStepIndex === 0) {
-      awardedRef.current = false;
-      setHasCompleted(false);
+      const timer = setTimeout(() => {
+        awardedRef.current = false;
+        setHasCompleted(false);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, playerState.currentStepIndex]);
 

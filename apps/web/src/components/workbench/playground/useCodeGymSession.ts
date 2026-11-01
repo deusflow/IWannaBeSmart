@@ -353,7 +353,7 @@ export function useCodeGymSession<
         }
       }
     },
-    [targetCode, currentTask.isBugfixTask, playThrottledKeyClick, t, onRoundComplete]
+    [targetCode, currentTask.isBugfixTask, currentTask.id, codeLang, playThrottledKeyClick, t, onRoundComplete]
   );
 
   // Handle cloze input with instant character/token validation

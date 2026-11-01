@@ -13,7 +13,28 @@ import type {
   MentorSlice,
   MentorPhase,
   CareerTrack,
+  DailyStreakState,
 } from "../types";
+
+const DEFAULT_STREAK: DailyStreakState = {
+  currentStreak: 0,
+  bestStreak: 0,
+  lastActiveDate: "",
+  streakFreezesAvailable: 1,
+  isStreakFrozenToday: false,
+};
+
+function loadLocalDailyStreak(): DailyStreakState {
+  try {
+    if (typeof window !== "undefined") {
+      const raw = localStorage.getItem("iw_daily_streak");
+      if (raw) return { ...DEFAULT_STREAK, ...JSON.parse(raw) };
+    }
+  } catch {
+    // fallback
+  }
+  return DEFAULT_STREAK;
+}
 
 function deriveStationAndTier(
   taskId: string,
@@ -110,7 +131,72 @@ export const createMentorSlice: StateCreator<
 
   setStationVictoryModalOpen: (open: boolean) => set({ isStationVictoryModalOpen: open }),
 
+  dailyStreak: loadLocalDailyStreak(),
+
+  recordDailyActivity: () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const streak = { ...get().dailyStreak };
+
+    if (streak.lastActiveDate === today) {
+      return;
+    }
+
+    if (!streak.lastActiveDate) {
+      streak.currentStreak = 1;
+      streak.bestStreak = 1;
+      streak.lastActiveDate = today;
+      streak.isStreakFrozenToday = false;
+    } else {
+      const last = new Date(streak.lastActiveDate);
+      const curr = new Date(today);
+      const diffDays = Math.round((curr.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 1) {
+        streak.currentStreak += 1;
+        streak.bestStreak = Math.max(streak.bestStreak, streak.currentStreak);
+        streak.lastActiveDate = today;
+        streak.isStreakFrozenToday = false;
+      } else if (diffDays === 2 && streak.streakFreezesAvailable > 0) {
+        streak.streakFreezesAvailable -= 1;
+        streak.currentStreak += 1;
+        streak.bestStreak = Math.max(streak.bestStreak, streak.currentStreak);
+        streak.lastActiveDate = today;
+        streak.isStreakFrozenToday = true;
+      } else {
+        streak.currentStreak = 1;
+        streak.lastActiveDate = today;
+        streak.isStreakFrozenToday = false;
+      }
+    }
+
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("iw_daily_streak", JSON.stringify(streak));
+      }
+    } catch {
+      // Safe catch
+    }
+    set({ dailyStreak: streak });
+  },
+
+  useStreakFreeze: () => {
+    const streak = { ...get().dailyStreak };
+    if (streak.streakFreezesAvailable <= 0) return false;
+    streak.streakFreezesAvailable -= 1;
+    streak.isStreakFrozenToday = true;
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("iw_daily_streak", JSON.stringify(streak));
+      }
+    } catch {
+      // Safe catch
+    }
+    set({ dailyStreak: streak });
+    return true;
+  },
+
   completeCodingTask: (taskId: string) => {
+    get().recordDailyActivity();
     const alreadyCompleted = Boolean(get().completedCodingTasks[taskId]);
     if (!alreadyCompleted) {
       const xpGain = taskId === "task-command-registry" ? 50 : 25;
@@ -157,6 +243,7 @@ export const createMentorSlice: StateCreator<
   },
 
   completeLab: (labId: string) => {
+    get().recordDailyActivity();
     const alreadyCompleted = Boolean(get().completedLabIds[labId]);
     if (!alreadyCompleted) {
       const nextCompleted = { ...get().completedLabIds, [labId]: true };
@@ -641,6 +728,7 @@ export const createMentorSlice: StateCreator<
       xp: 0,
       completedCodingTasks: {},
       completedLabIds: {},
+      dailyStreak: DEFAULT_STREAK,
       taskMasteryStars: {},
       taskBestWpm: {},
       userTrack: null,
@@ -649,6 +737,13 @@ export const createMentorSlice: StateCreator<
       isHintActive: false,
       isStationVictoryModalOpen: false,
     });
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("iw_daily_streak");
+      }
+    } catch {
+      // Safe catch
+    }
     try {
       get().resetCircuit?.();
       get().resetBypasses?.();

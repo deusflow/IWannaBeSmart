@@ -134,6 +134,7 @@ export const CareerOnboardingModal: React.FC = () => {
               return (
                 <div
                   key={track.id}
+                  data-testid={`track-card-${track.id}`}
                   onClick={() => handleSelect(track.id)}
                   className={`flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative select-none group ${
                     isSelected

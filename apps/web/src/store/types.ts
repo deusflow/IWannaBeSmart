@@ -108,11 +108,22 @@ export interface ArchitectureSlice {
 
 export type MentorPhase = "GUIDED" | "VERIFY" | "PRACTICE" | "COMPLETED";
 
+export interface DailyStreakState {
+  currentStreak: number;
+  bestStreak: number;
+  lastActiveDate: string;
+  streakFreezesAvailable: number;
+  isStreakFrozenToday: boolean;
+}
+
 export interface MentorSlice {
   mentorPhase: MentorPhase;
   guidedStep: 1 | 2 | 3;
   isHintActive: boolean;
   isStationVictoryModalOpen: boolean;
+  dailyStreak: DailyStreakState;
+  recordDailyActivity: () => void;
+  useStreakFreeze: () => boolean;
   xp: number;
   completedCodingTasks: Record<string, boolean>;
   completeCodingTask: (taskId: string) => boolean;

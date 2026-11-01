@@ -10,7 +10,7 @@
  * Design: Blueprint parchment (#EBE5D8 bg, #1A1D20 graphite text, elegant tactile borders)
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Lightbulb,
@@ -89,16 +89,19 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   const [isDemoRunning, setIsDemoRunning] = useState(false);
   const [demoExecuted, setDemoExecuted] = useState(false);
 
-  useEffect(() => {
+  const [prevTaskId, setPrevTaskId] = useState(data.taskId);
+  const [prevForceExpanded, setPrevForceExpanded] = useState(forceExpanded);
+
+  if (data.taskId !== prevTaskId) {
+    setPrevTaskId(data.taskId);
     setIsExpanded(defaultExpanded);
     setDemoExecuted(false);
-  }, [data.taskId, defaultExpanded]);
+  }
 
-  useEffect(() => {
-    if (forceExpanded !== undefined) {
-      setIsExpanded(forceExpanded);
-    }
-  }, [forceExpanded]);
+  if (forceExpanded !== undefined && forceExpanded !== prevForceExpanded) {
+    setPrevForceExpanded(forceExpanded);
+    setIsExpanded(forceExpanded);
+  }
 
   if (dismissed && !persistent) return null;
 

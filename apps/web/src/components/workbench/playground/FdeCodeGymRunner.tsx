@@ -431,7 +431,6 @@ The production pipeline consists of a multi-agent system wired through LangGraph
     configureFdeRagAction,
     toggleFdeSecurityCheckAction,
     submitFdeRunbookAction,
-    starsEarned,
     roundStartTimeRef,
     setRoundStats,
     setTaskMastery,

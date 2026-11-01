@@ -44,6 +44,18 @@ const nodeTypes = {
 };
 const edgeTypes = { architectureEdge: ArchitectureEdge };
 
+const INITIAL_BOOT_LOGS: TerminalLogEntry[] = [
+  {
+    id: "boot-1",
+    timestamp: 0,
+    type: "info",
+    subsystem: "GRAPH",
+    operation: "BOOT",
+    message: "Architecture runtime initialized [DI Container ready]",
+    details: "Awaiting dependency binding: IRemoteCommand -> TVController",
+  },
+];
+
 function nowStr(): string {
   const d = new Date();
   const time = d.toTimeString().slice(0, 8);
@@ -96,8 +108,16 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
   const [canvasMode, setCanvasMode] = useState<"TRACE" | "WIRING">("WIRING");
   const [isFaultSimulationOpen, setIsFaultSimulationOpen] = useState(false);
-  const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>([]);
+  const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>(INITIAL_BOOT_LOGS);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [prevMentorPhase, setPrevMentorPhase] = useState(mentorPhase);
+
+  if (mentorPhase !== prevMentorPhase) {
+    setPrevMentorPhase(mentorPhase);
+    if (mentorPhase === "COMPLETED") {
+      setIsCompletionModalOpen(true);
+    }
+  }
   const [isHotSwapInsightOpen, setIsHotSwapInsightOpen] = useState(false);
   const [diMode, setDiMode] = useState<"WITH_DI" | "WITHOUT_DI">("WITH_DI");
 
@@ -164,12 +184,6 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     [setEdges]
   );
 
-  useEffect(() => {
-    if (mentorPhase === "COMPLETED") {
-      setIsCompletionModalOpen(true);
-    }
-  }, [mentorPhase]);
-
   // ── Trace-Chain Evaluation ──
   const evaluatedTraceGraph: TraceGraph = useMemo(() => {
     return evaluateTraceGraph(
@@ -195,16 +209,19 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     }
 
     if (evaluatedTraceGraph.isBroken) {
-      addLog({
-        type: "error",
-        subsystem: "FAULT",
-        message: `[FAULT] Dependency unresolved: ${selectedTraceEntityId} has no active binding`,
-      });
-      addLog({
-        type: "error",
-        subsystem: "HARDWARE",
-        message: "[HARDWARE] TV CRT Anode: Power supply interrupted (0V)",
-      });
+      const timer = setTimeout(() => {
+        addLog({
+          type: "error",
+          subsystem: "FAULT",
+          message: `[FAULT] Dependency unresolved: ${selectedTraceEntityId} has no active binding`,
+        });
+        addLog({
+          type: "error",
+          subsystem: "HARDWARE",
+          message: "[HARDWARE] TV CRT Anode: Power supply interrupted (0V)",
+        });
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [
     evaluatedTraceGraph.isBroken,
@@ -305,17 +322,6 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
     const t2 = setTimeout(() => fitView({ padding: 0.25, duration: 400 }), 120);
     return () => clearTimeout(t2);
   }, [fitView]);
-
-  useEffect(() => {
-    addLog({
-      type: "info",
-      subsystem: "GRAPH",
-      operation: "BOOT",
-      message: "Architecture runtime initialized [DI Container ready]",
-      details: "Awaiting dependency binding: IRemoteCommand -> TVController",
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div
