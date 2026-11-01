@@ -19,36 +19,40 @@ function deriveStationAndTier(
   taskId: string,
   fallbackStationId?: string
 ): { stationId: string; tier: number } {
-  if (taskId.startsWith("task-pos-")) {
+  const cleanId = taskId.startsWith("lab:") ? taskId.slice(4) : taskId;
+  if (cleanId.startsWith("task-pos-") || cleanId.includes("pos")) {
     return { stationId: "pos", tier: 0 };
   }
-  if (taskId.startsWith("task-iot-")) {
+  if (cleanId.startsWith("task-iot-") || cleanId.includes("iot")) {
     return { stationId: "iot", tier: 0 };
   }
-  if (taskId.startsWith("task-api-")) {
+  if (cleanId.startsWith("task-api-") || cleanId.includes("api")) {
     return { stationId: "api", tier: 0 };
   }
-  if (taskId.startsWith("task-git-")) {
+  if (cleanId.startsWith("task-git-") || cleanId.includes("git")) {
     return { stationId: "git", tier: 0 };
   }
-  if (taskId.startsWith("task-bandit-")) {
+  if (cleanId.startsWith("task-bandit-") || cleanId.includes("bandit")) {
     return { stationId: "bandit", tier: 0 };
   }
-  if (taskId.startsWith("task-vertex-")) {
+  if (cleanId.startsWith("task-vertex-") || cleanId.includes("vertex")) {
     return { stationId: "vertex", tier: 0 };
   }
-  if (taskId.startsWith("task-fde-")) {
+  if (cleanId.startsWith("task-fde-") || cleanId.includes("fde")) {
     return { stationId: "fde", tier: 0 };
   }
-  if (taskId.startsWith("task-rag-")) {
+  if (cleanId.startsWith("task-rag-") || cleanId.includes("rag")) {
     return { stationId: "rag", tier: 0 };
   }
-  if (taskId.startsWith("task-cyber-")) {
+  if (cleanId.startsWith("task-cyber-") || cleanId.includes("cyber")) {
     return { stationId: "cyber", tier: 0 };
   }
-  const tvTask = CODING_TASKS.find((t) => t.id === taskId);
+  const tvTask = CODING_TASKS.find((t) => t.id === cleanId);
   if (tvTask) {
     return { stationId: "tv", tier: tvTask.tier ?? 0 };
+  }
+  if (cleanId.includes("tv")) {
+    return { stationId: "tv", tier: 0 };
   }
   return { stationId: fallbackStationId || "tv", tier: 0 };
 }
@@ -164,6 +168,49 @@ export const createMentorSlice: StateCreator<
         // Safe catch
       }
       set({ completedLabIds: nextCompleted });
+
+      try {
+        const authUser = useAuthStore.getState().user;
+        const userId = authUser?.id;
+        if (
+          isSupabaseConfigured &&
+          userId &&
+          !userId.startsWith("guest-") &&
+          !userId.startsWith("local-") &&
+          !userId.startsWith("google-")
+        ) {
+          const { stationId: targetStationId, tier: targetTier } = deriveStationAndTier(
+            labId,
+            get().currentStationId
+          );
+          supabase
+            .from("user_progress")
+            .upsert(
+              {
+                user_id: userId,
+                station_id: targetStationId,
+                task_id: `lab:${labId}`,
+                tier: targetTier,
+                stars: 1,
+                completed_at: new Date().toISOString(),
+              },
+              { onConflict: "user_id,station_id,task_id" }
+            )
+            .then(
+              ({ error }) => {
+                if (error) {
+                  console.warn("[Workbench] Upsert lab completion warning:", error.message);
+                }
+              },
+              (err: unknown) => {
+                console.warn("[Workbench] Cloud sync network issue for lab (offline):", err);
+              }
+            );
+        }
+      } catch {
+        // Safe catch
+      }
+
       return true;
     }
     return false;
@@ -329,6 +376,7 @@ export const createMentorSlice: StateCreator<
 
       const localMap = { ...get().taskMasteryStars };
       const localWpmMap = { ...get().taskBestWpm };
+      const localLabs = { ...get().completedLabIds };
       const toUpload: Array<{
         user_id: string;
         station_id: string;
@@ -348,6 +396,12 @@ export const createMentorSlice: StateCreator<
           tier: number;
           best_wpm?: number;
         }>) {
+          if (row.task_id.startsWith("lab:")) {
+            const labId = row.task_id.slice(4);
+            localLabs[labId] = true;
+            continue;
+          }
+
           const localStars = localMap[row.task_id] || 0;
           const finalStars = Math.max(localStars, row.stars);
           localMap[row.task_id] = finalStars;
@@ -377,7 +431,7 @@ export const createMentorSlice: StateCreator<
         }
       }
 
-      // 2. Queue local stars not yet in cloud
+      // 2. Queue local stars and labs not yet in cloud
       const cloudTaskIds = new Set(
         (data || []).map((r: { task_id: string }) => r.task_id)
       );
@@ -399,6 +453,23 @@ export const createMentorSlice: StateCreator<
           });
         }
       }
+      for (const labId of Object.keys(localLabs)) {
+        const cloudLabKey = `lab:${labId}`;
+        if (!cloudTaskIds.has(cloudLabKey)) {
+          const { stationId: targetStationId, tier: targetTier } = deriveStationAndTier(
+            labId,
+            get().currentStationId
+          );
+          toUpload.push({
+            user_id: userId,
+            station_id: targetStationId,
+            task_id: cloudLabKey,
+            tier: targetTier,
+            stars: 1,
+            completed_at: new Date().toISOString(),
+          });
+        }
+      }
 
       // Update local state and localStorage, reconstructing completedCodingTasks & XP
       const nextCompleted = { ...get().completedCodingTasks };
@@ -416,6 +487,7 @@ export const createMentorSlice: StateCreator<
         taskMasteryStars: localMap,
         taskBestWpm: localWpmMap,
         completedCodingTasks: nextCompleted,
+        completedLabIds: localLabs,
         xp: finalXp,
       });
       try {
@@ -423,6 +495,7 @@ export const createMentorSlice: StateCreator<
           localStorage.setItem("iw_mastery_stars", JSON.stringify(localMap));
           localStorage.setItem("iw_task_best_wpm", JSON.stringify(localWpmMap));
           localStorage.setItem("iw_completed_tasks", JSON.stringify(nextCompleted));
+          localStorage.setItem("iw_completed_labs", JSON.stringify(localLabs));
           localStorage.setItem("iw_user_xp", String(finalXp));
         }
       } catch {

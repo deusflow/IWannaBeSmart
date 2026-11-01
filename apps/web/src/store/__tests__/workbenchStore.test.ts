@@ -667,6 +667,22 @@ Traffic is routed across private interconnects to prevent external interception.
       expect(store.getTaskMastery(testTaskId)).toBe(4);
       expect(getStore().taskBestWpm[testTaskId]).toBe(80);
     });
+
+    it("should track and persist completed labs without duplication", () => {
+      const store = getStore();
+      const labId = "poe-pos-state-drift";
+
+      expect(store.isLabCompleted(labId)).toBe(false);
+      const firstResult = store.completeLab(labId);
+      expect(firstResult).toBe(true);
+      expect(getStore().isLabCompleted(labId)).toBe(true);
+      expect(getStore().completedLabIds[labId]).toBe(true);
+
+      // Second completion attempt returns false
+      const secondResult = getStore().completeLab(labId);
+      expect(secondResult).toBe(false);
+      expect(getStore().isLabCompleted(labId)).toBe(true);
+    });
   });
 
   describe("warRoomSlice (Incident War Room & SEV-1 Outage Drills)", () => {

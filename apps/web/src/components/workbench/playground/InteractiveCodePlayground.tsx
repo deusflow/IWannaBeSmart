@@ -20,6 +20,10 @@ import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { TvPlaygroundHeader } from "./TvPlaygroundHeader";
 import { getStationCheckpoint, saveStationCheckpoint } from "../../../utils/checkpointManager";
+import {
+  PredictObserveExplainModal,
+  StationCrashTestGateModal,
+} from "../labs";
 
 export interface InteractiveCodePlaygroundProps {
   onOpenArchitectureStudio?: () => void;
@@ -153,6 +157,8 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   );
 
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
+  const [isPoeModalOpen, setIsPoeModalOpen] = useState(false);
+  const [isCrashGateOpen, setIsCrashGateOpen] = useState(false);
 
   // Next task calculation
   const currentTaskIndex = CODING_TASKS.findIndex((t) => t.id === currentTask.id);
@@ -629,6 +635,14 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           audioFx.playRelayClick();
           setActiveRound(round);
         }}
+        onOpenPoeModal={() => {
+          audioFx.playRelayClick();
+          setIsPoeModalOpen(true);
+        }}
+        onOpenCrashGate={() => {
+          audioFx.playWarRoomSiren();
+          setIsCrashGateOpen(true);
+        }}
       />
 
       {/* Project Explorer Bar */}
@@ -678,6 +692,24 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
         onUnlockPractice={unlockPractice}
+      />
+
+      <PredictObserveExplainModal
+        isOpen={isPoeModalOpen}
+        onClose={() => setIsPoeModalOpen(false)}
+        stationId="tv"
+      />
+
+      <StationCrashTestGateModal
+        isOpen={isCrashGateOpen}
+        onClose={() => setIsCrashGateOpen(false)}
+        stationId="tv"
+        onPassed={() => {
+          if (allTvTasksCompleted) {
+            audioFx.playSuccessFanfare();
+            setStationVictoryModalOpen(true);
+          }
+        }}
       />
     </div>
   );

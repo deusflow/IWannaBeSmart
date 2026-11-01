@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Star, Trophy, X, Users, ShieldCheck } from "lucide-react";
+import { Star, Trophy, X, Users, ShieldCheck, Flame, ShieldAlert, Lock } from "lucide-react";
 import {
   FDE_TASKS,
   type FdeTask,
@@ -19,6 +19,10 @@ import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
 import { getStationCheckpoint } from "../../../utils/checkpointManager";
+import {
+  PredictObserveExplainModal,
+  StationCrashTestGateModal,
+} from "../labs";
 
 export const FdeCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -75,6 +79,8 @@ export const FdeCodeGymRunner: React.FC = () => {
   );
 
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
+  const [isPoeModalOpen, setIsPoeModalOpen] = useState(false);
+  const [isCrashGateOpen, setIsCrashGateOpen] = useState(false);
 
   const currentTaskIndex = FDE_TASKS.findIndex((t) => t.id === currentTask.id);
   const nextTask =
@@ -519,6 +525,47 @@ The production pipeline consists of a multi-agent system wired through LangGraph
 
         {/* Action Buttons: Certificate Trigger & Language Selection */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              audioFx.playRelayClick();
+              setIsPoeModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-300 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+            title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
+          >
+            <Flame size={13} className="text-amber-400" />
+            <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (!allFdeTasksCompleted) {
+                audioFx.playErrorBuzz();
+                return;
+              }
+              audioFx.playWarRoomSiren();
+              setIsCrashGateOpen(true);
+            }}
+            disabled={!allFdeTasksCompleted}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
+              allFdeTasksCompleted
+                ? "bg-rose-500/15 hover:bg-rose-500/25 border-rose-600/30 text-rose-300 cursor-pointer active:scale-95"
+                : "bg-slate-900/40 border-slate-800 text-slate-500 cursor-not-allowed opacity-60"
+            }`}
+            title={
+              allFdeTasksCompleted
+                ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
+                : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
+            }
+          >
+            {allFdeTasksCompleted ? (
+              <ShieldAlert size={13} className="text-rose-400" />
+            ) : (
+              <Lock size={13} className="text-slate-500" />
+            )}
+            <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
+          </button>
+
           {allFdeTasksCompleted && (
             <button
               onClick={() => setFdeVictoryModalOpen(true)}
@@ -766,6 +813,24 @@ The production pipeline consists of a multi-agent system wired through LangGraph
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
         onUnlockPractice={unlockPractice}
+      />
+
+      <PredictObserveExplainModal
+        isOpen={isPoeModalOpen}
+        onClose={() => setIsPoeModalOpen(false)}
+        stationId="fde"
+      />
+
+      <StationCrashTestGateModal
+        isOpen={isCrashGateOpen}
+        onClose={() => setIsCrashGateOpen(false)}
+        stationId="fde"
+        onPassed={() => {
+          if (allFdeTasksCompleted) {
+            audioFx.playSuccessFanfare();
+            setFdeVictoryModalOpen(true);
+          }
+        }}
       />
     </div>
   );

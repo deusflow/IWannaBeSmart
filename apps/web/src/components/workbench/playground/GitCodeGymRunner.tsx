@@ -11,6 +11,9 @@ import {
   Trophy,
   X,
   GitBranch,
+  Flame,
+  ShieldAlert,
+  Lock,
 } from "lucide-react";
 import {
   GIT_TASKS,
@@ -25,6 +28,10 @@ import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { GuidedStepBar } from "./GuidedStepBar";
 import { getStationCheckpoint } from "../../../utils/checkpointManager";
+import {
+  PredictObserveExplainModal,
+  StationCrashTestGateModal,
+} from "../labs";
 
 export const GitCodeGymRunner: React.FC = () => {
   const { t } = useTranslation();
@@ -68,6 +75,8 @@ export const GitCodeGymRunner: React.FC = () => {
   );
 
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
+  const [isPoeModalOpen, setIsPoeModalOpen] = useState(false);
+  const [isCrashGateOpen, setIsCrashGateOpen] = useState(false);
 
   const currentTaskIndex = GIT_TASKS.findIndex((t) => t.id === currentTask.id);
   const nextTask =
@@ -379,6 +388,47 @@ export const GitCodeGymRunner: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsPoeModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
+            >
+              <Flame size={13} className="text-amber-700" />
+              <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (!allGitTasksCompleted) {
+                  audioFx.playErrorBuzz();
+                  return;
+                }
+                audioFx.playWarRoomSiren();
+                setIsCrashGateOpen(true);
+              }}
+              disabled={!allGitTasksCompleted}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
+                allGitTasksCompleted
+                  ? "bg-rose-500/15 hover:bg-rose-500/25 border-rose-600/30 text-rose-950 cursor-pointer active:scale-95"
+                  : "bg-[#1A1D20]/5 border-[#1A1D20]/15 text-[#1A1D20]/40 cursor-not-allowed opacity-60"
+              }`}
+              title={
+                allGitTasksCompleted
+                  ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
+                  : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
+              }
+            >
+              {allGitTasksCompleted ? (
+                <ShieldAlert size={13} className="text-rose-700" />
+              ) : (
+                <Lock size={13} className="text-[#1A1D20]/40" />
+              )}
+              <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
+            </button>
+
             {allGitTasksCompleted && (
               <button
                 onClick={() => {
@@ -578,6 +628,24 @@ export const GitCodeGymRunner: React.FC = () => {
         isTheoryUnlocked={isTheoryUnlocked}
         onOpenTheory={handleOpenTheory}
         onUnlockPractice={unlockPractice}
+      />
+
+      <PredictObserveExplainModal
+        isOpen={isPoeModalOpen}
+        onClose={() => setIsPoeModalOpen(false)}
+        stationId="git"
+      />
+
+      <StationCrashTestGateModal
+        isOpen={isCrashGateOpen}
+        onClose={() => setIsCrashGateOpen(false)}
+        stationId="git"
+        onPassed={() => {
+          if (allGitTasksCompleted) {
+            audioFx.playSuccessFanfare();
+            setGitVictoryModalOpen(true);
+          }
+        }}
       />
     </div>
   );

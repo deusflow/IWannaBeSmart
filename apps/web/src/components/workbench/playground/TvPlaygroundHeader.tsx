@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Star, Trophy, Zap, Lock, X } from "lucide-react";
+import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert } from "lucide-react";
 import type { CodingTask } from "@iw/sim-engine";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
@@ -37,6 +37,8 @@ export interface TvPlaygroundHeaderProps {
   onUnlockPractice: () => void;
   activeRound: 1 | 2 | 3 | 4;
   onSelectRound: (round: 1 | 2 | 3 | 4) => void;
+  onOpenPoeModal?: () => void;
+  onOpenCrashGate?: () => void;
 }
 
 export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
@@ -65,6 +67,8 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
   onUnlockPractice,
   activeRound,
   onSelectRound,
+  onOpenPoeModal,
+  onOpenCrashGate,
 }) => {
   const { t } = useTranslation();
 
@@ -209,6 +213,47 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onOpenPoeModal && (
+            <button
+              onClick={onOpenPoeModal}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
+            >
+              <Flame size={13} className="text-amber-700" />
+              <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
+            </button>
+          )}
+
+          {onOpenCrashGate && (
+            <button
+              onClick={() => {
+                if (!allTvTasksCompleted) {
+                  audioFx.playErrorBuzz();
+                  return;
+                }
+                onOpenCrashGate();
+              }}
+              disabled={!allTvTasksCompleted}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
+                allTvTasksCompleted
+                  ? "bg-rose-500/15 hover:bg-rose-500/25 border-rose-600/30 text-rose-950 cursor-pointer active:scale-95"
+                  : "bg-[#1A1D20]/5 border-[#1A1D20]/15 text-[#1A1D20]/40 cursor-not-allowed opacity-60"
+              }`}
+              title={
+                allTvTasksCompleted
+                  ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
+                  : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
+              }
+            >
+              {allTvTasksCompleted ? (
+                <ShieldAlert size={13} className="text-rose-700" />
+              ) : (
+                <Lock size={13} className="text-[#1A1D20]/40" />
+              )}
+              <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
+            </button>
+          )}
+
           {allTvTasksCompleted && (
             <button
               onClick={onOpenVictoryModal}

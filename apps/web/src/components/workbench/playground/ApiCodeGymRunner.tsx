@@ -14,6 +14,7 @@ import {
   Flame,
   ShieldAlert,
   Lock,
+  Cpu,
 } from "lucide-react";
 import {
   API_FORGE_TASKS,
@@ -31,6 +32,7 @@ import { getStationCheckpoint } from "../../../utils/checkpointManager";
 import {
   PredictObserveExplainModal,
   StationCrashTestGateModal,
+  FirmwareLogicBuilderModal,
 } from "../labs";
 
 const TASK_DEFAULT_REQUESTS: Record<
@@ -97,6 +99,7 @@ export const ApiCodeGymRunner: React.FC = () => {
 
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
   const [isPoeModalOpen, setIsPoeModalOpen] = useState(false);
+  const [isLogicBuilderOpen, setIsLogicBuilderOpen] = useState(false);
   const [isCrashGateOpen, setIsCrashGateOpen] = useState(false);
 
   const currentTaskIndex = API_FORGE_TASKS.findIndex((t) => t.id === currentTask.id);
@@ -551,6 +554,18 @@ export const ApiCodeGymRunner: React.FC = () => {
 
             <button
               onClick={() => {
+                audioFx.playRelayClick();
+                setIsLogicBuilderOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-600/30 text-indigo-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title={t("labs.logic.btnTooltip", "Конструктор логіки: Зберіть конвеєр обробки без коду")}
+            >
+              <Cpu size={13} className="text-indigo-700" />
+              <span className="hidden sm:inline">{t("labs.logic.btnLabel", "Конструктор")}</span>
+            </button>
+
+            <button
+              onClick={() => {
                 if (!allApiTasksCompleted) {
                   audioFx.playErrorBuzz();
                   return;
@@ -775,6 +790,12 @@ export const ApiCodeGymRunner: React.FC = () => {
       <PredictObserveExplainModal
         isOpen={isPoeModalOpen}
         onClose={() => setIsPoeModalOpen(false)}
+        stationId="api"
+      />
+
+      <FirmwareLogicBuilderModal
+        isOpen={isLogicBuilderOpen}
+        onClose={() => setIsLogicBuilderOpen(false)}
         stationId="api"
       />
 

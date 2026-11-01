@@ -14,7 +14,13 @@ import {
 describe("Educational Micro-Labs Scenarios", () => {
   describe("Predict-Observe-Explain (POE) Scenarios", () => {
     it("has at least one scenario per primary station with valid structure", () => {
-      expect(POE_SCENARIOS.length).toBeGreaterThanOrEqual(4);
+      expect(POE_SCENARIOS.length).toBeGreaterThanOrEqual(10);
+      const coveredStations = new Set(POE_SCENARIOS.map((s) => s.stationId));
+      const expectedStations = ["tv", "pos", "iot", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"];
+      for (const st of expectedStations) {
+        expect(coveredStations.has(st as any)).toBe(true);
+      }
+
       for (const scenario of POE_SCENARIOS) {
         expect(scenario.id).toBeTruthy();
         expect(scenario.stationId).toBeTruthy();
@@ -44,7 +50,7 @@ describe("Educational Micro-Labs Scenarios", () => {
     });
 
     it("has solvable logic challenges whose expected sequence uses available blocks", () => {
-      expect(LOGIC_CHALLENGES.length).toBeGreaterThanOrEqual(1);
+      expect(LOGIC_CHALLENGES.length).toBeGreaterThanOrEqual(3);
 
       for (const challenge of LOGIC_CHALLENGES) {
         expect(challenge.availableBlockIds.length).toBeGreaterThanOrEqual(3);
@@ -62,7 +68,11 @@ describe("Educational Micro-Labs Scenarios", () => {
   describe("Station Crash Test Gates", () => {
     it("configures valid crash gates with timeout and incidents", () => {
       const gates = Object.values(STATION_CRASH_GATES);
-      expect(gates.length).toBeGreaterThanOrEqual(1);
+      expect(gates.length).toBeGreaterThanOrEqual(10);
+      const expectedStations = ["tv", "pos", "iot", "api", "git", "bandit", "vertex", "fde", "rag", "cyber"];
+      for (const st of expectedStations) {
+        expect(STATION_CRASH_GATES[st]).toBeDefined();
+      }
 
       for (const gate of gates) {
         expect(gate.stationId).toBeTruthy();

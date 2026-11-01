@@ -38,8 +38,29 @@ export default defineConfig({
           if (id.includes("node_modules/lucide-react")) {
             return "vendor-icons";
           }
+          if (id.includes("packages/i18n/src/locales/ua")) {
+            return "i18n-ua";
+          }
+          if (id.includes("packages/i18n/src/locales/en")) {
+            return "i18n-en";
+          }
+          if (id.includes("packages/i18n/src/locales/da")) {
+            return "i18n-da";
+          }
+          if (id.includes("packages/i18n/src/theory")) {
+            return "i18n-theory";
+          }
           if (id.includes("packages/i18n")) {
-            return "i18n-translations";
+            return "i18n-core";
+          }
+          if (id.includes("packages/sim-engine/src/runtime/technologyInsights")) {
+            return "sim-engine-insights";
+          }
+          if (id.includes("packages/sim-engine/src/runtime/trace")) {
+            return "sim-engine-trace";
+          }
+          if (id.includes("packages/sim-engine/src/runtime/workedExamplesData")) {
+            return "sim-engine-worked-examples";
           }
           if (id.includes("packages/sim-engine")) {
             return "sim-engine-core";
