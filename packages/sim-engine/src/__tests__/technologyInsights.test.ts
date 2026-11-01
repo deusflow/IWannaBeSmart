@@ -14,19 +14,11 @@ import {
 describe("Technology Insights & Industry Context", () => {
   it("has dedicated curated insights for key primary station tasks", () => {
     const keys = Object.keys(TECHNOLOGY_INSIGHTS);
-    expect(keys.length).toBeGreaterThanOrEqual(25);
+    expect(keys.length).toBeGreaterThanOrEqual(90);
 
-    // Verify key stations are explicitly covered with curated insights
-    expect(TECHNOLOGY_INSIGHTS["task-0-1-power-on"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-pos-guard-clause"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-iot-1-motion-stop"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-api-1-heartbeat"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-git-1-genesis"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-bandit-1-hidden-key"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-vertex-3-pipeline-yaml"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-fde-7-agent-architecture"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-rag-1-chunking-overlap"]).toBeDefined();
-    expect(TECHNOLOGY_INSIGHTS["task-cyber-4-syn-flood-detector"]).toBeDefined();
+    for (const task of ALL_CURRICULUM_TASKS) {
+      expect(TECHNOLOGY_INSIGHTS[task.id]).toBeDefined();
+    }
   });
 
   it("provides complete technology insight with all multilingual fields for 100% of curriculum tasks", () => {

@@ -117,6 +117,9 @@ export interface MentorSlice {
   completedCodingTasks: Record<string, boolean>;
   completeCodingTask: (taskId: string) => boolean;
   isCodingTaskCompleted: (taskId: string) => boolean;
+  completedLabIds: Record<string, boolean>;
+  completeLab: (labId: string) => boolean;
+  isLabCompleted: (labId: string) => boolean;
   setStationVictoryModalOpen: (open: boolean) => void;
   setMentorPhase: (phase: MentorPhase) => void;
   setGuidedStep: (step: 1 | 2 | 3) => void;

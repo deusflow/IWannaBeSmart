@@ -1332,6 +1332,64 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
   // ═════════════════════════════════════════════════════════════
   // STATION 07: GOOGLE VERTEX AI & ENTERPRISE MLOPS
   // ═════════════════════════════════════════════════════════════
+  "task-vertex-1-gcs-connect": {
+    taskId: "task-vertex-1-gcs-connect",
+    primaryTech: "Cloud Storage Streaming Ingestion & GCS FUSE Sharding",
+    category: "cloud",
+    whatIsIt: {
+      ua: "Потокове читання навчальних даних безпосередньо з хмарного сховища GCS через оптимізовані бінарні чанки без попереднього завантаження гігабайтів на локальний диск інстансу.",
+      en: "Streaming training dataset ingestion directly from Cloud Storage (GCS) via optimized binary chunks without downloading terabytes to local VM disks.",
+      da: "Streaming af datasæt direkte fra Cloud Storage (GCS) i binære bidder uden forudgående download til lokal disk.",
+    },
+    whyHere: {
+      ua: "Навчальні датасети важать сотні гігабайтів. Потокове зчитування дозволяє розпочати навчання моделі за секунди замість годин очікування копіювання.",
+      en: "Datasets scale to hundreds of gigabytes. Direct streaming kicks off training batches within seconds rather than waiting hours for local disk rsync.",
+      da: "Datasæt fylder ofte hundreder af gigabytes. Direkte streaming starter træning på sekunder i stedet for timers filkopiering.",
+    },
+    alternative: {
+      name: "Downloading Full Tarball Archives to Local Instance Disk",
+      tradeoff: {
+        ua: "Забиває локальний SSD, збільшує час старту воркерів на години та вимагає втричі дорожчих віртуальних машин з великими дисками.",
+        en: "Exhausts node disk space, stalls cluster initialization for hours, and forces expensive high-capacity local SSD provisioning.",
+        da: "Bruger al lokal diskplads, forsinker klyngeopstart i timevis og kræver markant dyrere servere.",
+      },
+    },
+    advantages: {
+      ua: ["Миттєвий старт тренувальних воркерів", "Нульові витрати локального дискового простору", "Паралельне зчитування батчів з високою пропускною здатністю"],
+      en: ["Instant training pod startup", "Zero local node disk footprint", "High-throughput parallelized batch streaming"],
+      da: ["Øjeblikkelig pod-opstart", "Intet lokalt diskforbrug", "Høj båndbredde med parallel batch-streaming"],
+    },
+  },
+
+  "task-vertex-2-preprocessing": {
+    taskId: "task-vertex-2-preprocessing",
+    primaryTech: "Columnar Feature Stores & Apache Arrow / Parquet Transforms",
+    category: "database",
+    whatIsIt: {
+      ua: "Колонковий бінарний формат даних зі стисненням Snappy та векторною обробкою в пам'яті через Apache Arrow без накладних витрат на десеріалізацію.",
+      en: "Columnar binary format with Snappy compression and zero-copy in-memory compute via Apache Arrow, eliminating deserialization overhead.",
+      da: "Søjleorienteret binært format med komprimering og lynhurtig hukommelsesbehandling via Apache Arrow.",
+    },
+    whyHere: {
+      ua: "ML-моделі тренуються на числових матрицях. Колонковий формат дозволяє завантажувати в GPU тільки потрібні ознаки на максимальній швидкості шини PCIe.",
+      en: "ML models compute on numerical tensors. Columnar layouts read only required feature columns at full PCIe bandwidth directly into GPU memory.",
+      da: "ML-modeller arbejder med matricer. Søjleformatet indlæser kun relevante kolonner direkte til GPU med maksimal hastighed.",
+    },
+    alternative: {
+      name: "Uncompressed CSV / JSON Parsing via Standard Python Loops",
+      tradeoff: {
+        ua: "Рядкові текстові файли потребують парсингу кожного рядка в CPU, створюючи 'GPU Starvation' — дорога відеокарта 80% часу простоює в очікуванні даних.",
+        en: "Row-based text parsing exhausts CPU cycles, causing GPU starvation where expensive accelerators sit idle waiting for slow data parsing.",
+        da: "Rækkevis tekstparsing overbelaster CPU'en og skaber 'GPU Starvation', hvor grafikkortet spilder tid på langsomme data.",
+      },
+    },
+    advantages: {
+      ua: ["Висока пропускна здатність читання даних", "Компактне стиснення даних у сховищі", "Zero-copy пряма передача в тензори"],
+      en: ["High-throughput feature ingest", "Compact on-disk footprint", "Zero-copy tensor serialization"],
+      da: ["Høj læsehastighed for features", "Kompakt datastørrelse", "Zero-copy direkte til tensormatricer"],
+    },
+  },
+
   "task-vertex-3-pipeline-yaml": {
     taskId: "task-vertex-3-pipeline-yaml",
     primaryTech: "Kubeflow Pipelines (KFP) & Argo DAG Workflow Engine",
@@ -1358,6 +1416,267 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
       ua: ["100% відтворюваність навчання", "Автоматичне кешування незмінних кроків", "Масштабування на тисячі вузлів"],
       en: ["100% reproducible experiments", "Automated step caching saves cloud spend", "Effortless scale-out to thousands of nodes"],
       da: ["100% reproducerbarhed", "Automatisk caching sparer cloud-udgifter", "Skalering til tusindvis af noder"],
+    },
+  },
+
+  "task-vertex-4-hardware-selection": {
+    taskId: "task-vertex-4-hardware-selection",
+    primaryTech: "Heterogeneous Accelerator Provisioning (NVIDIA Tensor Core / Google Cloud TPU v4)",
+    category: "hardware",
+    whatIsIt: {
+      ua: "Спеціалізовані тензорні процесори (TPU/GPU) з матричними блоками множення (bfloat16 / FP8 / INT8), що виконують мільйони операцій за один такт.",
+      en: "Dedicated tensor processors (TPU/GPU) with hardware systolic arrays running millions of matrix multiply-accumulate operations in a single clock cycle.",
+      da: "Dedikerede tensor-processorer (TPU/GPU) med hardware-accelereret matrixmultiplikation for lynhurtig modeltræning.",
+    },
+    whyHere: {
+      ua: "Навчання глибоких нейромереж на звичайних CPU триває місяці. Тензорні ядра скорочують час розрахунку матриць градієнтів до кількох годин.",
+      en: "Training deep networks on CPUs takes months. Tensor cores compress gradient matrix computations down to hours with native mixed-precision arithmetic.",
+      da: "Træning på almindelige CPU'er tager måneder. Tensor-kerner reducerer beregningstiden til få timer med hardwareoptimering.",
+    },
+    alternative: {
+      name: "CPU-Only General Purpose Virtual Machines",
+      tradeoff: {
+        ua: "Загальні процесори оптимізовані під умовні переходи, а не паралельні матричні обчислення, тому навчання зупиняється на етапі зворотного поширення помилки.",
+        en: "General-purpose CPUs prioritize branch prediction over massive parallel SIMD, resulting in extreme thermal throttling and stalled backpropagation.",
+        da: "Generelle CPU'er er ikke bygget til parallelle matrixberegninger, hvilket gør træningen uacceptabelt langsom.",
+      },
+    },
+    advantages: {
+      ua: ["Сотні TFLOPS обчислювальної потужності", "Апаратна підтримка mixed-precision (BF16)", "Енергетична ефективність розрахунків"],
+      en: ["Hundreds of TFLOPS compute power", "Hardware mixed-precision (BF16/FP8)", "Maximum power-to-compute efficiency"],
+      da: ["Hundreder af TFLOPS regnekraft", "Mixed-precision hardwareunderstøttelse", "Optimal energieffektivitet pr. beregning"],
+    },
+  },
+
+  "task-vertex-5-hyperparams": {
+    taskId: "task-vertex-5-hyperparams",
+    primaryTech: "Bayesian Optimization & Gaussian Process Hyperparameter Tuning (Vertex Vizier)",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Імовірнісний алгоритм підбору гіперпараметрів (learning rate, batch size, dropout), що будує модель корисності та обирає найбільш перспективні експерименти.",
+      en: "Probabilistic hyperparameter optimization using Gaussian processes to balance exploration and exploitation across learning rates and batch sizes.",
+      da: "Sandsynlighedsbaseret optimering (Bayesian Optimization) der klogt vælger de mest lovende hyperparametre.",
+    },
+    whyHere: {
+      ua: "Кожен експеримент на GPU коштує реальних грошей. Байєсівська оптимізація знаходить оптимум за 20 спроб замість сотень сліпих запусків.",
+      en: "Every GPU training run costs money. Bayesian optimization zeroes in on optimal validation loss in 20 smart trials instead of hundreds of blind iterations.",
+      da: "Hvert GPU-forsøg koster cloud-penge. Bayesiansk optimering finder de bedste parametre på 20 forsøg frem for hundreder af blinde gæt.",
+    },
+    alternative: {
+      name: "Exhaustive Grid Search or Pure Random Guessing",
+      tradeoff: {
+        ua: "Grid Search експоненційно витрачає хмарний бюджет на явно програшні комбінації параметрів (наприклад, занадто великий learning rate).",
+        en: "Grid search suffers combinatorial explosion, wasting thousands of cloud dollars running doomed trials with exploding gradients.",
+        da: "Grid Search eksploderer i tidsforbrug og spilder budget på parameterkombinationer der fejler med det samme.",
+      },
+    },
+    advantages: {
+      ua: ["Мінімальна кількість тренувальних спроб", "Математичне балансування exploration vs exploitation", "Економія хмарного бюджету"],
+      en: ["Minimal trial budget required", "Mathematical exploration vs exploitation balance", "Significant cloud compute cost savings"],
+      da: ["Færre nødvendige træningskørsler", "Optimal balance mellem udforskning og udnyttelse", "Markant lavere cloud-omkostninger"],
+    },
+  },
+
+  "task-vertex-6-run-training": {
+    taskId: "task-vertex-6-run-training",
+    primaryTech: "Distributed Data Parallel (PyTorch DDP / NCCL AllReduce) with Resilient Checkpointing",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Розподілене навчання на кластері з багатьох GPU, де кожен воркер має копію моделі та синхронізує градієнти через оптимізовану бібліотеку NCCL (Ring-AllReduce).",
+      en: "Multi-node distributed training where each GPU computes forward/backward passes on distinct mini-batches, synchronizing gradients via NCCL Ring-AllReduce.",
+      da: "Distribueret træning på flere GPU'er med gradient-synkronisering via NCCL Ring-AllReduce og automatisk gemning af checkpoints.",
+    },
+    whyHere: {
+      ua: "Масштабує навчання великих моделей на десятки GPU з лінійним прискоренням і дозволяє відновити тренування з останнього чекпойнту при падінні ноди.",
+      en: "Scales training throughput linearly across GPU clusters while preserving fault tolerance: if a preemptible node dies, training resumes from the latest checkpoint.",
+      da: "Giver næsten lineær skalering over flere GPU'er og sikrer mod datatab ved nedbrud via automatiske checkpoints.",
+    },
+    alternative: {
+      name: "Single-GPU Training with Manual Ad-Hoc Scripts",
+      tradeoff: {
+        ua: "При будь-якому збої інфраструктури або перезавантаженні сервера весь багатоденний прогрес навчання безповоротно втрачається.",
+        en: "A single node hardware fault or spot instance termination wipes out days of uncheckpointed training progress.",
+        da: "Et enkelt servernedbrud sletter dages træningsfremskridt hvis der mangler strukturerede checkpoints.",
+      },
+    },
+    advantages: {
+      ua: ["Масштабування на десятки GPU", "Відмовостійкість при збоях інфраструктури", "Ефективне використання Spot/Preemptible інстансів"],
+      en: ["Near-linear multi-GPU scaling", "Automated spot node recovery", "Substantial spot/preemptible compute savings"],
+      da: ["Lineær skalering over mange GPU'er", "Automatisk genoptagelse ved fejl", "Store besparelser med Spot-servere"],
+    },
+  },
+
+  "task-vertex-7-deploy-endpoint": {
+    taskId: "task-vertex-7-deploy-endpoint",
+    primaryTech: "Triton Inference Server & Dynamic Batching Model Runtime",
+    category: "cloud",
+    whatIsIt: {
+      ua: "Високопродуктивний C++ сервер виводу (inference), що об'єднує поодинокі запити користувачів у спільні батчі (Dynamic Batching) для максимальної утилізації GPU.",
+      en: "High-performance C++ inference engine grouping concurrent user requests into dynamic GPU execution batches with minimal tail latency.",
+      da: "C++ inference-server (Triton) der samler individuelle brugerforespørgsler i dynamiske GPU-batches med lav latency.",
+    },
+    whyHere: {
+      ua: "Обробка кожного запиту окремо навантажує GPU лише на 5%. Динамічний батчинг піднімає утилізацію до 95% без відчутного зростання затримки.",
+      en: "Serving one request per GPU kernel launch wastes 90% of tensor cores. Dynamic batching saturates GPU duty cycles with sub-20ms SLA guarantees.",
+      da: "Behandling af én anmodning ad gangen spilder grafikkortets regnekraft. Dynamisk batching udnytter GPU'en optimalt.",
+    },
+    alternative: {
+      name: "Synchronous Flask / Django Python Web App wrapping Model",
+      tradeoff: {
+        ua: "Python GIL (Global Interpreter Lock) блокує багатопотоковість, викликає черги на вході та падає при 50 одночасних запитах.",
+        en: "Python GIL serialization creates severe queueing delay under concurrent traffic, crashing worker processes under moderate load spikes.",
+        da: "Python GIL blokerer parallelle forespørgsler og skaber lange køer ved selv moderat brugertrafik.",
+      },
+    },
+    advantages: {
+      ua: ["Максимальна утилізація GPU", "Динамічне батчування запитів", "P99 затримка <25 мс"],
+      en: ["Full GPU core saturation", "Zero-copy IPC dynamic batching", "Sub-25ms P99 latency SLA"],
+      da: ["Maksimal GPU-udnyttelse", "Dynamisk batching uden ventetid", "P99 responstid under 25ms"],
+    },
+  },
+
+  "task-vertex-8-autoscaling": {
+    taskId: "task-vertex-8-autoscaling",
+    primaryTech: "KEDA Metric-Driven Horizontal Pod Autoscaler (HPA) for GPU Workloads",
+    category: "cloud",
+    whatIsIt: {
+      ua: "Автоматичне масштабування кількості подів моделі на основі довжини черги запитів та утилізації пам'яті GPU, а не лише стандартного завантаження CPU.",
+      en: "Event-driven Kubernetes autoscaling querying inference queue depth and GPU memory utilization to scale model replicas before latency spikes.",
+      da: "Automatisk skalering af model-pods baseret på kølængde og GPU-forbrug i stedet for forældede CPU-målinger.",
+    },
+    whyHere: {
+      ua: "У пікові години навантаження зростає в рази. Автоскейлінг миттєво піднімає нові копії моделі, а вночі згортає їх до нуля для економії.",
+      en: "Absorbs sudden enterprise traffic bursts by scaling pods ahead of queue build-up, downscaling to zero during off-peak hours to save thousands of dollars.",
+      da: "Håndterer pludselige trafikspidser ved at starte nye instanser og skalerer ned om natten for at spare penge.",
+    },
+    alternative: {
+      name: "Statically Provisioned Always-On Dedicated GPU Nodes",
+      tradeoff: {
+        ua: "Компанія платить тисячі доларів щомісяця за порожні сервери вночі, а під час раптового піку система однаково падає через перевантаження.",
+        en: "Fixed sizing burns massive cloud budgets on idle GPU capacity at night, yet still drops user connections when traffic surges beyond static limits.",
+        da: "Faste servere koster tusindvis af kroner i tomgang og bryder alligevel sammen under uventede spidsbelastninger.",
+      },
+    },
+    advantages: {
+      ua: ["Масштабування до нуля в період простою", "Миттєве реагування на довжину черги", "Збереження SLO затримки під навантаженням"],
+      en: ["Scale-to-zero cost efficiency", "Queue-depth proactive scaling", "Rock-solid latency SLA preservation"],
+      da: ["Skalering til nul i tomgang", "Proaktiv reaktion på kølængde", "Sikring af oppetid og svartider under spidsbelastning"],
+    },
+  },
+
+  "task-vertex-9-ab-traffic": {
+    taskId: "task-vertex-9-ab-traffic",
+    primaryTech: "Envoy Service Mesh Canary Traffic Splitting & Weighted Shadowing",
+    category: "network",
+    whatIsIt: {
+      ua: "Керування трафіком на рівні L7 проксі (Envoy/Istio): перенаправлення 5% реальних користувачів на нову версію моделі v2 з порівнянням метрик якості.",
+      en: "L7 service mesh routing splitting live inference requests (e.g. 95% v1, 5% v2) with optional traffic shadowing to evaluate candidate models risk-free.",
+      da: "Routestyring via Service Mesh (Envoy) der sender 5% af trafikken til en ny model v2 for at teste kvaliteten uden risiko.",
+    },
+    whyHere: {
+      ua: "Нова версія нейромережі може мати приховані галюцинації чи деградацію точності. Canary-реліз дозволяє виявити проблему на малій вибірці без шкоди для бізнесу.",
+      en: "Protects production revenue: if candidate v2 hallucinates or regresses on critical edge cases, canary routing isolates blast radius to 5% of users.",
+      da: "Beskytter produktionen: hvis model v2 fejler, rammer det kun 5% af brugerne før automatisk tilbagerulning.",
+    },
+    alternative: {
+      name: "Hard 100% Big-Bang Model Replacement in Production",
+      tradeoff: {
+        ua: "Миттєве перемикання 100% трафіку без тестування наживо: у разі критичної помилки моделі всі клієнти компанії одночасно отримують збій.",
+        en: "All-at-once cutovers expose 100% of customers to unforeseen model flaws simultaneously, turning minor regression into catastrophic outages.",
+        da: "Øjeblikkelig udskiftning af 100% af trafikken risikerer totalt nedbrud for alle brugere ved uventede modelfejl.",
+      },
+    },
+    advantages: {
+      ua: ["Нульовий ризик для 95% користувачів", "Автоматичний rollback при деградації метрик", "Порівняння бізнес-конверсії на реальних даних"],
+      en: ["Zero impact on primary user base", "Automated rollbacks on metric anomalies", "Real-world production A/B evaluation"],
+      da: ["Sikker test på lille trafikmængde", "Automatisk tilbagerulning ved fejl", "A/B-sammenligning på rigtige produktionsdata"],
+    },
+  },
+
+  "task-vertex-10-service-account": {
+    taskId: "task-vertex-10-service-account",
+    primaryTech: "Workload Identity Federation & Ephemeral OIDC Tokens (Zero Long-Lived Keys)",
+    category: "security",
+    whatIsIt: {
+      ua: "Безпечна автентифікація Kubernetes-подів у хмарних сервісах через тимчасові OIDC-токени без створення постійних файлів сервісних акаунтів (JSON keys).",
+      en: "Short-lived OpenID Connect (OIDC) token exchange allowing Kubernetes service accounts to impersonate Cloud IAM roles without static JSON keys.",
+      da: "Sikker cloud-godkendelse via kortlivede OIDC-tokens der helt fjerner behovet for sårbare JSON-nøglefiler.",
+    },
+    whyHere: {
+      ua: "Статичні JSON-ключі сервісних акаунтів регулярно витікають на GitHub або в публічні логи. Workload Identity генерує токени, які живуть лише 1 годину.",
+      en: "Static credential JSON files are the #1 source of cloud breaches via GitHub leaks. Workload Identity uses ephemeral 60-minute cryptographic tokens.",
+      da: "Statiske nøglefiler er den største kilde til cloud-sikkerhedsbrud. Workload Identity udsteder midlertidige tokens der udløber automatisk.",
+    },
+    alternative: {
+      name: "Static Long-Lived Service Account JSON Keyfiles stored in Git/Containers",
+      tradeoff: {
+        ua: "Будь-який розробник або зловмисник, що отримав доступ до файла ключа, має необмежений за часом доступ до хмарної інфраструктури.",
+        en: "Compromised static private keys remain valid indefinitely until manual revocation, providing attackers permanent root access to enterprise cloud.",
+        da: "Statiske nøgler forbliver gyldige i årevis hvis de lækkes, hvilket giver hackere permanent adgang.",
+      },
+    },
+    advantages: {
+      ua: ["Повна відсутність секретів у вихідному коді", "Токени автоматично знешкоджуються через 60 хв", "Відповідність вимогам SOC 2 та ISO 27001"],
+      en: ["Zero secret footprint in repos or pods", "Automatic 60-minute token expiration", "Guaranteed SOC 2 / ISO 27001 compliance"],
+      da: ["Ingen hemmeligheder i kildekoden", "Tokens udløber automatisk efter 60 min", "Overholder strenge revisionskrav"],
+    },
+  },
+
+  "task-vertex-11-vpc-peering": {
+    taskId: "task-vertex-11-vpc-peering",
+    primaryTech: "Private Service Connect (PSC) & Isolated VPC Subnet Peering",
+    category: "network",
+    whatIsIt: {
+      ua: "Приватний тунель між VPC-мережею компанії та хмарними сервісами машинного навчання через внутрішні IP-адреси без виходу в публічний інтернет.",
+      en: "Private L4 network endpoints routing training and inference traffic entirely within the cloud provider backbone over private RFC 1918 IP addresses.",
+      da: "Lukket netværkstunnel (PSC) der forbinder klyngen med cloud-tjenester via interne IP-adresser uden internetadgang.",
+    },
+    whyHere: {
+      ua: "Конфіденційні медичні та банківські датасети не повинні передаватися через відкритий інтернет, де вони вразливі до перехоплення та MITM-атак.",
+      en: "Sensitive banking and medical training datasets must never traverse public internet routes, preventing external snooping and MITM attacks.",
+      da: "Følsomme bank- og sundhedsdata må aldrig sendes over det offentlige internet for at undgå aflytning.",
+    },
+    alternative: {
+      name: "Public HTTPS Endpoints protected only by API Keys",
+      tradeoff: {
+        ua: "Публічні IP-адреси відкриті для сканування ботами, DDoS-атак та спроб підбору ключів з усього світу.",
+        en: "Public endpoint IPs are exposed to port scanning, brute-force credential stuffing, and volumetric denial-of-service attacks from global botnets.",
+        da: "Offentlige IP-adresser er sårbare over for scanninger, DDoS-angreb og brute-force forsøg fra hele verden.",
+      },
+    },
+    advantages: {
+      ua: ["Нульова видимість у публічному інтернеті", "Захист від витоку даних на рівні мережі", "Зниження мережевої затримки на 30%"],
+      en: ["Zero public internet exposure", "Network-level data exfiltration block", "Reduced routing latency on private backbone"],
+      da: ["Usynlig for det offentlige internet", "Maksimal databeskyttelse på netværksniveau", "Lavere netværksforsinkelse"],
+    },
+  },
+
+  "task-vertex-12-data-residency": {
+    taskId: "task-vertex-12-data-residency",
+    primaryTech: "Sovereign Cloud Regional Data Pinning & Cryptographic CMEK Encryption",
+    category: "security",
+    whatIsIt: {
+      ua: "Сувора прив'язка даних та обчислювальних потужностей до конкретного географічного регіону (наприклад, `europe-west4` Нідерланди) з ключами замовника (CMEK).",
+      en: "Geographic pinning of training storage and compute clusters to designated sovereign jurisdictions (e.g. EU/GDPR) encrypted with customer keys (CMEK).",
+      da: "Regional fastlåsning af data og servere til et specifikt land (f.eks. EU/GDPR) krypteret med kundens egne nøgler (CMEK).",
+    },
+    whyHere: {
+      ua: "Європейське законодавство (GDPR) забороняє вивезення персональних даних громадян за межі ЄС. Порушення загрожує штрафами до 20 мільйонів євро.",
+      en: "Enforces strict GDPR and HIPAA regulatory mandates: personal European customer data must never cross borders into non-sovereign jurisdictions.",
+      da: "Overholder GDPR: europæiske persondata må ikke forlade EU uden store bøder til følge.",
+    },
+    alternative: {
+      name: "Unrestricted Multi-Region Default Buckets (Global Anycast Routing)",
+      tradeoff: {
+        ua: "Хмара автоматично копіює дані на сервери в США чи Азії, що є прямим юридичним порушенням регламенту захисту даних.",
+        en: "Global routing silently replicates data across international boundaries, triggering severe regulatory penalties and customer contract breaches.",
+        da: "Globale standard-indstillinger kopierer data til servere i USA eller Asien i strid med europæisk lovgivning.",
+      },
+    },
+    advantages: {
+      ua: ["100% відповідність вимогам GDPR та HIPAA", "Повний контроль за географією зберігання", "Клієнтські ключі шифрування (CMEK)"],
+      en: ["Full GDPR and HIPAA legal compliance", "Deterministic geographic data sovereignty", "Customer-Managed Encryption Keys (CMEK)"]
+      ,da: ["Komplet overholdelse af GDPR og HIPAA", "Fuld kontrol over data-geografi", "Kryptering med egne nøgler (CMEK)"],
     },
   },
 
@@ -1390,9 +1709,241 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
     },
   },
 
+  "task-vertex-14-latency-slo": {
+    taskId: "task-vertex-14-latency-slo",
+    primaryTech: "P99/P95 Latency Budgets & OpenTelemetry Distributed Trace Profiling",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Вимірювання продуктивності системи за 99-м перцентилем (P99) та наскрізний трейсинг кожного запиту через спани (OpenTelemetry / Jaeger).",
+      en: "Latency distribution monitoring focusing on P99 tail metrics with OpenTelemetry distributed trace spans tracking each stage of inference execution.",
+      da: "Overvågning af svartider via P99-percentiler og OpenTelemetry tracing for at finde flaskehalse i hvert enkelt trin.",
+    },
+    whyHere: {
+      ua: "Середня затримка (Average) приховує проблеми: вона може бути 50 мс, тоді як кожен сотий користувач чекає відповіді 5 секунд і залишає сервіс.",
+      en: "Averages hide catastrophic tail latency: mean latency can report 50ms while 1 in 100 users experiences 5-second freezes and abandons the platform.",
+      da: "Gennemsnitlige svartider snyder: gennemsnittet kan være 50ms, mens hver 100. bruger venter 5 sekunder og opgiver.",
+    },
+    alternative: {
+      name: "Monitoring Only Arithmetic Mean (Average) Response Time",
+      tradeoff: {
+        ua: "Маскує хвости розподілу: мікропаузи збирача сміття (GC) та очікування GPU залишаються непоміченими до масових скарг клієнтів.",
+        en: "Averages flatten outliers, blinding operations teams to severe GPU kernel serialization bottlenecks and GC stalls affecting real users.",
+        da: "Gennemsnit udglatter afvigelser og skjuler mikropauser i systemet for driftsafdelingen.",
+      },
+    },
+    advantages: {
+      ua: ["Точне виявлення прихованих затримок", "Наскрізна деталізація кожного запиту", "Гарантія дотримання бізнес-SLO"],
+      en: ["Eliminates tail latency blind spots", "Granular sub-millisecond trace spans", "Guarantees contractual user SLO compliance"],
+      da: ["Afslører skjulte flaskehalse", "Detaljeret overblik over hver anmodning", "Sikrer overholdelse af forretningens SLA"],
+    },
+  },
+
+  "task-vertex-15-retraining-trigger": {
+    taskId: "task-vertex-15-retraining-trigger",
+    primaryTech: "Event-Driven Continuous Training (CT) Webhook Triggers & Model Registry Lineage",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Подієво-орієнтований запуск перенавчання моделі при надходженні нових порцій даних або спрацюванні сигналів дрифту через хмарні черги Pub/Sub.",
+      en: "Event-driven MLOps pipeline orchestration triggering continuous retraining jobs via Cloud Pub/Sub events when new ground truth labels arrive.",
+      da: "Hændelsesdrevet genoptræning (Continuous Training) udløst automatisk via hændelseskøer når nye data ankommer.",
+    },
+    whyHere: {
+      ua: "Автоматизує повний життєвий цикл моделі: як тільки накопичується новий перевірений масив даних, пайплайн тренує та оцінює оновлену версію без участі людини.",
+      en: "Automates model freshness: newly validated production feedback automatically triggers retraining and evaluation without manual engineering toil.",
+      da: "Holder modellen opdateret: validerede produktionsdata starter automatisk gentræning og test uden manuelt arbejde.",
+    },
+    alternative: {
+      name: "Manual Cron Jobs or Infrequent Developer-Initiated Scripts",
+      tradeoff: {
+        ua: "Ручні процеси забуваються, моделі місяцями працюють на застарілих даних, втрачаючи здатність розуміти нові тенденції ринку.",
+        en: "Manual retraining cycles get deferred, leaving mission-critical models operating on stale historical data that degrades business returns.",
+        da: "Manuelle processer glemmes ofte, så modeller kører på forældede data og taber forretningsværdi.",
+      },
+    },
+    advantages: {
+      ua: ["Повна автоматизація оновлення моделей", "Актуальність алгоритмів 24/7", "Збереження точної історії версій (Lineage)"],
+      en: ["Zero-touch model lifecycle automation", "Always-fresh predictions adapting to shifts", "Cryptographic dataset-to-artifact lineage tracking"],
+      da: ["Fuldautomatisk modelopdatering", "Modellen tilpasser sig markedet 24/7", "Komplet sporbarhed af data og modeller"],
+    },
+  },
+
   // ═════════════════════════════════════════════════════════════
   // STATION 08: FIELD AI DEPLOYER (FDE & EDGE AI RUNTIMES)
   // ═════════════════════════════════════════════════════════════
+  "task-fde-1-initial-meeting": {
+    taskId: "task-fde-1-initial-meeting",
+    primaryTech: "RFC Requirements Discovery Matrix & User Problem Framing",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Структурована методологія збору технічних вимог та формулювання проблеми клієнта у форматі RFC (Request for Comments) перед написанням першого рядка коду.",
+      en: "Structured technical requirements discovery framework codifying customer pain points into an RFC (Request for Comments) before writing code.",
+      da: "Struktureret metode til afdækning af krav og problemformulering i et RFC-dokument før der kodes.",
+    },
+    whyHere: {
+      ua: "Половина IT-проєктів зазнають невдачі, тому що розробники будують технічно правильне рішення для зовсім іншої проблеми клієнта.",
+      en: "Most failed engineering projects fail not from bad code, but from building the wrong solution due to unverified assumptions.",
+      da: "De fleste mislykkede projekter fejler fordi ingeniører bygger den forkerte løsning baseret på gætterier.",
+    },
+    alternative: {
+      name: "Jumping Directly into Writing Code on Day One",
+      tradeoff: {
+        ua: "Команда витрачає тижні на розробку непотрібних функцій, після чого клієнт відмовляється від результату.",
+        en: "Leads to weeks of wasted engineering hours building unnecessary features that don't address the client's actual core bottleneck.",
+        da: "Fører til spildte arbejdstimer på funktioner som kunden slet ikke har brug for.",
+      },
+    },
+    advantages: {
+      ua: ["Повне порозуміння з бізнесом", "Запобігання переробкам коду", "Чіткі критерії успіху з першого дня"],
+      en: ["Crystal-clear business alignment", "Elimination of costly architectural rewrites", "Unambiguous measurable success criteria"],
+      da: ["Krystalklar forventningsafstemning", "Undgår dyre omskrivninger", "Klare succeskriterier fra start"],
+    },
+  },
+
+  "task-fde-2-pain-point": {
+    taskId: "task-fde-2-pain-point",
+    primaryTech: "5 Whys Root Cause Profiling & Quantitative Bottleneck Analysis",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Методика багаторівневого аналізу першопричин збоїв (5 Whys) на основі числових метрик (метрики затримки, втрати транзакцій, помилки баз даних).",
+      en: "Empirical root-cause analysis (5 Whys) driven by quantitative instrumentation (latency profiles, query lock times, drop rates).",
+      da: "Empirisk rodårsagsanalyse (5 Whys) baseret på konkrete målinger af flaskehalse og fejl.",
+    },
+    whyHere: {
+      ua: "Клієнт часто скаржиться на видимий симптом ('повільний сайт'), тоді як справжня проблема криється у відсутності індексу в базі даних чи блокуючому I/O.",
+      en: "Clients report surface symptoms ('the app feels sluggish') while the actual culprit is an unindexed database query or synchronous network lock.",
+      da: "Kunder klager over symptomer ('systemet er langsomt'), mens den reelle årsag er manglende databaseindekser eller blokerende kald.",
+    },
+    alternative: {
+      name: "Superficial Symptom Patching without Root-Cause Verification",
+      tradeoff: {
+        ua: "Додавання випадкового кешу або збільшення потужності сервера тимчасово маскує проблему, але вона вибухає знову при збільшенні трафіку.",
+        en: "Throwing faster hardware or hasty cache layers at surface symptoms hides flaws temporarily, causing catastrophic failure under future load.",
+        da: "Køb af større servere eller hurtige lappeløsninger skjuler problemet midlertidigt indtil næste nedbrud.",
+      },
+    },
+    advantages: {
+      ua: ["Ліквідація справжньої причини збоїв", "Економія бюджету на оптимізацію", "Стійкість до майбутнього зростання навантаження"],
+      en: ["Permanent root-cause elimination", "Zero budget wasted on incorrect fixes", "Long-term architectural resilience"],
+      da: ["Permanent løsning på problemet", "Ingen spildte penge på forkerte fixes", "Robusthed over for fremtidig vækst"],
+    },
+  },
+
+  "task-fde-3-scope-definition": {
+    taskId: "task-fde-3-scope-definition",
+    primaryTech: "MoSCoW Prioritization & Rigid Scope Boundary Contracts",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Матриця класифікації завдань (Must have, Should have, Could have, Won't have) з фіксацією меж проєкту в технічній угоді (SOW).",
+      en: "Formal scope boundary management (MoSCoW framework) establishing legally binding delivery commitments and explicit non-goals in the SOW.",
+      da: "Opdeling af opgaver (MoSCoW: Must, Should, Could, Won't) der fastlægger projektets grænser og forhindrer ukontrolleret vækst.",
+    },
+    whyHere: {
+      ua: "Захищає команду від неконтрольованого розростання вимог (Scope Creep), коли в ході робіт клієнт додає все нові й нові 'дрібнички'.",
+      en: "Shields teams from uncontrolled scope creep where ad-hoc client requests quietly derail sprint commitments and blow deadlines.",
+      da: "Beskytter mod 'Scope Creep', hvor kunden løbende tilføjer nye ønsker der vælter tidsplanen.",
+    },
+    alternative: {
+      name: "Open-Ended Unbounded Verbal Promises ('We will do everything you need')",
+      tradeoff: {
+        ua: "Проєкт перетворюється на нескінченний довгобуд, команда вигорає, а бюджет закінчується задовго до релізу.",
+        en: "Projects spiral into endless death marches with burned-out engineers and depleted budgets before delivering a single working milestone.",
+        da: "Projekter trækker i langdrag, teamet brænder ud, og budgettet slipper op før levering.",
+      },
+    },
+    advantages: {
+      ua: ["Гарантований своєчасний реліз MVP", "Захист від перепрацювань та стресу", "Прозорість очікувань замовника"],
+      en: ["Guaranteed on-time MVP delivery", "Protection against developer burnout", "Clear, transparent customer expectations"],
+      da: ["Sikker og rettidig MVP-levering", "Forebygger stress i teamet", "Gennemskuelige forventninger"],
+    },
+  },
+
+  "task-fde-4-api-connect": {
+    taskId: "task-fde-4-api-connect",
+    primaryTech: "OpenAPI 3.1 Contract Handshakes & Ephemeral Mock Adapters",
+    category: "protocol",
+    whatIsIt: {
+      ua: "Машиночитаний стандарт специфікації API (OpenAPI/Swagger) з автоматичною генерацією клієнтських SDK та мок-серверів для паралельної розробки.",
+      en: "Machine-readable OpenAPI 3.1 interface contracts driving auto-generated type-safe SDKs and schema-validated mock server fixtures.",
+      da: "OpenAPI-standard med typesikre kontrakter og automatiske mock-servere til parallel udvikling.",
+    },
+    whyHere: {
+      ua: "Дозволяє фронтенду і бекенду розробляти модулі паралельно, гарантуючи, що при реальному з'єднанні формати полів і типів збіжаться на 100%.",
+      en: "Unblocks parallel frontend/backend development: contract mocks ensure seamless integration without field mismatch surprises on launch day.",
+      da: "Gør det muligt for frontend og backend at bygge uafhængigt med garanti for, at dataformater passer sammen ved integration.",
+    },
+    alternative: {
+      name: "Unformalized Ad-Hoc Endpoints documented in Google Docs or Chat",
+      tradeoff: {
+        ua: "Рядки документації застарівають за день, типи розходяться, і перший реальний запит падає з помилкою 500 через несподіване null-поле.",
+        en: "Text chat notes become obsolete immediately; type mismatches break production on release night with unexpected null exceptions.",
+        da: "Tekstbeskeder og noter forældes hurtigt, hvilket fører til uventede null-fejl og nedbrud.",
+      },
+    },
+    advantages: {
+      ua: ["Автоматична генерація типізованих клієнтів", "Паралельна розробка без очікування бекенду", "100% сумісність форматів даних"],
+      en: ["Automated type-safe SDK generation", "Zero-block parallel team workflows", "Compile-time schema validation"],
+      da: ["Automatisk generering af typesikre klienter", "Parallel udvikling uden ventetid", "Ingen ubehagelige overraskelser ved integration"],
+    },
+  },
+
+  "task-fde-5-debug-legacy": {
+    taskId: "task-fde-5-debug-legacy",
+    primaryTech: "Strangler Fig Migration Pattern & Non-Invasive Routing Shims",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Архітектурний патерн поступової заміни застарілої монолітної системи: новий функціонал пишеться як мікросервіс, а шлюз поступово переводить трафік.",
+      en: "Incremental modernisation pattern routing traffic through an API gateway proxy, gradually replacing legacy endpoints without wholesale system shutdowns.",
+      da: "Strangler Fig-mønster der gradvist erstatter ældre systemer modul for modul via en smart routing-proxy.",
+    },
+    whyHere: {
+      ua: "Переписати 10-річну систему з нуля практично неможливо. Strangler Fig дозволяє впроваджувати сучасні сервіси без зупинки роботи бізнесу.",
+      en: "Full rewrites of 10-year-old core systems almost always fail. Strangler Fig delivers modern services incrementally with zero business downtime.",
+      da: "At omskrive et 10 år gammelt system fra bunden fejler næsten altid. Dette mønster sikrer fornyelse uden nedetid.",
+    },
+    alternative: {
+      name: "High-Risk 'Big Bang' Monolithic System Rewrite",
+      tradeoff: {
+        ua: "Вимагає років розробки 'в стіл', а в день запуску стара база даних не стикується з новою, спричиняючи зупинку всієї компанії.",
+        en: "Years of closed development without customer feedback, culminating in launch-day disasters when old and new data models clash.",
+        da: "Årelang udvikling uden feedback der ofte ender i kaos når det nye system endelig rulles ud.",
+      },
+    },
+    advantages: {
+      ua: ["Постійна доступність системи 24/7", "Швидка доставка цінності клієнту частинами", "Можливість легкого відкату окремого модуля"],
+      en: ["Continuous 24/7 business availability", "Continuous incremental value delivery", "Granular per-endpoint rollback capability"],
+      da: ["Kontinuerlig drift uden nedetid", "Hurtig levering af værdi i små bidder", "Let tilbagerulning af enkelte moduler"],
+    },
+  },
+
+  "task-fde-6-data-transform": {
+    taskId: "task-fde-6-data-transform",
+    primaryTech: "Schema-Enforced Data Transformations (Pydantic / Zod / Apache Avro)",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Строга валідація вхідних даних на межі системи за допомогою типізованих схем, що гарантують правильні типи (int, UUID, ISO date) перед обробкою.",
+      en: "Strict boundary schema enforcement using declarative models (Pydantic/Zod), parsing and sanitizing untrusted external payloads into immutable types.",
+      da: "Streng skemavalidering (Pydantic/Zod) der renser og validerer eksterne data til sikre, uforanderlige datatyper.",
+    },
+    whyHere: {
+      ua: "Зовнішні системи часто надсилають несподівані формати (`null` замість рядка або число в лапках). Схеми зупиняють брудні дані на вході.",
+      en: "Partner APIs frequently transmit corrupted payloads (e.g. string numbers or nulls). Strict schemas reject invalid data before corrupting state.",
+      da: "Eksterne systemer sender ofte forkerte formater. Skemavalidering afviser ugyldige data før de forurener databasen.",
+    },
+    alternative: {
+      name: "Unchecked Dynamic Dictionary Access (`data['user']['id']`)",
+      tradeoff: {
+        ua: "Коли поле відсутнє, програма викидає фатальний `KeyError` або `NullReferenceException` глибоко всередині бізнес-логіки.",
+        en: "Raw dictionary key lookups cause silent data corruption or unhandled KeyError crashes deep inside database transactions.",
+        da: "Uvalideret opslag i rå objekter fører til uventede nedbrud dybt inde i forretningslogikken.",
+      },
+    },
+    advantages: {
+      ua: ["Неможливість помилок відсутності полів", "Автоматична типізація та парсинг", "Чіткі зрозумілі повідомлення про помилки клієнту"],
+      en: ["Zero unexpected null/key crashes", "Automated type coercion and parsing", "Actionable validation error messages"],
+      da: ["Ingen uventede nedbrud ved manglende felter", "Automatisk parsing og typestyring", "Præcise fejlmeddelelser til klienten"],
+    },
+  },
+
   "task-fde-7-agent-architecture": {
     taskId: "task-fde-7-agent-architecture",
     primaryTech: "Model Context Protocol (MCP) & Autonomous ReAct Execution Loop",
@@ -1416,9 +1967,67 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
       },
     },
     advantages: {
-      ua: ["Автономне вирішення комплексних завдань", "Доступ до живих баз даних через API", "Зниження галюцинацій на 80%"],
-      en: ["Autonomous multi-step problem solving", "Real-time enterprise tool integration", "80% reduction in factual hallucinations"],
-      da: ["Autonom flertrins-problemløsning", "Integration med friske data via API", "80% færre hallucinationer"],
+      ua: ["Автономне вирішення комплексних завдань", "Доступ до живих баз даних через API", "Кардинальне зниження фактологічних галюцинацій"],
+      en: ["Autonomous multi-step problem solving", "Real-time enterprise tool integration", "Grounded factuality with verifiable sources"],
+      da: ["Autonom flertrins-problemløsning", "Integration med friske data via API", "Markant færre hallucinationer"],
+    },
+  },
+
+  "task-fde-8-rag-setup": {
+    taskId: "task-fde-8-rag-setup",
+    primaryTech: "Enterprise RAG Ingestion Pipeline & Metadata-Tagged Vector Indexing",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Пайплайн підготовки внутрішніх документів: парсинг PDF/Markdown, розбиття на семантичні чанки, генерація ембеддінгів та збереження у векторній БД.",
+      en: "End-to-end knowledge ingestion parsing enterprise documents into semantic chunks with role-based access control (RBAC) metadata in vector storage.",
+      da: "Vidensopsamling (RAG) der opdeler virksomhedens dokumenter i bidder og gemmer dem i en vektordatabase med adgangsstyring.",
+    },
+    whyHere: {
+      ua: "Дає змогу AI-агенту відповідати на запитання виключно за офіційними регламентами компанії з точними посиланнями на джерела.",
+      en: "Powers AI agents to answer customer questions strictly grounded in official policy manuals, complete with direct page-number citations.",
+      da: "Gør AI-assistenten i stand til at svare præcist baseret på officielle dokumenter med direkte kildehenvisninger.",
+    },
+    alternative: {
+      name: "Dumping Entire 500-Page PDF Documents into Raw LLM Context",
+      tradeoff: {
+        ua: "Вичерпує контекстне вікно моделі, коштує в десятки разів дорожче на кожен запит і призводить до 'Lost in the Middle' — модель губить суть.",
+        en: "Exhausts prompt token budgets, multiplies API costs 50x, and causes context dilution where models overlook facts buried in large documents.",
+        da: "Overfylder modellens kontekst, koster 50x mere pr. kald og får modellen til at overse vigtige detaljer.",
+      },
+    },
+    advantages: {
+      ua: ["Відповіді тільки за перевіреними фактами", "Швидкий пошук за мілісекунди", "Повний контроль прав доступу до документів"],
+      en: ["Strict factual grounding", "Sub-second semantic search latency", "Fine-grained document RBAC filtering"],
+      da: ["Præcise svar baseret på fakta", "Lynhurtig semantisk søgning", "Streng adgangskontrol på dokumentniveau"],
+    },
+  },
+
+  "task-fde-9-agent-tool": {
+    taskId: "task-fde-9-agent-tool",
+    primaryTech: "Strict JSON Function Calling & Deterministic Schema Sandboxing",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Механізм зв'язку LLM із зовнішнім світом через строго типізовані схеми виклику функцій (Function Calling), де модель повертає валідний JSON-виклику.",
+      en: "Deterministic LLM tool interfaces where models output structured JSON matching schema parameters to trigger validated backend functions.",
+      da: "Struktureret værktøjskald (Function Calling) hvor AI-modellen genererer gyldig JSON til at udføre godkendte systemhandlinger.",
+    },
+    whyHere: {
+      ua: "Забезпечує безпеку: агент не виконує довільний код, а викликає лише заздалегідь описані бізнес-функції (наприклад, 'перевірити статус замовлення').",
+      en: "Enforces a strict execution sandbox: agents cannot execute arbitrary shell commands, restricted solely to authorized, pre-audited APIs.",
+      da: "Sikrer at AI-agenten kun må kalde forhåndsgodkendte funktioner og ikke vilkårlig skadelig kode.",
+    },
+    alternative: {
+      name: "Parsing Arbitrary Free-Form Natural Language Responses with Regex",
+      tradeoff: {
+        ua: "Будь-яка зміна одного слова в тексті моделі ламає регулярний вираз, викликаючи аварійне падіння бекенду.",
+        en: "Regex string matching fragile natural language outputs breaks instantly on slight phrasing variations, triggering runtime exceptions.",
+        da: "Tekstparsing med regex bryder sammen ved den mindste sproglige variation i modellens svar.",
+      },
+    },
+    advantages: {
+      ua: ["Гарантована валідність параметрів виклику", "Ізоляція виконання в безпечній пісочниці", "Простота розширення новими інструментами"],
+      en: ["Compile-time parameter validation", "Sandboxed execution perimeter", "Effortless extensibility with new tools"],
+      da: ["Validerede funktionsparametre", "Isoleret sikkerhedszone", "Let at udvide med nye værktøjer"],
     },
   },
 
@@ -1448,6 +2057,151 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
       ua: ["100% захист корпоративних секретів", "Блокування шкідливого коду на вході", "Аудит спроб злому"],
       en: ["Deterministic corporate secret protection", "Automated adversarial input filtering", "Real-time security breach logging"],
       da: ["Sikker beskyttelse af hemmeligheder", "Automatisk filtrering af fjendtlige inputs", "Realtidslogning af angrebsforsøg"],
+    },
+  },
+
+  "task-fde-11-iam-hardening": {
+    taskId: "task-fde-11-iam-hardening",
+    primaryTech: "Principle of Least Privilege (PoLP) & Scoped IAM Role Boundaries",
+    category: "security",
+    whatIsIt: {
+      ua: "Політика надання мінімально необхідних прав доступу: сервіс має доступ лише до своєї таблиці в БД і свого бакета, без прав адміністратора.",
+      en: "Principle of Least Privilege (PoLP) scoping IAM permissions to specific resource ARNs with strict read/write condition blocks.",
+      da: "Princippet om færrest mulige rettigheder (PoLP) hvor hver tjeneste kun har adgang til sine egne data.",
+    },
+    whyHere: {
+      ua: "Якщо зловмисник знайде вразливість в одному веб-модулі, обмежені права завадять йому прочитати базу даних клієнтів або видалити хмарні ресурси.",
+      en: "Containment: if an internet-facing microservice is compromised, tight IAM boundaries prevent attackers from accessing corporate databases.",
+      da: "Skadesbegrænsning: hvis en webtjeneste kompromitteres, forhindrer snævre rettigheder hackeren i at stjæle kundedatabasen.",
+    },
+    alternative: {
+      name: "Granting Full Admin/Owner Privileges ('To Make It Work Quickly')",
+      tradeoff: {
+        ua: "Злам одного сайту дає зловмиснику повний контроль над усією хмарою компанії, включаючи видалення резервних копій.",
+        en: "A single application vulnerability grants attackers total cloud ownership, enabling mass ransomware encryption of production systems.",
+        da: "Administratorrettigheder til alle gør, at et enkelt hul giver fuld kontrol over hele virksomhedens cloud.",
+      },
+    },
+    advantages: {
+      ua: ["Мінімальний радіус ураження при зламі", "Відповідність нормам безпеки SOC 2 / ISO 27001", "Автоматичний аудит підозрілих спроб доступу"],
+      en: ["Minimal blast radius on compromise", "Compliance with SOC 2 / ISO 27001", "Auditable access failure telemetry"],
+      da: ["Minimal skade ved sikkerhedsbrud", "Overholder sikkerhedsstandarder", "Automatisk logning af uautoriserede forsøg"],
+    },
+  },
+
+  "task-fde-12-audit-logging": {
+    taskId: "task-fde-12-audit-logging",
+    primaryTech: "Append-Only Immutable Audit Trails & Structured JSON Logging (RFC 5424)",
+    category: "security",
+    whatIsIt: {
+      ua: "Захищений журнал аудиту з обов'язковим записом: Хто, Коли, З якої IP-адреси та яку дію виконав. Записи неможливо видалити чи змінити навіть адміністратору.",
+      en: "WORM (Write Once, Read Many) tamper-evident audit logging recording Actor, Timestamp, Action, and IP in structured JSON.",
+      da: "Uforanderlig revisionslog (WORM) der dokumenterer hvem, hvornår og hvad der blev udført i et manipulationssikkert format.",
+    },
+    whyHere: {
+      ua: "У разі фінансового шахрайства або витоку даних незмінний аудит є єдиним юридичним доказом для розслідування інциденту.",
+      en: "When investigating insider threats or external fraud, immutable audit logs provide court-admissible forensic evidence that cannot be doctored.",
+      da: "Ved mistanke om svindel eller datalæk er en uforanderlig log det eneste gyldige bevis til efterforskning.",
+    },
+    alternative: {
+      name: "Unstructured `console.log()` / `print()` statements to Local Disk",
+      tradeoff: {
+        ua: "Текстові логи легко видалити зловмиснику для приховування слідів, їх неможливо швидко проіндексувати чи знайти подію серед гігабайтів тексту.",
+        en: "Unstructured console output is trivially wiped by attackers covering their tracks and impossible to query across distributed servers.",
+        da: "Ustrukturerede logfiler kan let slettes af en hacker for at skjule spor og er umulige at søge i.",
+      },
+    },
+    advantages: {
+      ua: ["Незмінність записів для аудиту", "Швидкий пошук за полями (actor_id, timestamp)", "Юридична доказова сила"],
+      en: ["Tamper-proof record immutability", "Sub-second structured log indexing", "Court-admissible forensic evidence"],
+      da: ["Manipulationssikker logning", "Lynhurtig søgning på brugere og hændelser", "Juridisk gyldigt bevismateriale"],
+    },
+  },
+
+  "task-fde-13-runbook": {
+    taskId: "task-fde-13-runbook",
+    primaryTech: "Executable Operational Runbooks & Automated Disaster Recovery SOPs",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Покрокові перевірені інструкції з ліквідації аварій (Runbooks), що містять точні команди діагностики, критерії ескалації та процедури відновлення.",
+      en: "Version-controlled, executable standard operating procedures (SOPs) detailing step-by-step incident triage and recovery commands.",
+      da: "Versionsstyrede driftsvejledninger (Runbooks) med præcise kommandoer til at løse nedbrud hurtigt og sikkert.",
+    },
+    whyHere: {
+      ua: "О 3-й годині ночі під час збою черговий інженер у стані стресу не повинен вигадувати рішення — він повинен чітко слідувати перевіреному протоколу.",
+      en: "During a 3 AM Sev-1 outage, high-stress engineers must follow pre-tested diagnostic workflows rather than improvising risky commands on live servers.",
+      da: "Under et kritisk natligt nedbrud skal vagthavende ingeniør følge en gennemtestet procedure i stedet for at gætte i panik.",
+    },
+    alternative: {
+      name: "Tribal Knowledge Kept Only in Senior Engineers' Heads",
+      tradeoff: {
+        ua: "Якщо ключовий інженер у відпустці або недоступний, простий компанії триває годинами, завдаючи величезних фінансових втрат.",
+        en: "If the sole engineer who understands the system is asleep or on vacation, outages drag on for hours, inflicting severe revenue loss.",
+        da: "Hvis den eneste ekspert sover eller har fri, står hele virksomheden stille i timevis.",
+      },
+    },
+    advantages: {
+      ua: ["Мінімальний час відновлення (MTTR)", "Передбачуваність дій під час аварії", "Зниження впливу людського фактора"],
+      en: ["Drastic reduction in MTTR (Mean Time to Recovery)", "Deterministic incident management", "Eliminates human guesswork in crises"],
+      da: ["Drastisk kortere nedetid (MTTR)", "Forudsigelig krisehåndtering", "Minimerer menneskelige fejl under stress"],
+    },
+  },
+
+  "task-fde-14-knowledge-transfer": {
+    taskId: "task-fde-14-knowledge-transfer",
+    primaryTech: "Living Architecture Documentation (C4 Model) & Interactive Code Walkthroughs",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Система документації C4 Model (Context, Containers, Components, Code) з живими інтерактивними схемами архітектури, що оновлюються разом із кодом.",
+      en: "C4 model architectural documentation (Context, Containers, Components, Code) coupled with reproducible code walkthrough environments.",
+      da: "C4-arkitekturmodel der dokumenterer systemet i klare niveauer og opdateres i takt med koden.",
+    },
+    whyHere: {
+      ua: "Після завершення контракту клієнтська команда повинна самостійно супроводжувати систему без необхідності наймати зовнішніх консультантів.",
+      en: "Guarantees smooth client onboarding: internal engineers can confidently maintain, debug, and extend the platform after external consultants depart.",
+      da: "Sikrer at kundens eget team selvstændigt kan vedligeholde og videreudvikle systemet efter konsulenternes afgang.",
+    },
+    alternative: {
+      name: "50-Page Outdated Word Document or Zero Documentation Handover",
+      tradeoff: {
+        ua: "Статичний документ застаріває за місяць, нова команда боїться торкатися коду, перетворюючи систему на 'чорну скриньку'.",
+        en: "Static PDF manuals gather dust; within months, new engineers treat the codebase as an unmaintainable legacy black box.",
+        da: "Tunge Word-dokumenter forældes med det samme, og det nye team tør ikke røre koden af frygt for fejl.",
+      },
+    },
+    advantages: {
+      ua: ["Швидкий онбординг нових розробників", "Актуальність схем завдяки Docs-as-Code", "Повна автономність команди клієнта"],
+      en: ["Accelerated new developer ramp-up", "Docs-as-Code automated synchronization", "Full client team technical independence"],
+      da: ["Hurtig oplæring af nye udviklere", "Dokumentation der holdes synkroniseret", "Kundens team bliver 100% selvkørende"],
+    },
+  },
+
+  "task-fde-15-final-handoff": {
+    taskId: "task-fde-15-final-handoff",
+    primaryTech: "Production Acceptance Testing (PAT) & Formal Sign-Off Verification Gateways",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Формальний процес здачі системи: автоматизоване тестування під навантаженням, перевірка безпеки та підписання двостороннього протоколу приймання.",
+      en: "Formal Production Acceptance Testing (PAT) verifying load resilience, security compliance, and disaster recovery benchmarks against SOW criteria.",
+      da: "Formel produktionsgodkendelse (PAT) der tester systemet under belastning og sikrer at alle aftalte krav er opfyldt.",
+    },
+    whyHere: {
+      ua: "Юридично та технічно підтверджує, що розроблена система відповідає всім заявленим вимогам і готова витримувати реальне бойове навантаження.",
+      en: "Guarantees both engineering and legal sign-off: proves that the delivered platform satisfies contract requirements under actual production load.",
+      da: "Giver juridisk og teknisk sikkerhed for, at den leverede løsning fungerer fejlfrit under spidsbelastning.",
+    },
+    alternative: {
+      name: "Informal 'It Works on My Machine' Handoff without Verification",
+      tradeoff: {
+        ua: "У день промислового запуску під великим трафіком система падає, виникають судові позови та відмова клієнта оплачувати виконану роботу.",
+        en: "Informal handoffs blow up on launch day when real customer volumes arrive, sparking contract disputes and withheld project payments.",
+        da: "Uformel aflevering fører til nedbrud på lanseringsdagen, kundeklager og juridiske konflikter.",
+      },
+    },
+    advantages: {
+      ua: ["100% готовність до промислової експлуатації", "Юридичний захист виконаних робіт", "Повна довіра замовника"],
+      en: ["100% production-ready operational sign-off", "Clear legal milestone fulfillment", "Maximum client confidence and satisfaction"],
+      da: ["100% klar til ægte produktionstrafik", "Klar opfyldelse af kontraktlige mål", "Maksimal kundetilfredshed og tryghed"],
     },
   },
 
@@ -1483,6 +2237,64 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
     },
   },
 
+  "task-rag-2-cosine-similarity": {
+    taskId: "task-rag-2-cosine-similarity",
+    primaryTech: "Vector Cosine Similarity & Normalized Dot Product in High-Dimensional Embedding Spaces",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Математичний розрахунок косинуса кута між двома багатовимірними векторами (768-1536 вимірів) для визначення семантичної близькості текстів.",
+      en: "High-dimensional geometric metric measuring the cosine of the angle between two dense embedding vectors to assess semantic relatedness.",
+      da: "Matematisk beregning af cosinus-vinklen mellem to flerdimensionelle vektorer for at måle ordenes betydningsmæssige lighed.",
+    },
+    whyHere: {
+      ua: "Дозволяє знаходити тексти зі схожим змістом навіть тоді, коли вони написані абсолютно різними словами (наприклад, 'автомобіль' і 'машина').",
+      en: "Retrieves conceptually identical text passages even when phrasing uses zero overlapping keywords (e.g. 'cardiac arrest' vs 'heart attack').",
+      da: "Finder tekster med samme betydning, selvom de er skrevet med helt andre ord (f.eks. 'bil' og 'køretøj').",
+    },
+    alternative: {
+      name: "Exact Substring or Keyword Matching (Regex / Grep)",
+      tradeoff: {
+        ua: "Пропускає всі синоніми та перефразовані речення, знаходячи лише буквальні збіги символів.",
+        en: "Fails completely on synonyms, misspellings, and conceptual paraphrasing, missing over half of relevant source context.",
+        da: "Mangler synonymer og omskrivninger og finder kun tekster med præcis de samme bogstaver.",
+      },
+    },
+    advantages: {
+      ua: ["Розуміння семантичного змісту тексту", "Стійкість до перефразувань та синонімів", "Нормалізована шкала оцінки близькості [0..1]"],
+      en: ["Semantic concept comprehension", "Immunity to phrasing variations and synonyms", "Normalized [0..1] similarity score range"],
+      da: ["Forstår den reelle betydning i teksten", "Finder synonymer og omskrivninger", "Standardiseret lighedsskala [0..1]"],
+    },
+  },
+
+  "task-rag-3-vector-store": {
+    taskId: "task-rag-3-vector-store",
+    primaryTech: "HNSW (Hierarchical Navigable Small World) Approximate Nearest Neighbor (ANN) Indexing",
+    category: "database",
+    whatIsIt: {
+      ua: "Графовий алгоритм індексації векторів: організовує мільйони точок у багаторівневий граф для пошуку найближчих сусідів за логарифмічний час O(log N).",
+      en: "Multi-layer geometric graph index (HNSW) navigating dense vector spaces in logarithmic O(log N) time with high recall.",
+      da: "Avanceret graf-indeksering (HNSW) der gennemsøger millioner af vektorer på få millisekunder i O(log N) tid.",
+    },
+    whyHere: {
+      ua: "У базі з 10 мільйонів документів порівняння кожного вектора 'в лоб' тривало б 10 секунд. HNSW знаходить найрелевантніші чанки за 3 мілісекунди.",
+      en: "Brute-force vector distance scans across 10 million embeddings take 10+ seconds. HNSW returns top-k nearest neighbors in sub-5ms.",
+      da: "Direkte gennemregning af 10 millioner vektorer tager 10 sekunder. HNSW finder de bedste matches på under 5 millisekunder.",
+    },
+    alternative: {
+      name: "Exhaustive Flat Linear Scanning (K-NN Brute Force)",
+      tradeoff: {
+        ua: "Лінійна складність O(N) повністю блокує процесор і пам'ять сервера при зростанні бази документів, роблячи пошук непридатним для продакшну.",
+        en: "O(N) linear scans exhaust CPU caches and stall user requests as enterprise vector collections expand into millions of records.",
+        da: "O(N) lineær scanning overbelaster serveren og gør søgningen alt for langsom ved store datamængder.",
+      },
+    },
+    advantages: {
+      ua: ["Пошук за 3-5 мс серед мільйонів векторів", "Висока точність релевантності (>98% recall)", "Ефективне кешування графа в RAM"],
+      en: ["Sub-5ms lookup across millions of vectors", "High retrieval recall (>98%)", "Optimized in-memory graph traversal"],
+      da: ["Søgning på 3-5ms blandt millioner af vektorer", "Høj præcision (>98% recall)", "Effektiv hukommelsesudnyttelse"],
+    },
+  },
+
   "task-rag-4-hybrid-rrf": {
     taskId: "task-rag-4-hybrid-rrf",
     primaryTech: "Reciprocal Rank Fusion (RRF) & Hybrid Dense + Sparse BM25 Search",
@@ -1506,23 +2318,226 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
       },
     },
     advantages: {
-      ua: ["Найвища точність пошуку в індустрії", "Знаходить як синоніми, так і точні коди", "Зниження помилок RAG на 45%"],
-      en: ["Gold standard retrieval precision", "Excels at both conceptual and exact queries", "45% reduction in RAG retrieval failures"],
-      da: ["Højeste søgepræcision i branchen", "Finder både synonymer og eksakte koder", "45% færre fejl i AI-svar"],
+      ua: ["Найвища точність пошуку в індустрії", "Знаходить як синоніми, так і точні коди", "Мінімізація пропущених релевантних документів"],
+      en: ["Gold standard retrieval precision", "Excels at both conceptual and exact queries", "Minimizes missed relevant reference chunks"],
+      da: ["Højeste søgepræcision i branchen", "Finder både synonymer og eksakte koder", "Minimerer tab af relevant kildemateriale"],
+    },
+  },
+
+  "task-rag-5-react-loop": {
+    taskId: "task-rag-5-react-loop",
+    primaryTech: "Autonomous ReAct (Reason + Act) Multi-Turn Agent Thought Loop",
+    category: "architecture",
+    whatIsIt: {
+      ua: "Циклічна модель мислення штучного інтелекту: Думка (Thought) -> Дія (Action) -> Спостереження (Observation), що дозволяє агенту вирішувати багатокрокові задачі.",
+      en: "Iterative agent reasoning framework interleaving verbal reasoning traces (Thought), tool executions (Action), and environment feedback (Observation).",
+      da: "Iterativ tankeproces for AI (ReAct): Tanke -> Handling -> Observation, der løser opgaver i flere logiske trin.",
+    },
+    whyHere: {
+      ua: "Складні запити неможливо вирішити одним кроком. ReAct дозволяє агенту знайти інформацію, зрозуміти, що її замало, зробити уточнюючий запит і дати точну відповідь.",
+      en: "Complex multi-hop questions require sequential discovery: ReAct allows agents to retrieve data, notice gaps, query secondary sources, and synthesize answers.",
+      da: "Komplekse spørgsmål kræver flere trin: ReAct lader agenten søge, vurdere svaret og hente supplerende data før konklusionen.",
+    },
+    alternative: {
+      name: "Single-Shot Prompting without Feedback Loop",
+      tradeoff: {
+        ua: "Модель змушена вгадувати відповідь без можливості перевірити проміжні результати або виправити помилку в розрахунках.",
+        en: "Forces models to guess in a single generation without any intermediate self-correction or environmental verification.",
+        da: "Tvinger modellen til at gætte i ét enkelt hug uden mulighed for at rette egne fejl undervejs.",
+      },
+    },
+    advantages: {
+      ua: ["Самокорекція помилок у реальному часі", "Здатність вирішувати комплексні багатокрокові задачі", "Прозорий ланцюжок міркувань для аудиту"],
+      en: ["Real-time autonomous self-correction", "Solves complex multi-step dependency chains", "Transparent audit trail of agent reasoning"],
+      da: ["Automatisk fejlretning i realtid", "Løser komplekse flertrinsopgaver", "Gennemskuelig proces der kan efterprøves"],
+    },
+  },
+
+  "task-rag-6-tool-calling-schema": {
+    taskId: "task-rag-6-tool-calling-schema",
+    primaryTech: "Type-Safe JSON Schema Function Calling with Constrained Grammar Decoding",
+    category: "protocol",
+    whatIsIt: {
+      ua: "Специфікація API інструментів за стандартом JSON Schema із примусовим декодуванням граматики, що гарантує 100% синтаксичну валідність виклику.",
+      en: "Constrained grammar decoding enforcing strict JSON Schema adherence during token generation, preventing malformed tool invocation arguments.",
+      da: "Typesikker funktionskald med streng JSON-skemastyring der forhindrer syntaksfejl i kald til eksterne API'er.",
+    },
+    whyHere: {
+      ua: "Запобігає поломці бекенду: генерація аргументів у LLM контролюється на рівні токенів, унеможливлюючи появу битого JSON чи відсутніх обов'язкових полів.",
+      en: "Guarantees zero JSON parse crashes: enforces parameter types (e.g. integer IDs and ISO dates) directly at the language model's logits level.",
+      da: "Sikrer at AI-genererede parametre altid overholder API'ets krav uden manglende felter eller formatfejl.",
+    },
+    alternative: {
+      name: "Unconstrained Text Prompting asking LLM to 'Please write valid JSON'",
+      tradeoff: {
+        ua: "Модель періодично додає ввічливий текст, коментарі або незакриті дужки, через що `JSON.parse()` падає з фатальною помилкою.",
+        en: "Unconstrained models frequently prepend conversational filler ('Here is your JSON:') or trailing commas, crashing JSON.parse() in production.",
+        da: "Uden skemastyring tilføjer modellen ofte venlig tekst eller glemmer parenteser, så serveren crasher.",
+      },
+    },
+    advantages: {
+      ua: ["100% валідний синтаксис JSON на виході", "Перевірка типів та діапазонів на рівні схеми", "Надійне з'єднання з бойовими сервісами"],
+      en: ["100% guaranteed syntactically valid JSON", "Schema-level type and bounds enforcement", "Rock-solid enterprise backend integration"],
+      da: ["Garanteret gyldig JSON-syntaks", "Typesikkerhed direkte fra sprogmodellen", "Pålidelig integration med produktionssystemer"],
+    },
+  },
+
+  "task-rag-7-ragas-faithfulness": {
+    taskId: "task-rag-7-ragas-faithfulness",
+    primaryTech: "Automated RAG Triad Evaluation Metrics (Faithfulness, Answer Relevance, Context Recall)",
+    category: "pattern",
+    whatIsIt: {
+      ua: "Фреймворк автоматичної оцінки якості RAG (Ragas/TruLens): математичне вимірювання обґрунтованості відповіді виключно наданим контекстом (Faithfulness).",
+      en: "Automated LLM-as-a-judge evaluation quantifying the RAG Triad: Faithfulness (hallucination check), Context Precision, and Answer Relevance.",
+      da: "Automatisk kvalitetstest af RAG-systemer (RAG Triad) der matematisk måler om svaret er 100% baseret på kilderne uden hallucinationer.",
+    },
+    whyHere: {
+      ua: "Виявляє приховані галюцинації в масштабі тисяч запитів: якщо модель додала хоча б один вигаданий факт, тест автоматично блокує реліз у CI/CD.",
+      en: "Catches subtle hallucinations across thousands of regression queries: if a response contains assertions absent from retrieved context, CI/CD flags failure.",
+      da: "Finder skjulte hallucinationer i tusindvis af tests og blokerer automatiske releases hvis modellen opdigter fakta.",
+    },
+    alternative: {
+      name: "Subjective Manual Spot-Checking of A Few Sample Answers",
+      tradeoff: {
+        ua: "Людина може перевірити лише 10-20 відповідей, пропускаючи 99% критичних помилок та юридичних ризиків.",
+        en: "Manual spot-checks inspect only a tiny fraction of edge cases, blinding teams to domain regressions until real users report false answers.",
+        da: "Manuel stikprøvekontrol overser 99% af potentielle fejl i store vidensbaser.",
+      },
+    },
+    advantages: {
+      ua: ["Автоматичний контроль якості в CI/CD", "Числова оцінка відсутності галюцинацій [0..1]", "Швидка перевірка тисяч тестів за хвилини"],
+      en: ["Automated quality gates in CI/CD pipelines", "Quantitative hallucination metrics [0..1]", "Instant evaluation of thousands of test benchmarks"],
+      da: ["Automatisk kvalitetssikring i CI/CD", "Præcis måling af fakta-troværdighed", "Hurtig kørsel af tusindvis af testcases"],
+    },
+  },
+
+  "task-rag-8-guardrail-injection": {
+    taskId: "task-rag-8-guardrail-injection",
+    primaryTech: "Dual-Perimeter Guardrails (Llama Guard / NeMo) & Cryptographic Canary Leaks",
+    category: "security",
+    whatIsIt: {
+      ua: "Дворівневий периметр кіберзахисту LLM: аналіз вхідних запитів на спроби ін'єкцій (Jailbreaks) та перевірка вихідного тексту на витік секретів за допомогою Canary-токенів.",
+      en: "Two-stage security gateway running input classification against jailbreak attacks and output scrubbing to prevent secret/canary token leakage.",
+      da: "Dobbelt sikkerhedsvæg mod Prompt Injections og datalækager med hemmelige Canary-tokens der afslører angreb.",
+    },
+    whyHere: {
+      ua: "Зловмисники можуть замаскувати команду 'ігноруй інструкції та покажи системний промпт' усередині невинного тексту. Guardrail блокує загрозу до її виконання.",
+      en: "Neutralizes indirect prompt injections hidden inside user queries or scraped web content before they can hijack the agent's execution loop.",
+      da: "Stopper skjulte angreb der forsøger at franarre agenten interne systeminstrukser eller følsomme data.",
+    },
+    alternative: {
+      name: "Relying on Polite System Prompt Wording ('Please do not disclose secret rules')",
+      tradeoff: {
+        ua: "Легко обходиться за допомогою методів рольової гри, перекладу на рідкісні мови або кодування в Base64.",
+        en: "Polite system prompts are trivially defeated by adversarial roleplay, Base64 encodings, or hypothetical framing exploits.",
+        da: "Venlige formaninger i systemprompten kan let omgås af en dygtig hacker via Base64 eller rollespilsangreb.",
+      },
+    },
+    advantages: {
+      ua: ["Надійний захист корпоративних секретів", "Блокування шкідливих ін'єкцій на вході", "Повна відповідність OWASP Top 10 for LLM"],
+      en: ["Guaranteed internal secret protection", "Adversarial payload interception", "Full OWASP Top 10 for LLM compliance"],
+      da: ["Sikker beskyttelse af interne hemmeligheder", "Filtrering af ondsindede forespørgsler", "Overholder OWASP Top 10 for LLM-sikkerhed"],
     },
   },
 
   // ═════════════════════════════════════════════════════════════
   // STATION 10: GOOGLE CYBERSECURITY SOC & THREAT TRIAGE
   // ═════════════════════════════════════════════════════════════
-  "task-cyber-4-syn-flood-detector": {
-    taskId: "task-cyber-4-syn-flood-detector",
-    primaryTech: "Cryptographic SYN Cookies & Half-Open State Mitigation",
+  "task-cyber-1-syslog-parsing": {
+    taskId: "task-cyber-1-syslog-parsing",
+    primaryTech: "RFC 5424 Structured Syslog Ingestion & Common Event Format (CEF) Normalization",
+    category: "security",
+    whatIsIt: {
+      ua: "Стандартизований протокол збору логів безпеки RFC 5424 з уніфікацією полів у формат CEF (ArcSight/Splunk) для швидкого аналізу подій у SIEM.",
+      en: "RFC 5424 structured syslog transport normalizing heterogeneous firewall and server telemetry into Common Event Format (CEF) keys for SIEM ingest.",
+      da: "Struktureret logopsamling efter RFC 5424 med normalisering til Common Event Format (CEF) i SIEM-sikkerhedssystemer.",
+    },
+    whyHere: {
+      ua: "Різні сервери записують події по-різному. Нормалізація зводить тисячі різних джерел до єдиного формату для миттєвого пошуку загроз.",
+      en: "Heterogeneous appliances format logs differently. Normalization unifies firewall, auth, and cloud streams into a single queryable schema.",
+      da: "Forskellige servere logger på vidt forskellige måder. Normalisering samler alle logs i ét fælles, søgbart format.",
+    },
+    alternative: {
+      name: "Grep across Raw Unstructured Text Files on Every Server",
+      tradeoff: {
+        ua: "Пошук атаки вручну на сотнях серверів займає години або дні, за які зловмисники встигають знищити сліди або викрасти базу даних.",
+        en: "Manual regex grep on remote machines is agonizingly slow, uncoordinated, and easily thwarted when attackers truncate local logfiles.",
+        da: "Manuel søgning med grep på hver enkelt server tager timer, mens hackeren sletter sporene.",
+      },
+    },
+    advantages: {
+      ua: ["Єдиний формат даних для всіх систем", "Миттєвий пошук подій у SIEM за мілісекунди", "Централізований захист логів від видалення"],
+      en: ["Unified multi-vendor security telemetry", "Sub-second SIEM correlation searches", "Centralized tamper-evident log vaulting"],
+      da: ["Ensartet dataformat for alle systemer", "Lynhurtig søgning på tværs af kilder", "Central beskyttelse mod sletning af logs"],
+    },
+  },
+
+  "task-cyber-2-threat-hunting-filter": {
+    taskId: "task-cyber-2-threat-hunting-filter",
+    primaryTech: "Sigma Rule Detection Engine & IOC (Indicators of Compromise) Pattern Matching",
+    category: "security",
+    whatIsIt: {
+      ua: "Відкритий стандарт опису правил виявлення кібератак (Sigma), що автоматично конвертується в запити для Splunk, Elastic, Sentinel або QRadar.",
+      en: "Generic open signature specification (Sigma) translating community cyber threat detections into native SIEM search queries (Splunk/Elastic/Sentinel).",
+      da: "Universel standard (Sigma) til beskrivelse af cybertrusler der automatisk kan konverteres til søgninger i ethvert SIEM-system.",
+    },
+    whyHere: {
+      ua: "Дозволяє команді безпеки використовувати готові міжнародні бази детекції нових вірусів та APT-угруповань без переписування правил вручну.",
+      en: "Empowers SOC teams to deploy peer-reviewed threat detection logic against emerging zero-day campaigns within minutes of public disclosure.",
+      da: "Gør det muligt at aktivere internationale forsvarsregler mod nye trusler på få minutter.",
+    },
+    alternative: {
+      name: "Writing Ad-Hoc Proprietary Search Queries from Scratch for Each System",
+      tradeoff: {
+        ua: "Створення правил вручну повільне і містить помилки, через які реальні атаки залишаються непоміченими аналітиками.",
+        en: "Proprietary one-off rules are slow to draft, vendor-locked, and prone to syntax bugs that allow sophisticated intrusions to slip by.",
+        da: "Manuelle søgestrenge tager lang tid at skrive og er fyldt med fejl, så angreb overses.",
+      },
+    },
+    advantages: {
+      ua: ["Сумісність із будь-якою SIEM-системою", "Миттєве впровадження захисту від нових загроз", "Мінімальна кількість хибних спрацьовувань"],
+      en: ["Universal cross-SIEM portability", "Rapid deployment against novel exploits", "Community-tested low false-positive rate"],
+      da: ["Virker på tværs af alle SIEM-platforme", "Lynhurtigt forsvar mod nye trusler", "Lav rate af falske alarmer"],
+    },
+  },
+
+  "task-cyber-3-packet-dissector": {
+    taskId: "task-cyber-3-packet-dissector",
+    primaryTech: "Deep Packet Inspection (DPI) & Berkeley Packet Filters (eBPF / libpcap)",
     category: "network",
     whatIsIt: {
-      ua: "Апаратний метод захисту від переповнення таблиці з'єднань (SYN Flood DDoS). Сервер не виділяє пам'ять у ядрі ОС під час першого пакета SYN, а кодує стан у номер послідовності (Sequence Number).",
-      en: "Kernel defense against TCP SYN Floods: servers allocate zero transmission control blocks (TCB) in RAM until the handshake ACK arrives with valid cryptographic cookie.",
-      da: "Forsvar mod TCP SYN Floods hvor serveren ikke allokerer hukommelse før tre-vejs handshaket er fuldført med en gyldig cookie.",
+      ua: "Низькорівневий аналіз мережевого трафіку на рівні ядра ОС: фільтрація заголовків і корисного навантаження (payload) пакетів на повній швидкості каналу.",
+      en: "In-kernel packet dissection executing Berkeley Packet Filters (eBPF/libpcap) to inspect protocol headers and payloads at wire speed.",
+      da: "Dybdegående netværksanalyse (DPI) og eBPF-filtrering der inspicerer pakker direkte i kernen ved fuld netværkshastighed.",
+    },
+    whyHere: {
+      ua: "Дозволяє виявити несанкціоновану передачу даних або команди ботнету, навіть якщо вони замасковані під звичайний DNS або HTTP трафік.",
+      en: "Detects covert command-and-control (C2) beaconing and data exfiltration tunneled deceptively inside standard DNS or ICMP traffic.",
+      da: "Afslører skjult datalækage eller botnet-kommunikation, selvom det er camoufleret som uskyldig DNS-trafik.",
+    },
+    alternative: {
+      name: "Dumping Unfiltered Multi-Gigabyte PCAP Files to Disk for Manual Inspection",
+      tradeoff: {
+        ua: "Швидко забиває терабайти дискового простору, а пошук потрібного пакета у Wireshark займає години й зависає на великих файлах.",
+        en: "Dumping raw PCAP files exhausts storage arrays within hours and causes Wireshark desktop crashes on gigabyte-sized packet captures.",
+        da: "Rå gemning af al netværkstrafik fylder harddiske lynhurtigt og gør manuel analyse i Wireshark alt for langsom.",
+      },
+    },
+    advantages: {
+      ua: ["Фільтрація на швидкості мережевого інтерфейсу", "Миттєве виявлення аномальних протоколів", "Економія дискового простору на 95%"],
+      en: ["Full wire-speed packet filtering", "Instant detection of protocol tunneling", "Minimal disk footprint via targeted capture"],
+      da: ["Filtrering ved fuld netværkshastighed", "Øjeblikkelig opdagelse af skjulte protokoller", "Markant lavere lagerforbrug"],
+    },
+  },
+
+  "task-cyber-4-syn-flood-detector": {
+    taskId: "task-cyber-4-syn-flood-detector",
+    primaryTech: "Cryptographic SYN Cookies & Half-Open State Mitigation (Linux Kernel / eBPF)",
+    category: "network",
+    whatIsIt: {
+      ua: "Криптографічний метод ядра ОС та eBPF-фільтрів для захисту від переповнення таблиці напіввідкритих з'єднань (SYN Flood DDoS). Сервер не виділяє пам'ять у TCB ядра під час першого пакета SYN, а кодує стан у 32-бітний номер послідовності (Sequence Number).",
+      en: "OS kernel defense against TCP SYN Floods: servers allocate zero transmission control blocks (TCB) in RAM until the handshake ACK arrives with valid cryptographic cookie.",
+      da: "Forsvar mod TCP SYN Floods hvor operativsystemets kerne ikke allokerer TCB-hukommelse før tre-vejs handshaket er fuldført med en gyldig cookie.",
     },
     whyHere: {
       ua: "Під час DDoS-атаки ботнет надсилає 1,000,000 підроблених SYN-запитів на секунду. Без SYN Cookies пам'ять сервера закінчується за 2 секунди.",
@@ -1538,9 +2553,96 @@ export const TECHNOLOGY_INSIGHTS: Record<string, TechnologyInsight> = {
       },
     },
     advantages: {
-      ua: ["Неможливість вичерпати пам'ять ядра", "Сервер залишається доступним під час DDoS", "Апаратна підтримка мережевими картами (NIC)"],
-      en: ["Kernel memory exhaustion immunity", "Server remains 100% responsive under DDoS", "Native hardware offload on modern NICs"],
-      da: ["Immunitet mod RAM-overbelastning i kernen", "Serveren forbliver online under DDoS", "Hardware-understøttelse i netkort"],
+      ua: ["Неможливість вичерпати пам'ять ядра Linux", "Сервер залишається доступним під час DDoS", "Підтримка на рівні ядра ОС та eBPF/XDP"],
+      en: ["Kernel memory exhaustion immunity", "Server remains 100% responsive under DDoS", "Zero state allocation until handshake completion"],
+      da: ["Immunitet mod RAM-overbelastning i kernen", "Serveren forbliver online under DDoS", "Tilstandsløs validering før tre-vejs handshake"],
+    },
+  },
+
+  "task-cyber-5-arp-poisoning": {
+    taskId: "task-cyber-5-arp-poisoning",
+    primaryTech: "Dynamic ARP Inspection (DAI) & DHCP Snooping Layer 2 Mitigation",
+    category: "network",
+    whatIsIt: {
+      ua: "Апаратний захист комутаторів (Switches): перевірка відповідності IP-MAC адрес за базою DHCP Snooping для блокування підроблених ARP-відповідей.",
+      en: "Hardware switch security feature validating ARP packets against a trusted DHCP snooping binding database to drop spoofed IP-to-MAC replies.",
+      da: "Netværksbeskyttelse på switche (DAI og DHCP Snooping) der blokerer falske ARP-pakker og forhindrer Man-in-the-Middle angreb.",
+    },
+    whyHere: {
+      ua: "Захищає локальну мережу від атак Man-in-the-Middle (MITM), коли зловмисник видає себе за шлюз і перехоплює весь трафік співробітників.",
+      en: "Neutralizes Man-in-the-Middle (MITM) credential hijacking where attackers trick local machines into routing all traffic through their sniffer.",
+      da: "Forhindrer Man-in-the-Middle angreb, hvor en hacker udgiver sig for at være routeren og stjæler medarbejdernes kodeord.",
+    },
+    alternative: {
+      name: "Static ARP Table Configuration on Every Workstation Manually",
+      tradeoff: {
+        ua: "Ручне прописування тисяч статичних записів на кожному комп'ютері компанії неможливо підтримувати при зміні пристроїв.",
+        en: "Configuring static ARP caches manually on hundreds of workstations is completely unmaintainable in modern dynamic enterprise fleets.",
+        da: "Manuel opsætning af statiske ARP-tabeller på alle computere er umuligt at vedligeholde i praksis.",
+      },
+    },
+    advantages: {
+      ua: ["Апаратне блокування атак на рівні порту комутатора", "Автоматична синхронізація з DHCP", "Повний захист локальної мережі від MITM"],
+      en: ["Hardware-enforced Layer 2 packet dropping", "Zero-touch synchronization with DHCP leases", "Total immunity against internal ARP poisoning"],
+      da: ["Hardware-afvisning af falske pakker", "Automatisk synkronisering med DHCP", "Komplet beskyttelse mod ARP-forgiftning"],
+    },
+  },
+
+  "task-cyber-6-credential-sniffer": {
+    taskId: "task-cyber-6-credential-sniffer",
+    primaryTech: "IEEE 802.1X Port-Based Network Access Control & Mutual TLS (mTLS) Encryption",
+    category: "security",
+    whatIsIt: {
+      ua: "Обов'язкова криптографічна автентифікація пристроїв при підключенні до розетки або Wi-Fi через сертифікати (802.1X EAP-TLS) та шифрування всього внутрішнього трафіку.",
+      en: "Port-based network access control (IEEE 802.1X EAP-TLS) and zero-trust mutual TLS (mTLS) authenticating both devices and encrypting internal LAN packets.",
+      da: "Netværksadgangskontrol (802.1X) og gensidig TLS-kryptering (mTLS) der sikrer at kun autoriserede enheder kan tilgå netværket.",
+    },
+    whyHere: {
+      ua: "Якщо хакер фізично увімкне свій ноутбук у мережеву розетку в офісі, 802.1X заблокує порт, а mTLS не дозволить прочитати жодного пароля в трафіку.",
+      en: "Stops rogue hardware: if an attacker plugs an unauthorized laptop into an office Ethernet wall jack, the port remains physically disabled.",
+      da: "Stopper fremmede enheder: hvis en hacker sætter et kabel i væggen, forbliver porten deaktiveret uden gyldigt certifikat.",
+    },
+    alternative: {
+      name: "Open Unencrypted Internal Corporate LAN relying on Physical Security",
+      tradeoff: {
+        ua: "Будь-який гість в офісі або зламаний принтер дозволяє зловмиснику прослуховувати внутрішній трафік і збирати незашифровані паролі.",
+        en: "Assumes physical perimeter security: rogue devices or compromised IoT cameras sniff unencrypted internal passwords traversing the local subnet.",
+        da: "Åbne interne netværk lader en angriber aflytte ukrypterede kodeord hvis blot de får adgang til en netværksport.",
+      },
+    },
+    advantages: {
+      ua: ["Апаратна ізоляція невідомих пристроїв", "Повне шифрування трафіку на нульовій довірі (Zero Trust)", "Захист від перехоплення паролів"],
+      en: ["Hardware-level isolation of rogue devices", "Zero Trust end-to-end encrypted wire", "Total protection against credential sniffing"],
+      da: ["Fysisk afvisning af uautoriserede enheder", "Total Zero-Trust kryptering på netværket", "Sikker beskyttelse mod aflytning"],
+    },
+  },
+
+  "task-cyber-7-mitre-triage": {
+    taskId: "task-cyber-7-mitre-triage",
+    primaryTech: "MITRE ATT&CK Matrix Triage & Cyber Kill Chain Stage Mapping",
+    category: "security",
+    whatIsIt: {
+      ua: "Міжнародна база знань про тактики і техніки хакерів (MITRE ATT&CK): прив'язка підозрілих подій до конкретних фаз атаки (Initial Access, Execution, Persistence, Exfiltration).",
+      en: "Adversarial tactics and techniques mapping framework (MITRE ATT&CK) contextualizing security alerts across the multi-stage Cyber Kill Chain.",
+      da: "International vidensbase over hackerteknikker (MITRE ATT&CK) der placerer alarmer i den overordnede angrebskæde.",
+    },
+    whyHere: {
+      ua: "Допомагає аналітику SOC миттєво зрозуміти масштаб загрози: чи це поодинокий спам, чи зловмисники вже закріпилися на сервері і готують крадіжку даних.",
+      en: "Eliminates alert blindness: distinguishes isolated port probes from coordinated intrusions where adversaries already established persistence.",
+      da: "Hjælper sikkerhedsanalytikeren med at gennemskue angrebets alvor: er det blot en scanning, eller er hackerne i gang med at stjæle data.",
+    },
+    alternative: {
+      name: "Handling Alerts as Disconnected Isolated Tickets in Random Order",
+      tradeoff: {
+        ua: "Аналітики витрачають час на дрібні сповіщення, пропускаючи реальну критичну атаку, яка в цей момент викачує базу даних.",
+        en: "SOC teams waste hours investigating noisy low-severity events while stealthy APT adversaries quietly complete their objectives undetected.",
+        da: "Analytikere spilder tid på ligegyldige alarmer, mens et reelt angreb i stilhed fuldfører sit mål.",
+      },
+    },
+    advantages: {
+      ua: ["Чітке розуміння намірів зловмисника", "Швидка пріоритизація критичних інцидентів", "Стандартизована звітність для керівництва"],
+      en: ["Precise adversary intent attribution", "Rapid high-fidelity incident triage", "Standardized board-level executive reporting"],
+      da: ["Præcis forståelse af angriberens hensigt", "Hurtig prioritering af kritiske hændelser", "Standardiseret rapportering til ledelsen"],
     },
   },
 
@@ -1611,9 +2713,9 @@ export function getTechnologyInsight(
         },
       },
       advantages: {
-        ua: ["Затримка <5 мс", "Економія батареї на 90%", "Гарантія доставки QoS 1/2"],
-        en: ["Sub-5ms push latency", "90% battery efficiency", "Guaranteed delivery with QoS 1/2"],
-        da: ["Under 5ms latency", "90% batteribesparelse", "Garanteret QoS levering"],
+        ua: ["Затримка <5 мс", "Мінімальне енергоспоживання (Sleep Mode)", "Гарантія доставки QoS 1/2"],
+        en: ["Sub-5ms push latency", "Substantial battery life preservation", "Guaranteed delivery with QoS 1/2"],
+        da: ["Under 5ms latency", "Minimalt strømforbrug", "Garanteret QoS levering"],
       },
     };
   }
@@ -1828,9 +2930,9 @@ export function getTechnologyInsight(
         },
       },
       advantages: {
-        ua: ["Зниження галюцинацій на 85%", "Пошук як за змістом, так і за точними кодами", "Посилання на точні джерела"],
-        en: ["85% reduction in model hallucinations", "Excels at both semantic and exact terms", "Verifiable primary source citations"],
-        da: ["85% færre hallucinationer", "Matcher både betydning og eksakte koder", "Verificerbare kildehenvisninger"],
+        ua: ["Кардинальне зниження галюцинацій завдяки верифікованим джерелам", "Пошук як за змістом, так і за точними кодами", "Посилання на точні джерела"],
+        en: ["Grounded retrieval with minimal hallucinations", "Excels at both semantic and exact terms", "Verifiable primary source citations"],
+        da: ["Markant færre hallucinationer gennem verificerede kilder", "Matcher både betydning og eksakte koder", "Verificerbare kildehenvisninger"],
       },
     };
   }

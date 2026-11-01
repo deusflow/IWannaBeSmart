@@ -94,6 +94,16 @@ export const createMentorSlice: StateCreator<
     }
   })(),
 
+  completedLabIds: (() => {
+    try {
+      return typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("iw_completed_labs") || "{}")
+        : {};
+    } catch {
+      return {};
+    }
+  })(),
+
   setStationVictoryModalOpen: (open: boolean) => set({ isStationVictoryModalOpen: open }),
 
   completeCodingTask: (taskId: string) => {
@@ -140,6 +150,27 @@ export const createMentorSlice: StateCreator<
 
   isCodingTaskCompleted: (taskId: string) => {
     return Boolean(get().completedCodingTasks[taskId]);
+  },
+
+  completeLab: (labId: string) => {
+    const alreadyCompleted = Boolean(get().completedLabIds[labId]);
+    if (!alreadyCompleted) {
+      const nextCompleted = { ...get().completedLabIds, [labId]: true };
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("iw_completed_labs", JSON.stringify(nextCompleted));
+        }
+      } catch {
+        // Safe catch
+      }
+      set({ completedLabIds: nextCompleted });
+      return true;
+    }
+    return false;
+  },
+
+  isLabCompleted: (labId: string) => {
+    return Boolean(get().completedLabIds[labId]);
   },
 
   setMentorPhase: (phase: MentorPhase) => set({ mentorPhase: phase }),
@@ -536,6 +567,7 @@ export const createMentorSlice: StateCreator<
     set({
       xp: 0,
       completedCodingTasks: {},
+      completedLabIds: {},
       taskMasteryStars: {},
       taskBestWpm: {},
       userTrack: null,

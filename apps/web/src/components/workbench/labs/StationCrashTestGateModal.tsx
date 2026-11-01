@@ -40,6 +40,8 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
 }) => {
   const { t } = useTranslation();
   const addXp = useWorkbenchStore((s) => s.addXp);
+  const completeLab = useWorkbenchStore((s) => s.completeLab);
+  const isLabCompleted = useWorkbenchStore((s) => s.isLabCompleted);
 
   const gate: StationCrashGate | undefined =
     STATION_CRASH_GATES[stationId] || STATION_CRASH_GATES["pos"];
@@ -50,7 +52,6 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
   const [isFailed, setIsFailed] = useState(false);
   const [isPassed, setIsPassed] = useState(false);
   const [failureReason, setFailureReason] = useState<string>("");
-  const [hasAwarded, setHasAwarded] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -114,9 +115,10 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
       // Completed all incidents!
       audioFx.playSuccessFanfare();
       setIsPassed(true);
-      if (!hasAwarded) {
+      const gateKey = `${gate.stationId}-crash-gate`;
+      if (!isLabCompleted(gateKey)) {
         addXp(gate.rewardXp);
-        setHasAwarded(true);
+        completeLab(gateKey);
       }
       if (onPassed) {
         onPassed();
@@ -184,10 +186,13 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
               </div>
               <div className="space-y-1">
                 <h3 className="font-display font-black text-lg text-[#1A1D20]">
-                  Фінальна бойова перевірка знань
+                  {t("labs.crash.drillIntroTitle", "Фінальна бойова перевірка знань")}
                 </h3>
                 <p className="text-xs text-[#1A1D20]/75 max-w-md mx-auto leading-relaxed">
-                  На станції змодельовано серію аварійних інцидентів у пікову годину. У вас буде {gate.timeLimitSeconds} секунд, щоб діагностувати кожну проблему та прийняти правильні інженерні рішення.
+                  {t("labs.crash.drillIntroDesc", {
+                    count: gate.timeLimitSeconds,
+                    defaultValue: `На станції змодельовано серію аварійних інцидентів у пікову годину. У вас буде ${gate.timeLimitSeconds} секунд, щоб діагностувати кожну проблему та прийняти правильні інженерні рішення.`,
+                  })}
                 </p>
               </div>
 
@@ -211,11 +216,12 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                   {t("labs.crash.drillSuccess", "Краш-тест складено успішно!")}
                 </h3>
                 <p className="text-xs text-[#1A1D20]/75 max-w-md mx-auto leading-relaxed">
-                  Всі інциденти успішно ліквідовані без втрати коштів і порушення протоколів. Ви підтвердили кваліфікацію: <strong className="text-emerald-800">{gate.certBadgeTitle}</strong>.
+                  <span>{t("labs.crash.drillSuccessDesc", "Всі інциденти успішно ліквідовані без втрати коштів і порушення протоколів. Ви підтвердили кваліфікацію:")} </span>
+                  <strong className="text-emerald-800">{gate.certBadgeTitle}</strong>.
                 </p>
               </div>
               <div className="pt-2 font-mono text-xs font-bold text-emerald-700">
-                +{gate.rewardXp} XP Кваліфікаційного рейтингу
+                +{gate.rewardXp} {t("labs.crash.xpRatingReward", "XP Кваліфікаційного рейтингу")}
               </div>
             </div>
           ) : isFailed ? (
@@ -225,7 +231,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
               </div>
               <div className="space-y-1">
                 <h3 className="font-display font-black text-lg text-rose-950">
-                  Краш-тест провалено
+                  {t("labs.crash.drillFailedTitle", "Краш-тест провалено")}
                 </h3>
                 <p className="text-xs text-rose-800/90 max-w-md mx-auto leading-relaxed font-mono">
                   {failureReason}
@@ -237,7 +243,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                   className="px-4 py-2 rounded-xl bg-[#1A1D20] text-white font-mono text-xs font-bold flex items-center gap-1.5 mx-auto hover:bg-black transition-colors cursor-pointer"
                 >
                   <RotateCcw size={13} />
-                  <span>Спробувати ще раз</span>
+                  <span>{t("labs.crash.tryAgain", "Спробувати ще раз")}</span>
                 </button>
               </div>
             </div>
@@ -250,7 +256,11 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                     {currentIncident.severity}
                   </span>
                   <span>
-                    Інцидент {currentIncidentIndex + 1} з {gate.incidents.length}
+                    {t("labs.crash.incidentProgress", {
+                      current: currentIncidentIndex + 1,
+                      total: gate.incidents.length,
+                      defaultValue: `Інцидент ${currentIncidentIndex + 1} з ${gate.incidents.length}`,
+                    })}
                   </span>
                 </div>
 
@@ -267,7 +277,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                 {/* Mitigation Actions */}
                 <div className="space-y-2 pt-1">
                   <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
-                    Оберіть реакцію інженера:
+                    {t("labs.crash.chooseAction", "Оберіть реакцію інженера:")}
                   </div>
                   {currentIncident.actions.map((act) => (
                     <button
@@ -291,7 +301,9 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
         {/* Footer */}
         <div className="px-5 py-3.5 bg-[#EFE9DC] border-t border-[#1A1D20]/20 flex items-center justify-between">
           <div className="text-[11px] font-mono text-[#1A1D20]/60">
-            {isPassed ? "Сертифікацію пройдено" : "Режим реального часу"}
+            {isPassed
+              ? t("labs.crash.certificationPassed", "Сертифікацію пройдено")
+              : t("labs.crash.realtimeMode", "Режим реального часу")}
           </div>
           {isPassed && (
             <button

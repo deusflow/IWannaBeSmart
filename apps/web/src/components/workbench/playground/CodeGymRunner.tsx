@@ -13,6 +13,7 @@ import {
   Flame,
   Layers,
   ShieldAlert,
+  Lock,
 } from "lucide-react";
 import {
   FINTECH_TASKS,
@@ -547,10 +548,10 @@ export const CodeGymRunner: React.FC = () => {
                 setIsPoeModalOpen(true);
               }}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title="Живий симулятор: Що вибухне? (Predict-Observe-Explain)"
+              title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
             >
               <Flame size={13} className="text-amber-700" />
-              <span className="hidden sm:inline">Що вибухне?</span>
+              <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
             </button>
 
             <button
@@ -559,22 +560,39 @@ export const CodeGymRunner: React.FC = () => {
                 setIsLogicBuilderOpen(true);
               }}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-cyan-600/15 hover:bg-cyan-600/25 border border-cyan-700/30 text-cyan-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title="Конструктор прошивки (No-Typing Logic Lab)"
+              title={t("labs.logic.btnTooltip", "Конструктор прошивки (No-Typing Logic Lab)")}
             >
               <Layers size={13} className="text-cyan-800" />
-              <span className="hidden sm:inline">Конструктор</span>
+              <span className="hidden sm:inline">{t("labs.logic.btnLabel", "Конструктор")}</span>
             </button>
 
             <button
               onClick={() => {
+                if (!allPosTasksCompleted) {
+                  audioFx.playErrorBuzz();
+                  return;
+                }
                 audioFx.playWarRoomSiren();
                 setIsCrashGateOpen(true);
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-600/30 text-rose-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title="Аттестаційний краш-тест станції (Certification Drill)"
+              disabled={!allPosTasksCompleted}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
+                allPosTasksCompleted
+                  ? "bg-rose-500/15 hover:bg-rose-500/25 border-rose-600/30 text-rose-950 cursor-pointer active:scale-95"
+                  : "bg-[#1A1D20]/5 border-[#1A1D20]/15 text-[#1A1D20]/40 cursor-not-allowed opacity-60"
+              }`}
+              title={
+                allPosTasksCompleted
+                  ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
+                  : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
+              }
             >
-              <ShieldAlert size={13} className="text-rose-700" />
-              <span className="hidden sm:inline">Краш-тест</span>
+              {allPosTasksCompleted ? (
+                <ShieldAlert size={13} className="text-rose-700" />
+              ) : (
+                <Lock size={13} className="text-[#1A1D20]/40" />
+              )}
+              <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
             </button>
 
             {allPosTasksCompleted && (
@@ -788,7 +806,9 @@ export const CodeGymRunner: React.FC = () => {
         onClose={() => setIsCrashGateOpen(false)}
         stationId="pos"
         onPassed={() => {
-          setPosVictoryModalOpen(true);
+          if (allPosTasksCompleted) {
+            setPosVictoryModalOpen(true);
+          }
         }}
       />
     </div>

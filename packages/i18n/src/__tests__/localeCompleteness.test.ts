@@ -7,6 +7,8 @@
  */
 
 import { describe, it, expect } from "vitest";
+import fs from "fs";
+import path from "path";
 import { WORKED_EXAMPLES } from "@iw/sim-engine";
 import {
   enTranslation,
@@ -178,6 +180,38 @@ describe("Localization Parity & Completeness (UA, EN, DA)", () => {
       console.warn("Missing locale keys in apps/web/src:", missingKeys);
     }
     expect(missingKeys).toEqual([]);
+  });
+
+  it("should verify zero raw untranslated Cyrillic in lab components", () => {
+    const labsDir = path.resolve(__dirname, "../../../../apps/web/src/components/workbench/labs");
+    if (!fs.existsSync(labsDir)) return;
+
+    const labFiles = fs.readdirSync(labsDir).filter(f => f.endsWith(".tsx") || f.endsWith(".ts"));
+    const violations: { file: string; line: number; text: string }[] = [];
+
+    for (const file of labFiles) {
+      const fullPath = path.join(labsDir, file);
+      const content = fs.readFileSync(fullPath, "utf-8");
+      const lines = content.split("\n");
+
+      lines.forEach((line, idx) => {
+        // Strip out single-line comments, t(...) calls, and defaultValue strings
+        const cleaned = line
+          .replace(/\/\/.*/g, "")
+          .replace(/t\(\s*["'][^"']+["']\s*,\s*(\{[^}]*\}|["'][^"']*["'])\s*\)/g, "")
+          .replace(/defaultValue:\s*`[^`]*`/g, "")
+          .replace(/defaultValue:\s*["'][^"']*["']/g, "");
+
+        if (/[а-яА-ЯіїєґІЇЄҐ]/.test(cleaned)) {
+          violations.push({ file, line: idx + 1, text: line.trim() });
+        }
+      });
+    }
+
+    if (violations.length > 0) {
+      console.warn("Found raw Cyrillic strings in lab components:", violations);
+    }
+    expect(violations).toEqual([]);
   });
 });
 

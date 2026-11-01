@@ -4,7 +4,7 @@
  * Promotes active schema construction and prevents passive guessing through immediate tactile simulation.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
@@ -39,23 +39,36 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
 }) => {
   const { t } = useTranslation();
   const addXp = useWorkbenchStore((s) => s.addXp);
+  const completeLab = useWorkbenchStore((s) => s.completeLab);
+  const isLabCompleted = useWorkbenchStore((s) => s.isLabCompleted);
 
-  const availableScenarios = POE_SCENARIOS.filter(
-    (s) => !stationId || s.stationId === stationId
+  const availableScenarios = useMemo(
+    () => POE_SCENARIOS.filter((s) => !stationId || s.stationId === stationId),
+    [stationId]
   );
 
-  const [activeScenarioIndex, setActiveScenarioIndex] = useState(0);
+  const [activeScenarioIndex, setActiveScenarioIndex] = useState(() => {
+    if (initialScenarioId) {
+      const idx = availableScenarios.findIndex((s) => s.id === initialScenarioId);
+      return idx !== -1 ? idx : 0;
+    }
+    return 0;
+  });
+  const [prevInitialScenarioId, setPrevInitialScenarioId] = useState(initialScenarioId);
+
+  if (initialScenarioId !== prevInitialScenarioId) {
+    setPrevInitialScenarioId(initialScenarioId);
+    if (initialScenarioId) {
+      const idx = availableScenarios.findIndex((s) => s.id === initialScenarioId);
+      if (idx !== -1) {
+        setActiveScenarioIndex(idx);
+      }
+    }
+  }
+
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [hasSimulated, setHasSimulated] = useState(false);
-  const [solvedScenarios, setSolvedScenarios] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    if (initialScenarioId) {
-      const idx = availableScenarios.findIndex((s) => s.id === initialScenarioId);
-      if (idx !== -1) setActiveScenarioIndex(idx);
-    }
-  }, [initialScenarioId, availableScenarios]);
 
   if (!isOpen) return null;
 
@@ -81,9 +94,9 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
       const chosenOpt = currentScenario?.options.find((o) => o.id === selectedOptionId);
       if (chosenOpt?.isCorrect) {
         audioFx.playSuccessFanfare();
-        if (!solvedScenarios[currentScenario.id]) {
+        if (currentScenario && !isLabCompleted(currentScenario.id)) {
           addXp(currentScenario.rewardXp);
-          setSolvedScenarios((prev) => ({ ...prev, [currentScenario.id]: true }));
+          completeLab(currentScenario.id);
         }
       } else {
         audioFx.playErrorBuzz();
@@ -173,7 +186,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
           {/* Options */}
           <div className="space-y-2">
             <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
-              Варіанти прогнозу:
+              {t("labs.poe.predictionOptions", "Варіанти прогнозу:")}
             </div>
             {currentScenario.options.map((option: PoeScenarioOption, idx: number) => {
               const isSelected = selectedOptionId === option.id;
@@ -247,13 +260,17 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                   className="px-3 py-1.5 rounded-xl border border-[#1A1D20]/25 bg-[#FAF8F2] text-xs font-mono font-bold flex items-center gap-1 hover:bg-[#E6DEC9] transition-colors cursor-pointer"
                 >
                   <RotateCcw size={13} />
-                  <span>Спробувати ще</span>
+                  <span>{t("labs.common.tryAgain", "Спробувати ще")}</span>
                 </button>
                 <button
                   onClick={handleNext}
                   className="px-4 py-1.5 rounded-xl bg-[#1A1D20] text-[#FAF8F2] text-xs font-mono font-bold flex items-center gap-1 hover:bg-black transition-colors cursor-pointer shadow-sm"
                 >
-                  <span>{activeScenarioIndex < availableScenarios.length - 1 ? "Далі →" : "Завершити"}</span>
+                  <span>
+                    {activeScenarioIndex < availableScenarios.length - 1
+                      ? t("labs.common.next", "Далі →")
+                      : t("labs.common.finish", "Завершити")}
+                  </span>
                 </button>
               </>
             ) : (
@@ -265,7 +282,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                 {isSimulating ? (
                   <>
                     <Zap size={14} className="animate-spin" />
-                    <span>Симуляція...</span>
+                    <span>{t("labs.poe.simulating", "Симуляція...")}</span>
                   </>
                 ) : (
                   <>

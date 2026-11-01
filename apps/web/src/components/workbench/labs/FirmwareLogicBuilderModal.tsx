@@ -4,7 +4,7 @@
  * Allows engineers to structure architectural pipelines without finger fatigue.
  */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ShieldCheck,
@@ -43,9 +43,12 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
 }) => {
   const { t } = useTranslation();
   const addXp = useWorkbenchStore((s) => s.addXp);
+  const completeLab = useWorkbenchStore((s) => s.completeLab);
+  const isLabCompleted = useWorkbenchStore((s) => s.isLabCompleted);
 
-  const availableChallenges = LOGIC_CHALLENGES.filter(
-    (c) => !stationId || c.stationId === stationId
+  const availableChallenges = useMemo(
+    () => LOGIC_CHALLENGES.filter((c) => !stationId || c.stationId === stationId),
+    [stationId]
   );
   const currentChallenge: LogicChallenge = availableChallenges[0] || LOGIC_CHALLENGES[0];
 
@@ -53,7 +56,6 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
   const [isRunning, setIsRunning] = useState(false);
   const [runIndex, setRunIndex] = useState<number | null>(null);
   const [validationResult, setValidationResult] = useState<"success" | "fail" | null>(null);
-  const [hasAwarded, setHasAwarded] = useState(false);
 
   if (!isOpen) return null;
 
@@ -107,9 +109,9 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
         if (isMatched) {
           audioFx.playSuccessFanfare();
           setValidationResult("success");
-          if (!hasAwarded) {
+          if (!isLabCompleted(currentChallenge.id)) {
             addXp(currentChallenge.rewardXp);
-            setHasAwarded(true);
+            completeLab(currentChallenge.id);
           }
         } else {
           audioFx.playErrorBuzz();
@@ -179,7 +181,7 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
           {/* Mission */}
           <div className="p-3.5 rounded-xl bg-cyan-50/70 border border-cyan-200/80 text-xs text-cyan-950 font-medium">
             <div className="font-bold text-[10px] font-mono uppercase tracking-wider text-cyan-800 mb-1">
-              Місія конструктора:
+              {t("labs.logic.missionTitle", "Місія конструктора:")}
             </div>
             {t(currentChallenge.missionKey, currentChallenge.defaultMission)}
           </div>
@@ -189,7 +191,11 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
             <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
               <span>{t("labs.logic.pipelineTitle", "Ланцюжок виконання (Пайплайн):")}</span>
               <span>
-                {pipelineBlockIds.length} / {currentChallenge.expectedSequence.length} модулів
+                {t("labs.logic.modulesProgress", {
+                  current: pipelineBlockIds.length,
+                  total: currentChallenge.expectedSequence.length,
+                  defaultValue: `${pipelineBlockIds.length} / ${currentChallenge.expectedSequence.length} модулів`,
+                })}
               </span>
             </div>
 

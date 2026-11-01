@@ -65,6 +65,7 @@ export function clearUserProgressStorage(): void {
       STORAGE_CACHED_PROFILE,
       "iw_user_xp",
       "iw_completed_tasks",
+      "iw_completed_labs",
       "iw_mastery_stars",
       "iw_task_best_wpm",
       "iw_user_track",
