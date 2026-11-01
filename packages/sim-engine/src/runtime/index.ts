@@ -32,6 +32,7 @@ export * from "./tasks-iot";
 export * from "./tasterRegistry";
 export * from "./tasterEngine";
 export * from "./labs/labScenarios";
+export * from "./technologyInsights";
 
 import { CODING_TASKS } from "./tasks";
 import { FINTECH_TASKS } from "./tasks-fintech";

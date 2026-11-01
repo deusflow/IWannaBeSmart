@@ -25,15 +25,17 @@ import {
   Code2,
   Layers,
   Compass,
+  Radio,
 } from "lucide-react";
 import { audioFx } from "../../../utils/audioFx";
 import { getTaskDidacticInfo } from "./taskDidacticContext";
 import { theoryUa, theoryEn, theoryDa, type TaskTheory, getLocalizedWorkedExample } from "@iw/i18n";
-import { getWorkedExample, type WorkedExample } from "@iw/sim-engine";
+import { getWorkedExample, type WorkedExample, getTechnologyInsight } from "@iw/sim-engine";
 import { GuidedSolutionLayer } from "./guided/GuidedSolutionLayer";
 import { GuidedArchitectureLayer } from "./guided/GuidedArchitectureLayer";
 import { GuidedTokensLayer } from "./guided/GuidedTokensLayer";
 import { GuidedDeepDiveCard } from "./guided/GuidedDeepDiveCard";
+import { GuidedTechStackLayer } from "./guided/GuidedTechStackLayer";
 
 // ─── Type definitions ─────────────────────────────────────────────────────────
 
@@ -64,7 +66,7 @@ interface GuidedStepBarProps {
   className?: string;
 }
 
-type TutorialLayer = "solution" | "simple" | "engineering" | "tokens" | "architecture" | "deepdive";
+type TutorialLayer = "solution" | "techStack" | "simple" | "engineering" | "tokens" | "architecture" | "deepdive";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -121,6 +123,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
     translatedTheory && translatedTheory.tokens
       ? translatedTheory
       : theoryDict.tasks[taskId] || (taskId.startsWith("task-0") ? theoryDict.tasks["task-0-1-power-on"] : undefined);
+
+  const techInsight = taskId ? getTechnologyInsight(taskId, currentLang) : undefined;
 
   const simpleText = t(data.simpleKey, { defaultValue: "" });
   const engineeringText = t(data.engineeringKey, { defaultValue: "" });
@@ -256,6 +260,26 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               <span>{t("guide.solutionTab", " Зразок")}</span>
             </button>
 
+            {/* Tab: Real-World Technologies */}
+            {techInsight && (
+              <button
+                id="guided-step-tab-techstack"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  selectLayer("techStack");
+                }}
+                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                  activeLayer === "techStack" && isExpanded
+                    ? "bg-[#1A1D20] text-white shadow-xs"
+                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                }`}
+                title={techInsight.primaryTech}
+              >
+                <Radio size={11} className={activeLayer === "techStack" && isExpanded ? "text-cyan-400" : ""} />
+                <span>{t("guide.techStackTab", "Технології")}</span>
+              </button>
+            )}
+
             {/* Tab 2: Simple words */}
             {simpleText && (
               <button
@@ -379,6 +403,18 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               getLocStr={getLocStr}
               didactic={didactic}
               onOpenArchitectureStudio={handleOpenStudio}
+              currentLang={currentLang}
+              techInsight={techInsight}
+              onSelectTechStack={() => selectLayer("techStack")}
+            />
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════════
+               LAYER: [ 🛠️ Технології ] (Real-World Tech Stack & Protocols)
+             ══════════════════════════════════════════════════════════════════ */}
+          {activeLayer === "techStack" && techInsight && (
+            <GuidedTechStackLayer
+              insight={techInsight}
               currentLang={currentLang}
             />
           )}

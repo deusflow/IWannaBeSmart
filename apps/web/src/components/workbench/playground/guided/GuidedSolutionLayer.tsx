@@ -15,9 +15,10 @@ import {
   Terminal,
   Activity,
   ExternalLink,
+  Radio,
 } from "lucide-react";
 import type { TFunction } from "i18next";
-import type { WorkedExample } from "@iw/sim-engine";
+import type { WorkedExample, TechnologyInsight } from "@iw/sim-engine";
 import type { TaskDidacticInfo } from "../taskDidacticContext";
 import { GuidedDeepDiveCard } from "./GuidedDeepDiveCard";
 
@@ -34,6 +35,8 @@ export interface GuidedSolutionLayerProps {
   didactic?: TaskDidacticInfo;
   onOpenArchitectureStudio?: () => void;
   currentLang?: "ua" | "en" | "da";
+  techInsight?: TechnologyInsight;
+  onSelectTechStack?: () => void;
 }
 
 const getLangBadge = (lang: string) => {
@@ -83,6 +86,8 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
   didactic,
   onOpenArchitectureStudio,
   currentLang = "ua",
+  techInsight,
+  onSelectTechStack,
 }) => {
   return (
     <div className="space-y-3">
@@ -108,6 +113,38 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Real-World Industry Tech Callout Banner */}
+      {techInsight && (
+        <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-600/25 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs shadow-2xs">
+          <div className="flex items-start gap-2.5 min-w-0">
+            <span className="p-1 rounded-md bg-blue-600/15 text-blue-900 border border-blue-600/30 shrink-0 mt-0.5">
+              <Radio size={13} />
+            </span>
+            <div className="min-w-0 leading-snug">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-mono font-bold text-[10px] uppercase text-blue-900 tracking-wider">
+                  {t("guide.inProductionLabel", "В індустрії:")}
+                </span>
+                <strong className="text-[#1A1D20] font-mono text-[11px]">{techInsight.primaryTech}</strong>
+              </div>
+              <p className="text-[11px] text-[#1A1D20]/80 mt-0.5">
+                <span className="font-semibold text-amber-900">{t("guide.techVsLabel", "Альтернатива:")} {techInsight.alternative.name}</span>
+                {" — "}
+                <span>{techInsight.alternative.tradeoff[currentLang] || techInsight.alternative.tradeoff.ua}</span>
+              </p>
+            </div>
+          </div>
+          {onSelectTechStack && (
+            <button
+              onClick={onSelectTechStack}
+              className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-mono font-bold text-[10.5px] shrink-0 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs self-end sm:self-auto"
+            >
+              <span>{t("guide.techDetailsBtn", "Деталі технології →")}</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Upfront Pacing & Leading Cognitive Behavioral Loop & Intuition Analogy */}
       <div className="p-3 rounded-xl bg-[#FAF8F2] border border-amber-600/30 space-y-2 shadow-2xs">
