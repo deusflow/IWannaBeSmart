@@ -24,6 +24,7 @@ export const daTranslation = {
         copyCert: "Kopier certifikat",
         copiedCert: "Certifikat kopieret!",
         downloadCertSvg: "Download vektorcertifikat (SVG)",
+        mastered: "Mestret",
       },
       audio: {
         volume: "Lydstyrke",
@@ -2238,6 +2239,7 @@ export const daTranslation = {
           title: "Certificeret Cyber Defense Arkitekt",
           desc: "Du har aflyttet netværkspakker, udnyttet usikker kode og bygget robuste Blue Team sikkerhedsskjolde!",
           competencies: "Bekræftede Cybersikkerhedskompetencer (6/6):",
+          skillsTitle: "Sikkerheds- og Forsvarsmatrix (6/6)",
           returnHub: "Tilbage til Værkstedshub",
         },
         tasks: {

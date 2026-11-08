@@ -31,7 +31,7 @@ export const GuidedTokensLayer: React.FC<GuidedTokensLayerProps> = ({
         {tokens.map((tok, idx) => (
           <div
             key={idx}
-            className="p-2 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-0.5 shadow-2xs"
+            className="p-2 rounded-xl bg-slate-50/80 border border-black/[0.06] space-y-0.5 shadow-2xs"
           >
             <div className="flex items-center justify-between gap-1">
               <code className="px-1.5 py-0.2 rounded bg-[#181A1E] text-emerald-400 font-mono text-[11px] font-bold">

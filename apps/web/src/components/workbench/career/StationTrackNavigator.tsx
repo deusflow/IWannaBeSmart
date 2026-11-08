@@ -22,8 +22,8 @@ interface StationTrackNavigatorProps {
 export const StationTrackNavigator: React.FC<StationTrackNavigatorProps> = ({
   currentStationId,
   onClose,
-  accentClassName = "bg-[#1E2227] hover:bg-black text-white",
-  secondaryClassName = "bg-[#FAF8F2] hover:bg-[#F0EDE6] text-[#1E2227] border border-[#1E2227]/25",
+  accentClassName = "bg-[#252932] hover:bg-[#1A1D20] text-white shadow-2xs",
+  secondaryClassName = "bg-white hover:bg-slate-50 text-obsidian border border-black/[0.08] shadow-2xs",
 }) => {
   const { t } = useTranslation();
   const { userTrack, setCurrentStationId, setCurrentView } = useWorkbenchStore(
@@ -72,7 +72,7 @@ export const StationTrackNavigator: React.FC<StationTrackNavigatorProps> = ({
             onClose();
             setCurrentView("WAR_ROOM");
           }}
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C86D32] hover:bg-[#B35F2B] text-white font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-luxury hover:shadow-lg transition-all cursor-pointer active:scale-95"
         >
           <Zap size={14} className="text-amber-300 animate-pulse shrink-0" />
           <span>{t("career.warRoomGraduation", "Випускне випробування: Перейти в War Room")}</span>

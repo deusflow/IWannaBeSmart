@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Star, Trophy, Flame, ShieldAlert, Lock } from "lucide-react";
+import { Trophy, Flame, ShieldAlert, Lock, ShieldCheck } from "lucide-react";
 import { CYBER_TASKS, type CyberTask } from "@iw/sim-engine";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
@@ -102,6 +102,7 @@ export const CyberCodeGymRunner: React.FC = () => {
     targetCode,
     clozeTemplate,
     traceCharsMatched,
+    sprintLimit,
     handleCodeChange,
     handleStartSprint,
     handleResetRound,
@@ -323,87 +324,203 @@ export const CyberCodeGymRunner: React.FC = () => {
   ]);
 
   return (
-    <div className="flex flex-col gap-4 font-sans text-slate-100">
-      {/* ── Task Navigation Strip ── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800">
-        {CYBER_TASKS.map((task) => {
-          const isSelected = task.id === selectedTaskId;
-          const stars = taskMasteryStars[task.id] || 0;
-          return (
-            <button
-              key={task.id}
-              onClick={() => handleSelectTask(task.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-mono shrink-0 transition-all ${
-                isSelected
-                  ? "bg-red-950/80 border-red-500/60 text-red-200 shadow-[0_0_12px_rgba(239,68,68,0.25)]"
-                  : "bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-              }`}
-            >
-              <span className="font-bold">#{task.order}</span>
-              <span className="truncate max-w-[120px]">{t(task.titleKey, task.id)}</span>
-              <div className="flex items-center gap-0.5 text-amber-400">
-                <Star size={11} className={stars >= 1 ? "fill-amber-400" : "opacity-30"} />
-                <span className="text-[10px]">{stars}/4</span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Station Micro-Labs & Certificate Strip ── */}
-      <div className="flex items-center justify-between gap-2 px-1">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              audioFx.playRelayClick();
-              setIsPoeModalOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-300 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
-            title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
-          >
-            <Flame size={13} className="text-amber-400" />
-            <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
-          </button>
-
-          <button
-            onClick={() => {
-              if (!allCyberTasksCompleted) {
-                audioFx.playErrorBuzz();
-                return;
-              }
-              audioFx.playWarRoomSiren();
-              setIsCrashGateOpen(true);
-            }}
-            disabled={!allCyberTasksCompleted}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
-              allCyberTasksCompleted
-                ? "bg-rose-500/15 hover:bg-rose-500/25 border-rose-600/30 text-rose-300 cursor-pointer active:scale-95"
-                : "bg-slate-900/40 border-slate-800 text-slate-500 cursor-not-allowed opacity-60"
-            }`}
-            title={
-              allCyberTasksCompleted
-                ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
-                : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
-            }
-          >
-            {allCyberTasksCompleted ? (
-              <ShieldAlert size={13} className="text-rose-400" />
-            ) : (
-              <Lock size={13} className="text-slate-500" />
-            )}
-            <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
-          </button>
+    <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
+      {/* ── Top Header: Task Selector, Title & Mastery Stars ── */}
+      <div className="p-4 rounded-2xl bg-white border border-black/[0.07] shadow-porcelain space-y-3.5">
+        {/* Task Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {CYBER_TASKS.map((task) => {
+            const isSelected = task.id === selectedTaskId;
+            const stars = taskMasteryStars[task.id] || 0;
+            return (
+              <button
+                key={task.id}
+                onClick={() => handleSelectTask(task.id)}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-[#252932] border-[#252932] text-white shadow-sm"
+                    : "bg-white hover:bg-slate-50 border-black/[0.06] hover:border-black/[0.14] text-obsidian shadow-2xs"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`font-mono text-[10px] font-bold uppercase ${
+                      isSelected ? "text-[#C5A059]" : "text-slate-500"
+                    }`}
+                  >
+                    #{task.order} SOC
+                  </span>
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4].map((s) => (
+                      <span
+                        key={s}
+                        className={
+                          stars >= s
+                            ? s === 4
+                              ? "text-cyan-400 font-bold text-[10px]"
+                              : "text-[#C5A059] text-[10px]"
+                            : "text-slate-300 opacity-40 text-[10px]"
+                        }
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div
+                  className={`text-xs font-bold truncate mt-1 ${
+                    isSelected ? "text-white" : "text-obsidian"
+                  }`}
+                >
+                  {t(task.titleKey, task.id)}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
-        {allCyberTasksCompleted && (
-          <button
-            onClick={() => setCyberVictoryModalOpen(true)}
-            className="px-2.5 py-1 text-xs rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 flex items-center gap-1.5 transition-colors shadow-[0_0_10px_rgba(245,158,11,0.2)] cursor-pointer"
-          >
-            <Trophy className="w-3.5 h-3.5 text-amber-400" />
-            <span>{t("codegym.certificateBtn", "Сертифікат")}</span>
-          </button>
-        )}
+        {/* Task Title & Lab Buttons */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-slate-100 border border-black/[0.06] flex items-center justify-center text-[#252932] shadow-2xs">
+              <ShieldCheck size={16} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-black/[0.06]">
+                  Google SOC Defense Gym
+                </span>
+                <span className="text-xs font-mono font-bold text-slate-500">
+                  SIEM & Network Defense
+                </span>
+              </div>
+              <h3 className="font-display font-bold text-base text-obsidian mt-0.5">
+                {t(currentTask.titleKey, currentTask.id)}
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsPoeModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100/70 border border-amber-200 text-amber-900 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
+            >
+              <Flame size={13} className="text-amber-700" />
+              <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (!allCyberTasksCompleted) {
+                  audioFx.playErrorBuzz();
+                  return;
+                }
+                audioFx.playWarRoomSiren();
+                setIsCrashGateOpen(true);
+              }}
+              disabled={!allCyberTasksCompleted}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
+                allCyberTasksCompleted
+                  ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-600 cursor-pointer active:scale-95"
+                  : "bg-slate-100 border-black/[0.06] text-slate-400 cursor-not-allowed opacity-60"
+              }`}
+              title={
+                allCyberTasksCompleted
+                  ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
+                  : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
+              }
+            >
+              {allCyberTasksCompleted ? (
+                <ShieldAlert size={13} className="text-white" />
+              ) : (
+                <Lock size={13} className="text-slate-400" />
+              )}
+              <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
+            </button>
+
+            {allCyberTasksCompleted && (
+              <button
+                onClick={() => setCyberVictoryModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-display font-extrabold text-xs shadow-2xs transition-all cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <Trophy size={14} className="text-[#C5A059]" />
+                <span>{t("codegym.certificateBtn", "Сертифікат")}</span>
+              </button>
+            )}
+
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-black/[0.06]">
+              <button
+                onClick={() => setCodeLang("python")}
+                className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-colors cursor-pointer ${
+                  codeLang === "python"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
+                }`}
+              >
+                Python
+              </button>
+              <button
+                onClick={() => setCodeLang("typescript")}
+                className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-colors cursor-pointer ${
+                  codeLang === "typescript"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
+                }`}
+              >
+                TypeScript
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 4-Round Mode Selector Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          {[
+            { round: 1, label: t("codegym.round1Badge", "Раунд 1"), desc: t("codegym.round1DescShort", "Сліпий трафарет") },
+            { round: 2, label: t("codegym.round2Badge", "Раунд 2"), desc: t("codegym.round2DescShort", "Прогалини (Cloze)") },
+            { round: 3, label: t("codegym.round3Badge", "Раунд 3"), desc: `${t("codegym.round3DescShort", "Спринт")} (${sprintLimit}${t("codegym.secondsUnit", "с")})` },
+            { round: 4, label: t("codegym.round4Badge", "Раунд 4"), desc: t("codegym.round4DescShort", "Варіація") },
+          ].map(({ round, label, desc }) => {
+            const isActive = activeRound === round;
+            const isUnlocked = round === 1 || starsEarned >= round - 1;
+
+            return (
+              <button
+                key={round}
+                disabled={!isUnlocked}
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setActiveRound(round as 1 | 2 | 3 | 4);
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
+                  isActive
+                    ? "bg-[#252932] border-[#252932] text-white shadow-sm"
+                    : isUnlocked
+                    ? "bg-white hover:bg-slate-50 border-black/[0.06] hover:border-black/[0.14] text-obsidian shadow-2xs"
+                    : "bg-slate-50/40 border-black/[0.04] text-slate-400 cursor-not-allowed opacity-50"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-extrabold text-[11px] uppercase">
+                    {label}
+                  </span>
+                  {starsEarned >= round && (
+                    <span className={round === 4 ? "text-cyan-400 text-xs drop-shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "text-[#C5A059] text-xs"}>
+                      ★
+                    </span>
+                  )}
+                </div>
+                <div className={`text-[10px] truncate mt-0.5 ${isActive ? "text-slate-300" : "text-slate-500"}`}>
+                  {desc}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Guided Theory & Concepts Bar ── */}

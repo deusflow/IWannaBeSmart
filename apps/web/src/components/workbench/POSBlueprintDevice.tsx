@@ -99,7 +99,7 @@ export const POSBlueprintDevice: React.FC = () => {
         {/* Animated Emerging Receipt Paper Tape */}
         {hasReceipt && (
           <div
-            className={`w-56 bg-[#FAF8F2] text-[#1A1A1A] p-3 pt-2 font-mono text-[9px] shadow-2xl border-x border-[#D8D4C8] transition-all duration-500 transform origin-top ${
+            className={`w-56 bg-white text-obsidian p-3 pt-2 font-mono text-[9px] shadow-2xl border-x border-slate-200 transition-all duration-500 transform origin-top ${
               receiptTorn ? "opacity-0 -translate-y-4 scale-95" : "animate-in slide-in-from-top-6 duration-700"
             }`}
             style={{

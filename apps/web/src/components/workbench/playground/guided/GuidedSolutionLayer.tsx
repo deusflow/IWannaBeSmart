@@ -147,14 +147,14 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
       )}
 
       {/* Upfront Pacing & Leading Cognitive Behavioral Loop & Intuition Analogy */}
-      <div className="p-3 rounded-xl bg-[#FAF8F2] border border-amber-600/30 space-y-2 shadow-2xs">
+      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-2 shadow-2xs">
         {/* Step 1: Pacing (Validation of cognitive friction) */}
         <div className="space-y-1">
           <div className="text-[10px] font-mono font-bold uppercase text-amber-900 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
             <span>{t("guide.pacingLabel", "Підстройка (Валідація бар'єру)")}</span>
           </div>
-          <p className="font-sans text-xs text-[#1A1D20]/90 leading-relaxed italic pl-3 border-l-2 border-amber-500/40">
+          <p className="font-sans text-xs text-obsidian leading-relaxed italic pl-3 border-l-2 border-amber-500/40">
             «{didactic?.pacingLeading?.pacing[currentLang] || t("guide.pacingDefault", "Цей інтерфейс здається громіздким — це природна реакція при першому погляді на промисловий код.")}»
           </p>
         </div>
@@ -165,15 +165,15 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
             <span>{t("guide.leadingLabel", "Ведення (Легка мікро-дія)")}</span>
           </div>
-          <p className="font-sans text-xs text-[#1A1D20] font-medium leading-relaxed pl-3 border-l-2 border-emerald-500/40">
+          <p className="font-sans text-xs text-obsidian font-medium leading-relaxed pl-3 border-l-2 border-emerald-500/40">
             {didactic?.pacingLeading?.leading[currentLang] || t("guide.leadingDefault", "Але по суті це просто розетка для пульта. Зробіть мікро-дію: з'єднайте порт команди із вхідним слотом контролера.")}
           </p>
         </div>
 
         {simpleText && (
-          <div className="pt-1.5 border-t border-[#1A1D20]/10 flex items-start gap-2">
+          <div className="pt-1.5 border-t border-black/[0.06] flex items-start gap-2">
             <Lightbulb size={13} className="text-amber-700 shrink-0 mt-0.5" />
-            <p className="font-sans text-[11.5px] text-[#1A1D20]/80 leading-relaxed">
+            <p className="font-sans text-[11.5px] text-slate-700 leading-relaxed">
               <strong className="text-amber-950 font-mono text-[10px] uppercase mr-1">{t("guide.simpleLabel", "Простими словами")}:</strong>
               {simpleText}
             </p>
@@ -239,14 +239,14 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
                 ? "bg-amber-500/25 border-amber-500 shadow-md ring-2 ring-amber-400/50"
                 : demoExecuted
                 ? "bg-emerald-900/10 border-emerald-700/40 text-emerald-950"
-                : "bg-[#FAF8F2] border-[#1A1D20]/15"
+                : "bg-slate-50/70 border border-black/[0.06]"
             }`}
           >
-            <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/80 flex items-center gap-1.5 mb-1">
+            <div className="text-[10px] font-mono font-bold uppercase text-slate-600 flex items-center gap-1.5 mb-1">
               <Activity size={12} className="text-emerald-700 shrink-0" />
               <span>{t("guide.hardwareEffectTitle", "Апаратний ефект пристрою (Hardware Effect):")}</span>
             </div>
-            <p className="font-sans text-xs text-[#1A1D20] font-semibold leading-relaxed">
+            <p className="font-sans text-xs text-obsidian font-semibold leading-relaxed">
               {getLocStr(workedExample.demonstrationLog.hardwareEffect)}
             </p>
           </div>
@@ -271,34 +271,34 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
           </div>
 
           {/* Teacher Step-by-Step Explanation */}
-          <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1">
-            <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70 flex items-center gap-1">
+          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
+            <div className="text-[10px] font-mono font-bold uppercase text-slate-500 flex items-center gap-1">
               <Lightbulb size={11} className="text-amber-700 shrink-0" />
               <span>{t("guide.teacherCardTitle", "Пояснення вчителя (Teacher Card):")}</span>
             </div>
-            <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
+            <p className="font-sans text-xs text-obsidian leading-relaxed">
               {getLocStr(workedExample.explanation)}
             </p>
           </div>
 
           {/* Preview of Tact 2 and Tact 3 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-blue-600/25 space-y-1">
-              <div className="text-[10px] font-mono font-bold uppercase text-blue-900 flex items-center gap-1">
+            <div className="p-2.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
+              <div className="text-[10px] font-mono font-bold uppercase text-slate-700 flex items-center gap-1">
                 <span>{t("guide.tact2ClozeTitle", "Такт 2: Повтори зі мною (Cloze)")}</span>
               </div>
-              <p className="text-[11px] font-sans text-blue-950">
+              <p className="text-[11px] font-sans text-slate-600">
                 {t(
                   "guide.tact2ClozeDesc",
                   "Заповніть пропуски ___ у коді. Система миттєво перевіряє кожен символ."
                 )}
               </p>
             </div>
-            <div className="p-2.5 rounded-xl bg-[#FAF8F2] border border-emerald-600/25 space-y-1">
-              <div className="text-[10px] font-mono font-bold uppercase text-emerald-900 flex items-center gap-1">
+            <div className="p-2.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
+              <div className="text-[10px] font-mono font-bold uppercase text-slate-700 flex items-center gap-1">
                 <span>{t("guide.tact3PromptTitle", "Такт 3: Тепер ти сам")}</span>
               </div>
-              <p className="text-[11px] font-sans text-emerald-950">
+              <p className="text-[11px] font-sans text-slate-600">
                 {getLocStr(workedExample.finalChallenge.prompt)}
               </p>
             </div>
@@ -308,12 +308,12 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
 
       {/* Didactic explanation: why this syntax */}
       {didactic?.whyThisCode && (
-        <div className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1">
-          <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/70 flex items-center gap-1">
+        <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
+          <div className="text-[10px] font-mono font-bold uppercase text-slate-500 flex items-center gap-1">
             <Lightbulb size={11} className="text-amber-700" />
             <span>{t("guide.whySyntaxTitle", "Чому саме такий синтаксис:")}</span>
           </div>
-          <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
+          <p className="font-sans text-xs text-obsidian leading-relaxed">
             {didactic.whyThisCode[codeLang]}
           </p>
         </div>
@@ -347,7 +347,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
             {didactic.architectureMap.contractFile && (
-              <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/15 text-[#1A1D20]">
+              <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-white border border-black/[0.06] text-obsidian shadow-2xs">
                 <FileCode2 size={12} className="text-purple-700 shrink-0" />
                 <span className="truncate">
                   <strong>{t("architecture.interfaceLabel", "Контракт")}:</strong> {didactic.architectureMap.contractFile}
@@ -355,7 +355,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
               </div>
             )}
             {didactic.architectureMap.implementationFile && (
-              <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/15 text-[#1A1D20]">
+              <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-white border border-black/[0.06] text-obsidian shadow-2xs">
                 <FileCode2 size={12} className="text-emerald-700 shrink-0" />
                 <span className="truncate">
                   <strong>{t("architecture.implementationLabel", "Клас")}:</strong> {didactic.architectureMap.implementationFile}

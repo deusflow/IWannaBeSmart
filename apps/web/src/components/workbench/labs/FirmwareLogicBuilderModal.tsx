@@ -142,26 +142,26 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#1A1D20]/65 backdrop-blur-xs font-sans text-[#1A1D20]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm font-sans text-obsidian select-none"
     >
-      <div className="relative w-full max-w-3xl bg-[#FAF8F2] rounded-2xl border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-3xl bg-white rounded-3xl border border-black/[0.08] shadow-luxury flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-b border-[#1A1D20]/20 flex items-center justify-between">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-b border-black/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-cyan-600/15 border border-cyan-700/30 text-cyan-900">
+            <span className="p-1.5 rounded-lg bg-[#252932]/10 border border-[#252932]/20 text-[#252932]">
               <Layers size={16} />
             </span>
             <div>
-              <h2 className="font-display font-extrabold text-sm text-[#1A1D20] leading-none">
+              <h2 className="font-display font-extrabold text-sm text-obsidian leading-none">
                 {t("labs.logic.title", "Конструктор логіки прошивки (No-Typing)")}
               </h2>
-              <p className="text-[11px] font-mono text-[#1A1D20]/60 mt-0.5">
+              <p className="text-[11px] font-mono text-slate-500 mt-0.5">
                 {t(currentChallenge.titleKey, currentChallenge.defaultTitle)}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#1A1D20]/10 text-[#1A1D20] font-bold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
               +{currentChallenge.rewardXp} XP
             </span>
             <button
@@ -169,7 +169,7 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
                 audioFx.playRelayClick();
                 onClose();
               }}
-              className="p-1 rounded-lg text-[#1A1D20]/60 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors"
+              className="p-1 rounded-lg text-slate-400 hover:text-obsidian hover:bg-slate-100 transition-colors"
             >
               <X size={16} />
             </button>
@@ -179,8 +179,8 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
         {/* Content body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Mission */}
-          <div className="p-3.5 rounded-xl bg-cyan-50/70 border border-cyan-200/80 text-xs text-cyan-950 font-medium">
-            <div className="font-bold text-[10px] font-mono uppercase tracking-wider text-cyan-800 mb-1">
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-black/[0.06] text-xs text-slate-700 font-medium shadow-2xs">
+            <div className="font-bold text-[10px] font-mono uppercase tracking-wider text-[#252932] mb-1">
               {t("labs.logic.missionTitle", "Місія конструктора:")}
             </div>
             {t(currentChallenge.missionKey, currentChallenge.defaultMission)}
@@ -188,7 +188,7 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
 
           {/* Pipeline Lane */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
+            <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
               <span>{t("labs.logic.pipelineTitle", "Ланцюжок виконання (Пайплайн):")}</span>
               <span>
                 {t("labs.logic.modulesProgress", {
@@ -199,9 +199,9 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
               </span>
             </div>
 
-            <div className="min-h-[90px] p-3 rounded-xl border-2 border-dashed border-[#1A1D20]/30 bg-[#EFE9DC]/40 flex items-center gap-2 overflow-x-auto">
+            <div className="min-h-[90px] p-3 rounded-2xl border border-dashed border-black/[0.15] bg-slate-50/50 flex items-center gap-2 overflow-x-auto">
               {pipelineBlockIds.length === 0 ? (
-                <div className="w-full text-center py-4 text-xs font-mono text-[#1A1D20]/45">
+                <div className="w-full text-center py-4 text-xs font-mono text-slate-400">
                   {t("labs.logic.emptySlot", "Натискайте модулі з палітри нижче, щоб додати їх у пайплайн")}
                 </div>
               ) : (
@@ -215,11 +215,11 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
                         className={`relative p-2.5 rounded-xl border text-xs min-w-[130px] shrink-0 transition-all ${
                           isCurrentRunning
                             ? "bg-amber-400 border-amber-600 scale-105 shadow-md text-black"
-                            : "bg-[#FAF8F2] border-[#1A1D20]/25 text-[#1A1D20]"
+                            : "bg-white border-black/[0.08] text-obsidian shadow-2xs"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="p-1 rounded bg-[#1A1D20]/10">
+                          <span className="p-1 rounded bg-black/[0.05]">
                             {renderIcon(block?.iconName || "")}
                           </span>
                           <button
@@ -287,20 +287,20 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
                     key={blockId}
                     onClick={() => handleAddBlock(blockId)}
                     disabled={isRunning}
-                    className="p-2.5 rounded-xl border border-[#1A1D20]/20 bg-[#FAF8F2] hover:bg-[#EFE9DC]/70 text-left transition-all flex items-start gap-2.5 group cursor-pointer disabled:cursor-not-allowed"
+                    className="p-2.5 rounded-2xl border border-black/[0.08] bg-white hover:bg-slate-50 text-left transition-all flex items-start gap-2.5 group cursor-pointer disabled:cursor-not-allowed shadow-2xs"
                   >
-                    <span className="p-1.5 rounded-lg bg-[#1A1D20]/5 border border-[#1A1D20]/15 text-[#1A1D20] shrink-0 mt-0.5 group-hover:bg-[#1A1D20] group-hover:text-white transition-colors">
+                    <span className="p-1.5 rounded-lg bg-black/[0.05] border border-black/[0.08] text-obsidian shrink-0 mt-0.5 group-hover:bg-[#252932] group-hover:text-white transition-colors">
                       {renderIcon(block.iconName)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-xs text-[#1A1D20] leading-tight flex items-center justify-between">
+                      <div className="font-bold text-xs text-obsidian leading-tight flex items-center justify-between">
                         <span>{t(block.nameKey, block.defaultName)}</span>
-                        <Plus size={13} className="text-[#1A1D20]/40 group-hover:text-[#1A1D20]" />
+                        <Plus size={13} className="text-slate-400 group-hover:text-obsidian" />
                       </div>
-                      <p className="text-[10px] text-[#1A1D20]/60 mt-0.5 leading-snug line-clamp-1">
+                      <p className="text-[10px] text-slate-500 mt-0.5 leading-snug line-clamp-1 font-sans">
                         {t(block.descriptionKey, block.defaultDescription)}
                       </p>
-                      <div className="mt-1 font-mono text-[9px] text-accent-blue bg-accent-blue/10 px-1.5 py-0.5 rounded w-fit">
+                      <div className="mt-1 font-mono text-[9px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded w-fit">
                         {block.codePreview}
                       </div>
                     </div>
@@ -312,11 +312,11 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-t border-[#1A1D20]/20 flex items-center justify-between">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-t border-black/[0.06] flex items-center justify-between">
           <button
             onClick={handleReset}
             disabled={isRunning || pipelineBlockIds.length === 0}
-            className="px-3 py-1.5 rounded-xl border border-[#1A1D20]/25 bg-[#FAF8F2] text-xs font-mono font-bold flex items-center gap-1 hover:bg-[#E6DEC9] disabled:opacity-40 transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-xl border border-black/[0.08] bg-slate-100 text-xs font-mono font-bold flex items-center gap-1 hover:bg-slate-200 disabled:opacity-40 transition-colors cursor-pointer text-obsidian shadow-2xs"
           >
             <RotateCcw size={13} />
             <span>{t("labs.logic.resetPipeline", "Скинути")}</span>
@@ -325,7 +325,7 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
           <button
             onClick={handleRunPipeline}
             disabled={isRunning || pipelineBlockIds.length === 0}
-            className="px-4 py-2 rounded-xl bg-cyan-700 text-white text-xs font-mono font-bold flex items-center gap-1.5 hover:bg-cyan-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm active:scale-95"
+            className="px-4 py-2 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white text-xs font-mono font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-luxury active:scale-95"
           >
             <Play size={14} />
             <span>{t("labs.logic.runPipeline", "Запустити пайплайн")}</span>

@@ -96,15 +96,15 @@ export const ProfileOnboardingGuide: React.FC = () => {
   const IconComponent = currentStepData.icon;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F5EDE6] via-white to-[#F5EDE6] border-2 border-[#C86D32] p-4 sm:p-5 shadow-sm animate-in slide-in-from-top-2 duration-300">
+    <div className="relative overflow-hidden rounded-2xl bg-white border border-black/[0.08] p-4 sm:p-5 shadow-2xs animate-in slide-in-from-top-2 duration-300">
       {/* Header bar */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C86D32] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C86D32]" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#252932] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#252932]" />
           </span>
-          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase tracking-wider border border-[#C86D32]/30">
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#252932]/10 text-obsidian uppercase tracking-wider border border-[#252932]/20">
             {t("profile.onboarding.badge", "МІНІ-ОНБОРДИНГ")} •{" "}
             {t("profile.onboarding.stepIndicator", { current: step, total: 3 })}
           </span>
@@ -121,7 +121,7 @@ export const ProfileOnboardingGuide: React.FC = () => {
                 setStep(s as 1 | 2 | 3);
               }}
               className={`h-2 rounded-full transition-all cursor-pointer ${
-                step === s ? "w-6 bg-[#C86D32]" : "w-2 bg-[#1E2227]/20 hover:bg-[#1E2227]/40"
+                step === s ? "w-6 bg-[#252932]" : "w-2 bg-black/10 hover:bg-black/25"
               }`}
               title={`Крок ${s}`}
             />
@@ -130,7 +130,7 @@ export const ProfileOnboardingGuide: React.FC = () => {
           <button
             type="button"
             onClick={handleClose}
-            className="ml-2 p-1 rounded-lg hover:bg-[#1E2227]/10 text-[#1E2227]/50 hover:text-[#1E2227] transition-colors cursor-pointer"
+            className="ml-2 p-1 rounded-lg hover:bg-black/5 text-slate-400 hover:text-obsidian transition-colors cursor-pointer"
             title={t("common.close", "Закрити")}
           >
             <X size={15} />
@@ -141,29 +141,29 @@ export const ProfileOnboardingGuide: React.FC = () => {
       {/* Step Content */}
       <div className="flex items-start gap-3.5 my-2">
         <div
-          className={`w-11 h-11 rounded-2xl border-2 ${currentStepData.iconBg} ${currentStepData.iconColor} flex items-center justify-center shrink-0 shadow-xs`}
+          className={`w-11 h-11 rounded-2xl border ${currentStepData.iconBg} ${currentStepData.iconColor} flex items-center justify-center shrink-0 shadow-2xs`}
         >
           <IconComponent size={22} strokeWidth={2.2} />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-display font-bold text-sm sm:text-base text-[#1E2227] tracking-tight">
+          <h4 className="font-display font-bold text-sm sm:text-base text-obsidian tracking-tight">
             {currentStepData.title}
           </h4>
-          <p className="text-xs sm:text-sm text-[#1E2227]/80 mt-0.5 leading-relaxed font-sans">
+          <p className="text-xs sm:text-sm text-slate-600 mt-0.5 leading-relaxed font-sans">
             {currentStepData.desc}
           </p>
         </div>
       </div>
 
       {/* Actions footer */}
-      <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#1E2227]/10">
+      <div className="flex items-center justify-between pt-2 mt-2 border-t border-black/[0.06]">
         <div>
           {step > 1 && (
             <button
               type="button"
               onClick={handlePrev}
-              className="px-3 py-1.5 rounded-xl border border-[#1E2227]/20 bg-white hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1E2227] transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+              className="px-3 py-1.5 rounded-xl border border-black/[0.08] bg-slate-100 hover:bg-slate-200 text-xs font-mono font-bold text-obsidian transition-all cursor-pointer flex items-center gap-1 active:scale-95"
             >
               <ChevronLeft size={13} />
               <span>{t("profile.onboarding.prev", "← Назад")}</span>
@@ -176,7 +176,7 @@ export const ProfileOnboardingGuide: React.FC = () => {
             <button
               type="button"
               onClick={handleNext}
-              className="px-4 py-1.5 rounded-xl bg-[#C86D32] hover:bg-[#B35E28] text-white text-xs font-mono font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+              className="px-4 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white text-xs font-mono font-bold shadow-luxury transition-all cursor-pointer flex items-center gap-1 active:scale-95"
             >
               <span>{t("profile.onboarding.next", "Далі ➔")}</span>
               <ChevronRight size={13} />
@@ -185,7 +185,7 @@ export const ProfileOnboardingGuide: React.FC = () => {
             <button
               type="button"
               onClick={handleFinish}
-              className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+              className="px-4 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-mono font-bold shadow-luxury transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
             >
               <Check size={14} strokeWidth={2.4} />
               <span>{t("profile.onboarding.finish", "Зрозуміло! ")}</span>

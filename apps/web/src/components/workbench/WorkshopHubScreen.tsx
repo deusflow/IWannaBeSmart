@@ -1048,9 +1048,9 @@ export const WorkshopHubScreen: React.FC = () => {
                 audioFx.playRelayClick();
                 setShowAllStationsSpoiler((prev) => !prev);
               }}
-              className="px-5 py-2.5 rounded-xl border border-[#1E2227]/20 bg-[#FAF8F2] hover:bg-white text-xs font-mono font-bold text-[#1E2227] shadow-paper-xs transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+              className="px-5 py-2.5 rounded-xl border border-black/[0.08] bg-white hover:bg-slate-50 text-xs font-mono font-bold text-obsidian shadow-2xs transition-all cursor-pointer flex items-center gap-2 active:scale-95"
             >
-              <LayoutGrid size={15} className="shrink-0 text-[#1E2227]/70" />
+              <LayoutGrid size={15} className="shrink-0 text-slate-500" />
               <span>
                 {showAllStationsSpoiler
                   ? t("hub.starterCards.spoilerClose", "Сховати станції верстака")
@@ -1058,7 +1058,7 @@ export const WorkshopHubScreen: React.FC = () => {
               </span>
               <ChevronDown
                 size={14}
-                className={`shrink-0 text-[#1E2227]/60 transition-transform duration-200 ${
+                className={`shrink-0 text-slate-400 transition-transform duration-200 ${
                   showAllStationsSpoiler ? "rotate-180" : ""
                 }`}
               />

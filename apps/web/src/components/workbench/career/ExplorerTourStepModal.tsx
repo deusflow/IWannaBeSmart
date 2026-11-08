@@ -1,7 +1,7 @@
 /**
  * @file apps/web/src/components/workbench/career/ExplorerTourStepModal.tsx
  * @description Transition modal between Explorer Tour steps (Step 1 -> 2, Step 2 -> 3).
- * Follows Matte Industrial Workshop aesthetic.
+ * Styled in Pure Porcelain Luxury.
  */
 
 import React from "react";
@@ -74,17 +74,14 @@ export const ExplorerTourStepModal: React.FC = () => {
   return (
     <div
       id="explorer-tour-step-modal"
-      className="fixed inset-0 z-50 bg-[#1E2227]/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in select-none"
     >
-      <div className="w-full max-w-lg rounded-3xl bg-[#FAF8F4] border border-[#1E2227]/15 shadow-xl relative overflow-hidden flex flex-col p-6 sm:p-8 animate-in zoom-in-95 duration-200">
-        {/* Background drafting grid */}
-        <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
-
+      <div className="w-full max-w-lg rounded-3xl bg-white border border-black/[0.08] shadow-luxury relative overflow-hidden flex flex-col p-6 sm:p-8 animate-in zoom-in-95 duration-200 text-obsidian">
         {/* Close / Dismiss */}
         <button
           type="button"
           onClick={() => setTourStepModalOpen(false)}
-          className="absolute top-5 right-5 p-2 rounded-xl border border-[#1E2227]/15 hover:border-[#1E2227]/40 text-[#1E2227]/60 hover:text-[#1E2227] bg-white transition-all cursor-pointer z-20"
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer z-20"
           title={t("common.close", "Закрити")}
         >
           <X size={16} />
@@ -93,26 +90,26 @@ export const ExplorerTourStepModal: React.FC = () => {
         {/* Header */}
         <div className="relative z-10 space-y-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF3EE] border border-[#3E7A5E]/30 text-[#3E7A5E] text-[10px] font-mono font-bold uppercase tracking-wider">
-              <CheckCircle2 size={12} className="text-[#3E7A5E]" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-[10px] font-mono font-bold uppercase tracking-wider">
+              <CheckCircle2 size={12} className="text-emerald-700" />
               <span>{content.stepBadge}</span>
             </span>
 
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30 text-[10px] font-mono font-bold">
-              <Sparkles size={11} />
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-800 border border-amber-600/25 text-[10px] font-mono font-bold">
+              <Sparkles size={11} className="text-[#C5A059]" />
               <span>+50 XP</span>
             </span>
           </div>
 
           <div className="flex items-start gap-3.5 pt-1">
-            <div className="w-12 h-12 rounded-2xl bg-[#1E2227] text-white flex items-center justify-center shrink-0 shadow-md">
+            <div className="w-12 h-12 rounded-2xl bg-[#252932] text-white flex items-center justify-center shrink-0 shadow-sm">
               <Icon size={24} />
             </div>
             <div>
-              <h3 className="text-xl sm:text-2xl font-display font-bold text-[#1E2227] tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-display font-extrabold text-obsidian tracking-tight">
                 {content.title}
               </h3>
-              <p className="text-xs sm:text-sm font-sans text-[#1E2227]/80 mt-1 leading-relaxed">
+              <p className="text-xs sm:text-sm font-sans text-slate-600 mt-1 leading-relaxed">
                 {content.desc}
               </p>
             </div>
@@ -120,17 +117,17 @@ export const ExplorerTourStepModal: React.FC = () => {
         </div>
 
         {/* Technical Artifact Blueprint Box */}
-        <div className="relative z-10 my-5 p-3.5 rounded-xl bg-white border border-[#1E2227]/15 space-y-2">
-          <span className="text-[10px] font-mono font-bold text-[#1E2227]/50 uppercase tracking-wider block">
+        <div className="relative z-10 my-5 p-3.5 rounded-2xl bg-slate-50 border border-black/[0.06] space-y-2 shadow-2xs">
+          <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider block">
             {t("career.tour.diagReportLabel", "СИСТЕМНИЙ ЗВІТ ДІАГНОСТИКИ")}
           </span>
-          <p className="font-mono text-xs text-[#1E2227] bg-[#FAF8F4] p-2 rounded-lg border border-[#1E2227]/10 leading-snug break-all">
+          <p className="font-mono text-xs text-obsidian bg-white p-2.5 rounded-xl border border-black/[0.06] leading-snug break-all">
             {content.techNote}
           </p>
 
-          <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-[#1E2227]/70">
-            <NextIcon size={14} className="text-[#C86D32]" />
-            <span>{t("career.tour.nextModule", "Наступний модуль:")} <strong>{content.nextStationName}</strong></span>
+          <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-slate-600">
+            <NextIcon size={14} className="text-[#C5A059]" />
+            <span>{t("career.tour.nextModule", "Наступний модуль:")} <strong className="text-obsidian">{content.nextStationName}</strong></span>
           </div>
         </div>
 
@@ -139,7 +136,7 @@ export const ExplorerTourStepModal: React.FC = () => {
           <button
             type="button"
             onClick={exitExplorerTour}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#1E2227]/20 bg-white hover:bg-[#F0EDE6] text-[#1E2227] font-mono text-xs font-bold transition-all cursor-pointer text-center"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-black/[0.08] bg-white hover:bg-slate-50 text-obsidian font-mono text-xs font-bold transition-all cursor-pointer text-center shadow-2xs"
           >
             {t("career.tour.exitTour", "Вийти до Хабу")}
           </button>
@@ -148,7 +145,7 @@ export const ExplorerTourStepModal: React.FC = () => {
             type="button"
             id="btn-tour-step-next"
             onClick={nextExplorerStep}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#1E2227] hover:bg-black text-white font-mono font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-white font-mono font-bold text-xs sm:text-sm shadow-luxury transition-all cursor-pointer active:scale-95"
           >
             <span>{content.nextBtnLabel}</span>
             <ArrowRight size={15} />

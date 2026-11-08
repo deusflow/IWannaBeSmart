@@ -12,9 +12,11 @@ import {
   Copy,
   X,
   GitBranch,
+  ShieldCheck,
   Check,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -104,37 +106,38 @@ export const GitStationVictoryModal: React.FC<GitStationVictoryModalProps> = ({
   if (!isOpen) return null;
 
   const handleDownloadSvg = () => {
-    audioFx.playSuccessFanfare();
+    audioFx.playRelayClick();
     downloadCertificateSvg({
       stationCode: "GIT",
-      stationTitle: "Git Time Machine & Version Control",
+      stationTitle: "Station 05: Git Time Machine — Version Control Engine",
       credentialTitle: "Certified Git & DevOps Architect",
-      callsign: callsign || "Operator",
+      callsign: callsign || "Cadet Engineer",
       stars: currentGitStars,
       maxStars: maxGitStars,
       xp,
       competencies: [
         "DAG Directed Acyclic Graph Commit Topology",
-        "Branch Pointers, Reference Updates & Detached HEAD",
+        "Branch Pointers & HEAD Reference Manipulation",
         "Fast-Forward vs 3-Way Merge Resolution",
-        "3-Way Conflict Triaging & Clean State Restoration",
-        "Linear History Rebase & Pull Request CI Gates",
+        "Conflict Detection & Clean Working Tree Restoration",
+        "Linear History Rebase & Commits Replay",
+        "GitHub Flow & Pull Request CI Gates",
       ],
       themeColor: "#8B5CF6",
     });
   };
 
   const handleCopyCertificate = () => {
-    audioFx.playRelayClick();
+    audioFx.playKeyClick();
     const certText = `
 ================================================================================
-          IWANNABESMART • CERTIFICATE OF ENGINEERING EXCELLENCE
+  INTERACTIVE WORKBENCH: GIT & DEVOPS ARCHITECT CERTIFICATE
+  STATION 05: GIT TIME MACHINE — COMPLETED WITH HONORS!
 ================================================================================
-Recipient:         Workshop Engineer
-Designation:       DevOps & Git Version Control Architect
-Station Completed: Station 05 • Git Time Machine
-Total XP Earned:   ${xp} XP
-Date of Issue:     ${new Date().toLocaleDateString()}
+
+Candidate:    ${callsign || "Cadet Engineer"}
+Mastery:      ${currentGitStars} / ${maxGitStars} Stars (DAG Engine Verified)
+Total XP:     +${xp} XP
 
 Verified Competencies:
   [✓] DAG Directed Acyclic Graph Commit Topology
@@ -155,97 +158,131 @@ Verification Hash: IW-GIT-MASTER-${Math.random().toString(36).substring(2, 9).to
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-[#0D1117] border-2 border-purple-500/40 rounded-3xl p-6 md:p-8 text-[#C9D1D9] shadow-2xl space-y-6 overflow-hidden max-h-[90vh] flex flex-col">
-        {/* Neon decorative background blur */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-xl bg-[#161B22] hover:bg-[#21262D] text-stone-400 hover:text-stone-100 transition-colors cursor-pointer border border-[#30363D]"
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+          title={t("common.close", "Закрити")}
         >
           <X size={18} />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-purple-500/20 border-2 border-purple-500/40 flex items-center justify-center text-purple-400 shadow-[0_0_15px_#A855F7]/30 shrink-0">
-            <Award size={28} />
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <ShieldCheck size={14} className="text-emerald-700" />
+            <span>{currentGitStars} / {maxGitStars} ★ • 4-Star Mastery Certified</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                {t("git.certBadge", "Station 05 Completed")}
-              </span>
-              <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
-                {currentGitStars} / {maxGitStars} ★
-              </span>
-              <span className="text-[10px] font-mono text-stone-400">
-                +{xp} Total XP
-              </span>
+
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight">
+            {t("git.victoryTitle", "Git & DevOps Architect Certificate")}
+          </h2>
+
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
+            {t("git.victorySubtitle", "You have mastered Git DAG graphs, branch pointers, merge conflicts, and rebase!")}
+          </p>
+        </div>
+
+        {/* XP & Stars Summary Banner */}
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-600/25 flex items-center justify-center text-amber-700">
+              <Award size={22} />
             </div>
-            <h2 className="text-xl md:text-2xl font-display font-bold text-white mt-1">
-              {t("git.victoryTitle", "Git & DevOps Architect Certificate")}
-            </h2>
-            <p className="text-xs font-mono text-stone-400 mt-0.5">
-              {t("git.victorySubtitle", "You have mastered Git DAG graphs, branch pointers, merge conflicts, and rebase!")}
-            </p>
+            <div>
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("fintechVictoryModal.xpEarned", "Зароблений XP")}
+              </div>
+              <div className="font-display font-extrabold text-xl text-obsidian flex items-center gap-1">
+                <span>+{xp}</span>
+                <span className="text-xs font-mono font-bold text-[#C5A059]">XP</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
+                {currentGitStars} / {maxGitStars} ★
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-black/[0.08] font-mono text-xs font-bold text-obsidian shadow-2xs">
+              <GitBranch size={14} className="text-purple-600" />
+              <span>DAG ENGINE SYNC</span>
+            </div>
           </div>
         </div>
 
         {/* Scrollable Skill Matrix */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-          <div className="rounded-2xl bg-[#161B22] border border-[#30363D] overflow-hidden">
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5">
+            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-obsidian flex items-center gap-1.5">
+              <Sparkles size={14} className="text-[#C5A059]" />
+              <span>{t("git.matrixTitle", "Verified Version Control Competencies (6/6)")}</span>
+            </h3>
             <button
               onClick={() => setIsMatrixExpanded((p) => !p)}
-              className="w-full px-4 py-3 bg-[#1F242C] flex items-center justify-between text-xs font-mono font-bold text-purple-300 cursor-pointer border-b border-[#30363D]"
+              className="flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600 hover:text-obsidian px-2 py-0.5 rounded-md bg-white border border-black/[0.08] shadow-2xs cursor-pointer transition-colors"
             >
-              <span className="flex items-center gap-2">
-                <GitBranch size={15} />
-                <span>{t("git.matrixTitle", "Verified Version Control Competencies (6/6)")}</span>
-              </span>
-              {isMatrixExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${GIT_SKILLS.length})`)}</span>
+              {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
+          </div>
 
-            {isMatrixExpanded && (
-              <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+          {isMatrixExpanded && (
+            <div className="space-y-2 animate-in fade-in">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {GIT_SKILLS.map((skill) => {
                   const isActive = activeSkillId === skill.id;
                   return (
-                    <div
+                    <button
                       key={skill.id}
                       onClick={() => setActiveSkillId(skill.id)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2 ${
                         isActive
-                          ? "bg-purple-950/40 border-purple-500/60 shadow-[0_0_8px_#A855F7]/20"
-                          : "bg-[#0D1117] border-[#30363D] hover:border-purple-500/40"
+                          ? "bg-slate-50 border-purple-500/50 shadow-2xs"
+                          : "bg-slate-50/50 hover:bg-slate-50 border-black/[0.06] text-obsidian"
                       }`}
                     >
-                      <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="font-bold text-stone-200">
+                      <CheckCircle2 size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-mono font-bold text-obsidian truncate">
+                          {skill.category}
+                        </div>
+                        <div className="text-[9px] font-mono text-slate-500 truncate">
                           {t(skill.nameKey, skill.category)}
-                        </span>
-                        <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+                        </div>
                       </div>
-                      <code className="mt-1.5 block text-[10px] font-mono text-purple-300 bg-[#090D13] p-1.5 rounded border border-[#21262D] truncate">
-                        {skill.codeExample}
-                      </code>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
-            )}
-          </div>
+
+              {activeSkillId && (
+                <div className="p-3 rounded-xl bg-[#1A1D24] text-white font-mono text-[11px] border border-black/[0.1] mt-2">
+                  <div className="text-[9px] text-slate-400 uppercase mb-1">
+                    PRODUCTION GIT WORKFLOW:
+                  </div>
+                  <pre className="text-purple-300 overflow-x-auto py-1">
+                    {GIT_SKILLS.find((s) => s.id === activeSkillId)?.codeExample}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-2 border-t border-[#30363D] flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="pt-2 border-t border-black/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-lg shadow-purple-600/25"
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
             >
               <Download size={14} />
               <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
@@ -253,13 +290,13 @@ Verification Hash: IW-GIT-MASTER-${Math.random().toString(36).substring(2, 9).to
 
             <button
               onClick={handleCopyCertificate}
-              className="px-3.5 py-2.5 rounded-xl bg-[#161B22] hover:bg-[#21262D] border border-[#30363D] text-stone-200 font-mono text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
               title={t("git.copyCert", "Copy ASCII Certificate")}
             >
               {copied ? (
                 <>
-                  <Check size={14} className="text-emerald-400" />
-                  <span className="hidden sm:inline text-emerald-400">{t("git.certCopied", "Certificate Copied!")}</span>
+                  <Check size={14} className="text-emerald-600" />
+                  <span className="hidden sm:inline text-emerald-600">{t("git.certCopied", "Certificate Copied!")}</span>
                 </>
               ) : (
                 <>

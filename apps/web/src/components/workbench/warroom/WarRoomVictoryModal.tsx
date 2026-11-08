@@ -15,6 +15,7 @@ import {
   ArrowRight,
   TrendingDown,
   RotateCcw,
+  Sparkles,
 } from "lucide-react";
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
@@ -89,148 +90,131 @@ export const WarRoomVictoryModal: React.FC = () => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="victory-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none"
     >
-      <div className="relative w-full max-w-2xl bg-[#0F1115] border border-emerald-500/40 rounded-2xl shadow-2xl shadow-emerald-950/50 overflow-hidden flex flex-col">
-        {/* Glow Accent Header */}
-        <div className="bg-gradient-to-r from-emerald-950/80 via-emerald-900/40 to-[#0F1115] p-6 border-b border-emerald-500/30 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-              <ShieldCheck className="w-7 h-7 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-widest">
-                  SEV-1 Mitigated
-                </span>
-                <span className="text-xs font-mono text-emerald-300/70">
-                  {incident.id}
-                </span>
-              </div>
-              <h2
-                id="victory-modal-title"
-                className="text-xl font-bold text-white tracking-tight mt-1"
-              >
-                {incident.title}
-              </h2>
-            </div>
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
+        {/* Modal Header */}
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <ShieldCheck size={14} className="text-emerald-700" />
+            <span>SEV-1 PRODUCTION INCIDENT MITIGATED • {incident.id}</span>
           </div>
-          <div className="text-right">
-            <span className="text-xs font-mono text-emerald-400/80 block uppercase tracking-wider">
-              Earned SRE XP
+
+          <h2
+            id="victory-modal-title"
+            className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight"
+          >
+            {incident.title}
+          </h2>
+
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
+            Emergency mitigation successful. Root cause permanently patched and SLA targets preserved.
+          </p>
+        </div>
+
+        {/* Telemetry Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-slate-50/80 border border-black/[0.06] rounded-2xl p-4 text-center shadow-2xs">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-1">
+              MTTR (Time to Mitigate)
             </span>
-            <span className="text-2xl font-black font-mono text-emerald-400 flex items-center justify-end space-x-1">
-              <Flame className="w-5 h-5 text-amber-400 inline" />
+            <span className="text-xl font-display font-extrabold text-obsidian">
+              {mttrFormatted}
+            </span>
+            <span className="text-[11px] font-mono font-bold text-emerald-700 flex items-center justify-center gap-1 mt-1">
+              <TrendingDown className="w-3.5 h-3.5" />
+              <span>Under SLA</span>
+            </span>
+          </div>
+
+          <div className="bg-slate-50/80 border border-black/[0.06] rounded-2xl p-4 text-center shadow-2xs">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-1">
+              Revenue Protected
+            </span>
+            <span className="text-xl font-display font-extrabold text-[#C5A059]">
+              ${revenueSaved.toLocaleString()}
+            </span>
+            <span className="text-[11px] font-mono text-slate-500 block mt-1">
+              vs 1h cascade
+            </span>
+          </div>
+
+          <div className="bg-slate-50/80 border border-black/[0.06] rounded-2xl p-4 text-center shadow-2xs">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-1">
+              SRE XP Earned
+            </span>
+            <span className="text-xl font-display font-extrabold text-emerald-700 flex items-center justify-center gap-1">
+              <Flame className="w-4 h-4 text-amber-500" />
               <span>+150 XP</span>
+            </span>
+            <span className="text-[11px] font-mono font-bold text-emerald-700 block mt-1">
+              Error Rate 0.05%
             </span>
           </div>
         </div>
 
-        {/* Telemetry Metrics Grid */}
-        <div className="p-6 space-y-6">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-[#161920] border border-[#252A35] rounded-xl p-3.5 text-center">
-              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
-                MTTR
-              </span>
-              <span className="text-xl font-mono font-bold text-white">
-                {mttrFormatted}
-              </span>
-              <span className="text-[10px] font-mono text-emerald-400 flex items-center justify-center space-x-1 mt-1">
-                <TrendingDown className="w-3 h-3" />
-                <span>Under SLA</span>
-              </span>
-            </div>
+        {/* Root Cause Summary Card */}
+        <div className="bg-slate-50/70 border border-black/[0.06] rounded-2xl p-4 space-y-1.5 shadow-2xs">
+          <span className="text-xs font-mono font-bold text-obsidian uppercase tracking-wider flex items-center gap-2">
+            <CheckCircle2 size={15} className="text-emerald-600" />
+            <span>Root Cause Resolved & Verified</span>
+          </span>
+          <p className="text-xs text-slate-600 leading-relaxed font-sans">
+            {incident.hotfixTask.description}
+          </p>
+        </div>
 
-            <div className="bg-[#161920] border border-[#252A35] rounded-xl p-3.5 text-center">
-              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
-                Revenue Saved
-              </span>
-              <span className="text-xl font-mono font-bold text-emerald-400">
-                ${revenueSaved.toLocaleString()}
-              </span>
-              <span className="text-[10px] font-mono text-zinc-400 block mt-1">
-                vs 1h cascade
-              </span>
-            </div>
-
-            <div className="bg-[#161920] border border-[#252A35] rounded-xl p-3.5 text-center">
-              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
-                System Health
-              </span>
-              <span className="text-xl font-mono font-bold text-emerald-400 flex items-center justify-center space-x-1">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                <span>100%</span>
-              </span>
-              <span className="text-[10px] font-mono text-emerald-400 block mt-1">
-                Error Rate: 0.05%
-              </span>
-            </div>
-          </div>
-
-          {/* Root Cause Summary Card */}
-          <div className="bg-[#14171E] border border-[#232834] rounded-xl p-4 space-y-2">
-            <span className="text-xs font-mono font-semibold text-zinc-300 uppercase tracking-wider flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>Root Cause Resolved</span>
+        {/* Post-Mortem Action Strip */}
+        <div className="flex flex-col sm:flex-row items-center justify-between bg-slate-50/70 border border-black/[0.06] rounded-2xl p-3.5 px-4 gap-3 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-[#C5A059]" />
+            <span className="text-xs font-mono font-bold text-obsidian">
+              Official Post-Mortem RCA Document Ready
             </span>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              {incident.hotfixTask.description}
-            </p>
           </div>
-
-          {/* Post-Mortem Action Strip */}
-          <div className="flex items-center justify-between bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-3 px-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></div>
-              <span className="text-xs font-mono text-emerald-300">
-                Official Incident Post-Mortem Report Ready
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                type="button"
-                onClick={handleCopyReport}
-                className="px-3 py-1.5 text-xs font-mono font-medium rounded-lg bg-[#1C202A] hover:bg-[#252B3A] text-zinc-200 border border-[#2F3748] flex items-center space-x-1.5 transition-colors"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? "Copied" : "Copy RCA"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleDownloadReport}
-                className="px-3 py-1.5 text-xs font-mono font-medium rounded-lg bg-[#1C202A] hover:bg-[#252B3A] text-zinc-200 border border-[#2F3748] flex items-center space-x-1.5 transition-colors"
-              >
-                <Download className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Export .md</span>
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCopyReport}
+              className="px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-white hover:bg-slate-50 text-obsidian border border-black/[0.08] flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+              <span>{copied ? "Copied" : "Copy RCA"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadReport}
+              className="px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export .md</span>
+            </button>
           </div>
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="bg-[#12141A] p-4 px-6 border-t border-[#1F232D] flex items-center justify-between">
+        <div className="pt-2 border-t border-black/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => {
               setWarRoomVictoryModalOpen(false);
               setCurrentView("HUB");
             }}
-            className="px-4 py-2 text-xs font-mono font-medium rounded-xl text-zinc-400 hover:text-zinc-200 hover:bg-[#1A1E26] transition-colors"
+            className="w-full sm:w-auto px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-white hover:bg-slate-50 text-obsidian border border-black/[0.08] transition-colors cursor-pointer shadow-2xs"
           >
             ← Return to Hub
           </button>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => {
                 setWarRoomVictoryModalOpen(false);
                 startIncidentDrill(incident.id);
               }}
-              className="px-4 py-2 text-xs font-mono font-medium rounded-xl bg-[#1C202B] hover:bg-[#242A38] text-zinc-200 border border-[#2A3142] flex items-center space-x-2 transition-colors"
+              className="px-4 py-2.5 text-xs font-mono font-bold rounded-xl bg-white hover:bg-slate-50 text-obsidian border border-black/[0.08] flex items-center gap-2 transition-colors cursor-pointer shadow-2xs"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
               <span>Replay Drill</span>
             </button>
 
@@ -241,7 +225,7 @@ export const WarRoomVictoryModal: React.FC = () => {
                   setWarRoomVictoryModalOpen(false);
                   startIncidentDrill(nextIncident.id);
                 }}
-                className="px-5 py-2 text-xs font-mono font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black shadow-lg shadow-emerald-500/20 flex items-center space-x-2 transition-all transform active:scale-95"
+                className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-luxury active:scale-95"
               >
                 <span>Next Incident</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -253,7 +237,7 @@ export const WarRoomVictoryModal: React.FC = () => {
                   setWarRoomVictoryModalOpen(false);
                   setCurrentView("HUB");
                 }}
-                className="px-5 py-2 text-xs font-mono font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black shadow-lg shadow-emerald-500/20 flex items-center space-x-2 transition-all transform active:scale-95"
+                className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-luxury active:scale-95"
               >
                 <span>Mastery Achieved</span>
               </button>

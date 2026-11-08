@@ -13,6 +13,9 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
+  Award,
+  Sparkles,
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -148,44 +151,80 @@ DATE: ${new Date().toLocaleDateString()}
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in font-mono">
-      <div className="relative w-full max-w-2xl bg-[#EFE9DC] border-2 border-[#1A1D20]/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-[#1A1D20] flex flex-col gap-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-[#1A1D20]/60 hover:text-[#1A1D20] rounded-full hover:bg-[#1A1D20]/10 transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+          title={t("common.close", "Закрити")}
         >
-          <X className="w-5 h-5" />
+          <X size={18} />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-4 border-b border-[#1A1D20]/20 pb-4">
-          <div className="p-3 bg-emerald-500/15 border border-emerald-600/30 rounded-xl text-emerald-800">
-            <Shield className="w-8 h-8" />
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <ShieldCheck size={14} className="text-emerald-700" />
+            <span>{currentBanditStars} / {maxBanditStars} ★ • 4-Star Mastery Certified</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-900 border border-emerald-600/30 uppercase">
-                Station 06 Cleared
-              </span>
-              <span className="text-xs text-[#1A1D20]/70 font-mono">
-                {currentBanditStars}/{maxBanditStars} ⭐
-              </span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold font-display text-[#1A1D20] tracking-wide mt-0.5">
-              {t("bandit.victory.title", "Cyber Defense Architect Certified")}
-            </h2>
-          </div>
-        </div>
 
-        {/* Modal Body */}
-        <div className="space-y-4">
-          <p className="text-[#1A1D20]/90 text-xs sm:text-sm bg-[#E6DEC9] border border-[#1A1D20]/20 p-3.5 rounded-xl">
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight">
+            {t("bandit.victory.title", "Cyber Defense Architect Certified")}
+          </h2>
+
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
             {t(
               "bandit.victory.desc",
               "You have successfully identified attack vectors, patched cryptographic flaws, and architected defense-in-depth security perimeter!"
             )}
           </p>
+        </div>
+
+        {/* XP Counter Banner */}
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-600/25 flex items-center justify-center text-amber-700">
+              <Award size={22} />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("fintechVictoryModal.xpEarned", "XP НАГОРОДА")}
+              </div>
+              <div className="font-display font-extrabold text-xl text-obsidian flex items-center gap-1">
+                <span>+{xp}</span>
+                <span className="text-xs font-mono font-bold text-[#C5A059]">XP</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
+                {currentBanditStars} / {maxBanditStars} ★
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-black/[0.08] font-mono text-xs font-bold text-obsidian shadow-2xs">
+              <Shield size={14} className="text-emerald-600" />
+              <span>SOC DEFENDER</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Skills Section */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5">
+            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-obsidian flex items-center gap-1.5">
+              <Sparkles size={14} className="text-[#C5A059]" />
+              <span>{t("bandit.victory.skillsTitle", "Security & Defense Matrix (6/6)")}</span>
+            </h3>
+            <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/10 border border-emerald-600/20 px-2 py-0.5 rounded-md">
+              {BANDIT_SKILLS.length} / {BANDIT_SKILLS.length} {t("common.mastered", "Освоєно")}
+            </span>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {BANDIT_SKILLS.map((skill) => {
@@ -194,18 +233,21 @@ DATE: ${new Date().toLocaleDateString()}
                 <div
                   key={skill.id}
                   onClick={() => setExpandedSkillId(isExpanded ? null : skill.id)}
-                  className="bg-[#FAF8F2] border border-[#1A1D20]/20 rounded-xl p-2.5 hover:border-emerald-700/60 transition-colors cursor-pointer text-xs space-y-1 shadow-2xs"
+                  className="bg-slate-50/70 border border-black/[0.06] rounded-xl p-3 hover:border-black/[0.14] transition-colors cursor-pointer text-xs space-y-1 shadow-2xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#1A1D20]">{skill.category}</span>
+                    <span className="font-bold text-obsidian">{skill.category}</span>
                     {isExpanded ? (
-                      <ChevronUp className="w-3.5 h-3.5 text-[#1A1D20]/60" />
+                      <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
                     ) : (
-                      <ChevronDown className="w-3.5 h-3.5 text-[#1A1D20]/60" />
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                     )}
                   </div>
+                  <div className="text-[10px] text-slate-500">
+                    {t(skill.nameKey, skill.category)}
+                  </div>
                   {isExpanded && (
-                    <pre className="bg-[#E6DEC9] p-2 rounded text-[10px] text-[#1A1D20] overflow-x-auto border border-[#1A1D20]/20 mt-1 font-mono">
+                    <pre className="bg-white p-2 rounded-lg text-[10px] text-obsidian overflow-x-auto border border-black/[0.06] mt-1 font-mono">
                       {skill.codeExample}
                     </pre>
                   )}
@@ -216,11 +258,11 @@ DATE: ${new Date().toLocaleDateString()}
         </div>
 
         {/* Footer Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#1A1D20]/20">
+        <div className="pt-2 border-t border-black/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial px-4 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold font-mono rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
             >
               <Download className="w-4 h-4" />
               <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
@@ -228,17 +270,17 @@ DATE: ${new Date().toLocaleDateString()}
 
             <button
               onClick={handleExportAscii}
-              className="px-3.5 py-2.5 bg-[#FAF8F2] hover:bg-white text-[#1A1D20] text-xs font-bold font-mono rounded-xl border border-[#1A1D20]/30 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
               title={t("common.copyCert", "Copy Certificate")}
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-700" />
-                  <span className="hidden sm:inline text-emerald-900">{t("common.copiedCert", "Certificate Copied!")}</span>
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span className="hidden sm:inline text-emerald-700">{t("common.copiedCert", "Certificate Copied!")}</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-[#1A1D20]/70" />
+                  <Copy className="w-4 h-4 text-slate-500" />
                   <span className="hidden sm:inline">{t("common.copy", "Copy")}</span>
                 </>
               )}

@@ -24,6 +24,7 @@ export const uaTranslation = {
         copyCert: "Скопіювати сертифікат",
         copiedCert: "Сертифікат скопійовано!",
         downloadCertSvg: "Завантажити векторний сертифікат (SVG)",
+        mastered: "Освоєно",
       },
       audio: {
         volume: "Гучність",
@@ -2238,6 +2239,7 @@ export const uaTranslation = {
           title: "Сертифікат Cyber Defense Архітектора",
           desc: "Ви успішно перехопили незахищені пакети, зламали вразливий код та побудували багаторівневий Blue Team захист!",
           competencies: "Підтверджені Компетенції Кібербезпеки (6/6):",
+          skillsTitle: "Матриця кібербезпеки та захисту (6/6)",
           returnHub: "Повернутися до Хабу",
         },
         tasks: {

@@ -37,25 +37,25 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
   const dailyStreak = useWorkbenchStore((s) => s.dailyStreak);
 
   return (
-    <div className="rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/25 shadow-paper-sm overflow-hidden transition-all duration-300">
-      <div className="p-3 sm:px-5 flex flex-wrap items-center justify-between gap-3 bg-[#E4DDD0] border-b border-[#1A1D20]/15">
+    <div className="rounded-2xl bg-white border border-black/[0.07] shadow-porcelain overflow-hidden transition-all duration-300">
+      <div className="p-3 sm:px-5 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70 border-b border-black/[0.06]">
         <div className="flex items-center gap-2">
-          <ShieldCheck size={16} className="text-emerald-800 shrink-0" />
-          <h2 className="font-display font-bold text-sm uppercase tracking-wider text-[#1A1D20]">
+          <ShieldCheck size={16} className="text-emerald-700 shrink-0" />
+          <h2 className="font-display font-bold text-sm uppercase tracking-wider text-[#0F141C]">
             {t("hub.dossierTitle", "Досьє інженера")}
           </h2>
-          <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 font-mono text-[10px] font-bold text-emerald-800">
+          <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-white border border-black/[0.08] font-mono text-[10px] font-bold text-emerald-800 shadow-2xs">
             {patterns.filter((p) => p.unlocked).length} / {patterns.length} {t("hub.patternsShort", "Патернів")}
           </span>
           <div
-            className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 font-mono text-[10px] font-bold text-amber-800"
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white border border-black/[0.08] font-mono text-[10px] font-bold text-amber-900 shadow-2xs"
             title={
               dailyStreak.isStreakFrozenToday
                 ? t("hub.streakFreezeTooltip", "Заморозка серії активна сьогодні")
                 : t("hub.streakTooltip", "Щоденна серія активності")
             }
           >
-            <Flame size={12} className="text-amber-600 fill-amber-500 shrink-0" />
+            <Flame size={12} className="text-amber-500 fill-amber-500 shrink-0" />
             <span>
               {dailyStreak.currentStreak} {t("hub.streakLabel", "днів поспіль")}
             </span>
@@ -71,9 +71,9 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-[11px] font-mono text-[#1A1D20]/70">
+          <div className="text-[11px] font-mono text-[#525866]">
             {t("hub.unlockProgress", "Прогрес")}:{" "}
-            <span className="font-bold text-[#1A1D20]">{xp} XP</span>
+            <span className="font-bold text-[#0F141C]">{xp} XP</span>
           </div>
 
           <button
@@ -81,7 +81,7 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
               audioFx.playRelayClick();
               setIsDossierExpanded((p) => !p);
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[#1A1D20]/20 bg-[#FAF8F2] hover:bg-white text-[11px] font-mono font-bold text-[#1A1D20] transition-all cursor-pointer shadow-paper-xs"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-black/[0.08] bg-white hover:bg-slate-50 text-[11px] font-mono font-bold text-[#0F141C] transition-all cursor-pointer shadow-2xs"
             title={isDossierExpanded ? t("common.collapse", "Згорнути досьє") : t("common.details", "Розгорнути досьє")}
           >
             <span>{isDossierExpanded ? t("common.collapse", "Згорнути") : t("common.details", "Деталі")}</span>
@@ -91,10 +91,10 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
       </div>
 
       {/* Milestone Progress Bar (Always visible slim indicator) */}
-      <div className="px-4 sm:px-5 py-2">
-        <div className="w-full h-2 rounded-full bg-[#DFD7C5] border border-[#1A1D20]/15 overflow-hidden p-0.5">
+      <div className="px-4 sm:px-5 py-2.5">
+        <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
           <div
-            className="h-full rounded-full bg-[#1A1D20] transition-all duration-500 ease-out"
+            className="h-full rounded-full bg-gradient-to-r from-[#252932] to-[#3E4450] transition-all duration-500 ease-out"
             style={{ width: `${station3ProgressPercent}%` }}
           />
         </div>
@@ -102,8 +102,8 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
 
       {/* Mastered Architectural Patterns (Expandable details) */}
       {isDossierExpanded && (
-        <div className="px-4 sm:px-5 pb-4 pt-1 space-y-2 border-t border-[#1A1D20]/10 animate-in fade-in">
-          <div className="text-[10px] font-mono font-bold uppercase text-[#1A1D20]/60">
+        <div className="px-4 sm:px-5 pb-4 pt-1 space-y-2 border-t border-black/[0.06] animate-in fade-in">
+          <div className="text-[10px] font-mono font-bold uppercase text-[#868C98]">
             {t("hub.masteredPatterns", "Освоєні архітектурні патерни")}:
           </div>
           <div className="flex flex-wrap gap-2">
@@ -112,14 +112,14 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
                 key={pattern.id}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono font-bold transition-colors ${
                   pattern.unlocked
-                    ? "bg-[#FAF8F2] border-emerald-600/40 text-emerald-900 shadow-2xs"
-                    : "bg-[#DFD7C5]/50 border-[#1A1D20]/15 text-[#1A1D20]/40"
+                    ? "bg-emerald-50/70 border-emerald-600/30 text-emerald-900 shadow-2xs"
+                    : "bg-slate-50 border-black/[0.06] text-slate-400"
                 }`}
               >
                 {pattern.unlocked ? (
                   <CheckCircle2 size={13} className="text-emerald-700 shrink-0" />
                 ) : (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#1A1D20]/30 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
                 )}
                 <span>{pattern.name}</span>
               </div>

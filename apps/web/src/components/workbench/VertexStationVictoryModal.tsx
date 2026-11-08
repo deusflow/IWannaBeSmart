@@ -14,6 +14,9 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
+  Award,
+  Sparkles,
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -100,33 +103,34 @@ export const VertexStationVictoryModal: React.FC<VertexStationVictoryModalProps>
     audioFx.playSuccessFanfare();
     downloadCertificateSvg({
       stationCode: "VERTEX",
-      stationTitle: "Vertex AI Architect & Cloud MLOps",
-      credentialTitle: "Certified Google-Grade Cloud MLOps Architect",
-      callsign: callsign || "Operator",
+      stationTitle: "Vertex AI & Google Cloud MLOps Platform",
+      credentialTitle: "Certified Cloud MLOps & AI Platform Architect",
+      callsign: callsign || "Cloud Engineer",
       stars: currentStars,
       maxStars: maxStars,
       xp,
       competencies: [
-        "Cloud Object Ingestion & Lineage (GCS)",
-        "Accelerator Cluster Sizing (A100/TPU v4)",
-        "Real-Time Autoscaling Serving (P99 < 150ms)",
-        "Zero Trust VPC Service Controls & IAM Least Privilege",
-        "Continuous Feature Drift Sentinel & Auto-Retraining",
+        "Cloud Storage Data Lake & Audit Lineage (GCS)",
+        "A100/TPU Distributed Cluster Sizing & Cost Optim",
+        "Autoscaling Vertex Endpoints & Canary Traffic Routing",
+        "Zero Trust VPC Service Controls & IAM Security",
+        "Continuous Feature Drift Sentinel & Automated Retraining",
       ],
-      themeColor: "#3B82F6",
+      themeColor: "#2563EB",
     });
   };
 
   const handleCopyCertificate = () => {
     audioFx.playKeyClick();
-    const certText = `=== GOOGLE VERTEX AI ARCHITECT CERTIFICATE ===\n` +
-      `Role: AI/ML Software Engineer (Cloud)\n` +
-      `Platform: Google Cloud Vertex AI & Kubeflow MLOps\n` +
-      `Score: ${currentStars}/${maxStars} Mastery Stars | XP: ${xp}\n` +
-      `Verified Competencies (5/5):\n` +
-      `- Cloud Object Ingestion & Lineage (GCS)\n` +
-      `- Accelerator Cluster Sizing (NVIDIA A100 / TPU v4)\n` +
-      `- Real-Time Autoscaling Serving (P99 < 150ms)\n` +
+    const certText =
+      `INTERACTIVE WORKBENCH CERTIFICATE: VERTEX AI & CLOUD MLOPS ARCHITECT\n` +
+      `Candidate: ${callsign || "Cloud Engineer"}\n` +
+      `Mastery: ${currentStars} / ${maxStars} Stars (Google Cloud Standard)\n` +
+      `Experience Awarded: +${xp} XP\n` +
+      `Core Architectural Proofs:\n` +
+      `- Scalable Cloud Ingestion (GCS Data Lake)\n` +
+      `- High-Performance Compute Pipelines (A100 GPU Clusters)\n` +
+      `- Zero-Downtime Model Deployment & Canary Splitting\n` +
       `- Zero Trust VPC Service Controls & IAM Least Privilege\n` +
       `- Continuous Feature Drift Sentinel & Automated Retraining\n` +
       `Status: ACCREDITED GOOGLE-GRADE CLOUD ML ARCHITECT`;
@@ -137,104 +141,134 @@ export const VertexStationVictoryModal: React.FC<VertexStationVictoryModalProps>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
-      <div className="relative w-full max-w-2xl max-h-[90vh] rounded-3xl border-2 border-[#1A1D20]/30 bg-[#EFE9DC] shadow-2xl flex flex-col overflow-hidden text-[#1A1D20] isolate">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1A1D20]/20 bg-[#E6DEC9]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-600/30 flex items-center justify-center text-blue-800">
-              <Cloud className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-blue-900 border border-blue-600/30 uppercase">
-                  Station 07 Accredited
-                </span>
-                <span className="text-xs text-[#1A1D20]/70 font-mono">
-                  {currentStars}/{maxStars} ⭐
-                </span>
-              </div>
-              <h3 className="font-display text-base font-bold text-[#1A1D20] mt-0.5">
-                {t("vertex.victory.title", "Сертифікований архітектор Vertex AI & Cloud MLOps")}
-              </h3>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              audioFx.playRelayClick();
-              onClose();
-            }}
-            className="p-1.5 rounded-full text-[#1A1D20]/60 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            audioFx.playRelayClick();
+            onClose();
+          }}
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+          title={t("common.close", "Закрити")}
+        >
+          <X size={18} />
+        </button>
 
-        {/* Modal Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 text-sm leading-relaxed text-[#1A1D20]">
-          <p className="text-[#1A1D20]/90 text-xs sm:text-sm bg-[#E6DEC9] border border-[#1A1D20]/20 p-3.5 rounded-xl">
+        {/* Modal Title & Badges */}
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <ShieldCheck size={14} className="text-emerald-700" />
+            <span>{currentStars} / {maxStars} ★ • 4-Star Mastery Certified</span>
+          </div>
+
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight">
+            {t("vertex.victory.title", "Сертифікований архітектор Vertex AI & Cloud MLOps")}
+          </h2>
+
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
             {t(
               "vertex.victory.desc",
               "Ви спроєктували автономну хмарну ML-платформу з нульовою довірою, автоскейлінгом та автоматичним усуненням дрейфу даних!"
             )}
           </p>
+        </div>
 
-          <div className="space-y-2">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-blue-900">
-              {t("vertex.victory.competencies", "Підтверджені компетенції хмарного ML-інженера (5/5):")}
-            </h4>
+        {/* XP & Stars Summary Banner */}
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-600/25 flex items-center justify-center text-amber-700">
+              <Award size={22} />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("fintechVictoryModal.xpEarned", "XP НАГОРОДА")}
+              </div>
+              <div className="font-display font-extrabold text-xl text-obsidian flex items-center gap-1">
+                <span>+{xp}</span>
+                <span className="text-xs font-mono font-bold text-[#C5A059]">XP</span>
+              </div>
+            </div>
+          </div>
 
-            <div className="space-y-2">
-              {VERTEX_SKILLS.map((skill) => {
-                const isExpanded = expandedSkillId === skill.id;
-                return (
-                  <div
-                    key={skill.id}
-                    className="border border-[#1A1D20]/20 bg-[#FAF8F2] rounded-xl overflow-hidden transition-colors shadow-2xs"
-                  >
-                    <button
-                      onClick={() =>
-                        setExpandedSkillId(isExpanded ? null : skill.id)
-                      }
-                      className="w-full flex items-center justify-between p-3 text-left hover:bg-[#FAF8F2]/80 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <CheckCircle2 className="w-4 h-4 text-blue-700 shrink-0" />
-                        <div>
-                          <div className="font-semibold text-xs text-[#1A1D20]">
-                            {t(skill.nameKey)}
-                          </div>
-                          <div className="text-[10px] text-[#1A1D20]/60 font-mono">
-                            {skill.category}
-                          </div>
-                        </div>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-[#1A1D20]/60" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-[#1A1D20]/60" />
-                      )}
-                    </button>
-                    {isExpanded && (
-                      <div className="px-3 pb-3 pt-1 border-t border-[#1A1D20]/20 bg-[#E6DEC9]">
-                        <pre className="text-[11px] font-mono text-[#1A1D20] overflow-x-auto p-2 rounded bg-[#FAF8F2] border border-[#1A1D20]/20">
-                          <code>{skill.codeExample}</code>
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
+                {currentStars} / {maxStars} ★
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-black/[0.08] font-mono text-xs font-bold text-obsidian shadow-2xs">
+              <Cloud size={14} className="text-blue-600" />
+              <span>GCP MLOPS READY</span>
             </div>
           </div>
         </div>
 
+        {/* Modal Content / Competencies */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5">
+            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-obsidian flex items-center gap-1.5">
+              <Sparkles size={14} className="text-[#C5A059]" />
+              <span>{t("vertex.victory.competencies", "Підтверджені компетенції хмарного ML-інженера (5/5):")}</span>
+            </h3>
+            <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/10 border border-emerald-600/20 px-2 py-0.5 rounded-md">
+              {VERTEX_SKILLS.length} / {VERTEX_SKILLS.length} {t("common.mastered", "Освоєно")}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {VERTEX_SKILLS.map((skill) => {
+              const isExpanded = expandedSkillId === skill.id;
+              return (
+                <div
+                  key={skill.id}
+                  className="border border-black/[0.06] bg-slate-50/70 rounded-xl overflow-hidden transition-colors shadow-2xs hover:border-black/[0.12]"
+                >
+                  <button
+                    onClick={() =>
+                      setExpandedSkillId(isExpanded ? null : skill.id)
+                    }
+                    className="w-full flex items-center justify-between p-3 text-left hover:bg-white cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <div className="font-semibold text-xs text-obsidian">
+                          {t(skill.nameKey)}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-mono">
+                          {skill.category}
+                        </div>
+                      </div>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-slate-400" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                  {isExpanded && (
+                    <div className="px-3 pb-3 pt-1 border-t border-black/[0.06] bg-white">
+                      <pre className="text-[11px] font-mono text-blue-900 overflow-x-auto p-2 rounded-lg bg-blue-50/70 border border-blue-600/20">
+                        <code>{skill.codeExample}</code>
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Modal Footer */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-[#1A1D20]/20 bg-[#E6DEC9]/60">
+        <div className="pt-2 border-t border-black/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-xs font-mono font-bold text-white transition-all cursor-pointer shadow-sm active:scale-95"
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
             >
               <Download className="w-4 h-4" />
               <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
@@ -242,17 +276,17 @@ export const VertexStationVictoryModal: React.FC<VertexStationVictoryModalProps>
 
             <button
               onClick={handleCopyCertificate}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-[#FAF8F2] hover:bg-white text-xs font-mono font-bold text-[#1A1D20] border border-[#1A1D20]/30 transition-colors cursor-pointer shadow-sm"
+              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
               title={t("common.copyCert", "Скопіювати сертифікат")}
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-700" />
-                  <span className="hidden sm:inline text-emerald-900">{t("common.copiedCert", "Скопійовано")}</span>
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span className="hidden sm:inline text-emerald-700">{t("common.copiedCert", "Скопійовано")}</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-[#1A1D20]/70" />
+                  <Copy className="w-4 h-4 text-slate-500" />
                   <span className="hidden sm:inline">{t("common.copy", "Копіювати")}</span>
                 </>
               )}

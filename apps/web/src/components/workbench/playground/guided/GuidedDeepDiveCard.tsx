@@ -144,7 +144,7 @@ export const GuidedDeepDiveCard: React.FC<GuidedDeepDiveCardProps> = ({
               return (
                 <div
                   key={`${res.source}-${index}`}
-                  className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 hover:border-indigo-500/40 hover:bg-white transition-all shadow-2xs space-y-2 group/card"
+                  className="p-3 rounded-xl bg-slate-50/80 border border-black/[0.06] hover:border-black/[0.15] hover:bg-white transition-all shadow-2xs space-y-2 group/card"
                 >
                   {/* Top metadata tags */}
                   <div className="flex items-center justify-between flex-wrap gap-1.5 text-[10px] font-mono">

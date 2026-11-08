@@ -67,38 +67,35 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
     <div className="space-y-4">
       {/* ── Career Qualification Ladder (L1–L4) Card ── */}
       {careerRank && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/25 shadow-paper-xs relative overflow-hidden">
-          {/* Subtle blueprint grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(26,29,32,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(26,29,32,0.03)_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none" />
-
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-black/[0.08] shadow-2xs relative overflow-hidden">
           {/* Header row: title and current grade */}
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1A1D20]/10">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/[0.06]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-600/35 text-purple-900 flex items-center justify-center font-display font-extrabold shadow-2xs shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-600/20 text-purple-900 flex items-center justify-center font-display font-extrabold shadow-2xs shrink-0">
                 <Award size={20} strokeWidth={2.2} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-display font-extrabold text-sm sm:text-base text-[#1A1D20]">
+                  <h3 className="font-display font-extrabold text-sm sm:text-base text-obsidian">
                     {t("careerRank.qualificationTitle", "Кваліфікаційна драбина інженера")}
                   </h3>
                   <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold border ${careerRank.color}`}>
                     {careerRank.grade} • Tier {careerRank.tier}
                   </span>
                 </div>
-                <p className="text-[11px] font-sans text-[#1A1D20]/70 mt-0.5">
+                <p className="text-[11px] font-sans text-slate-500 mt-0.5">
                   {t("careerRank.ladderDesc", "Офіційний інженерний грейд за стандартами архітектурної кваліфікації (L1–L4)")}
                 </p>
               </div>
             </div>
 
             {/* Current Active Rank Badge */}
-            <div className="flex items-center gap-2 self-start sm:self-auto bg-[#EFE9DC] px-3 py-1.5 rounded-xl border border-[#1A1D20]/15">
+            <div className="flex items-center gap-2 self-start sm:self-auto bg-slate-50 px-3 py-1.5 rounded-xl border border-black/[0.06]">
               <div className="text-right">
-                <div className="text-[9px] font-mono uppercase text-[#1A1D20]/60 font-bold">
+                <div className="text-[9px] font-mono uppercase text-slate-400 font-bold">
                   {t("careerRank.label", "Кваліфікація")}
                 </div>
-                <div className="font-display font-black text-xs text-[#1A1D20]">
+                <div className="font-display font-black text-xs text-obsidian">
                   {careerRank.codeName}
                 </div>
               </div>
@@ -106,12 +103,12 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
           </div>
 
           {/* Progress towards Next Grade */}
-          <div className="relative z-10 py-3.5 border-b border-[#1A1D20]/10">
+          <div className="relative z-10 py-3.5 border-b border-black/[0.06]">
             {careerRank.nextGrade && careerRank.nextRequirements ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="font-bold text-[#1A1D20] flex items-center gap-1.5">
-                    <Target size={13} className="text-accent-blue" />
+                  <span className="font-bold text-obsidian flex items-center gap-1.5">
+                    <Target size={13} className="text-[#252932]" />
                     <span>
                       {t("careerRank.towardsNext", {
                         grade: careerRank.nextGrade,
@@ -120,15 +117,15 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                       })}
                     </span>
                   </span>
-                  <span className="font-bold text-accent-blue font-mono">
+                  <span className="font-bold text-slate-700 font-mono">
                     {careerRank.progressPercent}%
                   </span>
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full h-2 rounded-full bg-[#1A1D20]/10 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-linear-to-r from-accent-blue to-purple-600 rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-linear-to-r from-[#252932] to-purple-600 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${careerRank.progressPercent}%` }}
                   />
                 </div>
@@ -139,8 +136,8 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                   <div
                     className={`p-2 rounded-lg border text-[11px] font-mono flex items-center justify-between ${
                       careerRank.requirementsMet.xp
-                        ? "bg-emerald-500/10 border-emerald-600/30 text-emerald-900"
-                        : "bg-[#FAF8F2] border-[#1A1D20]/15 text-[#1A1D20]/80"
+                        ? "bg-emerald-500/10 border-emerald-600/25 text-emerald-900"
+                        : "bg-slate-50/80 border-black/[0.06] text-slate-700"
                     }`}
                   >
                     <span className="flex items-center gap-1">
@@ -164,8 +161,8 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                   <div
                     className={`p-2 rounded-lg border text-[11px] font-mono flex items-center justify-between ${
                       careerRank.requirementsMet.stations
-                        ? "bg-emerald-500/10 border-emerald-600/30 text-emerald-900"
-                        : "bg-[#FAF8F2] border-[#1A1D20]/15 text-[#1A1D20]/80"
+                        ? "bg-emerald-500/10 border-emerald-600/25 text-emerald-900"
+                        : "bg-slate-50/80 border-black/[0.06] text-slate-700"
                     }`}
                   >
                     <span className="flex items-center gap-1">
@@ -189,8 +186,8 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                   <div
                     className={`p-2 rounded-lg border text-[11px] font-mono flex items-center justify-between ${
                       careerRank.requirementsMet.warRoom
-                        ? "bg-emerald-500/10 border-emerald-600/30 text-emerald-900"
-                        : "bg-[#FAF8F2] border-[#1A1D20]/15 text-[#1A1D20]/80"
+                        ? "bg-emerald-500/10 border-emerald-600/25 text-emerald-900"
+                        : "bg-slate-50/80 border-black/[0.06] text-slate-700"
                     }`}
                   >
                     <span className="flex items-center gap-1">
@@ -212,7 +209,7 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-xs font-mono font-bold text-purple-900 bg-purple-500/15 p-2.5 rounded-xl border border-purple-600/30">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-purple-900 bg-purple-500/10 p-2.5 rounded-xl border border-purple-600/25">
                 <Check size={15} strokeWidth={3} className="text-purple-700" />
                 <span>{t("careerRank.maxRank", "Найвищий інженерний ранг здобуто (Solutions Architect)")}</span>
               </div>
@@ -232,10 +229,10 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                     key={gradeKey}
                     className={`p-2.5 rounded-xl border transition-all flex flex-col justify-between ${
                       isCurrent
-                        ? "bg-[#EFE9DC] border-[#1A1D20] shadow-paper-xs ring-2 ring-purple-600/40"
+                        ? "bg-slate-100 border-[#252932] shadow-2xs ring-2 ring-[#252932]/20"
                         : isUnlocked
-                        ? "bg-[#EBE5D8] border-[#1A1D20]/25 text-[#1A1D20]"
-                        : "bg-[#FAF8F2]/60 border-[#1A1D20]/15 text-[#1A1D20]/50 opacity-75"
+                        ? "bg-slate-50 border border-black/[0.06] text-obsidian"
+                        : "bg-slate-50/40 border border-black/[0.04] text-slate-400 opacity-60"
                     }`}
                   >
                     <div>
@@ -246,18 +243,18 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                         {isUnlocked ? (
                           <Check size={11} strokeWidth={3} className="text-emerald-700" />
                         ) : (
-                          <Lock size={10} className="text-[#1A1D20]/40" />
+                          <Lock size={10} className="text-slate-400" />
                         )}
                       </div>
-                      <div className="font-display font-extrabold text-xs text-[#1A1D20] mt-1.5 truncate">
+                      <div className="font-display font-extrabold text-xs text-obsidian mt-1.5 truncate">
                         {conf.codeName}
                       </div>
-                      <div className="text-[10px] text-[#1A1D20]/65 font-sans mt-0.5 line-clamp-2 leading-tight">
+                      <div className="text-[10px] text-slate-500 font-sans mt-0.5 line-clamp-2 leading-tight">
                         {t(`careerRank.${gradeKey}.desc`, conf.defaultTitle)}
                       </div>
                     </div>
 
-                    <div className="mt-2 pt-1.5 border-t border-[#1A1D20]/10 text-[9px] font-mono text-[#1A1D20]/70 flex items-center justify-between">
+                    <div className="mt-2 pt-1.5 border-t border-black/[0.06] text-[9px] font-mono text-slate-400 flex items-center justify-between">
                       <span>{conf.requirements.minXp} XP</span>
                       <span>{conf.requirements.minStations} st.</span>
                     </div>
@@ -269,7 +266,7 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
         </div>
       )}
 
-      <div className="text-xs text-[#1A1D20]/70 font-mono font-bold">
+      <div className="text-xs text-slate-500 font-mono font-bold">
         {t("profile.achievementsSubtitle", "Сертифікати та досягнення у вирішенні завдань")}
       </div>
 
@@ -279,17 +276,17 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
           return (
             <div
               key={badge.id}
-              className={`p-4 rounded-2xl border transition-all shadow-paper-xs relative flex items-start gap-3 ${
+              className={`p-4 rounded-2xl border transition-all shadow-2xs relative flex items-start gap-3 ${
                 badge.isUnlocked
-                  ? "bg-[#EBE5D8] border-[#1A1D20]/25 text-[#1A1D20]"
-                  : "bg-[#FAF8F2]/60 border-[#1A1D20]/15 text-[#1A1D20]/50 opacity-75"
+                  ? "bg-white border border-black/[0.08] text-obsidian"
+                  : "bg-slate-50/50 border border-black/[0.04] text-slate-400 opacity-60"
               }`}
             >
               <div
                 className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
                   badge.isUnlocked
                     ? `${badge.bgColor} ${badge.iconColor}`
-                    : "bg-slate-200/50 border-slate-300/60 text-slate-400"
+                    : "bg-slate-100 border-slate-200 text-slate-400"
                 }`}
               >
                 <IconComponent size={18} />
@@ -298,13 +295,13 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                 <div className="flex items-center gap-1.5">
                   <span
                     className={`font-display font-extrabold text-xs ${
-                      badge.isUnlocked ? "text-[#1A1D20]" : "text-[#1A1D20]/70"
+                      badge.isUnlocked ? "text-obsidian" : "text-slate-400"
                     }`}
                   >
                     {badge.title}
                   </span>
                 </div>
-                <div className="text-[11px] text-[#1A1D20]/70 mt-0.5 leading-snug">
+                <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
                   {badge.desc}
                 </div>
               </div>
@@ -312,12 +309,12 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
               {/* Status badge in top right */}
               <div className="absolute top-3 right-3 flex items-center gap-1">
                 {badge.isUnlocked ? (
-                  <span className="text-[9px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30 flex items-center gap-1">
+                  <span className="text-[9px] font-mono font-bold text-emerald-800 bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-600/25 flex items-center gap-1">
                     <Check size={10} strokeWidth={3} />
                     <span>{t("profile.acquired", "ЗДОБУТО")}</span>
                   </span>
                 ) : (
-                  <span className="text-[9px] font-mono font-bold text-[#1A1D20]/60 bg-[#1A1D20]/5 px-2 py-0.5 rounded border border-[#1A1D20]/15 flex items-center gap-1">
+                  <span className="text-[9px] font-mono font-bold text-slate-400 bg-black/[0.04] px-2 py-0.5 rounded border border-black/[0.06] flex items-center gap-1">
                     <Lock size={9} />
                     <span>{badge.progressText || t("profile.certLocked", "БЛОКОВАНО")}</span>
                   </span>
@@ -330,7 +327,7 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
 
       {/* Station Certificates Showcase */}
       <div className="pt-2 space-y-2">
-        <div className="text-[11px] font-mono uppercase font-bold text-[#1A1D20]/70">
+        <div className="text-[11px] font-mono uppercase font-bold text-slate-500">
           {t("profile.availableCertificates", "Доступні сертифікати інженера")}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -339,15 +336,15 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
             return (
               <div
                 key={cert.id}
-                className="p-3.5 rounded-2xl bg-[#FAF8F2] border-2 border-[#1A1D20]/20 flex items-center justify-between shadow-paper-xs"
+                className="p-3.5 rounded-2xl bg-white border border-black/[0.08] flex items-center justify-between shadow-2xs"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <IconComponent size={16} className={`${cert.iconColor} shrink-0`} />
                   <div className="min-w-0">
-                    <div className="text-xs font-display font-extrabold text-[#1A1D20] truncate">
+                    <div className="text-xs font-display font-extrabold text-obsidian truncate">
                       {cert.title}
                     </div>
-                    <div className="text-[10px] text-[#1A1D20]/60 font-mono">
+                    <div className="text-[10px] text-slate-400 font-mono">
                       {cert.spec}
                     </div>
                   </div>
@@ -355,13 +352,13 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
 
                 {cert.status.isEligible ? (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-600/30">
+                    <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-600/25">
                       {t("profile.acquired", "ЗДОБУТО")}
                     </span>
                     <button
                       type="button"
                       onClick={cert.onViewCert}
-                      className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-600/40 text-amber-900 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                      className="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-600/30 text-amber-900 text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
                       title={t("profile.viewCertBtn", "Переглянути")}
                     >
                       <Trophy size={11} />
@@ -376,7 +373,7 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                     <button
                       type="button"
                       onClick={() => onJumpToTask(cert.id)}
-                      className="px-2 py-1 rounded-lg bg-[#1A1D20] hover:bg-black text-white text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                      className="px-2 py-1 rounded-lg bg-[#252932] hover:bg-[#1A1D24] text-white text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
                       title={t("profile.practiceTaskBtn", "Практикувати")}
                     >
                       <ArrowRight size={10} />
@@ -384,13 +381,13 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                   </div>
                 ) : (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[10px] font-mono font-bold text-[#1A1D20]/50 bg-[#1A1D20]/5 px-2 py-0.5 rounded border border-[#1A1D20]/15">
+                    <span className="text-[10px] font-mono font-bold text-slate-400 bg-black/[0.04] px-2 py-0.5 rounded border border-black/[0.06]">
                       {t("profile.certLocked", "НЕ РОЗПОЧАТО")}
                     </span>
                     <button
                       type="button"
                       onClick={() => onJumpToTask(cert.id)}
-                      className="px-2 py-1 rounded-lg bg-[#1A1D20] hover:bg-black text-white text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                      className="px-2 py-1 rounded-lg bg-[#252932] hover:bg-[#1A1D24] text-white text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
                       title={t("profile.practiceTaskBtn", "Практикувати")}
                     >
                       <ArrowRight size={10} />

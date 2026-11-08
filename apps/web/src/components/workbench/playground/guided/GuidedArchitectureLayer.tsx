@@ -30,28 +30,28 @@ export const GuidedArchitectureLayer: React.FC<GuidedArchitectureLayerProps> = (
         </span>
       </div>
 
-      <div className="p-3.5 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/20 space-y-2.5">
-        <div className="font-display font-bold text-xs text-[#1A1D20]">
+      <div className="p-3.5 rounded-xl bg-slate-50/80 border border-black/[0.06] space-y-2.5 shadow-2xs">
+        <div className="font-display font-bold text-xs text-obsidian">
           {didactic.architectureMap.architectureHint}
         </div>
 
         <div className="space-y-1.5 text-xs font-mono">
           {didactic.architectureMap.contractFile && (
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-black/[0.06] shadow-2xs">
               <span className="text-purple-700 font-bold"> {t("architecture.interfaceLabel", "Інтерфейс")}:</span>
-              <code className="text-[#1A1D20]">{didactic.architectureMap.contractFile}</code>
+              <code className="text-obsidian">{didactic.architectureMap.contractFile}</code>
             </div>
           )}
           {didactic.architectureMap.implementationFile && (
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-black/[0.06] shadow-2xs">
               <span className="text-emerald-700 font-bold">{t("architecture.implementationLabel", "Реалізація")}:</span>
-              <code className="text-[#1A1D20]">{didactic.architectureMap.implementationFile}</code>
+              <code className="text-obsidian">{didactic.architectureMap.implementationFile}</code>
             </div>
           )}
           {didactic.architectureMap.clientFile && (
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-[#EBE5D8] border border-[#1A1D20]/15">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-black/[0.06] shadow-2xs">
               <span className="text-blue-700 font-bold"> {t("architecture.dispatcherLabel", "Диспетчер")}:</span>
-              <code className="text-[#1A1D20]">{didactic.architectureMap.clientFile}</code>
+              <code className="text-obsidian">{didactic.architectureMap.clientFile}</code>
             </div>
           )}
         </div>

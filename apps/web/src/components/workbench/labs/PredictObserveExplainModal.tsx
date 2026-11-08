@@ -131,26 +131,26 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
       role="dialog"
       aria-modal="true"
       data-testid="poe-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#1A1D20]/65 backdrop-blur-xs font-sans text-[#1A1D20]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm font-sans text-obsidian"
     >
-      <div className="relative w-full max-w-2xl bg-[#FAF8F2] rounded-2xl border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl border border-black/[0.08] shadow-luxury flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-b border-[#1A1D20]/20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-amber-500/15 border border-amber-600/30 text-amber-900">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-b border-black/[0.06] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-600/25 text-amber-900">
               <Flame size={16} />
             </span>
             <div>
-              <h2 className="font-display font-extrabold text-sm text-[#1A1D20] leading-none">
+              <h2 className="font-display font-extrabold text-sm text-obsidian leading-none">
                 {t("labs.poe.title", "Живий симулятор: «Що вибухне?»")}
               </h2>
-              <p className="text-[11px] font-mono text-[#1A1D20]/60 mt-0.5">
+              <p className="text-[11px] font-mono text-slate-500 mt-0.5">
                 {t(currentScenario.titleKey, currentScenario.defaultTitle)}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#1A1D20]/10 text-[#1A1D20] font-bold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 border border-black/[0.06] text-slate-700 font-bold">
               +{currentScenario.rewardXp} XP
             </span>
             <button
@@ -159,7 +159,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                 audioFx.playRelayClick();
                 onClose();
               }}
-              className="p-1 rounded-lg text-[#1A1D20]/60 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors"
+              className="p-1 rounded-lg text-slate-400 hover:text-obsidian hover:bg-slate-100 transition-colors"
             >
               <X size={16} />
             </button>
@@ -169,7 +169,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
         {/* Content body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Premise */}
-          <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 font-medium">
+          <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80 text-xs text-amber-950 font-medium">
             <div className="flex items-center gap-1.5 text-amber-800 font-bold mb-1 uppercase tracking-wider text-[10px] font-mono">
               <AlertTriangle size={13} />
               <span>{t("labs.poe.predictPrompt", "Спрогнозуйте наслідок перед виконанням:")}</span>
@@ -178,8 +178,8 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
           </div>
 
           {/* Code Snippet Card */}
-          <div className="rounded-xl border border-[#1A1D20]/25 bg-[#1A1D20] text-emerald-400 p-3.5 font-mono text-xs overflow-x-auto shadow-inner">
-            <div className="text-[9px] text-[#FAF8F2]/40 font-bold uppercase mb-1 tracking-wider">
+          <div className="rounded-xl border border-black/[0.1] bg-[#18191C] text-emerald-400 p-3.5 font-mono text-xs overflow-x-auto shadow-inner">
+            <div className="text-[9px] text-slate-500 font-bold uppercase mb-1 tracking-wider">
               {currentScenario.language} code
             </div>
             <pre className="whitespace-pre-wrap leading-relaxed">{currentScenario.codeSnippet}</pre>
@@ -187,19 +187,19 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
 
           {/* Options */}
           <div className="space-y-2">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
               {t("labs.poe.predictionOptions", "Варіанти прогнозу:")}
             </div>
             {currentScenario.options.map((option: PoeScenarioOption, idx: number) => {
               const isSelected = selectedOptionId === option.id;
-              let btnStyle = "border-[#1A1D20]/20 bg-[#FAF8F2] hover:bg-[#EFE9DC]/60 text-[#1A1D20]";
+              let btnStyle = "border-black/[0.06] bg-slate-50/60 hover:bg-slate-100/80 text-obsidian shadow-2xs";
               if (isSelected) {
-                btnStyle = "border-amber-600 bg-amber-500/10 text-amber-950 font-semibold ring-1 ring-amber-500/40";
+                btnStyle = "border-[#C5A059] bg-[#C5A059]/10 text-obsidian font-semibold ring-1 ring-[#C5A059]/40 shadow-2xs";
               }
               if (hasSimulated && isSelected) {
                 btnStyle = option.isCorrect
-                  ? "border-emerald-600 bg-emerald-500/15 text-emerald-950 font-semibold ring-1 ring-emerald-500"
-                  : "border-rose-600 bg-rose-500/15 text-rose-950 font-semibold ring-1 ring-rose-500";
+                  ? "border-emerald-600 bg-emerald-500/15 text-emerald-950 font-semibold ring-1 ring-emerald-500 shadow-2xs"
+                  : "border-rose-600 bg-rose-500/15 text-rose-950 font-semibold ring-1 ring-rose-500 shadow-2xs";
               }
 
               return (
@@ -244,7 +244,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                   </>
                 )}
               </div>
-              <p className="text-[11.5px] leading-relaxed text-[#1A1D20]/80 mt-1 font-mono">
+              <p className="text-[11.5px] leading-relaxed text-slate-700 mt-1 font-mono">
                 {t(selectedOpt.explanationKey, selectedOpt.defaultExplanation)}
               </p>
             </div>
@@ -252,8 +252,8 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-t border-[#1A1D20]/20 flex items-center justify-between gap-3">
-          <div className="text-[11px] font-mono text-[#1A1D20]/60">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-t border-black/[0.06] flex items-center justify-between gap-3">
+          <div className="text-[11px] font-mono text-slate-500">
             {activeScenarioIndex + 1} / {availableScenarios.length}
           </div>
           <div className="flex items-center gap-2">
@@ -261,7 +261,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
               <>
                 <button
                   onClick={handleReset}
-                  className="px-3 py-1.5 rounded-xl border border-[#1A1D20]/25 bg-[#FAF8F2] text-xs font-mono font-bold flex items-center gap-1 hover:bg-[#E6DEC9] transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-black/[0.08] bg-white text-xs font-mono font-bold flex items-center gap-1 hover:bg-slate-50 text-obsidian shadow-2xs transition-colors cursor-pointer"
                 >
                   <RotateCcw size={13} />
                   <span>{t("labs.common.tryAgain", "Спробувати ще")}</span>
@@ -269,7 +269,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                 <button
                   data-testid="poe-finish-btn"
                   onClick={handleNext}
-                  className="px-4 py-1.5 rounded-xl bg-[#1A1D20] text-[#FAF8F2] text-xs font-mono font-bold flex items-center gap-1 hover:bg-black transition-colors cursor-pointer shadow-sm"
+                  className="px-4 py-1.5 rounded-xl bg-[#252932] text-white text-xs font-mono font-bold flex items-center gap-1 hover:bg-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
                 >
                   <span>
                     {activeScenarioIndex < availableScenarios.length - 1
@@ -283,7 +283,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                 data-testid="poe-simulate-btn"
                 onClick={handleRunSimulation}
                 disabled={!selectedOptionId || isSimulating}
-                className="px-4 py-2 rounded-xl bg-amber-600 text-white text-xs font-mono font-bold flex items-center gap-1.5 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm active:scale-95"
+                className="px-4 py-2 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 text-xs font-mono font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs active:scale-95"
               >
                 {isSimulating ? (
                   <>
@@ -292,7 +292,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                   </>
                 ) : (
                   <>
-                    <Play size={14} />
+                    <Play size={14} className="fill-[#C5A059]" />
                     <span>{t("labs.poe.runSimulation", "Запустити фізичну симуляцію (Enter)")}</span>
                   </>
                 )}

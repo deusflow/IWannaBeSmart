@@ -189,12 +189,12 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
       data-testid="pos-cert-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
     >
-      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-[#EFE9DC] text-[#1A1D20] rounded-3xl border-2 border-[#1A1D20]/30 shadow-2xl p-6 sm:p-8 space-y-6">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
         {/* Close button */}
         <button
           data-testid="pos-cert-close-btn"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-[#1A1D20]/10 hover:bg-[#1A1D20]/20 text-[#1A1D20] transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
           aria-label={t("common.close", "Закрити")}
         >
           <X size={18} />
@@ -202,47 +202,47 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
 
         {/* Blueprint Victory Stamp Header */}
         <div className="text-center space-y-2 pt-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-600/30 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
             <ShieldCheck size={14} className="text-emerald-700" />
             <span>{currentPosStars} / {maxPosStars} ★ • 4-Star Mastery Certified</span>
           </div>
 
-          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-[#1A1D20] tracking-tight">
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight">
             {t("fintechVictoryModal.title")}
           </h2>
 
-          <p className="font-sans text-xs sm:text-sm text-[#1A1D20]/80 max-w-lg mx-auto">
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
             {t("fintechVictoryModal.subtitle")}
           </p>
         </div>
 
         {/* XP Counter Banner */}
-        <div className="p-4 rounded-2xl bg-[#E6DEC9] border border-[#1A1D20]/20 flex items-center justify-between shadow-inner">
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-700">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-600/25 flex items-center justify-center text-amber-700">
               <Award size={22} />
             </div>
             <div>
-              <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/70">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
                 {t("fintechVictoryModal.xpEarned")}
               </div>
-              <div className="font-display font-extrabold text-xl text-[#1A1D20] flex items-center gap-1">
+              <div className="font-display font-extrabold text-xl text-obsidian flex items-center gap-1">
                 <span>+{displayXp}</span>
-                <span className="text-xs font-mono font-bold text-amber-700">XP</span>
+                <span className="text-xs font-mono font-bold text-[#C5A059]">XP</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/70">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
                 {t("hub.stationStars", "STATION STARS")}
               </div>
-              <div className="text-base font-display font-extrabold text-amber-700">
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
                 {currentPosStars} / {maxPosStars} ★
               </div>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/20 font-mono text-xs font-bold text-[#1A1D20]">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-black/[0.08] font-mono text-xs font-bold text-obsidian shadow-2xs">
               <CreditCard size={14} className="text-emerald-600" />
               <span>EMV / DANKORT READY</span>
             </div>
@@ -251,13 +251,13 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
 
         {/* Commercial Skill Matrix */}
         <div className="space-y-2.5">
-          <div className="flex items-center justify-between border-b border-[#1A1D20]/20 pb-1.5 flex-wrap gap-2">
-            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-[#1A1D20] flex items-center gap-1.5">
-              <Sparkles size={14} className="text-amber-600" />
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5 flex-wrap gap-2">
+            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-obsidian flex items-center gap-1.5">
+              <Sparkles size={14} className="text-[#C5A059]" />
               <span>{t("fintechVictoryModal.matrixTitle")}</span>
             </h3>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/20 px-2 py-0.5 rounded-md">
+              <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/10 border border-emerald-600/20 px-2 py-0.5 rounded-md">
                 {t("victoryModal.masteredStats", { current: FINTECH_SKILLS.length, total: FINTECH_SKILLS.length, defaultValue: `${FINTECH_SKILLS.length} / ${FINTECH_SKILLS.length} Освоєно` })}
               </span>
               <button
@@ -265,7 +265,7 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
                   audioFx.playRelayClick();
                   setIsMatrixExpanded((p) => !p);
                 }}
-                className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 cursor-pointer transition-colors"
+                className="flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600 hover:text-obsidian px-2 py-0.5 rounded-md bg-white border border-black/[0.08] shadow-2xs cursor-pointer transition-colors"
                 title={isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", "Показати всі")}
               >
                 <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${FINTECH_SKILLS.length})`)}</span>
@@ -278,18 +278,18 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
             {(isMatrixExpanded ? FINTECH_SKILLS : FINTECH_SKILLS.slice(0, 4)).map((skill) => (
               <div
                 key={skill.id}
-                className="p-3 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-1 hover:border-[#1A1D20]/30 transition-colors shadow-xs"
+                className="p-3 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 hover:border-black/[0.14] transition-colors shadow-2xs"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-mono font-bold text-emerald-800 uppercase px-1.5 py-0.2 rounded bg-emerald-500/15 border border-emerald-600/30">
+                  <span className="text-[9px] font-mono font-bold text-emerald-800 uppercase px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-600/25">
                     {skill.category}
                   </span>
                   <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
                 </div>
-                <div className="font-display font-bold text-xs text-[#1A1D20]">
+                <div className="font-display font-bold text-xs text-obsidian">
                   {t(skill.nameKey)}
                 </div>
-                <div className="font-mono text-[10px] text-[#1A1D20]/70 truncate bg-[#EFE9DC] px-2 py-0.5 rounded border border-[#1A1D20]/10">
+                <div className="font-mono text-[10px] text-slate-600 truncate bg-white px-2 py-0.5 rounded border border-black/[0.06]">
                   {skill.codeExample}
                 </div>
               </div>
@@ -302,7 +302,7 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
                 audioFx.playRelayClick();
                 setIsMatrixExpanded(true);
               }}
-              className="w-full py-1.5 rounded-xl border border-dashed border-[#1A1D20]/25 bg-[#FAF8F2]/60 hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="w-full py-1.5 rounded-xl border border-dashed border-black/[0.12] bg-slate-50/50 hover:bg-slate-50 text-xs font-mono font-bold text-slate-600 hover:text-obsidian flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <span>{t("victoryModal.showAllSkills", `Показати ще ${FINTECH_SKILLS.length - 4} навички`)}</span>
               <ChevronDown size={13} />
@@ -311,11 +311,11 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
         </div>
 
         {/* Action Controls */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#1A1D20]/20">
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-black/[0.06]">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
             >
               <Download size={14} />
               <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
@@ -323,7 +323,7 @@ Verification Hash: IW-POS-FINTECH-${Math.random().toString(36).substring(2, 9).t
 
             <button
               onClick={handleExportSummary}
-              className="px-3.5 py-2.5 rounded-xl bg-[#FAF8F2] hover:bg-white border border-[#1A1D20]/30 text-[#1A1D20] font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-sm"
+              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
               title={t("fintechVictoryModal.copyCertBtn", "Скопіювати сертифікат (ASCII)")}
             >
               {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}

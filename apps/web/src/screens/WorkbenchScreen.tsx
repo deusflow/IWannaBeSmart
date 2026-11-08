@@ -346,19 +346,19 @@ export const WorkbenchScreen: React.FC = () => {
       <div className="absolute inset-0 bg-notebook-grid opacity-75 pointer-events-none" />
 
       {/* ── Header ── */}
-      <header className="relative z-30 h-14 border-b border-paper-border/80 bg-paper-subtle/90 backdrop-blur-xs px-2.5 sm:px-4 lg:px-6 flex items-center justify-between gap-2 sm:gap-3 max-w-full overflow-hidden flex-nowrap">
+      <header className="relative z-30 h-14 border-b border-black/[0.06] bg-white/85 backdrop-blur-md px-2.5 sm:px-4 lg:px-6 flex items-center justify-between gap-2 sm:gap-3 max-w-full overflow-hidden flex-nowrap">
         {/* Left */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           {currentView === "HUB" ? (
-            <div className="flex items-center gap-2 select-none shrink-0">
-              <div className="w-8 h-8 rounded-xl bg-[#1A1D20] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                
+            <div className="flex items-center gap-2.5 select-none shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#252932] text-white flex items-center justify-center font-display font-extrabold text-xs tracking-wider shadow-2xs shrink-0">
+                IW
               </div>
-              <span className="font-display font-extrabold text-sm sm:text-base text-[#1A1D20] tracking-tight whitespace-nowrap">
+              <span className="font-display font-extrabold text-sm sm:text-base text-obsidian tracking-tight whitespace-nowrap">
                 IWannaBeSmart
               </span>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md bg-[#1A1D20]/10 text-[10px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/80 whitespace-nowrap shrink-0">
-                WORKBENCH
+              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-md bg-slate-100 border border-black/[0.06] text-[9.5px] font-mono font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap shrink-0">
+                PRO
               </span>
             </div>
           ) : currentView === "SPEED_DATING" ? (
@@ -369,9 +369,9 @@ export const WorkbenchScreen: React.FC = () => {
                   audioFx.playRelayClick();
                   setCurrentView("HUB");
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border text-ink font-mono font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0"
               >
-                <ArrowLeft size={14} className="text-accent-blue" />
+                <ArrowLeft size={14} className="text-[#252932]" />
                 <span>{t("taster.exitToHub", "До верстака / Hub")}</span>
               </button>
               <span className="hidden sm:inline-block font-mono text-xs font-bold text-[#C86D32] bg-[#F5EDE6] px-2 py-0.5 rounded border border-[#C86D32]/30">
@@ -388,20 +388,20 @@ export const WorkbenchScreen: React.FC = () => {
                   setActiveView("device");
                   setCurrentView("HUB");
                 }}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-[#1A1D20]/60 text-ink font-display font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] hover:border-black/[0.16] text-obsidian font-display font-bold text-xs sm:text-sm shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
                 title={t("hub.backToHub", "До верстака / Hub")}
               >
-                <LayoutGrid size={15} className="text-[#1A1D20] shrink-0" />
+                <LayoutGrid size={15} className="text-[#252932] shrink-0" />
                 <span>{t("hub.backToHub", "До верстака / Hub")}</span>
               </button>
 
               {activeView === "architecture" && currentStationId === "tv" ? (
                 <button
                   onClick={() => setActiveView("device")}
-                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-paper hover:bg-paper-muted border border-paper-border hover:border-accent-blue/60 text-ink font-display font-bold text-xs sm:text-sm shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] hover:border-black/[0.16] text-obsidian font-display font-bold text-xs sm:text-sm shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
                   title={t("workbench.backToTv")}
                 >
-                  <ArrowLeft size={15} className="text-accent-blue shrink-0" />
+                  <ArrowLeft size={15} className="text-[#252932] shrink-0" />
                   <span>{t("workbench.backToTv")}</span>
                 </button>
               ) : (
@@ -414,9 +414,9 @@ export const WorkbenchScreen: React.FC = () => {
                 />
               )}
 
-              <div className="hidden md:flex items-center gap-2 text-xs font-sans text-ink-muted whitespace-nowrap min-w-0">
-                <span>•</span>
-                <span className="text-ink font-bold truncate max-w-[120px] lg:max-w-[220px] xl:max-w-[320px]">
+              <div className="hidden md:flex items-center gap-2 text-xs font-sans text-slate-500 whitespace-nowrap min-w-0">
+                <span className="text-slate-300">•</span>
+                <span className="text-obsidian font-bold truncate max-w-[120px] lg:max-w-[220px] xl:max-w-[320px]">
                   {currentStationId === "rag"
                     ? t("hub.stations.rag.title", "IBM RAG & Agentic AI: Neural Retrieval")
                     : currentStationId === "cyber"
@@ -458,10 +458,10 @@ export const WorkbenchScreen: React.FC = () => {
                   setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
                 }
               }}
-              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl font-mono font-black text-xs transition-all cursor-pointer shadow-paper-sm active:scale-95 shrink-0 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0 whitespace-nowrap ${
                 currentView === "WAR_ROOM"
-                  ? "bg-rose-600 text-white shadow-rose-900/50 border border-rose-500"
-                  : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 border border-rose-500/30 hover:border-rose-500/60"
+                  ? "bg-rose-600 text-white shadow-rose-900/30 border border-rose-500"
+                  : "bg-rose-50/80 hover:bg-rose-100 text-rose-800 border border-rose-200"
               }`}
               title="Incident War Room (SEV-1 Production Outage Drills)"
             >
@@ -519,7 +519,7 @@ export const WorkbenchScreen: React.FC = () => {
                   setStationVictoryModalOpen(true);
                 }
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-600/40 text-amber-800 hover:bg-amber-500/25 font-mono font-bold text-xs shadow-paper-sm transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-600/30 text-amber-900 hover:bg-amber-500/20 font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
               title={
                 currentStationId === "pos"
                   ? t("fintechVictoryModal.title", "Фінтех POS-термінал: Завершено")
@@ -552,12 +552,12 @@ export const WorkbenchScreen: React.FC = () => {
           <LanguageSwitcher />
 
           <div
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-paper border border-paper-border text-xs font-bold text-ink shadow-paper-sm shrink-0 whitespace-nowrap"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-black/[0.08] text-xs font-bold text-obsidian shadow-2xs shrink-0 whitespace-nowrap"
             title={t("workbench.xpTooltip")}
           >
-            <EngineeringChipXpIcon className="text-accent-signal shrink-0" size={15} />
-            <span className="text-accent-signal font-mono text-sm font-extrabold leading-none whitespace-nowrap">
-              XP: {xp}
+            <EngineeringChipXpIcon className="text-[#C5A059] shrink-0" size={15} />
+            <span className="text-slate-600 font-mono text-xs font-bold leading-none whitespace-nowrap">
+              XP <span className="text-obsidian font-extrabold">{xp}</span>
             </span>
           </div>
         </div>

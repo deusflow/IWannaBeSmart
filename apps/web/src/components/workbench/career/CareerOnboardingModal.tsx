@@ -75,33 +75,30 @@ export const CareerOnboardingModal: React.FC = () => {
   return (
     <div
       id="career-onboarding-modal"
-      className="fixed inset-0 z-50 bg-[#1E2227]/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in select-none"
     >
       <div
-        className="w-full max-w-5xl rounded-3xl bg-[#FAF8F4] border border-[#1E2227]/15 shadow-xl relative overflow-hidden flex flex-col my-auto max-h-[92vh] animate-in zoom-in-95 duration-200"
+        className="w-full max-w-5xl rounded-3xl bg-white border border-black/[0.08] shadow-luxury relative overflow-hidden flex flex-col my-auto max-h-[92vh] text-obsidian"
       >
-        {/* Background Drafting Grid */}
-        <div className="absolute inset-0 bg-notebook-grid opacity-30 pointer-events-none" />
-
         {/* ── Top Bar & Header ── */}
-        <div className="relative z-10 px-5 sm:px-8 pt-5 pb-4 border-b border-[#1E2227]/15 bg-[#FAF8F4] shrink-0 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="relative z-10 px-5 sm:px-8 pt-6 pb-4 border-b border-black/[0.06] bg-white shrink-0 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-1.5 max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5EDE6] border border-[#C86D32]/30 text-[#C86D32] text-[10px] font-mono font-bold uppercase tracking-wider">
-                <Sparkles size={12} className="text-[#C86D32]" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-black/[0.06] text-obsidian text-[10px] font-mono font-bold uppercase tracking-wider">
+                <Sparkles size={12} className="text-[#C5A059]" />
                 <span>{hasCompletedOnboarding ? "CAREER TRACK FOCUS" : "CAREER ONBOARDING"}</span>
               </span>
 
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#EAF3EE] border border-[#3E7A5E]/25 text-[#3E7A5E] text-[10px] font-mono font-bold tracking-tight">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-[10px] font-mono font-bold tracking-tight">
                 <span>«{t("career.motto", "Неможливо програти, якщо це експеримент")}»</span>
               </span>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-display font-bold text-[#1E2227] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-display font-extrabold text-obsidian tracking-tight">
               {t("career.onboardingModalTitle", "Обери свій інженерний шлях")}
             </h2>
 
-            <p className="text-xs sm:text-sm font-sans text-[#1E2227]/75 leading-relaxed">
+            <p className="text-xs sm:text-sm font-sans text-slate-600 leading-relaxed">
               {t(
                 "career.onboardingModalSubtitle",
                 "Не бійся помилитися: будь-який вибір — це експеримент, а напрямок можна змінити у будь-який момент в один клік."
@@ -115,7 +112,7 @@ export const CareerOnboardingModal: React.FC = () => {
             <button
               type="button"
               onClick={handleDismiss}
-              className="p-2 rounded-xl border border-[#1E2227]/15 hover:border-[#1E2227]/40 text-[#1E2227]/60 hover:text-[#1E2227] bg-white hover:bg-[#F0EDE6] transition-all cursor-pointer shrink-0"
+              className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer shrink-0"
               title={t("common.close", "Закрити")}
             >
               <X size={18} />
@@ -136,32 +133,34 @@ export const CareerOnboardingModal: React.FC = () => {
                   key={track.id}
                   data-testid={`track-card-${track.id}`}
                   onClick={() => handleSelect(track.id)}
-                  className={`flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative select-none group ${
+                  className={`flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative select-none group shadow-2xs ${
                     isSelected
-                      ? `bg-white ${track.theme.accentBorder} ring-2 ${track.theme.ringColor} shadow-md`
-                      : "bg-[#FFFFFF] border-[#1E2227]/15 hover:border-[#1E2227]/40 hover:bg-[#FDFBF7] shadow-xs"
+                      ? `bg-slate-50/80 border-[#252932] ring-1 ring-[#252932]/10 shadow-sm`
+                      : "bg-white border-black/[0.06] hover:border-black/[0.14] hover:bg-slate-50/50"
                   }`}
                 >
                   <div className="space-y-3.5 flex-1">
-                    {/* 1. [Иконка в матовом цветном квадрате + Бейдж роли] + [Индикатор выбора справа] */}
+                    {/* 1. Icon in matte square + role badge + selection check */}
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5">
                         <div
                           className={`w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 transition-transform group-hover:scale-105 ${
                             isSelected
-                              ? "bg-[#1E2227] text-white border-[#1E2227]"
-                              : `${track.theme.accentBg} ${track.theme.accentText} ${track.theme.cardBorder}`
+                              ? "bg-[#252932] text-white border-[#252932]"
+                              : "bg-slate-100 text-slate-700 border-black/[0.06]"
                           }`}
                         >
                           <Icon size={18} strokeWidth={2.2} />
                         </div>
 
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-[10.5px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${track.theme.accentBg} ${track.theme.accentText} ${track.theme.tagBorder}`}>
+                          <span className={`text-[10.5px] font-mono font-bold uppercase px-2 py-0.5 rounded-md border ${
+                            isSelected ? "bg-white border-black/[0.08] text-obsidian" : "bg-slate-100 text-slate-700 border-black/[0.06]"
+                          }`}>
                             {t(track.roleBadgeKey)}
                           </span>
                           {isExplorer && (
-                            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30">
+                            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-800 border border-amber-600/25">
                               ★ СТАРТОВИЙ ТРЕК
                             </span>
                           )}
@@ -169,64 +168,64 @@ export const CareerOnboardingModal: React.FC = () => {
                       </div>
 
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                           isSelected
-                            ? "border-[#1E2227] bg-[#1E2227] text-white"
-                            : "border-[#1E2227]/25 bg-transparent text-transparent group-hover:border-[#1E2227]/50"
+                            ? "border-[#252932] bg-[#252932] text-white"
+                            : "border-black/[0.18] bg-transparent text-transparent group-hover:border-black/[0.4]"
                         }`}
                       >
                         <CheckCircle2 size={13} strokeWidth={3} />
                       </div>
                     </div>
 
-                    {/* 2. [Жирный крупный заголовок трека] */}
-                    <h3 className="font-display font-bold text-base sm:text-lg text-[#1E2227] leading-snug">
+                    {/* 2. Track Title */}
+                    <h3 className="font-display font-extrabold text-base sm:text-lg text-obsidian leading-snug">
                       {t(track.titleKey)}
                     </h3>
 
-                    {/* 3. [Блок "Для кого" с левой цветной чертой] */}
-                    <div className={`border-l-2 ${track.theme.leftBarColor} pl-3 py-0.5`}>
-                      <span className="font-mono font-bold text-[10px] uppercase text-[#1E2227]/60 block mb-0.5">
+                    {/* 3. For whom */}
+                    <div className="border-l-2 border-[#252932]/40 pl-3 py-0.5">
+                      <span className="font-mono font-bold text-[10px] uppercase text-slate-500 block mb-0.5">
                         {t("career.forWhom", "Для кого:")}
                       </span>
-                      <p className="font-sans text-xs text-[#1E2227]/80 leading-relaxed">
+                      <p className="font-sans text-xs text-slate-600 leading-relaxed">
                         {t(track.audienceKey)}
                       </p>
                     </div>
 
-                    {/* 4. [Блок "Кем сможешь работать" на цветной плашке] */}
-                    <div className={`p-2.5 rounded-xl ${track.theme.pillBg} border ${track.theme.cardBorder}`}>
-                      <span className="font-mono font-bold text-[10px] uppercase text-[#1E2227]/60 flex items-center gap-1 mb-1">
-                        <Briefcase size={11} className={track.theme.accentText} />
+                    {/* 4. Roles */}
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-black/[0.06]">
+                      <span className="font-mono font-bold text-[10px] uppercase text-slate-500 flex items-center gap-1 mb-1">
+                        <Briefcase size={11} className="text-[#C5A059]" />
                         <span>{t("career.roles", "Ким зможеш працювати:")}</span>
                       </span>
-                      <p className="font-mono font-semibold text-xs text-[#1E2227] leading-snug">
+                      <p className="font-mono font-semibold text-xs text-obsidian leading-snug">
                         {t(track.rolesKey)}
                       </p>
                     </div>
 
-                    {/* 5. [Список станций] */}
-                    <div className="pt-2 border-t border-[#1E2227]/10">
-                      <span className="font-mono font-bold text-[10px] uppercase text-[#1E2227]/60 flex items-center gap-1 mb-1">
+                    {/* 5. Stations list */}
+                    <div className="pt-2 border-t border-black/[0.06]">
+                      <span className="font-mono font-bold text-[10px] uppercase text-slate-500 flex items-center gap-1 mb-1">
                         <Layers size={11} />
                         <span>{t("career.stationsInTrack", "Твої станції в проєкті:")}</span>
                       </span>
-                      <p className="font-mono text-[11px] text-[#1E2227]/75 leading-relaxed">
+                      <p className="font-mono text-[11px] text-slate-600 leading-relaxed">
                         {t(track.stationsKey)}
                       </p>
                     </div>
                   </div>
 
-                  {/* 6. [Кнопка / переключатель выбора] */}
-                  <div className="mt-4 pt-3 border-t border-[#1E2227]/10 flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-[#1E2227]/70">
+                  {/* 6. Selection footer */}
+                  <div className="mt-4 pt-3 border-t border-black/[0.06] flex items-center justify-between">
+                    <span className="text-[11px] font-mono font-bold text-slate-600">
                       {isSelected
                         ? `✓ ${t("career.selectedTrack", "Обрано як фокус")}`
                         : t("career.clickToSelect", "Натисніть для вибору")}
                     </span>
                     <span
                       className={`text-xs font-mono font-extrabold flex items-center gap-1 transition-all ${
-                        isSelected ? "text-[#1E2227]" : "text-[#1E2227]/40 group-hover:text-[#1E2227]"
+                        isSelected ? "text-obsidian" : "text-slate-400 group-hover:text-obsidian"
                       }`}
                     >
                       <span>{t(track.shortBadgeKey)}</span>
@@ -240,12 +239,12 @@ export const CareerOnboardingModal: React.FC = () => {
         </div>
 
         {/* ── Footer ── */}
-        <div className="relative z-10 px-5 sm:px-8 py-4 border-t border-[#1E2227]/15 bg-[#FAF8F4] shrink-0 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#1E2227]/80 min-w-0 max-w-full">
-            <Compass size={16} className="text-[#C86D32] shrink-0" />
+        <div className="relative z-10 px-5 sm:px-8 py-4 border-t border-black/[0.06] bg-white shrink-0 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-600 min-w-0 max-w-full">
+            <Compass size={16} className="text-[#C5A059] shrink-0" />
             <span className="truncate">
               {t("career.activeTrackBanner", "Твій кар'єрний трек")}:{" "}
-              <strong className="text-[#1E2227]">
+              <strong className="text-obsidian">
                 {t(`career.tracks.${selectedTrack}.title`)}
               </strong>
             </span>
@@ -255,7 +254,7 @@ export const CareerOnboardingModal: React.FC = () => {
             <button
               type="button"
               onClick={handleDismiss}
-              className="px-4 py-2 rounded-xl border border-[#1E2227]/25 bg-white hover:bg-[#F0EDE6] text-[#1E2227] font-mono font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="px-4 py-2.5 rounded-xl border border-black/[0.08] bg-white hover:bg-slate-50 text-obsidian font-mono font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-2xs"
             >
               {t("career.skipForNow", "Переглянути всі")}
             </button>
@@ -264,7 +263,7 @@ export const CareerOnboardingModal: React.FC = () => {
               id="btn-confirm-career-track"
               type="button"
               onClick={handleConfirm}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1E2227] hover:bg-black text-white font-mono font-bold text-xs sm:text-sm shadow-sm hover:shadow transition-all cursor-pointer active:scale-95"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-white font-mono font-bold text-xs sm:text-sm shadow-luxury transition-all cursor-pointer active:scale-95"
             >
               <span>
                 {selectedTrack === "explorer"

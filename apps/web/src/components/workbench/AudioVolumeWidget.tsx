@@ -81,8 +81,8 @@ export const AudioVolumeWidget: React.FC = () => {
         }}
         className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer active:scale-95 shrink-0 ${
           isOpen
-            ? "bg-accent-blue/15 border-accent-blue text-accent-blue shadow-md"
-            : "bg-paper hover:bg-paper-muted border-paper-border hover:border-accent-blue/60 text-ink shadow-paper-sm"
+            ? "bg-[#252932] border-[#252932] text-white shadow-2xs"
+            : "bg-white hover:bg-slate-50 border-black/[0.08] hover:border-black/[0.15] text-obsidian shadow-2xs"
         }`}
         title={t("audio.volumeSettings", "Налаштування аудіосинтезатора")}
         aria-label={t("audio.volumeSettings", "Налаштування аудіосинтезатора")}
@@ -98,13 +98,13 @@ export const AudioVolumeWidget: React.FC = () => {
         <div
           role="dialog"
           aria-label={t("audio.volumeSettings", "Налаштування аудіосинтезатора")}
-          className="absolute right-0 top-full mt-2 w-64 p-3.5 rounded-2xl bg-paper/95 backdrop-blur-xl border border-paper-border shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 text-ink"
+          className="absolute right-0 top-full mt-2 w-64 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-black/[0.08] shadow-luxury z-50 animate-in fade-in zoom-in-95 duration-150 text-obsidian"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-paper-border/70 mb-3">
+          <div className="flex items-center justify-between pb-2.5 border-b border-black/[0.06] mb-3">
             <div className="flex items-center gap-2">
-              <Sliders size={14} className="text-accent-blue" />
-              <span className="font-display font-bold text-xs">
+              <Sliders size={14} className="text-[#252932]" />
+              <span className="font-display font-bold text-xs text-obsidian">
                 {t("audio.synthTitle", "Аудіосинтезатор")}
               </span>
             </div>
@@ -112,8 +112,8 @@ export const AudioVolumeWidget: React.FC = () => {
               onClick={handleToggleMute}
               className={`px-2 py-0.5 rounded-lg font-mono text-[10px] font-bold border transition-all cursor-pointer ${
                 isMuted
-                  ? "bg-rose-500/15 border-rose-500/40 text-rose-600 hover:bg-rose-500/25"
-                  : "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/25"
+                  ? "bg-rose-500/15 border-rose-500/30 text-rose-700 hover:bg-rose-500/25"
+                  : "bg-emerald-500/15 border-emerald-500/30 text-emerald-800 hover:bg-emerald-500/25"
               }`}
             >
               {isMuted ? t("audio.unmute", "ВКЛ") : t("audio.mute", "ВИМК")}
@@ -122,9 +122,9 @@ export const AudioVolumeWidget: React.FC = () => {
 
           {/* Slider Row */}
           <div className="space-y-1.5 mb-3">
-            <div className="flex justify-between items-center text-[11px] font-mono text-ink-muted">
+            <div className="flex justify-between items-center text-[11px] font-mono text-slate-500">
               <span>{t("audio.masterGain", "Рівень Master Gain")}</span>
-              <span className="font-bold text-ink">{isMuted ? "0%" : `${volume}%`}</span>
+              <span className="font-bold text-obsidian">{isMuted ? "0%" : `${volume}%`}</span>
             </div>
             <input
               type="range"
@@ -133,7 +133,7 @@ export const AudioVolumeWidget: React.FC = () => {
               step="5"
               value={isMuted ? 0 : volume}
               onChange={(e) => handleVolumeChange(parseInt(e.target.value, 10))}
-              className="w-full h-1.5 bg-paper-border rounded-lg appearance-none cursor-pointer accent-accent-blue"
+              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#252932]"
             />
           </div>
 
@@ -145,8 +145,8 @@ export const AudioVolumeWidget: React.FC = () => {
                 onClick={() => handleVolumeChange(preset)}
                 className={`py-1 rounded-lg text-[10px] font-mono font-bold border transition-all cursor-pointer ${
                   !isMuted && volume === preset
-                    ? "bg-accent-blue text-white border-accent-blue shadow-xs"
-                    : "bg-paper-subtle hover:bg-paper-muted border-paper-border text-ink-muted hover:text-ink"
+                    ? "bg-[#252932] text-white border-[#252932] shadow-2xs"
+                    : "bg-slate-50 hover:bg-slate-100 border-black/[0.06] text-slate-600 hover:text-obsidian"
                 }`}
               >
                 {preset}%

@@ -651,7 +651,7 @@ export function CodeGymEditor<
         <button
           type="button"
           onClick={onResetRound}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-700 bg-gray-800/60 hover:bg-gray-800 text-gray-300 font-mono text-xs cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 font-mono text-xs cursor-pointer transition-colors shadow-2xs"
           title={t("codegym.resetPrompt", "Скинути введений код (Esc)")}
         >
           <RotateCcw size={13} />
@@ -682,7 +682,7 @@ export function CodeGymEditor<
                 <button
                   type="button"
                   onClick={onNextTask}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
                 >
                   <span>
                     {t("codegym.nextTaskBtn", "Наступне завдання →") +

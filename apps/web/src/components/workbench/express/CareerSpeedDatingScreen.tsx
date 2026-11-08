@@ -677,9 +677,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF8F2] hover:bg-white border border-[#1E2227]/20 text-xs font-mono font-bold text-[#1E2227] transition-all cursor-pointer shadow-paper-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-black/[0.08] text-xs font-mono font-bold text-obsidian transition-all cursor-pointer shadow-2xs"
           >
-            <ArrowLeft size={14} className="text-[#C86D32]" />
+            <ArrowLeft size={14} className="text-[#252932]" />
             <span>{t("taster.exitToHub", "До верстака / Hub")}</span>
           </button>
           <h2 className="font-display font-extrabold text-sm sm:text-base text-[#1E2227]">

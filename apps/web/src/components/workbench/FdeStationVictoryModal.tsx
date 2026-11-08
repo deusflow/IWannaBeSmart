@@ -14,6 +14,9 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
+  Award,
+  Sparkles,
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -119,17 +122,18 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
 
   const handleCopyCertificate = () => {
     audioFx.playKeyClick();
-    const certText = `=== APPLIED AI & FORWARD DEPLOYED ENGINEER CERTIFICATE ===\n` +
-      `Role: Forward Deployed AI Engineer (FDE)\n` +
-      `Domain: Applied AI, Legacy Modernization & Agentic Systems\n` +
-      `Score: ${currentStars}/${maxStars} Mastery Stars | XP: ${xp}\n` +
-      `Verified Competencies (5/5):\n` +
-      `- Executive Stakeholder Discovery & Consensus\n` +
-      `- Air-Gapped Legacy API Reverse-Engineering\n` +
-      `- Production Hybrid RAG & Multi-Agent Graph Orchestration\n` +
-      `- Zero Trust Scope Guardrails & SOC2 PII Masking\n` +
-      `- SRE Emergency Runbook & Operational Client Enablement\n` +
-      `Status: GRADUATED FIELD-READY AI SPECIALIST`;
+    const certText =
+      `INTERACTIVE WORKBENCH CERTIFICATE: FORWARD DEPLOYED AI ENGINEER (FDE)\n` +
+      `Engineer: ${callsign || "Field Operator"}\n` +
+      `Mastery: ${currentStars} / ${maxStars} Stars (Enterprise Field Grade)\n` +
+      `Experience Awarded: +${xp} XP\n` +
+      `Field Proven Systems:\n` +
+      `- C-Suite Stakeholder Value Consensus Framework\n` +
+      `- Air-Gapped Legacy HTTP Adapter Interception\n` +
+      `- StateGraph Deterministic Multi-Agent RAG Orchestration\n` +
+      `- Jailbreak Defense & Cryptographic PII Redaction\n` +
+      `- Operational Production Signoff & Day-2 SRE Enablement\n` +
+      `Status: ACCREDITED FORWARD DEPLOYED AI ENGINEER`;
 
     navigator.clipboard.writeText(certText);
     setCopied(true);
@@ -137,104 +141,134 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
-      <div className="relative w-full max-w-2xl max-h-[90vh] rounded-3xl border-2 border-[#1A1D20]/30 bg-[#EFE9DC] shadow-2xl flex flex-col overflow-hidden text-[#1A1D20] isolate">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1A1D20]/20 bg-[#E6DEC9]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-600/30 flex items-center justify-center text-purple-800">
-              <Users className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-900 border border-purple-600/30 uppercase">
-                  Station 08 Accredited
-                </span>
-                <span className="text-xs text-[#1A1D20]/70 font-mono">
-                  {currentStars}/{maxStars} ⭐
-                </span>
-              </div>
-              <h3 className="font-display text-base font-bold text-[#1A1D20] mt-0.5">
-                {t("fde.victory.title", "Сертифікований Forward Deployed AI Engineer")}
-              </h3>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              audioFx.playRelayClick();
-              onClose();
-            }}
-            className="p-1.5 rounded-full text-[#1A1D20]/60 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            audioFx.playRelayClick();
+            onClose();
+          }}
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+          title={t("common.close", "Закрити")}
+        >
+          <X size={18} />
+        </button>
 
-        {/* Modal Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 text-sm leading-relaxed text-[#1A1D20]">
-          <p className="text-[#1A1D20]/90 text-xs sm:text-sm bg-[#E6DEC9] border border-[#1A1D20]/20 p-3.5 rounded-xl">
+        {/* Modal Title & Badges */}
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <ShieldCheck size={14} className="text-emerald-700" />
+            <span>{currentStars} / {maxStars} ★ • 4-Star Mastery Certified</span>
+          </div>
+
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight">
+            {t("fde.victory.title", "Сертифікований Forward Deployed AI Engineer")}
+          </h2>
+
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
             {t(
               "fde.victory.desc",
               "Ви успішно розгорнули автономну агентну RAG-систему, інтегрували ізольовану legacy-інфраструктуру та передали бойові runbook замовнику!"
             )}
           </p>
+        </div>
 
-          <div className="space-y-2">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-purple-900">
-              {t("fde.victory.competencies", "Підтверджені компетенції інженера впровадження AI (5/5):")}
-            </h4>
+        {/* XP & Stars Summary Banner */}
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-600/25 flex items-center justify-center text-amber-700">
+              <Award size={22} />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("fintechVictoryModal.xpEarned", "XP НАГОРОДА")}
+              </div>
+              <div className="font-display font-extrabold text-xl text-obsidian flex items-center gap-1">
+                <span>+{xp}</span>
+                <span className="text-xs font-mono font-bold text-[#C5A059]">XP</span>
+              </div>
+            </div>
+          </div>
 
-            <div className="space-y-2">
-              {FDE_SKILLS.map((skill) => {
-                const isExpanded = expandedSkillId === skill.id;
-                return (
-                  <div
-                    key={skill.id}
-                    className="border border-[#1A1D20]/20 bg-[#FAF8F2] rounded-xl overflow-hidden transition-colors shadow-2xs"
-                  >
-                    <button
-                      onClick={() =>
-                        setExpandedSkillId(isExpanded ? null : skill.id)
-                      }
-                      className="w-full flex items-center justify-between p-3 text-left hover:bg-[#FAF8F2]/80 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <CheckCircle2 className="w-4 h-4 text-purple-700 shrink-0" />
-                        <div>
-                          <div className="font-semibold text-xs text-[#1A1D20]">
-                            {t(skill.nameKey)}
-                          </div>
-                          <div className="text-[10px] text-[#1A1D20]/60 font-mono">
-                            {skill.category}
-                          </div>
-                        </div>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-[#1A1D20]/60" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-[#1A1D20]/60" />
-                      )}
-                    </button>
-                    {isExpanded && (
-                      <div className="px-3 pb-3 pt-1 border-t border-[#1A1D20]/20 bg-[#E6DEC9]">
-                        <pre className="text-[11px] font-mono text-[#1A1D20] overflow-x-auto p-2 rounded bg-[#FAF8F2] border border-[#1A1D20]/20">
-                          <code>{skill.codeExample}</code>
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
+                {currentStars} / {maxStars} ★
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-black/[0.08] font-mono text-xs font-bold text-obsidian shadow-2xs">
+              <Users size={14} className="text-purple-600" />
+              <span>FIELD DEPLOYED</span>
             </div>
           </div>
         </div>
 
+        {/* Modal Content / Competencies */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5">
+            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-obsidian flex items-center gap-1.5">
+              <Sparkles size={14} className="text-[#C5A059]" />
+              <span>{t("fde.victory.competencies", "Підтверджені компетенції інженера впровадження AI (5/5):")}</span>
+            </h3>
+            <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/10 border border-emerald-600/20 px-2 py-0.5 rounded-md">
+              {FDE_SKILLS.length} / {FDE_SKILLS.length} {t("common.mastered", "Освоєно")}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {FDE_SKILLS.map((skill) => {
+              const isExpanded = expandedSkillId === skill.id;
+              return (
+                <div
+                  key={skill.id}
+                  className="border border-black/[0.06] bg-slate-50/70 rounded-xl overflow-hidden transition-colors shadow-2xs hover:border-black/[0.12]"
+                >
+                  <button
+                    onClick={() =>
+                      setExpandedSkillId(isExpanded ? null : skill.id)
+                    }
+                    className="w-full flex items-center justify-between p-3 text-left hover:bg-white cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <div className="font-semibold text-xs text-obsidian">
+                          {t(skill.nameKey)}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-mono">
+                          {skill.category}
+                        </div>
+                      </div>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-slate-400" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                  {isExpanded && (
+                    <div className="px-3 pb-3 pt-1 border-t border-black/[0.06] bg-white">
+                      <pre className="text-[11px] font-mono text-purple-900 overflow-x-auto p-2 rounded-lg bg-purple-50/70 border border-purple-600/20">
+                        <code>{skill.codeExample}</code>
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Modal Footer */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-[#1A1D20]/20 bg-[#E6DEC9]/60">
+        <div className="pt-2 border-t border-black/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-xs font-mono font-bold text-white transition-all cursor-pointer shadow-sm active:scale-95"
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
             >
               <Download className="w-4 h-4" />
               <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
@@ -242,17 +276,17 @@ export const FdeStationVictoryModal: React.FC<FdeStationVictoryModalProps> = ({
 
             <button
               onClick={handleCopyCertificate}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-[#FAF8F2] hover:bg-white text-xs font-mono font-bold text-[#1A1D20] border border-[#1A1D20]/30 transition-colors cursor-pointer shadow-sm"
+              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
               title={t("common.copyCert", "Скопіювати сертифікат")}
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-700" />
-                  <span className="hidden sm:inline text-emerald-900">{t("common.copiedCert", "Скопійовано")}</span>
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span className="hidden sm:inline text-emerald-700">{t("common.copiedCert", "Скопійовано")}</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-[#1A1D20]/70" />
+                  <Copy className="w-4 h-4 text-slate-500" />
                   <span className="hidden sm:inline">{t("common.copy", "Копіювати")}</span>
                 </>
               )}

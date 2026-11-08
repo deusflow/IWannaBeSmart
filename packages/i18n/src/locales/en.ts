@@ -24,6 +24,7 @@ export const enTranslation = {
         copyCert: "Copy Certificate",
         copiedCert: "Certificate Copied!",
         downloadCertSvg: "Download Vector Certificate (SVG)",
+        mastered: "Mastered",
       },
       audio: {
         volume: "Volume",
@@ -2238,6 +2239,7 @@ export const enTranslation = {
           title: "Certified Cyber Defense Architect",
           desc: "You successfully intercepted wire packets, exploited insecure code, and engineered robust Blue Team defensive shields!",
           competencies: "Mastered Cyber Defense Competencies (6/6):",
+          skillsTitle: "Security & Defense Matrix (6/6)",
           returnHub: "Return to Workshop Hub",
         },
         tasks: {

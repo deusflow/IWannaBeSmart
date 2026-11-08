@@ -201,162 +201,171 @@ Verification Hash: IW-TV-ARCH-${Math.random().toString(36).substring(2, 9).toUpp
  }
  };
 
- return (
- <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
- <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-[#EFE9DC] text-[#1A1D20] rounded-3xl border-2 border-[#1A1D20]/30 shadow-2xl p-6 sm:p-8 space-y-6">
- {/* Close button */}
- <button
- onClick={onClose}
- className="absolute top-5 right-5 p-2 rounded-full bg-[#1A1D20]/10 hover:bg-[#1A1D20]/20 text-[#1A1D20] transition-colors cursor-pointer"
- aria-label={t("common.close", "Закрити")}
- >
- <X size={18} />
- </button>
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tv-victory-title"
+      data-testid="tv-cert-modal"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none"
+    >
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+          aria-label={t("common.close", "Закрити")}
+        >
+          <X size={18} />
+        </button>
 
- {/* Top Blueprint Victory Stamp */}
- <div className="text-center space-y-3 pt-2">
- <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600/15 border-2 border-emerald-700/40 text-emerald-800 font-mono font-extrabold text-xs uppercase tracking-widest shadow-xs">
- <Sparkles size={14} className="animate-spin" />
- <span>{t("victoryModal.stampBadge", `СТАНЦІЮ ЗАВЕРШЕНО • ВСІ ${CODING_TASKS.length} ЗАВДАНЬ ВИКОНАНО`)}</span>
- </div>
+        {/* Top Blueprint Victory Stamp */}
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <Sparkles size={14} className="text-emerald-700 animate-spin" />
+            <span>{t("victoryModal.stampBadge", `СТАНЦІЮ ЗАВЕРШЕНО • ВСІ ${CODING_TASKS.length} ЗАВДАНЬ ВИКОНАНО`)}</span>
+          </div>
 
- <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#1A1D20] tracking-tight">
- {t("victoryModal.title", "МОДУЛЬ 1: ТЕЛЕВІЗІЙНА СТАНЦІЯ")}
- </h2>
+          <h2
+            id="tv-victory-title"
+            className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight"
+          >
+            {t("victoryModal.title", "МОДУЛЬ 1: ТЕЛЕВІЗІЙНА СТАНЦІЯ")}
+          </h2>
 
- <p className="font-sans text-xs sm:text-sm text-[#1A1D20]/80 max-w-md mx-auto leading-relaxed">
- {t(
- "victoryModal.subtitle",
- "Ви успішно пройшли шлях від процедурного коду до архітектури інтерфейсів, контейнера залежностей та реєстру команд!"
- )}
- </p>
- </div>
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
+            {t(
+              "victoryModal.subtitle",
+              "Ви успішно пройшли шлях від процедурного коду до архітектури інтерфейсів, контейнера залежностей та реєстру команд!"
+            )}
+          </p>
+        </div>
 
- {/* XP Total Highlight Box */}
- <div className="p-4 rounded-2xl bg-[#E6DFCE] border border-[#1A1D20]/20 flex items-center justify-between gap-4 shadow-paper-xs">
- <div className="flex items-center gap-3">
- <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-600/40 flex items-center justify-center text-amber-700">
- <Award size={24} />
- </div>
- <div>
- <div className="text-[11px] font-mono text-[#1A1D20]/60 uppercase font-bold">
- {t("victoryModal.totalXpLabel", "Загальний баланс досвіду")}
- </div>
- <div className="font-display font-black text-2xl sm:text-3xl text-[#1A1D20]">
- +{displayXp} XP
- </div>
- </div>
- </div>
+        {/* XP Total Highlight Box */}
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between gap-4 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-600/30 flex items-center justify-center text-amber-700">
+              <Award size={24} />
+            </div>
+            <div>
+              <div className="text-[11px] font-mono text-slate-500 uppercase font-bold">
+                {t("victoryModal.totalXpLabel", "Загальний баланс досвіду")}
+              </div>
+              <div className="font-display font-black text-2xl sm:text-3xl text-obsidian">
+                +{displayXp} XP
+              </div>
+            </div>
+          </div>
 
- <div className="flex items-center gap-4">
- <div className="text-right">
- <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/60">
- {t("hub.stationStars", "STATION STARS")}
- </div>
- <div className="text-base font-display font-extrabold text-amber-700">
- {currentTvStars} / {maxTvStars} ★
- </div>
- </div>
- <div className="hidden sm:flex flex-col text-right">
- <span className="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1 justify-end">
- <CheckCircle2 size={13} />
- {t("victoryModal.automation", "100% Автоматизм")}
- </span>
- <span className="text-[10px] font-mono text-[#1A1D20]/50">
- {t("victoryModal.moduleCertified", "Модуль 1 атестовано")}
- </span>
- </div>
- </div>
- </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
+                {currentTvStars} / {maxTvStars} ★
+              </div>
+            </div>
+            <div className="hidden sm:flex flex-col text-right">
+              <span className="text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1 justify-end">
+                <CheckCircle2 size={13} />
+                {t("victoryModal.automation", "100% Автоматизм")}
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">
+                {t("victoryModal.moduleCertified", "Модуль 1 атестовано")}
+              </span>
+            </div>
+          </div>
+        </div>
 
- {/* Skill Mastery Matrix */}
- <div className="space-y-3">
- <div className="flex items-center justify-between border-b border-[#1A1D20]/15 pb-1.5 flex-wrap gap-2">
- <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#1A1D20]">
- <Layers size={14} />
- <span>{t("victoryModal.matrixTitle", "Інженерна матриця навичок (Skill Mastery Matrix)")}</span>
- </div>
- <div className="flex items-center gap-2">
- <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-md">
- {t("victoryModal.masteredStats", { current: SKILL_MATRIX.length, total: SKILL_MATRIX.length, defaultValue: `${SKILL_MATRIX.length} / ${SKILL_MATRIX.length} Освоєно` })}
- </span>
- <button
- onClick={() => {
- audioFx.playRelayClick();
- setIsMatrixExpanded((p) => !p);
- }}
- className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 cursor-pointer transition-colors"
- title={isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", "Показати всі")}
- >
- <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${SKILL_MATRIX.length})`)}</span>
- {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
- </button>
- </div>
- </div>
+        {/* Skill Mastery Matrix */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5 flex-wrap gap-2">
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-obsidian">
+              <Layers size={14} className="text-[#252932]" />
+              <span>{t("victoryModal.matrixTitle", "Інженерна матриця навичок (Skill Mastery Matrix)")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-500/15 px-2 py-0.5 rounded-md border border-emerald-600/25">
+                {t("victoryModal.masteredStats", { current: SKILL_MATRIX.length, total: SKILL_MATRIX.length, defaultValue: `${SKILL_MATRIX.length} / ${SKILL_MATRIX.length} Освоєно` })}
+              </span>
+              <button
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  setIsMatrixExpanded((p) => !p);
+                }}
+                className="flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600 hover:text-obsidian px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 border border-black/[0.06] cursor-pointer transition-colors"
+                title={isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", "Показати всі")}
+              >
+                <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${SKILL_MATRIX.length})`)}</span>
+                {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </button>
+            </div>
+          </div>
 
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
- {(isMatrixExpanded ? SKILL_MATRIX : SKILL_MATRIX.slice(0, 4)).map((skill) => (
- <div
- key={skill.id}
- className="p-2.5 rounded-xl bg-[#EBE5D8] border border-[#1A1D20]/20 flex items-start gap-2.5 shadow-xs transition-all"
- >
- <div className="w-5 h-5 rounded-md bg-emerald-600/20 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
- <CheckCircle2 size={13} />
- </div>
- <div className="min-w-0 flex-1">
- <div className="font-display font-bold text-xs text-[#1A1D20] truncate">
- {t(skill.nameKey)}
- </div>
- <div className="font-mono text-[10px] text-[#1A1D20]/60 font-semibold truncate">
- {skill.codeExample}
- </div>
- </div>
- </div>
- ))}
- </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {(isMatrixExpanded ? SKILL_MATRIX : SKILL_MATRIX.slice(0, 4)).map((skill) => (
+              <div
+                key={skill.id}
+                className="p-2.5 rounded-xl bg-slate-50/80 border border-black/[0.06] flex items-start gap-2.5 shadow-2xs transition-all"
+              >
+                <div className="w-5 h-5 rounded-md bg-emerald-600/15 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle2 size={13} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-display font-bold text-xs text-obsidian truncate">
+                    {t(skill.nameKey)}
+                  </div>
+                  <div className="font-mono text-[10px] text-slate-500 font-semibold truncate">
+                    {skill.codeExample}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
- {!isMatrixExpanded && (
- <button
- onClick={() => {
- audioFx.playRelayClick();
- setIsMatrixExpanded(true);
- }}
- className="w-full py-1.5 rounded-xl border border-dashed border-[#1A1D20]/25 bg-[#FAF8F2]/60 hover:bg-[#FAF8F2] text-xs font-mono font-bold text-[#1A1D20]/70 hover:text-[#1A1D20] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
- >
- <span>{t("victoryModal.showAllSkills", `Показати ще ${SKILL_MATRIX.length - 4} навички`)}</span>
- <ChevronDown size={13} />
- </button>
- )}
- </div>
+          {!isMatrixExpanded && (
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsMatrixExpanded(true);
+              }}
+              className="w-full py-1.5 rounded-xl border border-dashed border-black/[0.12] bg-slate-50 hover:bg-slate-100 text-xs font-mono font-bold text-slate-600 hover:text-obsidian flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span>{t("victoryModal.showAllSkills", `Показати ще ${SKILL_MATRIX.length - 4} навички`)}</span>
+              <ChevronDown size={13} />
+            </button>
+          )}
+        </div>
 
- {/* Actions Footer */}
- <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
- <div className="flex items-center gap-2 w-full sm:w-auto">
- <button
- onClick={handleDownloadSvg}
- className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 active:scale-95 text-white font-mono font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-xs"
- >
- <Download size={14} />
- <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
- </button>
+        {/* Actions Footer */}
+        <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadSvg}
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-luxury"
+            >
+              <Download size={14} />
+              <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
+            </button>
 
- <button
- onClick={handleExportSummary}
- className="px-3.5 py-2.5 rounded-xl bg-[#E2DAC8] hover:bg-[#D8CEB8] active:scale-95 text-[#1A1D20] border border-[#1A1D20]/30 font-mono font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-xs"
- title={t("victoryModal.exportSummaryBtn", "Експортувати підсумок")}
- >
- {copied ? <CheckCircle2 size={14} className="text-emerald-700" /> : <Copy size={14} />}
- <span className="hidden sm:inline">
- {copied
- ? t("common.copied", "Скопійовано")
- : t("common.copy", "Копіювати")}
- </span>
- </button>
- </div>
+            <button
+              onClick={handleExportSummary}
+              className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-obsidian border border-black/[0.08] font-mono font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-2xs"
+              title={t("victoryModal.exportSummaryBtn", "Експортувати підсумок")}
+            >
+              {copied ? <CheckCircle2 size={14} className="text-emerald-700" /> : <Copy size={14} />}
+              <span className="hidden sm:inline">
+                {copied
+                  ? t("common.copied", "Скопійовано")
+                  : t("common.copy", "Копіювати")}
+              </span>
+            </button>
+          </div>
 
- <StationTrackNavigator currentStationId="tv" onClose={onClose} />
- </div>
- </div>
- </div>
+          <StationTrackNavigator currentStationId="tv" onClose={onClose} />
+        </div>
+      </div>
+    </div>
  );
 };

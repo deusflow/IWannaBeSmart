@@ -132,20 +132,20 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
       role="dialog"
       aria-modal="true"
       data-testid="crash-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#1A1D20]/75 backdrop-blur-xs font-sans text-[#1A1D20]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm font-sans text-obsidian"
     >
-      <div className="relative w-full max-w-2xl bg-[#FAF8F2] rounded-2xl border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl border border-black/[0.08] shadow-luxury flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-b border-[#1A1D20]/20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-rose-500/15 border border-rose-600/30 text-rose-900">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-b border-black/[0.06] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-600/25 text-rose-900">
               <ShieldAlert size={16} />
             </span>
             <div>
-              <h2 className="font-display font-extrabold text-sm text-[#1A1D20] leading-none">
+              <h2 className="font-display font-extrabold text-sm text-obsidian leading-none">
                 {t("labs.crash.title", "Аттестаційний Краш-Тест Станції")}
               </h2>
-              <p className="text-[11px] font-mono text-[#1A1D20]/60 mt-0.5">
+              <p className="text-[11px] font-mono text-slate-500 mt-0.5">
                 {t(gate.titleKey, gate.defaultTitle)}
               </p>
             </div>
@@ -156,7 +156,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                 className={`flex items-center gap-1 font-mono text-xs font-bold px-2 py-0.5 rounded border ${
                   timeLeft <= 15
                     ? "bg-rose-500/15 border-rose-600 text-rose-900 animate-pulse"
-                    : "bg-[#1A1D20]/10 border-[#1A1D20]/20 text-[#1A1D20]"
+                    : "bg-slate-100 border-black/[0.06] text-slate-700"
                 }`}
               >
                 <Clock size={13} />
@@ -168,7 +168,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                 audioFx.playRelayClick();
                 onClose();
               }}
-              className="p-1 rounded-lg text-[#1A1D20]/60 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors"
+              className="p-1 rounded-lg text-slate-400 hover:text-obsidian hover:bg-slate-100 transition-colors"
             >
               <X size={16} />
             </button>
@@ -179,14 +179,14 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {!hasStarted ? (
             <div className="text-center py-6 px-4 space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border-2 border-amber-600/30 text-amber-900 flex items-center justify-center mx-auto shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-600/25 text-amber-900 flex items-center justify-center mx-auto shadow-2xs">
                 <AlertOctagon size={32} />
               </div>
               <div className="space-y-1">
-                <h3 className="font-display font-black text-lg text-[#1A1D20]">
+                <h3 className="font-display font-black text-lg text-obsidian">
                   {t("labs.crash.drillIntroTitle", "Фінальна бойова перевірка знань")}
                 </h3>
-                <p className="text-xs text-[#1A1D20]/75 max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
                   {t("labs.crash.drillIntroDesc", {
                     count: gate.timeLimitSeconds,
                     defaultValue: `На станції змодельовано серію аварійних інцидентів у пікову годину. У вас буде ${gate.timeLimitSeconds} секунд, щоб діагностувати кожну проблему та прийняти правильні інженерні рішення.`,
@@ -198,7 +198,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                 <button
                   data-testid="crash-start-btn"
                   onClick={handleStart}
-                  className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono font-bold text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all cursor-pointer inline-flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-mono font-bold text-xs uppercase tracking-wider shadow-2xs active:scale-95 transition-all cursor-pointer inline-flex items-center gap-2"
                 >
                   <ShieldAlert size={15} />
                   <span>{t("labs.crash.startDrill", "Почати краш-тест")}</span>
@@ -207,14 +207,14 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
             </div>
           ) : isPassed ? (
             <div data-testid="crash-success-view" className="text-center py-6 px-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border-2 border-emerald-600/30 text-emerald-900 flex items-center justify-center mx-auto shadow-inner">
-                <Trophy size={32} />
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-600/25 text-emerald-900 flex items-center justify-center mx-auto shadow-2xs">
+                <Trophy size={32} className="text-[#C5A059]" />
               </div>
               <div className="space-y-1">
-                <h3 className="font-display font-black text-lg text-[#1A1D20]">
+                <h3 className="font-display font-black text-lg text-obsidian">
                   {t("labs.crash.drillSuccess", "Краш-тест складено успішно!")}
                 </h3>
-                <p className="text-xs text-[#1A1D20]/75 max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
                   <span>{t("labs.crash.drillSuccessDesc", "Всі інциденти успішно ліквідовані без втрати коштів і порушення протоколів. Ви підтвердили кваліфікацію:")} </span>
                   <strong className="text-emerald-800">{gate.certBadgeTitle}</strong>.
                 </p>
@@ -225,21 +225,21 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
             </div>
           ) : isFailed ? (
             <div className="text-center py-6 px-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 rounded-2xl bg-rose-500/15 border-2 border-rose-600/30 text-rose-900 flex items-center justify-center mx-auto shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-600/25 text-rose-900 flex items-center justify-center mx-auto shadow-2xs">
                 <XCircle size={32} />
               </div>
               <div className="space-y-1">
                 <h3 className="font-display font-black text-lg text-rose-950">
                   {t("labs.crash.drillFailedTitle", "Краш-тест провалено")}
                 </h3>
-                <p className="text-xs text-rose-800/90 max-w-md mx-auto leading-relaxed font-mono">
+                <p className="text-xs text-rose-800 max-w-md mx-auto leading-relaxed font-mono">
                   {failureReason}
                 </p>
               </div>
               <div className="pt-2">
                 <button
                   onClick={handleRetry}
-                  className="px-4 py-2 rounded-xl bg-[#1A1D20] text-white font-mono text-xs font-bold flex items-center gap-1.5 mx-auto hover:bg-black transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#252932] text-white font-mono text-xs font-bold flex items-center gap-1.5 mx-auto hover:bg-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
                 >
                   <RotateCcw size={13} />
                   <span>{t("labs.crash.tryAgain", "Спробувати ще раз")}</span>
@@ -250,7 +250,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
             currentIncident && (
               <div className="space-y-4">
                 {/* Incident Progress */}
-                <div className="flex items-center justify-between text-[11px] font-mono text-[#1A1D20]/60">
+                <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
                   <span className="font-bold uppercase tracking-wider text-rose-700">
                     {currentIncident.severity}
                   </span>
@@ -264,18 +264,18 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                 </div>
 
                 {/* Incident Card */}
-                <div className="p-4 rounded-xl bg-[#EFE9DC]/70 border border-[#1A1D20]/20 space-y-2">
-                  <h4 className="font-display font-extrabold text-sm text-[#1A1D20]">
+                <div className="p-4 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-2">
+                  <h4 className="font-display font-extrabold text-sm text-obsidian">
                     {t(currentIncident.titleKey, currentIncident.defaultTitle)}
                   </h4>
-                  <p className="text-xs text-[#1A1D20]/80 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     {t(currentIncident.descriptionKey, currentIncident.defaultDescription)}
                   </p>
                 </div>
 
                 {/* Mitigation Actions */}
                 <div className="space-y-2 pt-1">
-                  <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
+                  <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
                     {t("labs.crash.chooseAction", "Оберіть реакцію інженера:")}
                   </div>
                   {currentIncident.actions.map((act) => (
@@ -283,12 +283,12 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                       key={act.id}
                       data-testid={`crash-action-${act.id}`}
                       onClick={() => handleAction(act)}
-                      className="w-full text-left p-3.5 rounded-xl border border-[#1A1D20]/25 bg-[#FAF8F2] hover:bg-[#EFE9DC] hover:border-[#1A1D20]/40 text-xs font-medium text-[#1A1D20] transition-all flex items-center justify-between gap-3 group cursor-pointer"
+                      className="w-full text-left p-3.5 rounded-xl border border-black/[0.06] bg-white hover:bg-slate-50 hover:border-black/[0.14] text-xs font-medium text-obsidian shadow-2xs transition-all flex items-center justify-between gap-3 group cursor-pointer"
                     >
                       <span>{t(act.labelKey, act.defaultLabel)}</span>
                       <ArrowRight
                         size={14}
-                        className="text-[#1A1D20]/40 group-hover:text-[#1A1D20] shrink-0 transition-transform group-hover:translate-x-0.5"
+                        className="text-slate-400 group-hover:text-obsidian shrink-0 transition-transform group-hover:translate-x-0.5"
                       />
                     </button>
                   ))}
@@ -299,8 +299,8 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-t border-[#1A1D20]/20 flex items-center justify-between">
-          <div className="text-[11px] font-mono text-[#1A1D20]/60">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-t border-black/[0.06] flex items-center justify-between">
+          <div className="text-[11px] font-mono text-slate-500">
             {isPassed
               ? t("labs.crash.certificationPassed", "Сертифікацію пройдено")
               : t("labs.crash.realtimeMode", "Режим реального часу")}
@@ -315,7 +315,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                   onPassed();
                 }
               }}
-              className="px-4 py-1.5 rounded-xl bg-[#1A1D20] text-[#FAF8F2] text-xs font-mono font-bold hover:bg-black transition-colors cursor-pointer"
+              className="px-4 py-1.5 rounded-xl bg-[#252932] text-white text-xs font-mono font-bold hover:bg-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
             >
               {t("labs.crash.claimCertificate", "Закрити")}
             </button>

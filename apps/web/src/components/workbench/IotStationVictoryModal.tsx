@@ -13,6 +13,9 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
+  Award,
+  Sparkles,
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -140,103 +143,137 @@ export const IotStationVictoryModal: React.FC<IotStationVictoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in select-none">
-      <div className="relative w-full max-w-2xl bg-[#FAF8F2] text-[#1A1D20] rounded-3xl border-2 border-[#1A1D20]/30 shadow-2xl overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-200 max-h-[92vh]">
-        {/* Header */}
-        <div className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-[#1A1D20]/15 bg-[#EFE9DC]">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border-2 border-amber-600/40 text-amber-700 flex items-center justify-center shadow-xs shrink-0">
-              <Radio size={22} strokeWidth={2.4} />
-            </div>
-            <div>
-              <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-amber-700">
-                MODULE 03 • EMBEDDED HARDWARE & IOT
-              </div>
-              <h2 className="text-lg font-display font-extrabold text-[#1A1D20] tracking-tight">
-                {t(
-                  "iotStation.victory.title",
-                  "Станція 03: Embedded Hardware & IoT завершено!"
-                )}
-              </h2>
-            </div>
-          </div>
-          <button
-            type="button"
-            id="btn-close-iot-victory-modal"
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-black/5 hover:bg-black/10 flex items-center justify-center text-[#1A1D20]/60 hover:text-[#1A1D20] transition-colors cursor-pointer"
-          >
-            <X size={16} />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
+        {/* Close button */}
+        <button
+          type="button"
+          id="btn-close-iot-victory-modal"
+          onClick={onClose}
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+          aria-label={t("common.close", "Закрити")}
+        >
+          <X size={18} />
+        </button>
 
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto p-6 space-y-6">
-          <p className="text-xs text-[#1A1D20]/80 leading-relaxed font-sans">
+        {/* Blueprint Victory Stamp Header */}
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <ShieldCheck size={14} className="text-emerald-700" />
+            <span>{currentIotStars} / {maxIotStars} ★ • 4-Star Mastery Certified</span>
+          </div>
+
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight">
+            {t("iotStation.victory.title", "Станція 03: Embedded Hardware & IoT завершено!")}
+          </h2>
+
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
             {t(
               "iotStation.victory.subtitle",
               "Ви на практиці опанували асинхронні події, захисні реле та реакцію на апаратні сенсори без затримок циклу."
             )}
           </p>
+        </div>
 
-          {/* Skill Matrix */}
-          <div className="space-y-2.5">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
-              {t("iotStation.victory.skillsTitle", "Апаратна матриця компетенцій")}
-            </h3>
-            <div className="space-y-2">
-              {IOT_SKILLS.map((skill) => {
-                const isExpanded = expandedSkillId === skill.id;
-                return (
-                  <div
-                    key={skill.id}
-                    className="rounded-xl border border-[#1A1D20]/15 bg-white/70 overflow-hidden shadow-2xs transition-all"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedSkillId(isExpanded ? null : skill.id)
-                      }
-                      className="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-white transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                        <span className="text-xs font-mono font-bold text-[#1A1D20] truncate">
-                          {t(skill.nameKey, skill.category)}
-                        </span>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronUp size={14} className="text-[#1A1D20]/50 shrink-0" />
-                      ) : (
-                        <ChevronDown size={14} className="text-[#1A1D20]/50 shrink-0" />
-                      )}
-                    </button>
-                    {isExpanded && (
-                      <div className="px-3.5 pb-3 pt-1 border-t border-[#1A1D20]/10 bg-black/[0.02]">
-                        <code className="text-[11px] font-mono text-amber-900 bg-amber-500/10 px-2 py-1 rounded block overflow-x-auto">
-                          {skill.codeExample}
-                        </code>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+        {/* XP Counter Banner */}
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-600/25 flex items-center justify-center text-amber-700">
+              <Award size={22} />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("fintechVictoryModal.xpEarned", "XP НАГОРОДА")}
+              </div>
+              <div className="font-display font-extrabold text-xl text-obsidian flex items-center gap-1">
+                <span>+{xp}</span>
+                <span className="text-xs font-mono font-bold text-[#C5A059]">XP</span>
+              </div>
             </div>
           </div>
 
-          {/* Certificate Download & Copy Actions */}
-          <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
+                {currentIotStars} / {maxIotStars} ★
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-black/[0.08] font-mono text-xs font-bold text-obsidian shadow-2xs">
+              <Radio size={14} className="text-amber-600" />
+              <span>IOT BUS ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Skill Matrix */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5">
+            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-obsidian flex items-center gap-1.5">
+              <Sparkles size={14} className="text-[#C5A059]" />
+              <span>{t("iotStation.victory.skillsTitle", "Апаратна матриця компетенцій")}</span>
+            </h3>
+            <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-500/10 border border-emerald-600/20 px-2 py-0.5 rounded-md">
+              {IOT_SKILLS.length} / {IOT_SKILLS.length} {t("common.mastered", "Освоєно")}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {IOT_SKILLS.map((skill) => {
+              const isExpanded = expandedSkillId === skill.id;
+              return (
+                <div
+                  key={skill.id}
+                  className="rounded-xl border border-black/[0.06] bg-slate-50/70 overflow-hidden shadow-2xs transition-all hover:border-black/[0.12]"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedSkillId(isExpanded ? null : skill.id)
+                    }
+                    className="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-white transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      <span className="text-xs font-mono font-bold text-obsidian truncate">
+                        {t(skill.nameKey, skill.category)}
+                      </span>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp size={14} className="text-slate-400 shrink-0" />
+                    ) : (
+                      <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                    )}
+                  </button>
+                  {isExpanded && (
+                    <div className="px-3.5 pb-3 pt-1 border-t border-black/[0.06] bg-white">
+                      <code className="text-[11px] font-mono text-amber-900 bg-amber-500/10 px-2.5 py-1.5 rounded-lg block overflow-x-auto border border-amber-600/20">
+                        {skill.codeExample}
+                      </code>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Action Controls */}
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-black/[0.06]">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               type="button"
               id="btn-download-iot-cert-svg"
               onClick={handleDownloadCertificate}
-              className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-mono font-bold text-xs shadow-paper-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
             >
-              <Download size={15} />
+              <Download size={14} />
               <span>
                 {t(
                   "iotStation.victory.downloadCert",
-                  "Завантажити векторний SVG сертифікат"
+                  "Завантажити SVG сертифікат"
                 )}
               </span>
             </button>
@@ -244,31 +281,27 @@ export const IotStationVictoryModal: React.FC<IotStationVictoryModalProps> = ({
               type="button"
               id="btn-copy-iot-cert-ascii"
               onClick={handleCopyAscii}
-              className="py-3 px-4 rounded-xl bg-white hover:bg-[#F0EDE6] active:scale-95 text-[#1A1D20] border border-[#1A1D20]/20 font-mono font-bold text-xs shadow-paper-xs flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0"
+              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs shrink-0"
             >
               {copied ? (
                 <>
-                  <Check size={15} className="text-emerald-600" />
-                  <span>{t("iotStation.victory.copied", "Сертифікат скопійовано!")}</span>
+                  <Check size={14} className="text-emerald-600" />
+                  <span>{t("iotStation.victory.copied", "Скопійовано!")}</span>
                 </>
               ) : (
                 <>
-                  <Copy size={15} />
+                  <Copy size={14} />
                   <span>
-                    {t("iotStation.victory.copyAscii", "Скопіювати сертифікат (ASCII)")}
+                    {t("iotStation.victory.copyAscii", "Скопіювати ASCII")}
                   </span>
                 </>
               )}
             </button>
           </div>
-        </div>
 
-        {/* Footer / Track Navigator */}
-        <div className="px-6 py-4 border-t border-[#1A1D20]/15 bg-[#EFE9DC] flex items-center justify-between">
           <StationTrackNavigator
             currentStationId="iot"
             onClose={onClose}
-            accentClassName="bg-amber-700 hover:bg-amber-800 text-white"
           />
         </div>
       </div>

@@ -187,20 +187,20 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        className={`group flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-paper-subtle border border-paper-border text-ink font-display text-xs sm:text-sm shadow-paper-sm transition-all duration-150 active:scale-[0.98] cursor-pointer outline-none hover:border-accent-blue/40 shrink-0 whitespace-nowrap ${
-          isOpen ? "ring-2 ring-accent-blue/20 border-accent-blue" : ""
+        className={`group flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white border border-black/[0.08] hover:border-black/[0.16] text-obsidian font-display text-xs sm:text-sm shadow-2xs transition-all duration-150 active:scale-[0.98] cursor-pointer outline-none shrink-0 whitespace-nowrap ${
+          isOpen ? "ring-2 ring-black/[0.12] border-black/[0.2]" : ""
         }`}
       >
-        <span className="text-accent-blue flex items-center shrink-0">{activeOption.icon}</span>
-        <span className="font-bold text-ink truncate max-w-[110px] sm:max-w-none">{activeOption.title}</span>
-        <span className="text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-md bg-paper border border-paper-border text-ink-muted shrink-0 hidden sm:inline-block">
+        <span className="text-[#252932] flex items-center shrink-0">{activeOption.icon}</span>
+        <span className="font-bold text-obsidian truncate max-w-[110px] sm:max-w-none">{activeOption.title}</span>
+        <span className="text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 border border-black/[0.06] text-slate-600 font-mono font-medium shrink-0 hidden sm:inline-block">
           {activeOption.code}
         </span>
         <ChevronDown
           size={14}
           strokeWidth={2}
-          className={`text-ink-muted transition-transform duration-200 ease-out shrink-0 ${
-            isOpen ? "rotate-180 text-accent-blue" : ""
+          className={`text-slate-400 transition-transform duration-200 ease-out shrink-0 ${
+            isOpen ? "rotate-180 text-obsidian" : ""
           }`}
         />
       </button>
@@ -210,13 +210,13 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
         style={{
           transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
         }}
-        className={`absolute top-full left-0 mt-2 w-80 sm:w-96 rounded-2xl bg-paper-subtle border border-paper-border shadow-paper-lg p-2.5 transition-all duration-200 origin-top-left ${
+        className={`absolute top-full left-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white/95 backdrop-blur-md border border-black/[0.08] shadow-luxury p-2.5 transition-all duration-200 origin-top-left ${
           isOpen
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
             : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
         }`}
       >
-        <div className="px-3 py-1.5 border-b border-paper-border/70 flex items-center justify-between text-[11px] font-display text-ink-subtle">
+        <div className="px-3 py-1.5 border-b border-black/[0.06] flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold">
           <span>{t("hub.worldSelect", "Вибір світу")}</span>
           <span>{t("hub.stationCatalog", "Каталог станцій")}</span>
         </div>
@@ -240,17 +240,17 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
                 }}
                 className={`w-full text-left p-2.5 rounded-xl flex items-start gap-3 transition-all duration-150 select-none outline-none ${
                   isSelected
-                    ? "bg-paper border border-accent-blue/30 shadow-paper-sm"
+                    ? "bg-slate-50 border border-black/[0.08] shadow-2xs"
                     : station.isAvailable
-                    ? "hover:bg-paper/70 cursor-pointer"
+                    ? "hover:bg-slate-50/80 cursor-pointer"
                     : "opacity-45 cursor-not-allowed"
                 }`}
               >
                 <div
                   className={`mt-0.5 h-8 w-8 rounded-lg border flex items-center justify-center shrink-0 ${
                     isSelected
-                      ? "bg-accent-blue-light border-accent-blue-border text-accent-blue"
-                      : "bg-paper border-paper-border text-ink-muted"
+                      ? "bg-[#252932] border-[#252932] text-white"
+                      : "bg-slate-100 border-black/[0.05] text-slate-600"
                   }`}
                 >
                   {station.icon}
@@ -258,20 +258,20 @@ export const BlueprintStationSwitcher: React.FC<BlueprintStationSwitcherProps> =
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-display font-bold text-ink">
+                    <span className="text-sm font-display font-bold text-obsidian">
                       {station.title}
                     </span>
                     <span
-                      className={`text-[10px] font-display px-2 py-0.5 rounded-md border ${
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md border ${
                         isSelected
-                          ? "bg-accent-ok-light text-accent-ok border-accent-ok-border font-bold"
-                          : "bg-paper text-ink-subtle border-paper-border"
+                          ? "bg-emerald-500/10 text-emerald-800 border-emerald-600/25 font-bold"
+                          : "bg-slate-100 text-slate-500 border-black/[0.05]"
                       }`}
                     >
                       {station.status}
                     </span>
                   </div>
-                  <p className="text-xs text-ink-muted truncate mt-0.5 font-sans">
+                  <p className="text-xs text-slate-500 truncate mt-0.5 font-sans">
                     {station.subtitle}
                   </p>
                 </div>

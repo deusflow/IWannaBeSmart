@@ -244,25 +244,25 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
       role="dialog"
       aria-modal="true"
       data-testid="xray-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-[#1A1D20]/75 backdrop-blur-xs font-sans text-[#1A1D20]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/60 backdrop-blur-sm font-sans text-obsidian"
     >
-      <div className="relative w-full max-w-6xl bg-[#FAF8F2] rounded-2xl border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col max-h-[94vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-6xl bg-white rounded-2xl border border-black/[0.08] shadow-luxury flex flex-col max-h-[94vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-b border-[#1A1D20]/20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-amber-500/15 border border-amber-600/30 text-amber-900">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-b border-black/[0.06] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-sky-500/10 border border-sky-600/25 text-sky-900">
               <ScanLine size={18} />
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#1A1D20]/10 text-[#1A1D20]">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 border border-black/[0.06] text-slate-700">
                   {t("labs.xray.badge", "X-Ray Code Flow")}
                 </span>
                 <span className="text-xs font-mono font-bold text-amber-700">
                   +{currentScenario.rewardXp} XP
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-display font-bold text-[#1A1D20] mt-0.5">
+              <h2 className="text-base sm:text-lg font-display font-bold text-obsidian mt-0.5">
                 {t(currentScenario.titleKey, currentScenario.defaultTitle)}
               </h2>
             </div>
@@ -274,7 +274,7 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
               onClose();
             }}
             data-testid="xray-close-btn"
-            className="p-1.5 rounded-lg hover:bg-[#1A1D20]/10 text-[#1A1D20]/60 hover:text-[#1A1D20] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-obsidian transition-colors cursor-pointer"
             aria-label={t("common.close", "Закрити")}
           >
             <X size={18} />
@@ -284,9 +284,9 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
         {/* Content Body: 3 columns layout (Controls, Code Visualizer, Payload Gauge) */}
         <div className="p-4 sm:p-5 flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left Column: Flow Controls */}
-          <div className="lg:col-span-2 flex flex-col gap-3 justify-between bg-[#EFE9DC]/60 p-3.5 rounded-xl border border-[#1A1D20]/15">
+          <div className="lg:col-span-2 flex flex-col gap-3 justify-between bg-slate-50/70 p-3.5 rounded-xl border border-black/[0.06]">
             <div className="space-y-3">
-              <div className="font-mono text-[10px] uppercase font-bold tracking-wider text-[#1A1D20]/70">
+              <div className="font-mono text-[10px] uppercase font-bold tracking-wider text-slate-500">
                 {t("labs.xray.controlsLabel", "Керування трасуванням")}
               </div>
 
@@ -295,10 +295,10 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
                   onClick={handleNextStep}
                   disabled={isLastStep}
                   data-testid="xray-step-btn"
-                  className={`w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs ${
+                  className={`w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs ${
                     isLastStep
-                      ? "bg-[#1A1D20]/10 text-[#1A1D20]/40 cursor-not-allowed"
-                      : "bg-[#C86D32] hover:bg-[#B35E28] text-white cursor-pointer active:scale-95"
+                      ? "bg-slate-100 border border-black/[0.04] text-slate-400 cursor-not-allowed"
+                      : "bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 cursor-pointer active:scale-95"
                   }`}
                 >
                   <ArrowRight size={14} />
@@ -309,10 +309,10 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
                   onClick={handlePrevStep}
                   disabled={currentStepIndex === 0}
                   data-testid="xray-prev-btn"
-                  className={`w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all border ${
+                  className={`w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all border shadow-2xs ${
                     currentStepIndex === 0
-                      ? "border-[#1A1D20]/10 text-[#1A1D20]/30 cursor-not-allowed"
-                      : "bg-[#FAF8F2] hover:bg-white border-[#1A1D20]/20 text-[#1A1D20] cursor-pointer active:scale-95 shadow-2xs"
+                      ? "border-black/[0.04] bg-slate-50/40 text-slate-400 cursor-not-allowed"
+                      : "bg-white hover:bg-slate-50 border-black/[0.08] text-obsidian cursor-pointer active:scale-95"
                   }`}
                 >
                   <ArrowLeft size={14} />
@@ -322,7 +322,7 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
                 <button
                   onClick={handleReset}
                   data-testid="xray-reset-btn"
-                  className="w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 bg-[#FAF8F2] hover:bg-white border border-[#1A1D20]/20 text-[#1A1D20] transition-all cursor-pointer active:scale-95 shadow-2xs"
+                  className="w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian transition-all cursor-pointer active:scale-95 shadow-2xs"
                 >
                   <RotateCcw size={13} />
                   <span>{t("labs.xray.resetBtn", "Скинути")}</span>
@@ -332,8 +332,8 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
                   onClick={toggleAutoPlay}
                   className={`w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all border shadow-2xs ${
                     isAutoPlaying
-                      ? "bg-amber-500 text-stone-900 border-amber-600 font-extrabold"
-                      : "bg-[#FAF8F2] hover:bg-white border-[#1A1D20]/20 text-[#1A1D20]"
+                      ? "bg-[#252932] text-[#C5A059] border-[#C5A059]/40 font-extrabold"
+                      : "bg-white hover:bg-slate-50 border-black/[0.08] text-obsidian"
                   }`}
                 >
                   {isAutoPlaying ? <Pause size={13} /> : <Play size={13} />}
@@ -347,11 +347,11 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
             </div>
 
             {/* Counter */}
-            <div className="pt-2 border-t border-[#1A1D20]/15 text-center">
-              <div className="font-mono text-[10px] text-[#1A1D20]/60 uppercase font-semibold">
+            <div className="pt-2 border-t border-black/[0.06] text-center">
+              <div className="font-mono text-[10px] text-slate-500 uppercase font-semibold">
                 {t("labs.xray.stepCounterLabel", "Прогрес потоку")}
               </div>
-              <div className="font-mono text-base font-extrabold text-[#1A1D20] mt-0.5">
+              <div className="font-mono text-base font-extrabold text-obsidian mt-0.5">
                 {currentStepIndex + 1} / {currentScenario.steps.length}
               </div>
             </div>
@@ -480,16 +480,16 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
           </div>
 
           {/* Right Column: Dynamic Data Instrument & Explanation */}
-          <div className="lg:col-span-3 flex flex-col justify-between bg-[#EFE9DC]/60 p-4 rounded-xl border border-[#1A1D20]/15 space-y-4">
+          <div className="lg:col-span-3 flex flex-col justify-between bg-slate-50/70 p-4 rounded-xl border border-black/[0.06] space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center gap-1.5 text-xs font-mono font-bold uppercase text-[#1A1D20]/80">
-                <Activity size={14} className="text-amber-700" />
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold uppercase text-slate-700">
+                <Activity size={14} className="text-amber-600" />
                 <span>{t("labs.xray.payloadGaugeTitle", "Прилад: Дані в польоті")}</span>
               </div>
 
               {/* Data in Flight Box */}
-              <div className="p-3 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/20 shadow-2xs">
-                <div className="font-mono text-[10px] uppercase text-[#1A1D20]/60 font-semibold mb-1">
+              <div className="p-3 rounded-lg bg-white border border-black/[0.06] shadow-2xs">
+                <div className="font-mono text-[10px] uppercase text-slate-500 font-semibold mb-1">
                   {t("labs.xray.payloadLabel", "Корисне навантаження:")}
                 </div>
                 <div className="font-mono text-xs font-bold text-amber-900 break-words bg-amber-500/10 p-2 rounded border border-amber-500/20">
@@ -498,12 +498,12 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
               </div>
 
               {/* Step Didactic Note */}
-              <div className="p-3 rounded-lg bg-[#FAF8F2] border border-[#1A1D20]/20 shadow-2xs space-y-1.5">
-                <div className="font-mono text-[10px] uppercase text-[#1A1D20]/60 font-semibold flex items-center gap-1">
+              <div className="p-3 rounded-lg bg-white border border-black/[0.06] shadow-2xs space-y-1.5">
+                <div className="font-mono text-[10px] uppercase text-slate-500 font-semibold flex items-center gap-1">
                   <Zap size={11} className="text-amber-600" />
                   <span>{t("labs.xray.explanationLabel", "Пояснення архітектури:")}</span>
                 </div>
-                <p className="text-xs text-[#1A1D20] leading-relaxed">
+                <p className="text-xs text-obsidian leading-relaxed">
                   {t(currentStep.noteKey, currentStep.defaultNote)}
                 </p>
               </div>
@@ -513,7 +513,7 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
             {isCompleted && (
               <div
                 data-testid="xray-complete"
-                className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-600/30 text-emerald-950 space-y-1.5 animate-in fade-in"
+                className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-600/25 text-emerald-950 space-y-1.5 animate-in fade-in"
               >
                 <div className="flex items-center gap-1.5 font-display font-bold text-xs text-emerald-900">
                   <CheckCircle2 size={15} className="text-emerald-700" />
@@ -528,8 +528,8 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 bg-[#EFE9DC] border-t border-[#1A1D20]/20 flex items-center justify-between">
-          <div className="text-[11px] font-mono text-[#1A1D20]/70 flex items-center gap-2">
+        <div className="px-5 py-3 bg-slate-50/80 border-t border-black/[0.06] flex items-center justify-between">
+          <div className="text-[11px] font-mono text-slate-500 flex items-center gap-2">
             <span>{t("labs.xray.hintNav", "Підказка: використовуйте стрілки [←] [→] або [Esc] для закриття")}</span>
           </div>
 
@@ -538,7 +538,7 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
               audioFx.playRelayClick();
               onClose();
             }}
-            className="px-4 py-1.5 rounded-xl bg-[#FAF8F2] hover:bg-white border border-[#1A1D20]/30 font-mono text-xs font-bold text-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
+            className="px-4 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] font-mono text-xs font-bold text-obsidian transition-colors cursor-pointer shadow-2xs"
           >
             {t("common.close", "Закрити")}
           </button>

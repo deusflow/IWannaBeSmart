@@ -498,29 +498,26 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in select-none">
-      <div className="relative w-full max-w-2xl max-h-[92vh] rounded-3xl bg-[#FAF8F2] text-[#1A1D20] border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col overflow-hidden font-sans animate-in zoom-in-95 duration-200">
-        {/* Subtle engineering vellum grid background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(26,29,32,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(26,29,32,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] rounded-3xl bg-white text-obsidian border border-black/[0.08] shadow-luxury flex flex-col overflow-hidden font-sans animate-in zoom-in-95 duration-200">
         {/* ── Modal Header ── */}
-        <div className="relative z-10 flex items-center justify-between px-6 py-4.5 border-b border-[#1A1D20]/15 bg-[#EFE9DC]">
+        <div className="relative z-10 flex items-center justify-between px-6 py-4.5 border-b border-black/[0.06] bg-slate-50/70">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-accent-blue/15 border-2 border-accent-blue/30 text-accent-blue flex items-center justify-center shadow-xs shrink-0">
-              <ShieldCheck size={20} strokeWidth={2.2} />
+            <div className="w-10 h-10 rounded-2xl bg-[#252932]/10 border border-[#252932]/20 text-[#252932] flex items-center justify-center shadow-2xs shrink-0">
+              <ShieldCheck size={20} strokeWidth={2.2} className="text-emerald-700" />
             </div>
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-accent-blue font-bold">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold">
                 ENGINEERING CREDENTIALS
               </div>
-              <h2 className="text-base sm:text-lg font-display font-extrabold text-[#1A1D20] tracking-tight">
+              <h2 className="text-base sm:text-lg font-display font-extrabold text-obsidian tracking-tight">
                 {t("profile.modalTitle", "Профіль та аналітика інженера")}
               </h2>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#1A1D20]/5 hover:bg-[#1A1D20]/15 border border-[#1A1D20]/20 flex items-center justify-center text-[#1A1D20] transition-all cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 border border-black/[0.06] flex items-center justify-center text-slate-700 transition-all cursor-pointer"
             title={t("common.close", "Закрити")}
           >
             <X size={16} strokeWidth={2.4} />
@@ -528,14 +525,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         </div>
 
         {/* ── Navigation Tabs ── */}
-        <div className="relative z-10 px-6 pt-2 border-b border-[#1A1D20]/15 bg-[#E6DEC9] flex gap-2">
+        <div className="relative z-10 px-6 pt-2 border-b border-black/[0.06] bg-slate-50/40 flex gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("identity")}
             className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-display font-bold transition-all cursor-pointer ${
               activeTab === "identity"
-                ? "border-[#1E3A8A] text-[#1E3A8A] font-extrabold"
-                : "border-transparent text-[#1A1D20]/60 hover:text-[#1A1D20]"
+                ? "border-[#252932] text-obsidian font-extrabold"
+                : "border-transparent text-slate-500 hover:text-obsidian"
             }`}
           >
             <User size={14} strokeWidth={2.2} />
@@ -547,8 +544,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             onClick={() => setActiveTab("analytics")}
             className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-display font-bold transition-all cursor-pointer ${
               activeTab === "analytics"
-                ? "border-[#1E3A8A] text-[#1E3A8A] font-extrabold"
-                : "border-transparent text-[#1A1D20]/60 hover:text-[#1A1D20]"
+                ? "border-[#252932] text-obsidian font-extrabold"
+                : "border-transparent text-slate-500 hover:text-obsidian"
             }`}
           >
             <TrendingUp size={14} strokeWidth={2.2} />
@@ -560,8 +557,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             onClick={() => setActiveTab("achievements")}
             className={`flex items-center gap-2 pb-2.5 px-3 border-b-2 text-xs font-display font-bold transition-all cursor-pointer ${
               activeTab === "achievements"
-                ? "border-[#1E3A8A] text-[#1E3A8A] font-extrabold"
-                : "border-transparent text-[#1A1D20]/60 hover:text-[#1A1D20]"
+                ? "border-[#252932] text-obsidian font-extrabold"
+                : "border-transparent text-slate-500 hover:text-obsidian"
             }`}
           >
             <Award size={14} strokeWidth={2.2} />

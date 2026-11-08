@@ -71,12 +71,12 @@ export const ExplorerTourHeaderBar: React.FC = () => {
   return (
     <div
       id="explorer-tour-header-bar"
-      className="sticky top-0 z-40 w-full max-w-full overflow-hidden bg-[#1E2227] text-[#FAF8F4] border-b border-[#FAF8F4]/15 shadow-md px-3 sm:px-6 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 select-none animate-in slide-in-from-top duration-200"
+      className="sticky top-0 z-40 w-full max-w-full overflow-hidden bg-[#252932] text-white border-b border-black/[0.08] shadow-luxury px-3 sm:px-6 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 select-none animate-in slide-in-from-top duration-200"
     >
       {/* ── Left: Tour Badge & Step Indicator ── */}
       <div className="flex items-center gap-3 w-full md:w-auto shrink-0 justify-between md:justify-start">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#C86D32]/20 border border-[#C86D32]/40 text-[#E8935D] text-[10px] font-mono font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-[#C5A059] text-[10px] font-mono font-bold uppercase tracking-wider">
             <Compass size={12} className="animate-spin" style={{ animationDuration: "12s" }} />
             <span>{t("career.tour.badge", "ЕКСПРЕС-ТУР")}</span>
           </span>
@@ -98,9 +98,9 @@ export const ExplorerTourHeaderBar: React.FC = () => {
                 key={stepNum}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   isCompleted
-                    ? "w-6 bg-[#3E7A5E]"
+                    ? "w-6 bg-emerald-500"
                     : isCurrent
-                    ? "w-8 bg-[#C86D32] ring-1 ring-white/30"
+                    ? "w-8 bg-[#C5A059] ring-1 ring-white/40"
                     : "w-5 bg-white/20"
                 }`}
                 title={t("career.tour.stepProgressTitle", { num: stepNum, defaultValue: `Крок ${stepNum}` })}
@@ -113,7 +113,7 @@ export const ExplorerTourHeaderBar: React.FC = () => {
       {/* ── Center: Mentor Scaffolding Prompt ── */}
       <div className="flex-1 w-full md:w-auto px-2 flex items-center justify-center text-center">
         <div className="flex items-center gap-2 text-xs sm:text-sm font-sans text-white/90 max-w-2xl">
-          <Sparkles size={15} className="text-[#C86D32] shrink-0 hidden sm:inline-block animate-pulse" />
+          <Sparkles size={15} className="text-[#C5A059] shrink-0 hidden sm:inline-block animate-pulse" />
           <p className="line-clamp-2 leading-tight italic">
             {current.prompt}
           </p>
@@ -126,7 +126,7 @@ export const ExplorerTourHeaderBar: React.FC = () => {
           type="button"
           id={`btn-tour-step-action-${explorerStep}`}
           onClick={() => completeExplorerStep(explorerStep)}
-          className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#FAF8F4] hover:bg-white text-[#1E2227] font-mono font-bold text-xs shadow-xs hover:shadow transition-all cursor-pointer active:scale-95 border border-[#1E2227]/20"
+          className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#0F141C] font-mono font-bold text-xs shadow-2xs hover:shadow transition-all cursor-pointer active:scale-95 border border-black/[0.08]"
         >
           <span>{current.actionLabel}</span>
           <ArrowRight size={13} />

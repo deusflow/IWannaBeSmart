@@ -100,11 +100,11 @@ export const GuidedTechStackLayer: React.FC<GuidedTechStackLayerProps> = ({
   const CategoryIcon = categoryBadge.icon;
 
   return (
-    <div className="p-4 sm:p-5 space-y-4 animate-in fade-in duration-150 font-sans text-[#1A1D20]">
+    <div className="p-4 sm:p-5 space-y-4 animate-in fade-in duration-150 font-sans text-obsidian">
       {/* ── Top Header Banner: Primary Tech & Category Badge ── */}
-      <div className="p-4 rounded-xl bg-[#EFE9DC] border border-[#1A1D20]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+      <div className="p-4 rounded-2xl bg-slate-50 border border-black/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
         <div className="flex items-start sm:items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#1A1D20] text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-[#252932] text-[#C5A059] flex items-center justify-center shrink-0 shadow-2xs">
             <CategoryIcon size={20} />
           </div>
           <div>
@@ -114,11 +114,11 @@ export const GuidedTechStackLayer: React.FC<GuidedTechStackLayerProps> = ({
               >
                 {categoryBadge.label}
               </span>
-              <span className="text-[10px] font-mono text-[#1A1D20]/60">
+              <span className="text-[10px] font-mono text-slate-400">
                 {t("guide.realWorldStandard", "Промисловий стандарт")}
               </span>
             </div>
-            <h3 className="font-display font-black text-sm sm:text-base text-[#1A1D20] mt-1 leading-snug">
+            <h3 className="font-display font-black text-sm sm:text-base text-obsidian mt-1 leading-snug">
               {insight.primaryTech}
             </h3>
           </div>
@@ -128,26 +128,26 @@ export const GuidedTechStackLayer: React.FC<GuidedTechStackLayerProps> = ({
       {/* ── Grid: What It Is (Working Principle) & Why In Production ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Card 1: What is it and how it works */}
-        <div className="p-3.5 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-2 flex flex-col justify-between">
+        <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-black/[0.06] space-y-2 flex flex-col justify-between shadow-2xs">
           <div>
-            <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-accent-blue mb-1">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#252932] mb-1">
               <Cpu size={13} className="shrink-0" />
               <span>{t("guide.whatIsItTitle", "Що це таке і принцип роботи")}</span>
             </div>
-            <p className="text-xs text-[#1A1D20]/85 leading-relaxed font-sans">
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               {whatIsIt}
             </p>
           </div>
         </div>
 
         {/* Card 2: Why it is used here */}
-        <div className="p-3.5 rounded-xl bg-[#FAF8F2] border border-[#1A1D20]/15 space-y-2 flex flex-col justify-between">
+        <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-black/[0.06] space-y-2 flex flex-col justify-between shadow-2xs">
           <div>
             <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 mb-1">
               <Zap size={13} className="shrink-0 text-emerald-700" />
               <span>{t("guide.whyHereTitle", "Чому використовується тут")}</span>
             </div>
-            <p className="text-xs text-[#1A1D20]/85 leading-relaxed font-sans">
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               {whyHere}
             </p>
           </div>
@@ -155,7 +155,7 @@ export const GuidedTechStackLayer: React.FC<GuidedTechStackLayerProps> = ({
       </div>
 
       {/* ── Card 3: Alternative & Trade-Offs (Why it is worse) ── */}
-      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-600/30 text-xs space-y-2">
+      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-600/25 text-xs space-y-2 shadow-2xs">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-1.5 text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-950">
             <AlertTriangle size={14} className="text-amber-700 shrink-0" />
@@ -176,14 +176,14 @@ export const GuidedTechStackLayer: React.FC<GuidedTechStackLayerProps> = ({
 
       {/* ── Card 4: Key Engineering Advantages (Pills) ── */}
       <div className="space-y-1.5 pt-1">
-        <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/60">
+        <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
           {t("guide.advantagesTitle", "Ключові інженерні переваги:")}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {advantages.map((adv, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EFE9DC] border border-[#1A1D20]/20 text-[11px] font-mono font-bold text-[#1A1D20] shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-black/[0.06] text-[11px] font-mono font-bold text-obsidian shadow-2xs"
             >
               <CheckCircle2 size={12} className="text-emerald-700 shrink-0" />
               <span>{adv}</span>

@@ -196,25 +196,25 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
       role="dialog"
       aria-modal="true"
       data-testid="di-race-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-[#1A1D20]/75 backdrop-blur-xs font-sans text-[#1A1D20]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/60 backdrop-blur-sm font-sans text-obsidian"
     >
-      <div className="relative w-full max-w-4xl bg-[#FAF8F2] rounded-2xl border-2 border-[#1A1D20]/30 shadow-2xl flex flex-col max-h-[94vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-4xl bg-white rounded-2xl border border-black/[0.08] shadow-luxury flex flex-col max-h-[94vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-5 py-3.5 bg-[#EFE9DC] border-b border-[#1A1D20]/20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-rose-500/15 border border-rose-600/30 text-rose-900">
+        <div className="px-5 py-3.5 bg-slate-50/80 border-b border-black/[0.06] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-600/25 text-rose-900">
               <Timer size={18} />
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#1A1D20]/10 text-[#1A1D20]">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 border border-black/[0.06] text-slate-700">
                   {t("labs.diRace.badge", "DI Survival Race")}
                 </span>
                 <span className="text-xs font-mono font-bold text-amber-700">
                   +{scenario.rewardXp} XP
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-display font-bold text-[#1A1D20] mt-0.5">
+              <h2 className="text-base sm:text-lg font-display font-bold text-obsidian mt-0.5">
                 {t(scenario.titleKey, scenario.defaultTitle)}
               </h2>
             </div>
@@ -226,7 +226,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
               onClose();
             }}
             data-testid="di-close-btn"
-            className="p-1.5 rounded-lg hover:bg-[#1A1D20]/10 text-[#1A1D20]/60 hover:text-[#1A1D20] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-obsidian transition-colors cursor-pointer"
             aria-label={t("common.close", "Закрити")}
           >
             <X size={18} />
@@ -234,7 +234,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div className="px-5 py-2.5 bg-[#FAF8F2] border-b border-[#1A1D20]/15 flex items-center justify-between">
+        <div className="px-5 py-2.5 bg-white border-b border-black/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -245,8 +245,8 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
                 mode === "without-di"
-                  ? "bg-rose-600 text-white shadow-xs"
-                  : "bg-[#EFE9DC] text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                  ? "bg-rose-600 text-white shadow-2xs"
+                  : "bg-slate-100 hover:bg-slate-200/70 text-slate-700"
               }`}
             >
               {t("labs.diRace.tabWithoutDi", "Раунд 1: Без DI (Таймер 10 с)")}
@@ -257,8 +257,8 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
               data-testid="di-toggle"
               className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
                 mode === "with-di"
-                  ? "bg-emerald-700 text-white shadow-xs"
-                  : "bg-[#EFE9DC] text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                  ? "bg-[#252932] text-[#C5A059] border border-[#C5A059]/40 shadow-2xs"
+                  : "bg-slate-100 hover:bg-slate-200/70 text-slate-700"
               }`}
             >
               <Sparkles size={13} />
@@ -268,7 +268,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
 
           <button
             onClick={handleResetAll}
-            className="p-1.5 rounded-lg hover:bg-[#1A1D20]/10 text-[#1A1D20]/60 hover:text-[#1A1D20] text-xs font-mono flex items-center gap-1 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-obsidian text-xs font-mono flex items-center gap-1 transition-colors"
             title={t("labs.diRace.resetAllTooltip", "Скинути обидва раунди")}
           >
             <RotateCcw size={13} />
@@ -299,8 +299,8 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
 
               {/* Start Bar / Countdown */}
               {!hasStartedR1 ? (
-                <div className="p-6 text-center rounded-xl bg-[#EFE9DC]/60 border border-[#1A1D20]/15 space-y-3">
-                  <div className="font-mono text-xs text-[#1A1D20]/80">
+                <div className="p-6 text-center rounded-2xl bg-slate-50 border border-black/[0.06] space-y-3 shadow-2xs">
+                  <div className="font-mono text-xs text-slate-600">
                     {t("labs.diRace.timerNotice", "У вас є лише 10 секунд на ручне виправлення 5 файлів.")}
                   </div>
                   <button
@@ -372,25 +372,25 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                   return (
                     <div
                       key={fileName}
-                      className={`p-3 rounded-xl border flex flex-col justify-between transition-all ${
+                      className={`p-3 rounded-xl border flex flex-col justify-between transition-all shadow-2xs ${
                         isFixed
                           ? "bg-emerald-500/10 border-emerald-600/30"
-                          : "bg-[#FAF8F2] border-[#1A1D20]/20"
+                          : "bg-white border-black/[0.08]"
                       }`}
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="font-mono text-xs font-bold text-[#1A1D20] truncate">
+                          <span className="font-mono text-xs font-bold text-obsidian truncate">
                             {fileName}
                           </span>
                           {isFixed ? (
                             <CheckCircle2 size={14} className="text-emerald-700 shrink-0" />
                           ) : (
-                            <FileCode size={14} className="text-gray-400 shrink-0" />
+                            <FileCode size={14} className="text-slate-400 shrink-0" />
                           )}
                         </div>
 
-                        <div className="font-mono text-[10px] p-1.5 rounded bg-[#212429] text-gray-200 overflow-x-auto select-none">
+                        <div className="font-mono text-[10px] p-1.5 rounded bg-[#1A1D24] text-gray-200 overflow-x-auto select-none">
                           {isFixed ? (
                             <span className="text-emerald-400">
                               var gateway = new StripePaymentGateway();
@@ -405,7 +405,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
 
                       {/* Manual edit prompt */}
                       {hasStartedR1 && !isFailedR1 && !isFixed && (
-                        <div className="mt-2 pt-2 border-t border-[#1A1D20]/10">
+                        <div className="mt-2 pt-2 border-t border-black/[0.06]">
                           {isEditing ? (
                             <div className="space-y-1.5">
                               <input
@@ -416,19 +416,19 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                                   if (e.key === "Enter") handleSaveFix(idx);
                                 }}
                                 placeholder={scenario.newService}
-                                className="w-full px-2 py-1 text-[11px] font-mono bg-white border border-[#1A1D20]/30 rounded outline-none focus:border-amber-600"
+                                className="w-full px-2 py-1 text-[11px] font-mono bg-white border border-black/[0.15] rounded outline-none focus:border-[#252932]"
                                 autoFocus
                               />
                               <div className="flex items-center justify-between gap-1">
                                 <button
                                   onClick={() => handleSaveFix(idx)}
-                                  className="px-2 py-0.5 rounded bg-[#1A1D20] text-white font-mono text-[10px] font-bold"
+                                  className="px-2 py-0.5 rounded bg-[#252932] text-white font-mono text-[10px] font-bold"
                                 >
                                   {t("labs.diRace.saveBtn", "OK")}
                                 </button>
                                 <button
                                   onClick={() => setActiveEditingIdx(null)}
-                                  className="text-[10px] font-mono text-[#1A1D20]/60"
+                                  className="text-[10px] font-mono text-slate-400 hover:text-obsidian"
                                 >
                                   {t("common.cancel", "Скасувати")}
                                 </button>
@@ -438,7 +438,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                             <button
                               onClick={() => handleOpenFix(idx)}
                               data-testid={`di-fix-btn-${idx}`}
-                              className="w-full py-1 px-2 rounded bg-[#FAF8F2] hover:bg-white border border-[#1A1D20]/25 text-[#1A1D20] font-mono text-[11px] font-bold transition-all shadow-2xs"
+                              className="w-full py-1 px-2 rounded bg-slate-100 hover:bg-slate-200 border border-black/[0.08] text-obsidian font-mono text-[11px] font-bold transition-all shadow-2xs"
                             >
                               {t("labs.diRace.fixBtn", "Виправити")}
                             </button>
@@ -523,10 +523,10 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                       <div
                         key={fileName}
                         data-testid={`di-consumer-${idx}`}
-                        className={`p-3 rounded-xl border transition-all duration-300 ${
+                        className={`p-3 rounded-xl border transition-all duration-300 shadow-2xs ${
                           isUpdated
-                            ? "bg-emerald-500/15 border-emerald-600/40 text-emerald-950 shadow-xs"
-                            : "bg-[#FAF8F2] border-[#1A1D20]/20 text-[#1A1D20]"
+                            ? "bg-emerald-500/15 border-emerald-600/40 text-emerald-950"
+                            : "bg-white border-black/[0.08] text-obsidian"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1 mb-1">
@@ -588,8 +588,8 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 bg-[#EFE9DC] border-t border-[#1A1D20]/20 flex items-center justify-between">
-          <div className="text-[11px] font-mono text-[#1A1D20]/70">
+        <div className="px-5 py-3 bg-slate-50/80 border-t border-black/[0.06] flex items-center justify-between">
+          <div className="text-[11px] font-mono text-slate-500">
             {t("labs.diRace.hintNote", "Dependency Injection звільняє бізнес-логіку від створення залежностей")}
           </div>
 
@@ -598,7 +598,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
               audioFx.playRelayClick();
               onClose();
             }}
-            className="px-4 py-1.5 rounded-xl bg-[#FAF8F2] hover:bg-white border border-[#1A1D20]/30 font-mono text-xs font-bold text-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
+            className="px-4 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] font-mono text-xs font-bold text-obsidian transition-colors cursor-pointer shadow-2xs"
           >
             {t("common.close", "Закрити")}
           </button>

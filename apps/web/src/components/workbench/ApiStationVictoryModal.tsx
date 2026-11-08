@@ -16,6 +16,7 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react";
 import { audioFx } from "../../utils/audioFx";
 import { useWorkbenchStore } from "../../store/workbenchStore";
@@ -105,48 +106,47 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
   if (!isOpen) return null;
 
   const handleDownloadSvg = () => {
-    audioFx.playSuccessFanfare();
+    audioFx.playRelayClick();
     downloadCertificateSvg({
       stationCode: "API",
-      stationTitle: "Backend & API Forge Architecture",
+      stationTitle: "Station 04: API Forge — Backend & Microservices",
       credentialTitle: "Certified Backend & API Architect",
-      callsign: callsign || "Operator",
+      callsign: callsign || "Cadet Engineer",
       stars: currentApiStars,
       maxStars: maxApiStars,
       xp,
       competencies: [
-        "Heartbeat & Healthcheck Endpoints (HTTP 200)",
-        "RESTful Resource Routing & 404 Guard Clauses",
-        "DTO Schema Validation & HTTP 201 Created",
-        "Bearer Token Auth & 401 Protection",
-        "Fault Injection, 504 Timeout & Exponential Retries",
+        "Liveness & Health Probes (MapGet /healthz)",
+        "RESTful Endpoints & HTTP Status Code Guard Clauses",
+        "Schema Validation & HTTP 201 Created Semantics",
+        "Bearer Token Authentication & 401 Unauthorized Defense",
+        "HTTP Client Resiliency & Exponential Backoff Retry Policy",
       ],
-      themeColor: "#0EA5E9",
+      themeColor: "#0284C7",
     });
   };
 
   const handleCopyCertificate = () => {
-    audioFx.playRelayClick();
-    const certText = `
-╔════════════════════════════════════════════════════════════════════════════╗
-║                   IWANNABESMART • ENGINEERING CERTIFICATE                  ║
-║                      MODULE 4: BACKEND & API ARCHITECT                     ║
-╠════════════════════════════════════════════════════════════════════════════╣
-║ This certifies that the engineer has mastered commercial API engineering  ║
-║ across modern C# (.NET Minimal APIs) and Go (net/http).                    ║
-║                                                                            ║
-║ Verified Competencies:                                                     ║
-║  [✓] 1. Heartbeat & Healthcheck Endpoints (HTTP 200 OK)                    ║
-║  [✓] 2. RESTful Resource Routing & 404 Guard Clauses                       ║
-║  [✓] 3. DTO Schema Validation & HTTP 201 Created Semantics                 ║
-║  [✓] 4. Bearer Token Authentication & 401 Unauthorized Protection          ║
-║  [✓] 5. High-Throughput HTTP Client Consumer & Deserialization             ║
-║  [✓] 6. Network Cable Fault Injection, 504 Timeout & Exponential Retries   ║
-║                                                                            ║
-║ Total Experience Earned: ${xp} XP                                           ║
-║ Issued: ${new Date().toISOString().split("T")[0]}                                          ║
-╚════════════════════════════════════════════════════════════════════════════╝
-    `.trim();
+    audioFx.playKeyClick();
+    const certText = `═══════════════════════════════════════════════════════
+  INTERACTIVE WORKBENCH: BACKEND & API FORGE CERTIFICATE
+  MODULE 4: API FORGE ARCHITECT — FULLY CERTIFIED!
+═══════════════════════════════════════════════════════
+
+Candidate Callsign: ${callsign || "Cadet Engineer"}
+Total Experience:   ${xp} XP
+Station Mastery:    ${currentApiStars} / ${maxApiStars} ★ (All 6 Commercial Modules Verified)
+
+Core Competencies Mastered:
+  1. [✓] Liveness Probes & Health Checks (/healthz)
+  2. [✓] RESTful Resource Routing & Entity Isolation
+  3. [✓] DTO Input Validation & HTTP 201 Semantics
+  4. [✓] Bearer Token Authorization & Secure Headers
+  5. [✓] High-Throughput HTTP Consumers & JSON Streams
+  6. [✓] Resilient Retry Patterns & 504 Timeout Mitigation
+
+Verification Hash: IW-API-FORGE-${Math.random().toString(36).substring(2, 9).toUpperCase()}
+═══════════════════════════════════════════════════════`;
 
     navigator.clipboard.writeText(certText);
     setCopied(true);
@@ -154,97 +154,93 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#FAF8F2] border-2 border-[#1A1D20] shadow-paper-lg p-5 sm:p-7 space-y-6 text-[#1A1D20] select-none font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury p-6 sm:p-8 space-y-6">
         {/* Close Button */}
         <button
           onClick={() => {
             audioFx.playRelayClick();
             onClose();
           }}
-          className="absolute top-4 right-4 p-2 rounded-xl hover:bg-[#1A1D20]/10 text-[#1A1D20]/60 hover:text-[#1A1D20] transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
           title={t("common.close", "Закрити")}
         >
           <X size={18} />
         </button>
 
         {/* ── Modal Header: Trophy & Badges ── */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 border-2 border-cyan-600/40 flex items-center justify-center text-cyan-600 shrink-0 shadow-paper-sm">
-            <Server size={30} />
+        <div className="text-center space-y-2 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-800 text-xs font-mono font-bold tracking-wider uppercase">
+            <ShieldCheck size={14} className="text-emerald-700" />
+            <span>{currentApiStars} / {maxApiStars} ★ • 4-Star Mastery Certified</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-600/30 text-cyan-800">
-                STATION 04 • API FORGE
-              </span>
-              <span className="text-[10px] font-mono font-bold text-[#1A1D20]/60">
-                100% COMPLETE
-              </span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-display font-extrabold text-[#1A1D20] tracking-tight mt-0.5">
-              {t("apiForge.victoryModal.title", "Модуль 4: API Forge завершено!")}
-            </h2>
-            <p className="text-xs sm:text-sm font-sans text-[#1A1D20]/70 mt-0.5 leading-relaxed">
-              {t(
-                "apiForge.victoryModal.subtitle",
-                "Ви побудували повний стек API: від Heartbeat та DTO валідації до Bearer токенів, клієнтських споживачів та повторних спроб при 504 Timeout."
-              )}
-            </p>
-          </div>
+
+          <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-obsidian tracking-tight">
+            {t("apiForge.victoryModal.title", "Модуль 4: API Forge завершено!")}
+          </h2>
+
+          <p className="font-sans text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
+            {t(
+              "apiForge.victoryModal.subtitle",
+              "Ви побудували повний стек API: від Heartbeat та DTO валідації до Bearer токенів, клієнтських споживачів та повторних спроб при 504 Timeout."
+            )}
+          </p>
         </div>
 
         {/* ── XP & Stars Summary Banner ── */}
-        <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20">
+        <div className="p-4 rounded-2xl bg-slate-50/80 border border-black/[0.06] flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-600/30 flex items-center justify-center text-amber-800 font-bold text-base">
-              ★
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-600/25 flex items-center justify-center text-amber-700">
+              <Award size={22} />
             </div>
             <div>
-              <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/60">
-                {t("hub.stationStars", "STATION STARS")}
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("fintechVictoryModal.xpEarned", "Зароблений XP")}
               </div>
-              <div className="text-base font-display font-extrabold text-[#1A1D20]">
-                {currentApiStars} / {maxApiStars} ★
+              <div className="font-display font-extrabold text-xl text-obsidian flex items-center gap-1">
+                <span>+{xp}</span>
+                <span className="text-xs font-mono font-bold text-[#C5A059]">XP</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-600/30 flex items-center justify-center text-cyan-800 font-bold text-base">
-              <Award size={18} />
+            <div className="text-right">
+              <div className="text-[10px] font-mono uppercase font-bold text-slate-500">
+                {t("hub.stationStars", "STATION STARS")}
+              </div>
+              <div className="text-base font-display font-extrabold text-[#C5A059]">
+                {currentApiStars} / {maxApiStars} ★
+              </div>
             </div>
-            <div>
-              <div className="text-[10px] font-mono uppercase font-bold text-[#1A1D20]/60">
-                {t("fintechVictoryModal.xpEarned", "Зароблений XP")}
-              </div>
-              <div className="text-base font-display font-extrabold text-[#1A1D20]">
-                {xp} XP
-              </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-black/[0.08] font-mono text-xs font-bold text-obsidian shadow-2xs">
+              <Server size={14} className="text-sky-600" />
+              <span>API PROD READY</span>
             </div>
           </div>
         </div>
 
         {/* ── Backend Architecture Competency Matrix (Expandable) ── */}
-        <div className="rounded-2xl bg-[#EBE5D8] border border-[#1A1D20]/20 overflow-hidden">
-          <button
-            onClick={() => {
-              audioFx.playRelayClick();
-              setIsMatrixExpanded((p) => !p);
-            }}
-            className="w-full p-3 px-4 flex items-center justify-between bg-[#E4DDD0] border-b border-[#1A1D20]/15 hover:bg-[#DDD5C6] transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-cyan-800" />
-              <span className="font-display font-bold text-xs uppercase tracking-wider text-[#1A1D20]">
-                {t("apiForge.victoryModal.matrixTitle", "Матриця компетенцій Backend & API Architect (6 патернів)")}
-              </span>
-            </div>
-            {isMatrixExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between border-b border-black/[0.06] pb-1.5">
+            <h3 className="font-display font-bold text-sm uppercase tracking-wider text-obsidian flex items-center gap-1.5">
+              <Sparkles size={14} className="text-[#C5A059]" />
+              <span>{t("apiForge.victoryModal.matrixTitle", "Матриця компетенцій Backend & API Architect")}</span>
+            </h3>
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setIsMatrixExpanded((p) => !p);
+              }}
+              className="flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600 hover:text-obsidian px-2 py-0.5 rounded-md bg-white border border-black/[0.08] shadow-2xs cursor-pointer transition-colors"
+            >
+              <span>{isMatrixExpanded ? t("common.collapse", "Згорнути") : t("common.showAll", `Всі (${API_SKILLS.length})`)}</span>
+              {isMatrixExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+          </div>
 
           {isMatrixExpanded && (
-            <div className="p-3 sm:p-4 space-y-2 animate-in fade-in">
+            <div className="space-y-2 animate-in fade-in">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {API_SKILLS.map((skill) => {
                   const isSelected = activeSkillId === skill.id;
@@ -257,16 +253,16 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
                       }}
                       className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2 ${
                         isSelected
-                          ? "bg-[#FAF8F2] border-cyan-600/50 shadow-paper-xs"
-                          : "bg-[#DFD7C5]/40 hover:bg-[#FAF8F2]/60 border-[#1A1D20]/15 text-[#1A1D20]/80"
+                          ? "bg-slate-50 border-sky-600/50 shadow-2xs"
+                          : "bg-slate-50/50 hover:bg-slate-50 border-black/[0.06] text-obsidian"
                       }`}
                     >
-                      <CheckCircle2 size={14} className="text-cyan-700 shrink-0 mt-0.5" />
+                      <CheckCircle2 size={14} className="text-emerald-600 shrink-0 mt-0.5" />
                       <div className="min-w-0">
-                        <div className="text-[11px] font-mono font-bold text-[#1A1D20] truncate">
+                        <div className="text-[11px] font-mono font-bold text-obsidian truncate">
                           {skill.category}
                         </div>
-                        <div className="text-[9px] font-mono text-[#1A1D20]/60 truncate">
+                        <div className="text-[9px] font-mono text-slate-500 truncate">
                           {t(skill.nameKey, skill.id)}
                         </div>
                       </div>
@@ -277,8 +273,8 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
 
               {/* Code Snippet Card for Active Skill */}
               {activeSkillId && (
-                <div className="p-2.5 rounded-xl bg-[#141518] text-white font-mono text-[11px] border border-[#2C3038] mt-2">
-                  <div className="text-[9px] text-gray-400 uppercase mb-1">
+                <div className="p-3 rounded-xl bg-[#1A1D24] text-white font-mono text-[11px] border border-black/[0.1] mt-2">
+                  <div className="text-[9px] text-slate-400 uppercase mb-1">
                     PRODUCTION CODE PATTERN:
                   </div>
                   <pre className="text-cyan-300 overflow-x-auto py-1">
@@ -291,11 +287,11 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
         </div>
 
         {/* ── Action Buttons ── */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-black/[0.06]">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-mono font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-paper-xs active:scale-95"
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
             >
               <Download size={14} />
               <span>{t("common.downloadCertSvg", "Завантажити векторний сертифікат (SVG)")}</span>
@@ -303,14 +299,10 @@ export const ApiStationVictoryModal: React.FC<ApiStationVictoryModalProps> = ({
 
             <button
               onClick={handleCopyCertificate}
-              className={`py-2.5 px-3.5 rounded-xl border font-mono font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                copied
-                  ? "bg-emerald-600 text-white border-emerald-600"
-                  : "bg-[#EBE5D8] hover:bg-[#E2DBCB] text-[#1A1D20] border-[#1A1D20]/25 shadow-paper-xs"
-              }`}
+              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] text-obsidian font-mono font-bold text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer shadow-2xs"
               title={t("fintechVictoryModal.copyCertBtn", "Скопіювати сертифікат (ASCII)")}
             >
-              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
               <span className="hidden sm:inline">
                 {copied
                   ? t("fintechVictoryModal.copiedBtn", "Скопійовано")

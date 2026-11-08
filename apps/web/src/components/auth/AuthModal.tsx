@@ -147,25 +147,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const activeError = localError || error;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in select-none">
       <div
-        className="relative w-full max-w-md bg-[#FAF8F2] text-[#1A1D20] rounded-3xl border-2 border-[#1A1D20]/30 shadow-2xl overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-md bg-white text-obsidian rounded-3xl border border-black/[0.08] shadow-luxury overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-200"
       >
-        {/* Subtle engineering vellum grid background overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(26,29,32,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(26,29,32,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-
         {/* Modal Top Header */}
-        <div className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-[#1A1D20]/15 bg-[#EFE9DC]">
+        <div className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-black/[0.06] bg-slate-50/70">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-accent-blue/15 border-2 border-accent-blue/30 text-accent-blue flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#252932]/10 border border-[#252932]/20 text-[#252932] flex items-center justify-center shadow-2xs shrink-0">
               <Cpu size={20} strokeWidth={2.2} />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-accent-blue">
-                <ShieldCheck size={13} />
+              <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-slate-500">
+                <ShieldCheck size={13} className="text-emerald-700" />
                 <span>{t("auth.badge", "ІНЖЕНЕРНА ТЕЛЕМЕТРІЯ")}</span>
               </div>
-              <h3 className="text-lg font-display font-extrabold text-[#1A1D20] tracking-tight mt-0.5">
+              <h3 className="text-lg font-display font-extrabold text-obsidian tracking-tight mt-0.5">
                 {mode === "signIn"
                   ? t("auth.titleSignIn", "Авторизація інженера")
                   : t("auth.titleSignUp", "Реєстрація профілю")}
@@ -176,7 +173,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <LanguageSwitcher compact />
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-xl bg-[#1A1D20]/5 hover:bg-[#1A1D20]/15 border border-[#1A1D20]/20 flex items-center justify-center text-[#1A1D20] transition-all cursor-pointer"
+              className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 border border-black/[0.06] flex items-center justify-center text-slate-700 transition-all cursor-pointer"
               title={t("common.close", "Закрити")}
               aria-label={t("common.close", "Закрити")}
             >
@@ -187,15 +184,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Modal Body */}
         <div className="relative z-10 p-6 space-y-5">
-          {/* Mode Switcher Tabs (Matching site's segmented control) */}
-          <div className="grid grid-cols-2 p-1 bg-[#E6DEC9] rounded-2xl border border-[#1A1D20]/20">
+          {/* Mode Switcher Tabs */}
+          <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-2xl border border-black/[0.06]">
             <button
               type="button"
               onClick={() => handleSwitchMode("signIn")}
               className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-display transition-all cursor-pointer ${
                 mode === "signIn"
-                  ? "bg-[#1E3A8A] text-white font-extrabold shadow-paper-sm"
-                  : "text-[#1A1D20]/70 hover:text-[#1A1D20] hover:bg-black/5 font-bold"
+                  ? "bg-white text-obsidian font-extrabold shadow-2xs"
+                  : "text-slate-500 hover:text-obsidian hover:bg-black/5 font-semibold"
               }`}
             >
               <LogIn size={14} strokeWidth={2.2} />
@@ -206,8 +203,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => handleSwitchMode("signUp")}
               className={`flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-display transition-all cursor-pointer ${
                 mode === "signUp"
-                  ? "bg-[#1E3A8A] text-white font-extrabold shadow-paper-sm"
-                  : "text-[#1A1D20]/70 hover:text-[#1A1D20] hover:bg-black/5 font-bold"
+                  ? "bg-white text-obsidian font-extrabold shadow-2xs"
+                  : "text-slate-500 hover:text-obsidian hover:bg-black/5 font-semibold"
               }`}
             >
               <UserPlus size={14} strokeWidth={2.2} />
@@ -220,7 +217,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white hover:bg-[#FAF8F2] active:scale-[0.99] text-[#1A1D20] font-display font-bold text-xs shadow-paper-xs hover:shadow-paper-sm border-2 border-[#1A1D20]/20 hover:border-[#1A1D20]/40 transition-all cursor-pointer disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white hover:bg-slate-50 active:scale-[0.99] text-obsidian font-display font-bold text-xs shadow-2xs border border-black/[0.08] hover:border-black/[0.15] transition-all cursor-pointer disabled:opacity-50"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path
@@ -248,29 +245,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             type="button"
             onClick={handleGuestSignIn}
             disabled={isLoading}
-            className="w-full flex flex-col items-center justify-center py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAF8F2] active:scale-[0.99] text-[#1A1D20] shadow-paper-xs hover:shadow-paper-sm border-2 border-[#1A1D20]/20 hover:border-[#1E3A8A]/40 transition-all cursor-pointer disabled:opacity-50 group"
+            className="w-full flex flex-col items-center justify-center py-2.5 px-4 rounded-xl bg-slate-50/80 hover:bg-slate-100 active:scale-[0.99] text-obsidian shadow-2xs border border-black/[0.08] transition-all cursor-pointer disabled:opacity-50 group"
           >
-            <div className="flex items-center gap-2 font-display font-bold text-xs text-[#1A1D20] group-hover:text-[#1E3A8A] transition-colors">
-              <User size={14} className="text-[#1E3A8A]" />
+            <div className="flex items-center gap-2 font-display font-bold text-xs text-obsidian group-hover:text-[#252932] transition-colors">
+              <User size={14} className="text-[#252932]" />
               <span>{t("auth.continueAsGuest", "Продовжити як гість")}</span>
             </div>
-            <span className="text-[10px] font-mono text-[#1A1D20]/60 mt-0.5">
+            <span className="text-[10px] font-mono text-slate-500 mt-0.5">
               {t("auth.guestProgressNotice", "Прогрес збережеться тільки на цьому пристрої")}
             </span>
           </button>
 
-          {/* Blueprint Divider */}
+          {/* Divider */}
           <div className="relative flex items-center justify-center my-1">
-            <div className="w-full border-t border-[#1A1D20]/15" />
-            <span className="bg-[#FAF8F2] px-3 text-[10px] font-mono uppercase text-[#1A1D20]/50 tracking-wider font-bold">
+            <div className="w-full border-t border-black/[0.06]" />
+            <span className="bg-white px-3 text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">
               {t("auth.orEmail", "або електронна пошта")}
             </span>
           </div>
 
           {/* Error Message */}
           {activeError && (
-            <div className="p-3.5 rounded-xl bg-red-50 border-2 border-red-300 text-red-800 text-xs flex items-start gap-2.5 font-mono shadow-xs animate-in fade-in duration-200">
-              <AlertCircle size={16} className="text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5 font-mono shadow-2xs animate-in fade-in duration-200">
+              <AlertCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
               <div className="leading-snug">{activeError}</div>
             </div>
           )}
@@ -279,57 +276,57 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {mode === "signUp" && (
               <div>
-                <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/75 font-bold mb-1.5">
+                <label className="block text-[11px] font-mono uppercase text-slate-600 font-bold mb-1.5">
                   {t("auth.callsignLabel", "Позивний інженера (Callsign)")}
                 </label>
                 <div className="relative flex items-center">
-                  <User size={15} className="absolute left-3.5 text-[#1A1D20]/40 pointer-events-none" />
+                  <User size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
                   <input
                     type="text"
                     value={callsign}
                     onChange={(e) => setCallsign(e.target.value)}
                     placeholder={t("auth.callsignPlaceholder", "Наприклад: Ghost-01")}
-                    className="w-full bg-white border-2 border-[#1A1D20]/20 hover:border-[#1A1D20]/40 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 font-mono transition-all outline-none shadow-xs"
+                    className="w-full bg-slate-50/50 border border-black/[0.12] hover:border-black/[0.25] focus:border-[#252932] focus:ring-2 focus:ring-[#252932]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs text-obsidian placeholder-slate-400 font-mono transition-all outline-none shadow-2xs"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/75 font-bold mb-1.5">
+              <label className="block text-[11px] font-mono uppercase text-slate-600 font-bold mb-1.5">
                 {t("auth.emailLabel", "Email")}
               </label>
               <div className="relative flex items-center">
-                <Mail size={15} className="absolute left-3.5 text-[#1A1D20]/40 pointer-events-none" />
+                <Mail size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="engineer@corp.com"
                   required
-                  className="w-full bg-white border-2 border-[#1A1D20]/20 hover:border-[#1A1D20]/40 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 font-mono transition-all outline-none shadow-xs"
+                  className="w-full bg-slate-50/50 border border-black/[0.12] hover:border-black/[0.25] focus:border-[#252932] focus:ring-2 focus:ring-[#252932]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs text-obsidian placeholder-slate-400 font-mono transition-all outline-none shadow-2xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono uppercase text-[#1A1D20]/75 font-bold mb-1.5">
+              <label className="block text-[11px] font-mono uppercase text-slate-600 font-bold mb-1.5">
                 {t("auth.passwordLabel", "Пароль (мінімум 6 символів)")}
               </label>
               <div className="relative flex items-center">
-                <Lock size={15} className="absolute left-3.5 text-[#1A1D20]/40 pointer-events-none" />
+                <Lock size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full bg-white border-2 border-[#1A1D20]/20 hover:border-[#1A1D20]/40 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 rounded-xl pl-10 pr-10 py-2.5 text-xs text-[#1A1D20] placeholder-[#1A1D20]/40 font-mono transition-all outline-none shadow-xs"
+                  className="w-full bg-slate-50/50 border border-black/[0.12] hover:border-black/[0.25] focus:border-[#252932] focus:ring-2 focus:ring-[#252932]/15 rounded-xl pl-10 pr-10 py-2.5 text-xs text-obsidian placeholder-slate-400 font-mono transition-all outline-none shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 text-[#1A1D20]/50 hover:text-[#1A1D20] transition-colors cursor-pointer"
+                  className="absolute right-3 text-slate-400 hover:text-obsidian transition-colors cursor-pointer"
                   title={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -340,7 +337,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 py-3 px-4 rounded-xl bg-[#1E3A8A] hover:bg-[#172554] active:scale-[0.99] text-white font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-paper border border-[#1E3A8A] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-[0.99] text-white font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-luxury border border-[#252932] transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -357,15 +354,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="relative z-10 px-6 py-4 bg-[#EFE9DC] border-t border-[#1A1D20]/15 flex items-center justify-between text-xs">
-          <span className="text-[11px] font-mono text-[#1A1D20]/70 flex items-center gap-1.5">
+        <div className="relative z-10 px-6 py-4 bg-slate-50/70 border-t border-black/[0.06] flex items-center justify-between text-xs">
+          <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
             <span>{t("auth.offlineNotice", "Offline-first: прогрес зберігається у браузері")}</span>
           </span>
           <button
             type="button"
             onClick={handleGuestSignIn}
-            className="text-[11px] font-display font-bold text-accent-blue hover:text-accent-blue-hover flex items-center gap-1 cursor-pointer"
+            className="text-[11px] font-display font-bold text-slate-700 hover:text-obsidian flex items-center gap-1 cursor-pointer"
           >
             <span>{t("auth.continueAsGuest", "Продовжити як гість")} →</span>
           </button>

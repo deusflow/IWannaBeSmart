@@ -207,28 +207,28 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
       id="guided-step-bar-container"
       className={`${className ? `${className} ` : ""}w-full rounded-2xl transition-all duration-300 select-none overflow-hidden ${
         !isTheoryUnlocked
-          ? "border-2 border-amber-500 shadow-[0_0_24px_rgba(245,158,11,0.25)] ring-2 ring-amber-400/40 bg-[#EBE5D8]"
-          : "border border-[#1A1D20]/20 bg-[#EBE5D8] shadow-[0_2px_14px_rgba(26,29,32,0.08)]"
+          ? "border border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.15)] ring-2 ring-amber-400/30 bg-white"
+          : "border border-black/[0.07] bg-white shadow-porcelain"
       }`}
       role="region"
       aria-label="Tutorial Briefing and Guided Explanation"
     >
       {/* ── Top Header Bar (Clickable accordion trigger & layer selector pills) ── */}
-      <div className="flex items-center justify-between px-3.5 py-2 border-b border-[#1A1D20]/12 bg-[#E4DDD0] flex-wrap gap-2">
+      <div className="flex items-center justify-between px-3.5 py-2 border-b border-black/[0.06] bg-slate-50/80 flex-wrap gap-2">
         <button
           onClick={toggleExpanded}
           className="flex items-center gap-2 cursor-pointer text-left group"
           title={isExpanded ? t("guide.collapse", "Згорнути інструкцію") : t("guide.expand", "Розгорнути еталон і туторіал")}
         >
-          <div className="w-6 h-6 rounded-lg bg-[#1A1D20] text-white flex items-center justify-center shrink-0 shadow-xs">
-            <Sparkles size={13} className="text-amber-400" />
+          <div className="w-6 h-6 rounded-lg bg-[#252932] text-white flex items-center justify-center shrink-0 shadow-2xs">
+            <Sparkles size={13} className="text-[#C5A059]" />
           </div>
-          <span className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#1A1D20] group-hover:text-black transition-colors flex items-center gap-1.5 flex-wrap">
+          <span className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-obsidian group-hover:text-black transition-colors flex items-center gap-1.5 flex-wrap">
             <span>{t("guide.title", "Еталонний зразок та інструкція")}</span>
-            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#1A1D20]/10 text-[#1A1D20]/80">
+            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-200/60 text-slate-700">
               {codeLang === "csharp" ? "C#" : "Go"}
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-600/15 border border-emerald-600/30 text-emerald-900 font-mono text-[9px] font-extrabold flex items-center gap-1 shadow-2xs">
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-600/25 text-emerald-900 font-mono text-[9px] font-extrabold flex items-center gap-1 shadow-2xs">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
               <span>{t("guide.zeigarnikLoopBadge", "Контур ініціалізовано: 35%")}</span>
             </span>
@@ -239,14 +239,14 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               </span>
             )}
           </span>
-          <span className="text-[10px] font-mono text-[#1A1D20]/50 group-hover:text-[#1A1D20] flex items-center gap-0.5 transition-colors">
+          <span className="text-[10px] font-mono text-slate-400 group-hover:text-obsidian flex items-center gap-0.5 transition-colors">
             {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           </span>
         </button>
 
         {/* Layer toggle pills */}
         <div className="flex items-center gap-1">
-          <div className="flex items-center gap-1 bg-[#DDD7CC] rounded-lg border border-[#1A1D20]/15 p-0.5 flex-wrap">
+          <div className="flex items-center gap-1 bg-slate-100/80 rounded-lg border border-black/[0.06] p-0.5 flex-wrap">
             {/* Tab 1: Ready solution */}
             <button
               onClick={(e) => {
@@ -255,11 +255,11 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               }}
               className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
                 activeLayer === "solution" && isExpanded
-                  ? "bg-[#1A1D20] text-white shadow-xs"
-                  : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                  ? "bg-[#252932] text-white shadow-2xs"
+                  : "text-slate-600 hover:text-obsidian"
               }`}
             >
-              <Code2 size={11} className={activeLayer === "solution" && isExpanded ? "text-amber-400" : ""} />
+              <Code2 size={11} className={activeLayer === "solution" && isExpanded ? "text-[#C5A059]" : ""} />
               <span>{t("guide.solutionTab", " Зразок")}</span>
             </button>
 
@@ -273,8 +273,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }}
                 className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
                   activeLayer === "techStack" && isExpanded
-                    ? "bg-[#1A1D20] text-white shadow-xs"
-                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
                 }`}
                 title={techInsight.primaryTech}
               >
@@ -292,8 +292,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
                   activeLayer === "simple" && isExpanded
-                    ? "bg-[#1A1D20] text-white shadow-xs"
-                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
                 }`}
               >
                 <Lightbulb size={11} className={activeLayer === "simple" && isExpanded ? "text-amber-300" : ""} />
@@ -310,8 +310,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
                   activeLayer === "engineering" && isExpanded
-                    ? "bg-[#1A1D20] text-white shadow-xs"
-                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
                 }`}
               >
                 <Cpu size={11} className={activeLayer === "engineering" && isExpanded ? "text-emerald-400" : ""} />
@@ -328,8 +328,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
                   activeLayer === "architecture" && isExpanded
-                    ? "bg-[#1A1D20] text-white shadow-xs"
-                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
                 }`}
               >
                 <Network size={11} className={activeLayer === "architecture" && isExpanded ? "text-purple-400" : ""} />
@@ -346,8 +346,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
                   activeLayer === "tokens" && isExpanded
-                    ? "bg-[#1A1D20] text-white shadow-xs"
-                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
                 }`}
               >
                 <Layers size={11} className={activeLayer === "tokens" && isExpanded ? "text-cyan-400" : ""} />
@@ -365,8 +365,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
                 }}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
                   activeLayer === "deepdive" && isExpanded
-                    ? "bg-[#1A1D20] text-white shadow-xs"
-                    : "text-[#1A1D20]/70 hover:text-[#1A1D20]"
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
                 }`}
               >
                 <Compass size={11} className={activeLayer === "deepdive" && isExpanded ? "text-indigo-400" : ""} />
@@ -378,7 +378,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           {!persistent && (
             <button
               onClick={() => setDismissed(true)}
-              className="w-5 h-5 rounded-md flex items-center justify-center text-[#1A1D20]/40 hover:text-[#1A1D20] hover:bg-[#1A1D20]/10 transition-colors cursor-pointer"
+              className="w-5 h-5 rounded-md flex items-center justify-center text-slate-400 hover:text-obsidian hover:bg-slate-100 transition-colors cursor-pointer"
               title={t("guide.hide", "Приховати")}
             >
               <X size={12} />
@@ -489,8 +489,8 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
           )}
 
           {/* ── Footer CTA: Motor Drill Action ── */}
-          <div className="px-1 pt-2 flex items-center justify-between border-t border-[#1A1D20]/10 flex-wrap gap-2">
-            <div className="flex items-center gap-1 text-[10px] font-mono text-[#1A1D20]/60">
+          <div className="px-1 pt-2 flex items-center justify-between border-t border-black/[0.06] flex-wrap gap-2">
+            <div className="flex items-center gap-1 text-[10px] font-mono text-slate-500">
               <ChevronRight size={11} />
               <span>
                 {activeLayer === "solution"
@@ -502,10 +502,10 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <button
               id="guided-step-bar-start-practice"
               onClick={handleStartPractice}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-display font-extrabold text-xs active:scale-95 transition-all cursor-pointer shadow-md shadow-amber-500/20"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-display font-extrabold text-xs active:scale-95 transition-all cursor-pointer shadow-2xs"
               title={t("guide.startPracticeTooltip", "Згорнути інструкцію та перейти до практики")}
             >
-              <PenLine size={13} className="text-stone-950" />
+              <PenLine size={13} className="text-[#C5A059]" />
               <span>{t("guide.understoodStartPractice", " Я зрозумів! До практики →")}</span>
             </button>
           </div>
