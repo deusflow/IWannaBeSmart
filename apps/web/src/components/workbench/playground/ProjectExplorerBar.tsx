@@ -174,19 +174,19 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
               setIsFlowPlayerOpen(true);
             }}
             title={t("playground.flowTrace", "Візуалізувати ланцюг виконання (POE)")}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100/70 border border-sky-200 text-sky-900 text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer shadow-2xs"
           >
-            <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+            <Sparkles className="w-3.5 h-3.5 text-slate-500" />
             <span>{t("playground.flowTrace", "Flow Trace")}</span>
           </button>
 
           <button
             onClick={handleOpenModal}
             title={t("playground.solutionExplorer", "Оглядач проєкту")}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-black/[0.08] text-obsidian text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 text-[11px] font-bold font-mono transition-all active:scale-95 cursor-pointer shadow-2xs"
           >
-            <FolderTree className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{t("playground.solutionExplorer", "Оглядач проєкту")}</span>
+            <FolderTree className="w-3.5 h-3.5 text-slate-500" />
+            <span>{t("playground.solutionExplorer", "Файли")} ({allSelectableFiles.length})</span>
           </button>
         </div>
       </div>

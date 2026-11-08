@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next";
 import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert, ScanLine, Timer } from "lucide-react";
 import type { CodingTask } from "@iw/sim-engine";
 import { audioFx } from "../../../utils/audioFx";
-import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 import { GuidedStepBar } from "./GuidedStepBar";
 
 export interface TvPlaygroundHeaderProps {
@@ -61,8 +60,6 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
   onOpenVictoryModal,
   starsEarned,
   codeLang,
-  showTheory,
-  onToggleTheory,
   onOpenArchitectureStudio,
   forceTheoryExpanded,
   isTheoryUnlocked,
@@ -216,15 +213,15 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {onOpenXRayModal && (
             <button
               onClick={onOpenXRayModal}
               data-testid="lab-xray-btn"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100/70 border border-sky-200 text-sky-900 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
               title={t("labs.xray.btnTooltip", "X-Ray: Живий потік виконання крізь файли")}
             >
-              <ScanLine size={13} className="text-sky-700" />
+              <ScanLine size={13} className="text-slate-600" />
               <span className="hidden sm:inline">{t("labs.xray.btnLabel", "X-Ray")}</span>
             </button>
           )}
@@ -233,10 +230,10 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
             <button
               onClick={onOpenDiRaceModal}
               data-testid="lab-di-race-btn"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100/70 border border-rose-200 text-rose-900 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
               title={t("labs.diRace.btnTooltip", "DI-гонка: Заміна сервісу на час")}
             >
-              <Timer size={13} className="text-rose-700" />
+              <Timer size={13} className="text-slate-600" />
               <span className="hidden sm:inline">{t("labs.diRace.btnLabel", "DI-гонка")}</span>
             </button>
           )}
@@ -244,10 +241,10 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
           {onOpenPoeModal && (
             <button
               onClick={onOpenPoeModal}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100/70 border border-amber-200 text-amber-900 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
               title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
             >
-              <Flame size={13} className="text-amber-700" />
+              <Flame size={13} className="text-amber-600" />
               <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
             </button>
           )}
@@ -264,8 +261,8 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
               disabled={!allTvTasksCompleted}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
                 allTvTasksCompleted
-                  ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-600 cursor-pointer active:scale-95"
-                  : "bg-slate-100 border-black/[0.06] text-slate-400 cursor-not-allowed opacity-60"
+                  ? "bg-[#252932] hover:bg-[#1A1D24] text-white border-black/[0.12] cursor-pointer active:scale-95"
+                  : "bg-slate-100/70 border-black/[0.06] text-slate-400 cursor-not-allowed opacity-60"
               }`}
               title={
                 allTvTasksCompleted
@@ -274,7 +271,7 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
               }
             >
               {allTvTasksCompleted ? (
-                <ShieldAlert size={13} className="text-white" />
+                <ShieldAlert size={13} className="text-[#C5A059]" />
               ) : (
                 <Lock size={13} className="text-slate-400" />
               )}
@@ -342,16 +339,6 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
         </div>
       )}
 
-      {/* Theory & Code Anatomy Card */}
-      <div className="pt-0.5">
-        <SyntaxAnatomyCard
-          taskId={currentTask.id}
-          codeLang={codeLang}
-          isOpen={showTheory}
-          onToggle={onToggleTheory}
-        />
-      </div>
-
       {/* Guided Step Bar */}
       {currentTask.simpleExplanationKey && (
         <GuidedStepBar
@@ -365,9 +352,10 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
             onOpenArchitectureStudio,
           }}
           persistent={true}
-          defaultExpanded={starsEarned === 0 && activeRound === 1}
+          defaultExpanded={false}
           forceExpanded={forceTheoryExpanded}
           isTheoryUnlocked={isTheoryUnlocked}
+          activeRound={activeRound}
           onUnlockPractice={onUnlockPractice}
           onStartPractice={() => {
             onUnlockPractice();

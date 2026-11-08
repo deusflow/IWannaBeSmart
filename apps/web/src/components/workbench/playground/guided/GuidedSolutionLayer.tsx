@@ -6,21 +6,14 @@
 import React from "react";
 import {
   Lightbulb,
-  Cpu,
-  FileCode2,
-  Network,
-  Sparkles,
   CheckCircle2,
   Play,
   Terminal,
   Activity,
-  ExternalLink,
-  Radio,
 } from "lucide-react";
 import type { TFunction } from "i18next";
 import type { WorkedExample, TechnologyInsight } from "@iw/sim-engine";
 import type { TaskDidacticInfo } from "../taskDidacticContext";
-import { GuidedDeepDiveCard } from "./GuidedDeepDiveCard";
 
 export interface GuidedSolutionLayerProps {
   t: TFunction;
@@ -84,101 +77,23 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
   demoExecuted,
   getLocStr,
   didactic,
-  onOpenArchitectureStudio,
   currentLang = "ua",
-  techInsight,
-  onSelectTechStack,
 }) => {
   return (
     <div className="space-y-3">
-      {/* 3-Tact GRR Progress Navigation Banner */}
-      <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#141820] border border-[#232936] text-[11px] font-mono text-gray-300 flex-wrap gap-2 shadow-xs">
-        <div className="flex items-center gap-1.5">
-          <Sparkles size={13} className="text-amber-400 shrink-0" />
-          <span className="font-bold text-white tracking-wide text-xs">
-            Gradual Release of Responsibility (GRR)
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5 text-[10px]">
-          <span className="px-2 py-0.5 rounded bg-amber-500/25 text-amber-300 font-extrabold border border-amber-500/40">
-            {t("guide.tact1Header", "Такт 1: Вчитель показує")}
-          </span>
-          <span className="text-gray-500 font-bold">→</span>
-          <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300/80 border border-blue-500/20">
-            {t("guide.tact2Header", "Такт 2: Повтори зі мною")}
-          </span>
-          <span className="text-gray-500 font-bold">→</span>
-          <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300/80 border border-emerald-500/20">
-            {t("guide.tact3Header", "Такт 3: Тепер ти сам")}
-          </span>
-        </div>
-      </div>
-
-      {/* Real-World Industry Tech Callout Banner */}
-      {techInsight && (
-        <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-600/25 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs shadow-2xs">
-          <div className="flex items-start gap-2.5 min-w-0">
-            <span className="p-1 rounded-md bg-blue-600/15 text-blue-900 border border-blue-600/30 shrink-0 mt-0.5">
-              <Radio size={13} />
+      {/* Clean Intuition Briefing */}
+      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1.5 shadow-2xs">
+        <div className="flex items-start gap-2">
+          <Lightbulb size={13} className="text-amber-700 shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              {t("guide.simpleLabel", "Суть завдання")}:
             </span>
-            <div className="min-w-0 leading-snug">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-mono font-bold text-[10px] uppercase text-blue-900 tracking-wider">
-                  {t("guide.inProductionLabel", "В індустрії:")}
-                </span>
-                <strong className="text-obsidian font-mono text-[11px]">{techInsight.primaryTech}</strong>
-              </div>
-              <p className="text-[11px] text-slate-600 mt-0.5">
-                <span className="font-semibold text-amber-900">{t("guide.techVsLabel", "Альтернатива:")} {techInsight.alternative.name}</span>
-                {" — "}
-                <span>{techInsight.alternative.tradeoff[currentLang] || techInsight.alternative.tradeoff.ua}</span>
-              </p>
-            </div>
-          </div>
-          {onSelectTechStack && (
-            <button
-              onClick={onSelectTechStack}
-              className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-mono font-bold text-[10.5px] shrink-0 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs self-end sm:self-auto"
-            >
-              <span>{t("guide.techDetailsBtn", "Деталі технології →")}</span>
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Upfront Pacing & Leading Cognitive Behavioral Loop & Intuition Analogy */}
-      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-2 shadow-2xs">
-        {/* Step 1: Pacing (Validation of cognitive friction) */}
-        <div className="space-y-1">
-          <div className="text-[10px] font-mono font-bold uppercase text-amber-900 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-            <span>{t("guide.pacingLabel", "Підстройка (Валідація бар'єру)")}</span>
-          </div>
-          <p className="font-sans text-xs text-obsidian leading-relaxed italic pl-3 border-l-2 border-amber-500/40">
-            «{didactic?.pacingLeading?.pacing[currentLang] || t("guide.pacingDefault", "Цей інтерфейс здається громіздким — це природна реакція при першому погляді на промисловий код.")}»
-          </p>
-        </div>
-
-        {/* Step 2: Leading (Frictionless Micro-Action) */}
-        <div className="space-y-1">
-          <div className="text-[10px] font-mono font-bold uppercase text-emerald-900 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-            <span>{t("guide.leadingLabel", "Ведення (Легка мікро-дія)")}</span>
-          </div>
-          <p className="font-sans text-xs text-obsidian font-medium leading-relaxed pl-3 border-l-2 border-emerald-500/40">
-            {didactic?.pacingLeading?.leading[currentLang] || t("guide.leadingDefault", "Але по суті це просто розетка для пульта. Зробіть мікро-дію: з'єднайте порт команди із вхідним слотом контролера.")}
-          </p>
-        </div>
-
-        {simpleText && (
-          <div className="pt-1.5 border-t border-black/[0.06] flex items-start gap-2">
-            <Lightbulb size={13} className="text-amber-700 shrink-0 mt-0.5" />
-            <p className="font-sans text-[11.5px] text-slate-700 leading-relaxed">
-              <strong className="text-amber-950 font-mono text-[10px] uppercase mr-1">{t("guide.simpleLabel", "Простими словами")}:</strong>
-              {simpleText}
+            <p className="font-sans text-xs text-obsidian font-medium leading-relaxed">
+              {simpleText || didactic?.pacingLeading?.leading[currentLang] || t("guide.leadingDefault", "Виконайте команду для взаємодії з пристроєм.")}
             </p>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Ready Working Code Box with ▶ Демонстрація button */}
@@ -186,7 +101,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
         <div className="flex items-center justify-between text-[10px] font-mono font-extrabold uppercase tracking-wider text-slate-600 mb-1.5 flex-wrap gap-2">
           <span className="flex items-center gap-1.5">
             <CheckCircle2 size={13} className="text-emerald-700" />
-            <span>{t("guide.readyCodeTitle", "Такт 1: Еталонний код вчителя (Sample Code):")}</span>
+            <span>{t("guide.readyCodeTitle", "Еталонний зразок:")}</span>
           </span>
           <div className="flex items-center gap-2">
             {workedExample && (
@@ -244,7 +159,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
           >
             <div className="text-[10px] font-mono font-bold uppercase text-slate-600 flex items-center gap-1.5 mb-1">
               <Activity size={12} className="text-emerald-700 shrink-0" />
-              <span>{t("guide.hardwareEffectTitle", "Апаратний ефект пристрою (Hardware Effect):")}</span>
+              <span>{t("guide.hardwareEffectTitle", "Апаратний ефект пристрою:")}</span>
             </div>
             <p className="font-sans text-xs text-obsidian font-semibold leading-relaxed">
               {getLocStr(workedExample.demonstrationLog.hardwareEffect)}
@@ -256,7 +171,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
             <div className="flex items-center justify-between text-[10px] text-gray-400 border-b border-gray-800 pb-1 mb-1.5">
               <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
                 <Terminal size={12} />
-                <span>{t("guide.terminalTitle", "Системна телеметрія (Hardware Bus Terminal):")}</span>
+                <span>{t("guide.terminalTitle", "Системна телеметрія:")}</span>
               </span>
               <span className="text-[9px] text-emerald-400">● LIVE RUNTIME</span>
             </div>
@@ -274,34 +189,11 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
           <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
             <div className="text-[10px] font-mono font-bold uppercase text-slate-500 flex items-center gap-1">
               <Lightbulb size={11} className="text-amber-700 shrink-0" />
-              <span>{t("guide.teacherCardTitle", "Пояснення вчителя (Teacher Card):")}</span>
+              <span>{t("guide.teacherCardTitle", "Пояснення вчителя:")}</span>
             </div>
             <p className="font-sans text-xs text-obsidian leading-relaxed">
               {getLocStr(workedExample.explanation)}
             </p>
-          </div>
-
-          {/* Preview of Tact 2 and Tact 3 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            <div className="p-2.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
-              <div className="text-[10px] font-mono font-bold uppercase text-slate-700 flex items-center gap-1">
-                <span>{t("guide.tact2ClozeTitle", "Такт 2: Повтори зі мною (Cloze)")}</span>
-              </div>
-              <p className="text-[11px] font-sans text-slate-600">
-                {t(
-                  "guide.tact2ClozeDesc",
-                  "Заповніть пропуски ___ у коді. Система миттєво перевіряє кожен символ."
-                )}
-              </p>
-            </div>
-            <div className="p-2.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
-              <div className="text-[10px] font-mono font-bold uppercase text-slate-700 flex items-center gap-1">
-                <span>{t("guide.tact3PromptTitle", "Такт 3: Тепер ти сам")}</span>
-              </div>
-              <p className="text-[11px] font-sans text-slate-600">
-                {getLocStr(workedExample.finalChallenge.prompt)}
-              </p>
-            </div>
           </div>
         </div>
       )}
@@ -317,76 +209,6 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
             {didactic.whyThisCode[codeLang]}
           </p>
         </div>
-      )}
-
-      {/* Primitive & Memory Deep Note */}
-      {didactic?.primitiveMemoryNote && (
-        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-700/30 space-y-1">
-          <div className="text-[10px] font-mono font-bold uppercase text-amber-900 flex items-center gap-1">
-            <Cpu size={12} className="text-amber-800" />
-            <span>{t("guide.memoryAllocationTitle", "Пам'ять процесора та типи (Memory & Types):")}</span>
-          </div>
-          <p className="font-sans text-xs text-amber-950 leading-relaxed whitespace-pre-wrap">
-            {didactic.primitiveMemoryNote[codeLang]}
-          </p>
-        </div>
-      )}
-
-      {/* Architecture & Project Files Mapping */}
-      {didactic?.architectureMap && (
-        <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-700/30 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold uppercase text-purple-900 flex items-center gap-1">
-              <Network size={12} className="text-purple-800" />
-              <span>{t("guide.projectStructureTitle", "Структура проєкту та Architecture Canvas:")}</span>
-            </span>
-            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-600/20 text-purple-900 font-bold">
-              {didactic.architectureMap.canvasNodeName}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
-            {didactic.architectureMap.contractFile && (
-              <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-white border border-black/[0.06] text-obsidian shadow-2xs">
-                <FileCode2 size={12} className="text-purple-700 shrink-0" />
-                <span className="truncate">
-                  <strong>{t("architecture.interfaceLabel", "Контракт")}:</strong> {didactic.architectureMap.contractFile}
-                </span>
-              </div>
-            )}
-            {didactic.architectureMap.implementationFile && (
-              <div className="flex items-center gap-1.5 p-1.5 rounded-lg bg-white border border-black/[0.06] text-obsidian shadow-2xs">
-                <FileCode2 size={12} className="text-emerald-700 shrink-0" />
-                <span className="truncate">
-                  <strong>{t("architecture.implementationLabel", "Клас")}:</strong> {didactic.architectureMap.implementationFile}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <p className="text-[11px] font-sans text-purple-950 leading-relaxed">
-            {didactic.architectureMap.canvasWiring}
-          </p>
-
-          {onOpenArchitectureStudio && (
-            <button
-              onClick={onOpenArchitectureStudio}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-900/15 hover:bg-purple-900/25 border border-purple-800/40 text-purple-950 font-mono font-bold text-xs transition-colors cursor-pointer"
-            >
-              <ExternalLink size={12} />
-              <span>{t("guide.viewOnCanvasBtn", "Відкрити на Architecture Canvas")}</span>
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Primary Authoritative Sources (Deep Dive Collapsible Module) */}
-      {didactic?.curatedResources && didactic.curatedResources.length > 0 && (
-        <GuidedDeepDiveCard
-          resources={didactic.curatedResources}
-          currentLang={currentLang}
-          defaultExpanded={false}
-        />
       )}
     </div>
   );

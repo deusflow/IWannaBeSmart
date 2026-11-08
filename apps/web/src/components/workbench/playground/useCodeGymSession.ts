@@ -127,10 +127,10 @@ export function useCodeGymSession<
     return stationId ? getStationCheckpoint(stationId) : null;
   }, [stationId]);
 
-  const [isTheoryUnlocked, setIsTheoryUnlocked] = useState<boolean>(() => starsEarned > 0);
+  const [isTheoryUnlocked, setIsTheoryUnlocked] = useState<boolean>(true);
 
   useEffect(() => {
-    setIsTheoryUnlocked(starsEarned > 0);
+    setIsTheoryUnlocked(true);
   }, [currentTask.id, starsEarned]);
 
   const unlockPractice = useCallback(() => {

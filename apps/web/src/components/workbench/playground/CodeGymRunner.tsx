@@ -23,7 +23,6 @@ import {
 import { useWorkbenchStore } from "../../../store/workbenchStore";
 import { useShallow } from "zustand/react/shallow";
 import { audioFx } from "../../../utils/audioFx";
-import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
 import { GuidedStepBar } from "./GuidedStepBar";
 import { useGuideSpotlight } from "../../../hooks/useGuideSpotlight";
 import { ProjectExplorerBar } from "./ProjectExplorerBar";
@@ -119,8 +118,6 @@ export const CodeGymRunner: React.FC = () => {
     setHasError,
     showTooltip,
     setShowTooltip,
-    showTheory,
-    setShowTheory,
     showTransferHint,
     setShowTransferHint,
     timeLeft,
@@ -183,7 +180,6 @@ export const CodeGymRunner: React.FC = () => {
       audioFx.playRelayClick();
       setSelectedTaskId(taskId);
       setActiveRound(1);
-      setShowTheory(false);
       setShowTooltip(false);
       setShowTransferHint(false);
       const nextT = FINTECH_TASKS.find((t) => t.id === taskId);
@@ -194,7 +190,7 @@ export const CodeGymRunner: React.FC = () => {
         }
       }
     },
-    [selectedTaskId, resetPosState, setActiveRound, setShowTheory, setShowTooltip, setShowTransferHint]
+    [selectedTaskId, resetPosState, setActiveRound, setShowTooltip, setShowTransferHint]
   );
 
   useEffect(() => {
@@ -562,10 +558,10 @@ export const CodeGymRunner: React.FC = () => {
                 audioFx.playRelayClick();
                 setIsLogicBuilderOpen(true);
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100/70 border border-sky-200 text-sky-900 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
               title={t("labs.logic.btnTooltip", "Конструктор прошивки (No-Typing Logic Lab)")}
             >
-              <Layers size={13} className="text-sky-700" />
+              <Layers size={13} className="text-slate-600" />
               <span className="hidden sm:inline">{t("labs.logic.btnLabel", "Конструктор")}</span>
             </button>
 
@@ -582,8 +578,8 @@ export const CodeGymRunner: React.FC = () => {
               disabled={!allPosTasksCompleted}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
                 allPosTasksCompleted
-                  ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-600 cursor-pointer active:scale-95"
-                  : "bg-slate-100 border-black/[0.06] text-slate-400 cursor-not-allowed opacity-60"
+                  ? "bg-[#252932] hover:bg-[#1A1D24] text-white border-black/[0.12] cursor-pointer active:scale-95"
+                  : "bg-slate-100/70 border-black/[0.06] text-slate-400 cursor-not-allowed opacity-60"
               }`}
               title={
                 allPosTasksCompleted
@@ -592,7 +588,7 @@ export const CodeGymRunner: React.FC = () => {
               }
             >
               {allPosTasksCompleted ? (
-                <ShieldAlert size={13} className="text-white" />
+                <ShieldAlert size={13} className="text-[#C5A059]" />
               ) : (
                 <Lock size={13} className="text-slate-400" />
               )}
@@ -663,16 +659,6 @@ export const CodeGymRunner: React.FC = () => {
           </div>
         )}
 
-        {/* Theory & Code Anatomy Card */}
-        <div className="pt-0.5">
-          <SyntaxAnatomyCard
-            taskId={currentTask.id}
-            codeLang={codeLang}
-            isOpen={showTheory}
-            onToggle={() => setShowTheory((p) => !p)}
-          />
-        </div>
-
         {/* Guided Step Bar */}
         {currentTask.simpleExplanationKey && (
           <GuidedStepBar
@@ -685,9 +671,10 @@ export const CodeGymRunner: React.FC = () => {
               targetCode: currentTask.targetCode,
             }}
             persistent={true}
-            defaultExpanded={starsEarned === 0 && activeRound === 1}
+            defaultExpanded={false}
             forceExpanded={forceTheoryExpanded}
             isTheoryUnlocked={isTheoryUnlocked}
+            activeRound={activeRound}
             onUnlockPractice={unlockPractice}
             onStartPractice={() => {
               unlockPractice();

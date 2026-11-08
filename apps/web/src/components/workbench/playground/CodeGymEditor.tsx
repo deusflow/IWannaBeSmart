@@ -140,43 +140,6 @@ export function CodeGymEditor<
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [roundCompleted, activeRound, nextTaskAvailable, onAdvanceRound, onNextTask]);
 
-  const actionDescription = useMemo(() => {
-    if (currentTask.isBugfixTask) {
-      return t(
-        "playground.defectBrief",
-        "Знайдіть та виправте логічну помилку в коді нижче, щоб відновити роботу приладу."
-      );
-    }
-    if (activeRound === 1) {
-      return t(
-        "codegym.round1Instruction",
-        "Надрукуйте наведений нижче еталонний код у редакторі. Кожен правильний символ миттєво фіксується системою для вироблення м'язової пам'яті синтаксису."
-      );
-    }
-    if (activeRound === 2) {
-      return t(
-        "codegym.round2Instruction",
-        "Відновіть пропущені фрагменти коду (позначені `___`), спираючись на вивчену логіку та ключові конструкції."
-      );
-    }
-    if (activeRound === 3) {
-      return t(
-        "codegym.round3Instruction",
-        "Надрукуйте весь код по пам'яті без помилок до вичерпання таймера. Це закріплює впевненість та автономність розробника."
-      );
-    }
-    const langKey = (i18n.language?.startsWith("da")
-      ? "da"
-      : i18n.language?.startsWith("en")
-      ? "en"
-      : "ua") as "ua" | "en" | "da";
-    return (
-      currentTask.transferVariant?.prompt[langKey] ||
-      currentTask.transferVariant?.prompt.ua ||
-      t(currentTask.descKey)
-    );
-  }, [currentTask, activeRound, i18n.language, t]);
-
   const eli5Hint = useMemo(() => {
     if (!hasError) return null;
     if (targetCode.toLowerCase() === typedCode.toLowerCase() && targetCode !== typedCode) {
@@ -345,147 +308,108 @@ export function CodeGymEditor<
         </div>
       </div>
 
-      {/* ── Mission Brief Card (Goal & Action) ── */}
-      <div className="px-4 py-2.5 bg-[#1F232B] border-b border-white/[0.08] text-xs font-mono space-y-1 select-none">
-        <div className="flex items-start gap-2">
-          <span className="text-amber-400 font-bold shrink-0">
-            {t("guide.missionGoalLabel", " Мета:")}
-          </span>
-          <span className="text-gray-200 font-medium leading-relaxed">
-            {t(currentTask.descKey)}
-          </span>
-        </div>
-        <div className="flex items-start gap-2">
-          <span className="text-cyan-400 font-bold shrink-0">
-            {t("guide.missionActionLabel", "Дія:")}
-          </span>
-          <span className="text-gray-300 leading-relaxed">
-            {actionDescription}
-          </span>
-        </div>
-      </div>
-
-      {/* ── Round 1: TRACE Didactic Banner & Reference Card (GRR Tact 1) ── */}
-      {activeRound === 1 && !currentTask.isBugfixTask && (
-        <div className="px-4 py-3 bg-[#141820] border-b border-[#2B2D33] text-ink-light space-y-2.5 select-none">
+      {/* ── Single Consolidated Mission Bar (Progressive by Round) ── */}
+      <div className="px-4 py-2 bg-[#181C24] border-b border-white/[0.08] text-xs font-mono select-none">
+        {activeRound === 1 && !currentTask.isBugfixTask && (
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round1Badge", "1. Повтори за зразком")}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold uppercase tracking-wider shrink-0">
+                {t("codegym.round1Badge", "Раунд 1")}
               </span>
-              <span className="text-[11px] font-mono text-gray-400">
-                ★ {t("codegym.star1Title", "1-ша зірка м'язової пам'яті")}
+              <span className="text-gray-200 font-medium truncate">
+                {t((currentTask as unknown as { simpleExplanationKey?: string }).simpleExplanationKey || currentTask.descKey)}
               </span>
             </div>
-            <span className="text-[10px] font-mono text-gray-400">
+            <span className="text-[10px] font-mono text-slate-400 shrink-0">
               {t("codegym.traceHintHotkey", "Друкуйте в редакторі символ у символ")}
             </span>
           </div>
-          {/* Reference Code Card */}
-          <div className="rounded-xl bg-[#0F1115] border border-amber-500/30 p-2.5 shadow-inner">
-            <div className="text-[10px] font-mono font-bold uppercase text-amber-400/90 mb-1 flex items-center justify-between">
-              <span>{t("codegym.referenceTitle", "Еталонний зразок для набору:")}</span>
-              <span className="text-gray-500 text-[9px]">
-                {codeLang === "csharp" ? "C# (.NET)" : "Go (Golang)"}
-              </span>
-            </div>
-            <pre className="text-xs font-mono text-emerald-300 font-bold whitespace-pre-wrap leading-relaxed select-text overflow-x-auto">
-              <code>{targetCode}</code>
-            </pre>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Round 2: CLOZE Didactic Banner (GRR Tact 2) ── */}
-      {activeRound === 2 && (
-        <div className="px-4 py-2.5 bg-[#121824] border-b border-[#2B2D33] text-ink-light space-y-1 select-none">
+        {activeRound === 2 && (
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round2Badge", "2. Заповни пропуски")}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider shrink-0">
+                {t("codegym.round2Badge", "Раунд 2")}
               </span>
-              <span className="text-[11px] font-mono text-gray-400">
-                ★ {t("codegym.star2Title", "2-га зірка розуміння")}
+              <span className="text-gray-200 font-medium truncate">
+                {t("codegym.round2DescShort", "Заповніть прогалини ___ у коді")}
               </span>
             </div>
-            <span className="text-[10px] font-mono text-gray-400">
+            <span className="text-[10px] font-mono text-slate-400 shrink-0">
               {t("codegym.clozeHintHotkey", "Ctrl+Enter — Перевірити")}
             </span>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Round 3: SPRINT Didactic Banner (GRR Tact 3) ── */}
-      {activeRound === 3 && (
-        <div className="px-4 py-2.5 bg-[#1C1608] border-b border-[#2B2D33] text-ink-light space-y-1 select-none">
+        {activeRound === 3 && (
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round3Badge", "3. Напиши по пам'яті")}
+                {t("codegym.round3Badge", "Раунд 3")}
               </span>
               <span className="text-[11px] font-mono text-gray-400">
-                ★ {t("codegym.star3Title", "3-тя зірка швидкості")}
+                ★ {t("codegym.star3Title", "Спринт")}
               </span>
             </div>
             <span className="text-[10px] font-mono text-gray-400">
               {t("codegym.sprintHintHotkey", "Натисніть 'Старт' або почніть друкувати")}
             </span>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Round 4: Transfer Mission Prompt Banner (GRR Tact 3+) ── */}
-      {activeRound === 4 && (
-        <div className="px-4 py-3 bg-[#161B22] border-b border-[#2B2D33] text-ink-light space-y-2 select-none">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold uppercase tracking-wider">
-                {t("codegym.round4Badge", "4. Задача із зірочкою")}
-              </span>
-              <span className="text-[11px] font-mono text-gray-400">
-                ★ {t("codegym.star4Title", "4-та зірка майстра")}
-              </span>
-            </div>
-            {currentTask.transferVariant?.hint && (
-              <button
-                type="button"
-                onClick={onToggleTransferHint}
-                className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer flex items-center gap-1"
-              >
-                <HelpCircle size={12} />
-                <span>
-                  {showTransferHint
-                    ? t("codegym.hideHint", "Сховати підказку")
-                    : t("codegym.showHint", "Підказка")}
+        {activeRound === 4 && (
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold uppercase tracking-wider">
+                  {t("codegym.round4Badge", "Раунд 4")}
                 </span>
-              </button>
-            )}
-          </div>
-          <p className="text-xs font-mono text-gray-200 leading-relaxed font-semibold">
-            {currentTask.transferVariant?.prompt[
-              (i18n.language?.startsWith("da")
-                ? "da"
-                : i18n.language?.startsWith("en")
-                ? "en"
-                : "ua") as "ua" | "en" | "da"
-            ] ||
-              currentTask.transferVariant?.prompt.ua ||
-              t(currentTask.descKey)}
-          </p>
-          {showTransferHint && currentTask.transferVariant?.hint && (
-            <div className="p-2.5 rounded-lg bg-[#0D1117] border border-cyan-500/30 text-[11px] font-mono text-cyan-200 animate-in fade-in duration-200">
-              <span className="text-cyan-400 font-bold">Hint: </span>
-              {currentTask.transferVariant.hint[
+                <span className="text-[11px] font-mono text-gray-400">
+                  ★ {t("codegym.star4Title", "Варіація")}
+                </span>
+              </div>
+              {currentTask.transferVariant?.hint && (
+                <button
+                  type="button"
+                  onClick={onToggleTransferHint}
+                  className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer flex items-center gap-1"
+                >
+                  <HelpCircle size={12} />
+                  <span>
+                    {showTransferHint
+                      ? t("codegym.hideHint", "Сховати підказку")
+                      : t("codegym.showHint", "Підказка")}
+                  </span>
+                </button>
+              )}
+            </div>
+            <p className="text-xs font-mono text-gray-200 leading-relaxed font-semibold">
+              {currentTask.transferVariant?.prompt[
                 (i18n.language?.startsWith("da")
                   ? "da"
                   : i18n.language?.startsWith("en")
                   ? "en"
                   : "ua") as "ua" | "en" | "da"
-              ] || currentTask.transferVariant.hint.ua}
-            </div>
-          )}
-        </div>
-      )}
+              ] ||
+                currentTask.transferVariant?.prompt.ua ||
+                t(currentTask.descKey)}
+            </p>
+            {showTransferHint && currentTask.transferVariant?.hint && (
+              <div className="p-2.5 rounded-lg bg-[#0D1117] border border-cyan-500/30 text-[11px] font-mono text-cyan-200 animate-in fade-in duration-200">
+                <span className="text-cyan-400 font-bold">Hint: </span>
+                {currentTask.transferVariant.hint[
+                  (i18n.language?.startsWith("da")
+                    ? "da"
+                    : i18n.language?.startsWith("en")
+                    ? "en"
+                    : "ua") as "ua" | "en" | "da"
+                ] || currentTask.transferVariant.hint.ua}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ── Reverse Debugging: Hardware Defect & Diagnostics Panel ── */}
       {currentTask.isBugfixTask && (
