@@ -193,18 +193,18 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
 
       {/* ── Blueprint Solution Drawer / Modal (SOLID 100% OPAQUE BACKGROUND) ── */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#030712]/95 backdrop-blur-md animate-in fade-in duration-200 font-sans">
-          <div className="relative w-full max-w-5xl h-[85vh] max-h-[720px] rounded-2xl border-2 border-slate-700/80 bg-[#0B0E14] shadow-[0_0_60px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden text-slate-100 isolate">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#0F141C]/60 backdrop-blur-md animate-in fade-in duration-200 font-sans">
+          <div className="relative w-full max-w-5xl h-[85vh] max-h-[720px] rounded-2xl border border-[#E4E7EC] bg-[#FFFFFF] shadow-luxury flex flex-col overflow-hidden text-[#0F141C] isolate">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-[#161D27]">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E7EC] bg-[#F8F9FA]">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
                   <FolderTree className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-mono text-sm font-bold text-slate-100 flex items-center gap-2">
+                  <h3 className="font-mono text-sm font-bold text-[#0F141C] flex items-center gap-2">
                     <span>{rootFolder?.name || "Solution"}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-semibold">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 font-semibold">
                       {codeLang === "csharp"
                         ? "C# (.NET 9.0)"
                         : codeLang === "go"
@@ -216,7 +216,7 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                         : "TypeScript 5.7"}
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-400 font-sans">
+                  <p className="text-xs text-[#525866] font-sans">
                     {t(
                       "playground.inspectArchitecture",
                       "Архітектура та файли реального комерційного проєкту"
@@ -227,19 +227,19 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
 
               <button
                 onClick={handleCloseModal}
-                className="w-8 h-8 rounded-lg hover:bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-100 transition-all cursor-pointer"
+                className="w-8 h-8 rounded-lg hover:bg-[#F1F3F5] border border-[#E4E7EC] flex items-center justify-center text-[#525866] hover:text-[#0F141C] transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Content: 2-column layout */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden bg-[#0B0E14]">
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden bg-[#FFFFFF]">
               {/* Left Column: File Tree */}
-              <div className="md:col-span-4 border-r border-slate-800 p-3 bg-[#0D1117] overflow-y-auto space-y-1">
-                <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 px-2 py-1 flex items-center justify-between">
+              <div className="md:col-span-4 border-r border-[#E4E7EC] p-3 bg-[#F8F9FA] overflow-y-auto space-y-1">
+                <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#8A909E] px-2 py-1 flex items-center justify-between">
                   <span>FILES & CLASSES</span>
-                  <span className="text-[10px] text-emerald-400">SOLUTION EXPLORER</span>
+                  <span className="text-[10px] text-emerald-600">SOLUTION EXPLORER</span>
                 </div>
 
                 <div className="space-y-1 font-mono text-xs">
@@ -251,20 +251,20 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                           <div key={item.id} className="space-y-0.5">
                             <button
                               onClick={() => toggleFolder(item.id)}
-                              className="w-full flex items-center gap-1.5 py-1.5 px-2 rounded-lg text-left text-xs font-mono text-slate-300 hover:bg-[#161D27] hover:text-white transition-colors cursor-pointer"
+                              className="w-full flex items-center gap-1.5 py-1.5 px-2 rounded-lg text-left text-xs font-mono text-[#525866] hover:bg-[#F1F3F5] hover:text-[#0F141C] transition-colors cursor-pointer"
                               style={{ paddingLeft: `${Math.max(8, depth * 14 + 8)}px` }}
                             >
                               {isExpanded ? (
-                                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                <ChevronDown className="w-3.5 h-3.5 text-[#8A909E] shrink-0" />
                               ) : (
-                                <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                <ChevronRight className="w-3.5 h-3.5 text-[#8A909E] shrink-0" />
                               )}
                               {isExpanded ? (
-                                <FolderOpen className="w-4 h-4 text-amber-400 shrink-0" />
+                                <FolderOpen className="w-4 h-4 text-amber-500 shrink-0" />
                               ) : (
-                                <Folder className="w-4 h-4 text-amber-500/80 shrink-0" />
+                                <Folder className="w-4 h-4 text-amber-600 shrink-0" />
                               )}
-                              <span className="truncate font-semibold text-slate-200">{item.name}</span>
+                              <span className="truncate font-semibold text-[#0F141C]">{item.name}</span>
                             </button>
                             {isExpanded && item.children && (
                               <div className="space-y-0.5">
@@ -282,29 +282,31 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                           onClick={() => handleSelectFile(item.id)}
                           className={`w-full flex items-center justify-between py-1.5 px-2 rounded-xl text-left transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-emerald-950/70 text-emerald-300 font-bold border border-emerald-600/60 shadow-sm"
-                              : "hover:bg-[#161D27] text-slate-300 border border-transparent hover:border-slate-800"
+                              ? "bg-[#252932] text-[#F8F9FA] font-bold shadow-sm"
+                              : "text-[#525866] hover:bg-[#F1F3F5] hover:text-[#0F141C]"
                           }`}
                           style={{ paddingLeft: `${Math.max(16, depth * 14 + 16)}px` }}
                         >
                           <div className="flex items-center gap-2 truncate">
                             {item.icon === "config" ? (
-                              <FileText className="w-4 h-4 text-emerald-400 shrink-0" />
+                              <FileText className={`w-4 h-4 shrink-0 ${isSelected ? "text-emerald-400" : "text-emerald-600"}`} />
                             ) : item.icon === "interface" ? (
-                              <Layers className="w-4 h-4 text-purple-400 shrink-0" />
+                              <Layers className={`w-4 h-4 shrink-0 ${isSelected ? "text-purple-400" : "text-purple-600"}`} />
                             ) : item.icon === "data" ? (
-                              <Database className="w-4 h-4 text-amber-400 shrink-0" />
+                              <Database className={`w-4 h-4 shrink-0 ${isSelected ? "text-amber-400" : "text-amber-600"}`} />
                             ) : (
-                              <FileCode className="w-4 h-4 text-cyan-400 shrink-0" />
+                              <FileCode className={`w-4 h-4 shrink-0 ${isSelected ? "text-cyan-400" : "text-cyan-600"}`} />
                             )}
                             <span className="truncate">{item.name}</span>
                           </div>
                           {item.badge && (
                             <span
                               className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase shrink-0 ${
-                                item.badge === "Main()" || item.badge === "Endpoints"
+                                isSelected
                                   ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                                  : "bg-slate-800 text-slate-400"
+                                  : item.badge === "Main()" || item.badge === "Endpoints"
+                                  ? "bg-amber-100 text-amber-800 border border-amber-300"
+                                  : "bg-[#E4E7EC] text-[#525866]"
                               }`}
                             >
                               {item.badge}
@@ -322,15 +324,15 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                 {(() => {
                   const callout = STATION_CALLOUTS[activeStation] || STATION_CALLOUTS.tv;
                   return (
-                    <div className="mt-4 p-3 rounded-xl border border-amber-500/40 bg-amber-950/30 text-amber-300 text-xs space-y-1.5 font-sans">
-                      <div className="flex items-center gap-1.5 font-bold">
-                        <Cpu className="w-4 h-4 text-amber-400 shrink-0" />
+                    <div className="mt-4 p-3 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 text-xs space-y-1.5 font-sans">
+                      <div className="flex items-center gap-1.5 font-bold text-amber-800">
+                        <Cpu className="w-4 h-4 text-amber-600 shrink-0" />
                         <span>{callout.title[currentLang] || callout.title.en}</span>
                       </div>
-                      <p className="text-[11px] leading-relaxed text-amber-200/90">
+                      <p className="text-[11px] leading-relaxed text-amber-800/90">
                         {callout.body[currentLang] || callout.body.en}
                       </p>
-                      <p className="text-[10px] text-amber-300/80 font-mono">
+                      <p className="text-[10px] text-amber-700/80 font-mono">
                         {callout.note[currentLang] || callout.note.en}
                       </p>
                     </div>
@@ -339,10 +341,10 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
               </div>
 
               {/* Right Column: Code Viewer & Context Explanation */}
-              <div className="md:col-span-8 flex flex-col overflow-hidden bg-[#06090E]">
+              <div className="md:col-span-8 flex flex-col overflow-hidden bg-[#252932]">
                 {/* File Header Tab */}
-                <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-[#161D27] font-mono text-xs">
-                  <div className="flex items-center gap-2 text-slate-200 font-semibold">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-[#323846] bg-[#1E222A] font-mono text-xs">
+                  <div className="flex items-center gap-2 text-[#F8F9FA] font-semibold">
                     <FileCode className="w-4 h-4 text-emerald-400" />
                     <span>{selectedFile?.name || ""}</span>
                   </div>
@@ -351,8 +353,8 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                   </span>
                 </div>
 
-                {/* Code Container (Solid opaque dark background) */}
-                <div className="flex-1 p-4 overflow-y-auto font-mono text-xs leading-relaxed bg-[#05080E] text-emerald-300 select-text border-b border-slate-800">
+                {/* Code Container (Solid opaque titanium background) */}
+                <div className="flex-1 p-4 overflow-y-auto font-mono text-xs leading-relaxed bg-[#252932] text-emerald-300 select-text border-b border-[#323846]">
                   <pre className="whitespace-pre-wrap">
                     <code>
                       {selectedFile?.codeSnippet?.[codeLang] ??
@@ -367,13 +369,13 @@ export const ProjectExplorerBar: React.FC<ProjectExplorerBarProps> = ({
                 </div>
 
                 {/* File Didactic Summary Footer */}
-                <div className="p-3 bg-[#131922] text-xs text-slate-300 flex items-center justify-between font-sans">
+                <div className="p-3 bg-[#F8F9FA] border-t border-[#E4E7EC] text-xs text-[#525866] flex items-center justify-between font-sans">
                   <span className="leading-relaxed">
                     {selectedFile?.description?.[currentLang] || selectedFile?.description?.en || selectedFile?.description?.ua || ""}
                   </span>
                   <button
                     onClick={handleCloseModal}
-                    className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs transition-all cursor-pointer shrink-0 ml-3"
+                    className="px-4 py-1.5 rounded-lg bg-[#252932] hover:bg-[#1E2229] text-[#F8F9FA] font-bold font-mono text-xs transition-all cursor-pointer shrink-0 ml-3 shadow-sm"
                   >
                     {t("common.understood", "Зрозуміло")}
                   </button>

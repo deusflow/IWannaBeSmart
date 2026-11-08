@@ -75,6 +75,7 @@ export default {
         },
         ink: {
           DEFAULT: "#0F141C", // Obsidian Black text
+          light: "#F8F9FA",
           muted: "#525866", // Refined neutral slate
           subtle: "#868C98", // Delicate micro-annotations
           border: "rgba(15, 23, 42, 0.12)",
@@ -137,6 +138,15 @@ export default {
         xl: "16px",
         "2xl": "20px",
         "3xl": "24px",
+      },
+      spacing: {
+        "0.2": "0.05rem",
+      },
+      scale: {
+        "115": "1.15",
+      },
+      ringWidth: {
+        "3": "3px",
       },
     },
   },

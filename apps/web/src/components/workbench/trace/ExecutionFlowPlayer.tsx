@@ -756,7 +756,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                               ? "bg-emerald-950/50 border-emerald-500 text-emerald-200 font-semibold"
                               : isSelected && !option.isCorrect
                               ? "bg-rose-950/50 border-rose-500 text-rose-200"
-                              : "bg-slate-900/60 hover:bg-slate-850 border-slate-700/70 text-slate-300 hover:text-white"
+                              : "bg-slate-900/60 hover:bg-slate-800/80 border-slate-700/70 text-slate-300 hover:text-white"
                           }`}
                         >
                           <div className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center shrink-0 mt-0.5">

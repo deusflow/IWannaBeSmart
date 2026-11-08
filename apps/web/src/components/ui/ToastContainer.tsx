@@ -34,7 +34,7 @@ export const ToastContainer: React.FC = () => {
       {toasts.map((item) => (
         <div
           key={item.id}
-          className="pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl bg-[#14161B]/95 backdrop-blur-xl border border-white/12 shadow-[0_12px_32px_rgba(0,0,0,0.45)] transition-all duration-200 hover:border-white/25 active:scale-[0.99] text-left"
+          className="pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl bg-[#252932]/95 backdrop-blur-xl border border-[#323846] shadow-titanium transition-all duration-200 hover:border-white/25 active:scale-[0.99] text-left text-[#F8F9FA]"
           role="status"
         >
           {getToastIcon(item.type)}
