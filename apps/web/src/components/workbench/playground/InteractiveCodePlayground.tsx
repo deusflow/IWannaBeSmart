@@ -23,6 +23,8 @@ import { getStationCheckpoint, saveStationCheckpoint } from "../../../utils/chec
 import {
   PredictObserveExplainModal,
   StationCrashTestGateModal,
+  XRayFlowModal,
+  DiRaceModal,
 } from "../labs";
 
 export interface InteractiveCodePlaygroundProps {
@@ -159,6 +161,8 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   const starsEarned = taskMasteryStars[currentTask.id] || 0;
   const [isPoeModalOpen, setIsPoeModalOpen] = useState(false);
   const [isCrashGateOpen, setIsCrashGateOpen] = useState(false);
+  const [isXRayModalOpen, setIsXRayModalOpen] = useState(false);
+  const [isDiRaceModalOpen, setIsDiRaceModalOpen] = useState(false);
 
   // Next task calculation
   const currentTaskIndex = CODING_TASKS.findIndex((t) => t.id === currentTask.id);
@@ -635,6 +639,14 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           audioFx.playRelayClick();
           setActiveRound(round);
         }}
+        onOpenXRayModal={() => {
+          audioFx.playRelayClick();
+          setIsXRayModalOpen(true);
+        }}
+        onOpenDiRaceModal={() => {
+          audioFx.playRelayClick();
+          setIsDiRaceModalOpen(true);
+        }}
         onOpenPoeModal={() => {
           audioFx.playRelayClick();
           setIsPoeModalOpen(true);
@@ -710,6 +722,18 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
             setStationVictoryModalOpen(true);
           }
         }}
+      />
+
+      <XRayFlowModal
+        isOpen={isXRayModalOpen}
+        onClose={() => setIsXRayModalOpen(false)}
+        stationId="tv"
+      />
+
+      <DiRaceModal
+        isOpen={isDiRaceModalOpen}
+        onClose={() => setIsDiRaceModalOpen(false)}
+        stationId="tv"
       />
     </div>
   );

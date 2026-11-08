@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert } from "lucide-react";
+import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert, ScanLine, Timer } from "lucide-react";
 import type { CodingTask } from "@iw/sim-engine";
 import { audioFx } from "../../../utils/audioFx";
 import { SyntaxAnatomyCard } from "./SyntaxAnatomyCard";
@@ -39,6 +39,8 @@ export interface TvPlaygroundHeaderProps {
   onSelectRound: (round: 1 | 2 | 3 | 4) => void;
   onOpenPoeModal?: () => void;
   onOpenCrashGate?: () => void;
+  onOpenXRayModal?: () => void;
+  onOpenDiRaceModal?: () => void;
 }
 
 export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
@@ -69,6 +71,8 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
   onSelectRound,
   onOpenPoeModal,
   onOpenCrashGate,
+  onOpenXRayModal,
+  onOpenDiRaceModal,
 }) => {
   const { t } = useTranslation();
 
@@ -213,6 +217,30 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onOpenXRayModal && (
+            <button
+              onClick={onOpenXRayModal}
+              data-testid="lab-xray-btn"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-600/30 text-cyan-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title={t("labs.xray.btnTooltip", "X-Ray: Живий потік виконання крізь файли")}
+            >
+              <ScanLine size={13} className="text-cyan-700" />
+              <span className="hidden sm:inline">{t("labs.xray.btnLabel", "X-Ray")}</span>
+            </button>
+          )}
+
+          {onOpenDiRaceModal && (
+            <button
+              onClick={onOpenDiRaceModal}
+              data-testid="lab-di-race-btn"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-600/30 text-rose-950 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title={t("labs.diRace.btnTooltip", "DI-гонка: Заміна сервісу на час")}
+            >
+              <Timer size={13} className="text-rose-700" />
+              <span className="hidden sm:inline">{t("labs.diRace.btnLabel", "DI-гонка")}</span>
+            </button>
+          )}
+
           {onOpenPoeModal && (
             <button
               onClick={onOpenPoeModal}

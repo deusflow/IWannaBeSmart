@@ -3,7 +3,7 @@
  * @description Unit tests for decomposed WorkbenchStore slices
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { useWorkbenchStore } from "../workbenchStore";
 import {
   TOTAL_MAX_STARS,
@@ -774,6 +774,62 @@ Traffic is routed across private interconnects to prevent external interception.
       expect(getStore().isCareerModalOpen).toBe(true);
       store.setIsCareerModalOpen(false);
       expect(getStore().isCareerModalOpen).toBe(false);
+    });
+  });
+
+  describe("mentorSlice - Daily Streak Mechanics", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("should set streak to 1 on the first active day", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-11-01T10:00:00Z"));
+      const store = getStore();
+      store.resetUserProgress();
+
+      store.recordDailyActivity();
+      const state = getStore().dailyStreak;
+      expect(state.currentStreak).toBe(1);
+      expect(state.bestStreak).toBe(1);
+      expect(state.lastActiveDate).toBe("2026-11-01");
+      expect(state.isStreakFrozenToday).toBe(false);
+    });
+
+    it("should increment streak to +1 on the consecutive day", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-11-01T10:00:00Z"));
+      const store = getStore();
+      store.resetUserProgress();
+      store.recordDailyActivity();
+
+      // Next day
+      vi.setSystemTime(new Date("2026-11-02T10:00:00Z"));
+      store.recordDailyActivity();
+
+      const state = getStore().dailyStreak;
+      expect(state.currentStreak).toBe(2);
+      expect(state.bestStreak).toBe(2);
+      expect(state.lastActiveDate).toBe("2026-11-02");
+    });
+
+    it("should preserve streak and consume freeze when skipping 1 day with available freeze", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-11-01T10:00:00Z"));
+      const store = getStore();
+      store.resetUserProgress();
+      store.recordDailyActivity();
+
+      // Skip 1 day (jump to day 3: Nov 03)
+      vi.setSystemTime(new Date("2026-11-03T10:00:00Z"));
+      store.recordDailyActivity();
+
+      const state = getStore().dailyStreak;
+      // Streak preserved and incremented: 2
+      expect(state.currentStreak).toBe(2);
+      expect(state.streakFreezesAvailable).toBe(0);
+      expect(state.isStreakFrozenToday).toBe(true);
+      expect(state.lastActiveDate).toBe("2026-11-03");
     });
   });
 });

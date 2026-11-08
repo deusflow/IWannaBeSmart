@@ -170,6 +170,91 @@ test.describe("Interactive Workbench E2E", () => {
 
     await expect(certModal).not.toBeVisible();
   });
+
+  test("Flow 6: X-Ray Code Flow Visualizer across multi-file architecture", async ({ page }) => {
+    await page.goto("./");
+
+    // Enter Station 01 (TV)
+    const enterTvBtn = page.locator('[data-testid="enter-station-tv"]');
+    await expect(enterTvBtn).toBeVisible();
+    await enterTvBtn.click();
+
+    // Open X-Ray modal
+    const xrayBtn = page.locator('[data-testid="lab-xray-btn"]');
+    await expect(xrayBtn).toBeVisible();
+    await xrayBtn.click();
+
+    const modal = page.locator('[data-testid="xray-modal"]');
+    await expect(modal).toBeVisible();
+
+    // Arrow and active line should be present
+    const arrow = page.locator('[data-testid="xray-arrow"]');
+    await expect(arrow).toBeVisible();
+    await expect(page.locator('[data-testid="xray-active-line"]')).toBeVisible();
+
+    // Step through the scenario until complete
+    const stepBtn = page.locator('[data-testid="xray-step-btn"]');
+    const completeBanner = page.locator('[data-testid="xray-complete"]');
+
+    while (!(await completeBanner.isVisible())) {
+      await expect(stepBtn).toBeEnabled();
+      await stepBtn.click();
+    }
+
+    await expect(completeBanner).toBeVisible();
+
+    // Close modal
+    const closeBtn = page.locator('[data-testid="xray-close-btn"]');
+    await expect(closeBtn).toBeVisible();
+    await closeBtn.click();
+    await expect(modal).not.toBeVisible();
+  });
+
+  test("Flow 7: DI Survival Race drill (Without DI failure -> With DI 1-line victory)", async ({ page }) => {
+    await page.goto("./");
+
+    // Enter Station 01 (TV)
+    const enterTvBtn = page.locator('[data-testid="enter-station-tv"]');
+    await expect(enterTvBtn).toBeVisible();
+    await enterTvBtn.click();
+
+    // Open DI Race modal
+    const diRaceBtn = page.locator('[data-testid="lab-di-race-btn"]');
+    await expect(diRaceBtn).toBeVisible();
+    await diRaceBtn.click();
+
+    const modal = page.locator('[data-testid="di-race-modal"]');
+    await expect(modal).toBeVisible();
+
+    // Start Round 1 (Without DI)
+    const startBtn = page.locator('[data-testid="di-start-btn"]');
+    await expect(startBtn).toBeVisible();
+    await startBtn.click();
+
+    // Wait for timer expiration and failure screen (10s countdown, allow up to 14s)
+    const failView = page.locator('[data-testid="di-fail-view"]');
+    await expect(failView).toBeVisible({ timeout: 14000 });
+
+    // Switch to Round 2 (With DI) via di-toggle
+    const diToggle = page.locator('[data-testid="di-toggle"]').first();
+    await expect(diToggle).toBeVisible();
+    await diToggle.click();
+
+    // Click swap button in Program.cs
+    const swapBtn = page.locator('[data-testid="di-swap-btn"]');
+    await expect(swapBtn).toBeVisible();
+    await swapBtn.click();
+
+    // Verify all 5 consumers propagate and success view appears
+    const successView = page.locator('[data-testid="di-success-view"]');
+    await expect(successView).toBeVisible({ timeout: 5000 });
+
+    // Close modal
+    const closeBtn = page.locator('[data-testid="di-close-btn"]');
+    await expect(closeBtn).toBeVisible();
+    await closeBtn.click();
+    await expect(modal).not.toBeVisible();
+  });
 });
 
 test.describe("First-Time User Onboarding E2E", () => {

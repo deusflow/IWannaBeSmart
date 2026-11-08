@@ -47,7 +47,7 @@ const edgeTypes = { architectureEdge: ArchitectureEdge };
 const INITIAL_BOOT_LOGS: TerminalLogEntry[] = [
   {
     id: "boot-1",
-    timestamp: 0,
+    timestamp: "00:00:00.000",
     type: "info",
     subsystem: "GRAPH",
     operation: "BOOT",

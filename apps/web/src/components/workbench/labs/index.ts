@@ -6,4 +6,6 @@
 export * from "./PredictObserveExplainModal";
 export * from "./FirmwareLogicBuilderModal";
 export * from "./StationCrashTestGateModal";
+export * from "./XRayFlowModal";
+export * from "./DiRaceModal";
 

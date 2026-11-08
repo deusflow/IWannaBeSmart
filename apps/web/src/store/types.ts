@@ -123,7 +123,7 @@ export interface MentorSlice {
   isStationVictoryModalOpen: boolean;
   dailyStreak: DailyStreakState;
   recordDailyActivity: () => void;
-  useStreakFreeze: () => boolean;
+  applyStreakFreeze: () => boolean;
   xp: number;
   completedCodingTasks: Record<string, boolean>;
   completeCodingTask: (taskId: string) => boolean;

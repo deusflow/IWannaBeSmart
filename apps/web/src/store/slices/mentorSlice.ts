@@ -179,7 +179,7 @@ export const createMentorSlice: StateCreator<
     set({ dailyStreak: streak });
   },
 
-  useStreakFreeze: () => {
+  applyStreakFreeze: () => {
     const streak = { ...get().dailyStreak };
     if (streak.streakFreezesAvailable <= 0) return false;
     streak.streakFreezesAvailable -= 1;

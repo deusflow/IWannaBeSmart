@@ -30,7 +30,7 @@ export interface EngineerDossierBarProps {
 export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
   xp,
   patterns,
-  station3ProgressPercent: _station3ProgressPercent,
+  station3ProgressPercent,
 }) => {
   const { t } = useTranslation();
   const [isDossierExpanded, setIsDossierExpanded] = useState<boolean>(false);
@@ -47,6 +47,27 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
           <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 font-mono text-[10px] font-bold text-emerald-800">
             {patterns.filter((p) => p.unlocked).length} / {patterns.length} {t("hub.patternsShort", "Патернів")}
           </span>
+          <div
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FAF8F2] border border-[#1A1D20]/15 font-mono text-[10px] font-bold text-amber-800"
+            title={
+              dailyStreak.isStreakFrozenToday
+                ? t("hub.streakFreezeTooltip", "Заморозка серії активна сьогодні")
+                : t("hub.streakTooltip", "Щоденна серія активності")
+            }
+          >
+            <Flame size={12} className="text-amber-600 fill-amber-500 shrink-0" />
+            <span>
+              {dailyStreak.currentStreak} {t("hub.streakLabel", "днів поспіль")}
+            </span>
+            {dailyStreak.streakFreezesAvailable > 0 && (
+              <span
+                className="cursor-help text-[10px]"
+                title={t("hub.streakFreezeTooltip", "Заморозка серії активна або доступна")}
+              >
+                ❄️
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
