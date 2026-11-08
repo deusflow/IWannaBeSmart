@@ -135,10 +135,10 @@ export const SpotlightOverlay: React.FC<SpotlightOverlayProps> = ({
         <aside
           ref={cardRef}
           aria-label="Mentor guidance"
-          className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md rounded-t-3xl border-t-2 border-[#C86D32] shadow-2xl pointer-events-auto z-50 space-y-3 animate-in slide-in-from-bottom duration-300"
+          className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md rounded-t-3xl border-t border-black/[0.08] shadow-luxury pointer-events-auto z-50 space-y-3 animate-in slide-in-from-bottom duration-300"
         >
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase">
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-[#C5A059]/15 text-[#C5A059] uppercase">
               {badgeText}
             </span>
             {failureCount >= 2 && onShowSolution && (
@@ -153,12 +153,12 @@ export const SpotlightOverlay: React.FC<SpotlightOverlayProps> = ({
             )}
           </div>
 
-          <p className="text-sm font-sans font-medium text-[#1E2227] leading-relaxed">
+          <p className="text-sm font-sans font-medium text-obsidian leading-relaxed">
             {mentorText}
           </p>
 
           {subText && (
-            <p className="text-xs font-sans text-[#1E2227]/70">
+            <p className="text-xs font-sans text-slate-500">
               {subText}
             </p>
           )}
@@ -171,7 +171,7 @@ export const SpotlightOverlay: React.FC<SpotlightOverlayProps> = ({
           <aside
             ref={cardRef}
             aria-label="Mentor guidance"
-            className="absolute pointer-events-auto z-50 w-[360px] sm:w-[420px] p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-[#C86D32]/40 shadow-2xl space-y-3 transition-all duration-200"
+            className="absolute pointer-events-auto z-50 w-[360px] sm:w-[420px] p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-black/[0.08] shadow-luxury space-y-3 transition-all duration-200"
             style={{
               top: placeAbove
                 ? `${Math.max(16, targetTop - 190)}px`
@@ -184,8 +184,8 @@ export const SpotlightOverlay: React.FC<SpotlightOverlayProps> = ({
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <Sparkles size={14} className="text-[#C86D32]" />
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase">
+                <Sparkles size={14} className="text-[#C5A059]" />
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-[#C5A059]/15 text-[#C5A059] uppercase">
                   {badgeText}
                 </span>
               </div>
@@ -202,12 +202,12 @@ export const SpotlightOverlay: React.FC<SpotlightOverlayProps> = ({
               )}
             </div>
 
-            <p className="text-sm font-sans font-medium text-[#1E2227] leading-relaxed">
+            <p className="text-sm font-sans font-medium text-obsidian leading-relaxed">
               {mentorText}
             </p>
 
             {subText && (
-              <p className="text-xs font-sans text-[#1E2227]/70">
+              <p className="text-xs font-sans text-slate-500">
                 {subText}
               </p>
             )}

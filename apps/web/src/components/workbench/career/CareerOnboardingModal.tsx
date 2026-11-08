@@ -263,7 +263,7 @@ export const CareerOnboardingModal: React.FC = () => {
               id="btn-confirm-career-track"
               type="button"
               onClick={handleConfirm}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-white font-mono font-bold text-xs sm:text-sm shadow-luxury transition-all cursor-pointer active:scale-95"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white font-mono font-bold text-xs sm:text-sm shadow-luxury transition-all cursor-pointer active:scale-95"
             >
               <span>
                 {selectedTrack === "explorer"

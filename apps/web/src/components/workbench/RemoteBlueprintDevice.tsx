@@ -169,7 +169,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                       title={isCalcMode ? t("remoteDevice.digit", { num }) : `${t("tvDevice.channel", "Канал")} ${num}`}
                       className={`h-5 rounded font-sans text-[10px] font-bold flex items-center justify-center transition-all duration-100 outline-none border ${
                         isAvailable
-                          ? "bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] border-[#363C46] active:scale-90 cursor-pointer"
+                          ? "bg-[#252930] hover:bg-[#333842] text-slate-100 border-[#363C46] active:scale-90 cursor-pointer"
                           : "bg-[#16181B] text-[#444850] border-transparent cursor-not-allowed opacity-30"
                       }`}
                     >
@@ -185,7 +185,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 </button>
                 <button
                   onClick={() => pressSelectChannel(0)}
-                  className="h-5 rounded bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] font-sans text-[10px] font-bold flex items-center justify-center border border-[#363C46] active:scale-90 cursor-pointer"
+                  className="h-5 rounded bg-[#252930] hover:bg-[#333842] text-slate-100 font-sans text-[10px] font-bold flex items-center justify-center border border-[#363C46] active:scale-90 cursor-pointer"
                   title={t("remoteDevice.digit", { num: 0 })}
                 >
                   0
@@ -206,7 +206,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 <button
                   onClick={pressVolumeUp}
                   title={t("remoteDevice.volUp", "Гучність +")}
-                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
                 >
                   <ChevronUp size={11} strokeWidth={2.5} />
                 </button>
@@ -215,7 +215,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                   onClick={pressVolumeDown}
                   title={t("remoteDevice.volDown", "Гучність -")}
                   data-guide="remote-vol-down"
-                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
                 >
                   <ChevronDown size={11} strokeWidth={2.5} />
                 </button>
@@ -236,7 +236,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                   onClick={pressChannelUp}
                   title={t("remoteDevice.chUp", "Канал вперед")}
                   data-guide="remote-ch-up"
-                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
                 >
                   <ChevronUp size={11} strokeWidth={2.5} />
                 </button>
@@ -244,7 +244,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 <button
                   onClick={pressChannelDown}
                   title={t("remoteDevice.chDown", "Канал назад")}
-                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+                  className="w-6 py-0.5 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
                 >
                   <ChevronDown size={11} strokeWidth={2.5} />
                 </button>
@@ -412,7 +412,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
                 title={isCalcMode ? t("remoteDevice.digit", { num }) : `${t("tvDevice.channel", "Канал")} ${num}`}
                 className={`h-6 rounded-md font-sans text-xs font-bold flex items-center justify-center transition-all duration-100 outline-none border ${
                   isAvailable
-                    ? "bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] border-[#363C46] active:scale-90 cursor-pointer"
+                    ? "bg-[#252930] hover:bg-[#333842] text-slate-100 border-[#363C46] active:scale-90 cursor-pointer"
                     : "bg-[#16181B] text-[#444850] border-transparent cursor-not-allowed opacity-35"
                 }`}
               >
@@ -429,7 +429,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
           </button>
           <button
             onClick={() => pressSelectChannel(0)}
-            className="h-6 rounded-md bg-[#252930] hover:bg-[#333842] text-[#EFE9DF] font-sans text-xs font-bold flex items-center justify-center border border-[#363C46] cursor-pointer"
+            className="h-6 rounded-md bg-[#252930] hover:bg-[#333842] text-slate-100 font-sans text-xs font-bold flex items-center justify-center border border-[#363C46] cursor-pointer"
             title={t("remoteDevice.digit", { num: 0 })}
           >
             0
@@ -449,7 +449,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <button
               onClick={pressVolumeUp}
               title={t("remoteDevice.volUp", "Гучність +")}
-              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
             >
               <Volume2 size={12} strokeWidth={2} />
             </button>
@@ -457,7 +457,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <button
               onClick={pressVolumeDown}
               title={t("remoteDevice.volDown", "Гучність -")}
-              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
             >
               <Volume1 size={12} strokeWidth={2} />
             </button>
@@ -480,7 +480,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <button
               onClick={pressChannelUp}
               title={t("remoteDevice.chUp", "Канал вперед")}
-              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
             >
               <ChevronUp size={13} strokeWidth={2} />
             </button>
@@ -488,7 +488,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
             <button
               onClick={pressChannelDown}
               title={t("remoteDevice.chDown", "Канал назад")}
-              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-[#EFE9DF] cursor-pointer"
+              className="w-full py-1 flex items-center justify-center hover:bg-[#323842] active:scale-90 text-slate-100 cursor-pointer"
             >
               <ChevronDown size={13} strokeWidth={2} />
             </button>

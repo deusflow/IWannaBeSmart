@@ -43,8 +43,8 @@ export const ExplorerTourHeaderBar: React.FC = () => {
       prompt: t("career.tour.step1Prompt", "«Інженер, давай оживимо систему. З'єднай штекер команди живлення з гніздом телевізора»"),
       actionLabel: t("career.tour.step1Action", " Замкнути дріт живлення"),
       icon: Tv,
-      color: "text-[#3B6B88]",
-      bgBadge: "bg-[#EBF2F7] text-[#3B6B88] border-[#3B6B88]/30",
+      color: "text-slate-700",
+      bgBadge: "bg-slate-100 text-slate-800 border-slate-300",
     },
     {
       step: 2,
@@ -52,8 +52,8 @@ export const ExplorerTourHeaderBar: React.FC = () => {
       prompt: t("career.tour.step2Prompt", "«Нейромережа не вигадує факти, якщо знаходить точний шматок тексту. Натисни кнопку, щоб нарізати базу знань на вектори»"),
       actionLabel: t("career.tour.step2Action", "Нарізати базу знань на вектори"),
       icon: Cpu,
-      color: "text-[#C86D32]",
-      bgBadge: "bg-[#F5EDE6] text-[#C86D32] border-[#C86D32]/30",
+      color: "text-amber-700",
+      bgBadge: "bg-amber-50 text-amber-900 border-amber-300/40",
     },
     {
       step: 3,
@@ -61,8 +61,8 @@ export const ExplorerTourHeaderBar: React.FC = () => {
       prompt: t("career.tour.step3Prompt", "«Хакер сканує наші порти. Знайди червоний підозрілий пакет та натисни 'Блокувати IP'»"),
       actionLabel: t("career.tour.step3Action", " Блокувати IP зловмисника"),
       icon: ShieldCheck,
-      color: "text-[#3E7A5E]",
-      bgBadge: "bg-[#EAF3EE] text-[#3E7A5E] border-[#3E7A5E]/30",
+      color: "text-emerald-700",
+      bgBadge: "bg-emerald-50 text-emerald-800 border-emerald-300/40",
     },
   ];
 

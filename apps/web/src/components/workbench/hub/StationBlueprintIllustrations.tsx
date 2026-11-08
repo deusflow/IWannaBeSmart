@@ -13,7 +13,7 @@ export const TvBlueprintSvg: React.FC = () => (
     {/* TV Body */}
     <rect x="20" y="20" width="80" height="60" rx="6" stroke="currentColor" strokeWidth="2" fill="#FFFFFF" />
     {/* Screen */}
-    <rect x="26" y="26" width="50" height="48" rx="4" stroke="currentColor" strokeWidth="1.5" fill="#1A1D20" />
+    <rect x="26" y="26" width="50" height="48" rx="4" stroke="currentColor" strokeWidth="1.5" fill="#252932" />
     <rect x="30" y="30" width="42" height="40" rx="2" fill="#2A3036" />
     <path d="M 36 50 Q 51 40 66 50" stroke="#4ADE80" strokeWidth="1.5" fill="none" />
     {/* Knobs */}
@@ -25,9 +25,9 @@ export const TvBlueprintSvg: React.FC = () => (
     <rect x="120" y="15" width="30" height="70" rx="4" stroke="currentColor" strokeWidth="1.8" fill="#FFFFFF" />
     <circle cx="135" cy="12" r="2.5" fill="#EF4444" />
     <circle cx="135" cy="25" r="3.5" stroke="currentColor" strokeWidth="1.2" fill="#EF4444" />
-    <rect x="125" y="35" width="20" height="4" rx="1" fill="#1A1D20" />
-    <rect x="125" y="43" width="20" height="4" rx="1" fill="#1A1D20" />
-    <rect x="125" y="51" width="20" height="4" rx="1" fill="#1A1D20" />
+    <rect x="125" y="35" width="20" height="4" rx="1" fill="#252932" />
+    <rect x="125" y="43" width="20" height="4" rx="1" fill="#252932" />
+    <rect x="125" y="51" width="20" height="4" rx="1" fill="#252932" />
     <circle cx="135" cy="68" r="7" stroke="currentColor" strokeWidth="1.2" fill="#F1F3F6" />
     {/* Infrared Wave */}
     <path d="M 115 15 C 110 18, 110 22, 115 25" stroke="#EF4444" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="2 2" />
@@ -39,31 +39,31 @@ export const PosBlueprintSvg: React.FC = () => (
   <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-obsidian">
     {/* Thermal Receipt sticking out */}
     <path d="M 45 15 L 75 15 L 75 0 L 45 0 Z" fill="#FFFFFF" stroke="currentColor" strokeWidth="1.2" />
-    <line x1="48" y1="5" x2="72" y2="5" stroke="#1A1D20" strokeWidth="1" strokeDasharray="1.5 1" />
-    <line x1="48" y1="9" x2="65" y2="9" stroke="#1A1D20" strokeWidth="1" strokeDasharray="1.5 1" />
+    <line x1="48" y1="5" x2="72" y2="5" stroke="#252932" strokeWidth="1" strokeDasharray="1.5 1" />
+    <line x1="48" y1="9" x2="65" y2="9" stroke="#252932" strokeWidth="1" strokeDasharray="1.5 1" />
     {/* POS Main Body */}
     <rect x="35" y="15" width="50" height="70" rx="5" stroke="currentColor" strokeWidth="2" fill="#FFFFFF" />
     {/* LCD Display */}
-    <rect x="40" y="20" width="40" height="22" rx="3" fill="#1A1D20" stroke="currentColor" strokeWidth="1" />
+    <rect x="40" y="20" width="40" height="22" rx="3" fill="#252932" stroke="currentColor" strokeWidth="1" />
     <rect x="42" y="22" width="36" height="18" fill="#1F2428" />
     <text x="44" y="32" fill="#34D399" fontSize="6" fontFamily="monospace" fontWeight="bold">$ 135.00</text>
     <text x="44" y="38" fill="#38BDF8" fontSize="4" fontFamily="monospace">DANKORT OK</text>
     {/* Keypad Grid */}
-    <circle cx="45" cy="50" r="2.2" fill="#1A1D20" />
-    <circle cx="53" cy="50" r="2.2" fill="#1A1D20" />
-    <circle cx="61" cy="50" r="2.2" fill="#1A1D20" />
-    <circle cx="45" cy="58" r="2.2" fill="#1A1D20" />
-    <circle cx="53" cy="58" r="2.2" fill="#1A1D20" />
-    <circle cx="61" cy="58" r="2.2" fill="#1A1D20" />
+    <circle cx="45" cy="50" r="2.2" fill="#252932" />
+    <circle cx="53" cy="50" r="2.2" fill="#252932" />
+    <circle cx="61" cy="50" r="2.2" fill="#252932" />
+    <circle cx="45" cy="58" r="2.2" fill="#252932" />
+    <circle cx="53" cy="58" r="2.2" fill="#252932" />
+    <circle cx="61" cy="58" r="2.2" fill="#252932" />
     <circle cx="45" cy="66" r="2.2" fill="#EF4444" />
-    <circle cx="53" cy="66" r="2.2" fill="#1A1D20" />
+    <circle cx="53" cy="66" r="2.2" fill="#252932" />
     <circle cx="61" cy="66" r="2.2" fill="#10B981" />
     {/* Chip card insertion slot */}
     <line x1="42" y1="78" x2="65" y2="78" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     {/* Contactless Credit Card */}
     <rect x="110" y="25" width="48" height="32" rx="3" stroke="currentColor" strokeWidth="1.5" fill="#FFFFFF" />
     <rect x="115" y="33" width="10" height="8" rx="1" fill="#D97706" />
-    <line x1="110" y1="46" x2="158" y2="46" stroke="#1A1D20" strokeWidth="4" />
+    <line x1="110" y1="46" x2="158" y2="46" stroke="#252932" strokeWidth="4" />
     {/* NFC Radio Waves */}
     <path d="M 95 30 C 100 35, 100 45, 95 50" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" />
     <path d="M 90 26 C 97 33, 97 47, 90 54" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" />
@@ -83,8 +83,8 @@ export const IotBlueprintSvg: React.FC = () => (
     <rect x="135" y="12" width="22" height="18" rx="2" fill="#FFFFFF" stroke="currentColor" strokeWidth="1.5" />
     <circle cx="146" cy="21" r="4" stroke="currentColor" strokeWidth="1.2" fill="#D97706" />
     {/* Laser Obstacle Sensor */}
-    <rect x="25" y="65" width="10" height="10" rx="2" fill="#1A1D20" />
-    <rect x="145" y="65" width="10" height="10" rx="2" fill="#1A1D20" />
+    <rect x="25" y="65" width="10" height="10" rx="2" fill="#252932" />
+    <rect x="145" y="65" width="10" height="10" rx="2" fill="#252932" />
     <line x1="35" y1="70" x2="145" y2="70" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="3 3" />
     <text x="65" y="66" fill="#EF4444" fontSize="6" fontFamily="monospace">IR OBSTACLE SENSOR</text>
   </svg>
@@ -94,7 +94,7 @@ export const ApiForgeBlueprintSvg: React.FC = () => (
   <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-obsidian">
     {/* Client Dispatcher Device */}
     <rect x="15" y="24" width="46" height="42" rx="4" stroke="currentColor" strokeWidth="1.8" fill="#FFFFFF" />
-    <rect x="20" y="30" width="36" height="12" rx="2" fill="#1A1D20" />
+    <rect x="20" y="30" width="36" height="12" rx="2" fill="#252932" />
     <text x="23" y="39" fill="#06B6D4" fontSize="6" fontFamily="monospace" fontWeight="bold">POST :443</text>
     <circle cx="25" cy="54" r="3" fill="#10B981" />
     <circle cx="35" cy="54" r="3" fill="#3B82F6" />
@@ -103,17 +103,17 @@ export const ApiForgeBlueprintSvg: React.FC = () => (
     {/* HTTP Cable & In-Flight Packet */}
     <line x1="61" y1="45" x2="119" y2="45" stroke="#06B6D4" strokeWidth="2.5" strokeDasharray="3 2" />
     <rect x="82" y="39" width="16" height="12" rx="2" fill="#06B6D4" stroke="currentColor" strokeWidth="1" />
-    <text x="85" y="47" fill="#1A1D20" fontSize="5" fontFamily="monospace" fontWeight="extrabold">REQ</text>
+    <text x="85" y="47" fill="#252932" fontSize="5" fontFamily="monospace" fontWeight="extrabold">REQ</text>
 
     {/* Gateway Server Rack */}
     <rect x="119" y="18" width="48" height="54" rx="4" stroke="currentColor" strokeWidth="1.8" fill="#FFFFFF" />
-    <rect x="124" y="24" width="38" height="8" rx="1.5" fill="#1A1D20" />
+    <rect x="124" y="24" width="38" height="8" rx="1.5" fill="#252932" />
     <circle cx="128" cy="28" r="1.5" fill="#10B981" />
     <line x1="133" y1="28" x2="157" y2="28" stroke="#374151" strokeWidth="1.5" />
-    <rect x="124" y="36" width="38" height="8" rx="1.5" fill="#1A1D20" />
+    <rect x="124" y="36" width="38" height="8" rx="1.5" fill="#252932" />
     <circle cx="128" cy="40" r="1.5" fill="#10B981" />
     <line x1="133" y1="40" x2="157" y2="40" stroke="#374151" strokeWidth="1.5" />
-    <rect x="124" y="48" width="38" height="8" rx="1.5" fill="#1A1D20" />
+    <rect x="124" y="48" width="38" height="8" rx="1.5" fill="#252932" />
     <circle cx="128" cy="52" r="1.5" fill="#F59E0B" />
     <line x1="133" y1="52" x2="157" y2="52" stroke="#374151" strokeWidth="1.5" />
     <text x="130" y="66" fill="#10B981" fontSize="5" fontFamily="monospace">:8080 OK</text>
@@ -132,19 +132,19 @@ export const GitBlueprintSvg: React.FC = () => (
     <path d="M 115 20 C 130 20, 135 45, 150 45" stroke="#A855F7" strokeWidth="1.5" strokeDasharray="2 2" fill="none" />
 
     {/* Commit c1 (Root) */}
-    <circle cx="30" cy="45" r="7" fill="#FFFFFF" stroke="#1A1D20" strokeWidth="2" />
-    <text x="30" y="47" fill="#1A1D20" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c1</text>
+    <circle cx="30" cy="45" r="7" fill="#FFFFFF" stroke="#252932" strokeWidth="2" />
+    <text x="30" y="47" fill="#252932" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c1</text>
 
     {/* Commit c2 (Main) */}
     <circle cx="75" cy="45" r="7" fill="#FFFFFF" stroke="#38BDF8" strokeWidth="2" />
-    <text x="75" y="47" fill="#1A1D20" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c2</text>
+    <text x="75" y="47" fill="#252932" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c2</text>
 
     {/* Commit c3 (Feature) */}
     <circle cx="115" cy="20" r="7" fill="#FFFFFF" stroke="#A855F7" strokeWidth="2" />
     <text x="115" y="22" fill="#A855F7" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c3</text>
 
     {/* Commit c4 (Merge) */}
-    <circle cx="150" cy="45" r="8" fill="#10B981" stroke="#1A1D20" strokeWidth="1.5" />
+    <circle cx="150" cy="45" r="8" fill="#10B981" stroke="#252932" strokeWidth="1.5" />
     <text x="150" y="48" fill="#FFFFFF" fontSize="5.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">c4</text>
 
     {/* HEAD Tag */}
@@ -178,7 +178,7 @@ export const BanditBlueprintSvg: React.FC = () => (
 );
 
 export const VertexBlueprintSvg: React.FC = () => (
-  <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+  <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-obsidian">
     {/* Cloud Outline */}
     <path d="M 25 45 C 20 45 15 40 15 35 C 15 28 22 24 28 25 C 32 18 42 16 48 22 C 54 18 64 22 65 28 C 70 28 75 32 75 38 C 75 45 68 45 65 45 Z" fill="#DBEAFE" stroke="#2563EB" strokeWidth="1.8" />
     <text x="42" y="36" fill="#1E40AF" fontSize="5.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">GCS</text>
@@ -200,7 +200,7 @@ export const VertexBlueprintSvg: React.FC = () => (
 );
 
 export const FdeBlueprintSvg: React.FC = () => (
-  <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-[#1A1D20]">
+  <svg width="180" height="90" viewBox="0 0 180 90" fill="none" className="text-obsidian">
     {/* Legacy System Tower */}
     <rect x="15" y="20" width="35" height="50" rx="3" fill="#334155" stroke="#1E293B" strokeWidth="1.5" />
     <line x1="20" y1="28" x2="45" y2="28" stroke="#94A3B8" strokeWidth="1.5" />

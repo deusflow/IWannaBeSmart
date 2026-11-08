@@ -80,7 +80,7 @@ const getCategoryBadge = (category: TechCategory, t: (key: string, fallback: str
       return {
         label: t("guide.categoryGeneral", "Технологія"),
         icon: Cpu,
-        style: "bg-[#1A1D20]/10 text-[#1A1D20] border-[#1A1D20]/20",
+        style: "bg-[#252932]/10 text-obsidian border-black/[0.08]",
       };
   }
 };

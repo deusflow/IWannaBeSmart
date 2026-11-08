@@ -54,7 +54,7 @@ export const IotGarageBlueprintDevice: React.FC = () => {
   return (
     <div
       id="iot-garage-device"
-      className="w-full rounded-2xl bg-[#1E2227] border-2 border-[#1E2227]/30 shadow-xl overflow-hidden text-white font-sans select-none flex flex-col"
+      className="w-full rounded-2xl bg-[#1A1D24] border border-black/[0.12] shadow-luxury overflow-hidden text-white font-sans select-none flex flex-col"
     >
       {/* ── Rack Header ── */}
       <div className="bg-[#15181C] px-4 py-3 border-b border-white/10 flex items-center justify-between">

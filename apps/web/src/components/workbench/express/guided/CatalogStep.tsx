@@ -26,7 +26,7 @@ export const CatalogStep: React.FC<CatalogStepProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none p-4 sm:p-8">
+    <div className="min-h-screen bg-porcelain text-obsidian flex flex-col font-sans select-none p-4 sm:p-8">
       <header className="max-w-4xl mx-auto w-full flex items-center justify-between pb-6 border-b border-black/[0.06]">
         <button
           type="button"
@@ -116,14 +116,14 @@ export const CatalogStep: React.FC<CatalogStepProps> = ({
           </button>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono font-bold text-[#1E2227]/60">
+            <span className="text-xs font-mono font-bold text-slate-500">
               {t("taster.selectedCount", { count: selectedRoleIds.length })}
             </span>
             <button
               type="button"
               onClick={onStart}
               disabled={selectedRoleIds.length === 0}
-              className="px-6 py-2.5 rounded-xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t("taster.startTastingBtn", "Розпочати Speed-Dating →")}
             </button>

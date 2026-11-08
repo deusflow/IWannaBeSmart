@@ -239,7 +239,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
               <div className="pt-2">
                 <button
                   onClick={handleRetry}
-                  className="px-4 py-2 rounded-xl bg-[#252932] text-white font-mono text-xs font-bold flex items-center gap-1.5 mx-auto hover:bg-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
+                  className="px-4 py-2 rounded-xl bg-[#252932] text-white font-mono text-xs font-bold flex items-center gap-1.5 mx-auto hover:bg-[#1A1D24] transition-colors cursor-pointer shadow-2xs"
                 >
                   <RotateCcw size={13} />
                   <span>{t("labs.crash.tryAgain", "Спробувати ще раз")}</span>
@@ -315,7 +315,7 @@ export const StationCrashTestGateModal: React.FC<StationCrashTestGateModalProps>
                   onPassed();
                 }
               }}
-              className="px-4 py-1.5 rounded-xl bg-[#252932] text-white text-xs font-mono font-bold hover:bg-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
+              className="px-4 py-1.5 rounded-xl bg-[#252932] text-white text-xs font-mono font-bold hover:bg-[#1A1D24] transition-colors cursor-pointer shadow-2xs"
             >
               {t("labs.crash.claimCertificate", "Закрити")}
             </button>

@@ -126,9 +126,9 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
                 <span className="font-mono font-bold text-[10px] uppercase text-blue-900 tracking-wider">
                   {t("guide.inProductionLabel", "В індустрії:")}
                 </span>
-                <strong className="text-[#1A1D20] font-mono text-[11px]">{techInsight.primaryTech}</strong>
+                <strong className="text-obsidian font-mono text-[11px]">{techInsight.primaryTech}</strong>
               </div>
-              <p className="text-[11px] text-[#1A1D20]/80 mt-0.5">
+              <p className="text-[11px] text-slate-600 mt-0.5">
                 <span className="font-semibold text-amber-900">{t("guide.techVsLabel", "Альтернатива:")} {techInsight.alternative.name}</span>
                 {" — "}
                 <span>{techInsight.alternative.tradeoff[currentLang] || techInsight.alternative.tradeoff.ua}</span>
@@ -183,7 +183,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
 
       {/* Ready Working Code Box with ▶ Демонстрація button */}
       <div>
-        <div className="flex items-center justify-between text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#1A1D20]/80 mb-1.5 flex-wrap gap-2">
+        <div className="flex items-center justify-between text-[10px] font-mono font-extrabold uppercase tracking-wider text-slate-600 mb-1.5 flex-wrap gap-2">
           <span className="flex items-center gap-1.5">
             <CheckCircle2 size={13} className="text-emerald-700" />
             <span>{t("guide.readyCodeTitle", "Такт 1: Еталонний код вчителя (Sample Code):")}</span>
@@ -213,7 +213,7 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
                 </span>
               </button>
             )}
-            <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#1A1D20]/10 font-bold">
+            <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-100 text-obsidian border border-black/[0.08] font-bold">
               {getLangBadge(codeLang)}
             </span>
           </div>

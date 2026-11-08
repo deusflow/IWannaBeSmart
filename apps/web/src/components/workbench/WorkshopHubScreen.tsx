@@ -123,7 +123,7 @@ export const WorkshopHubScreen: React.FC = () => {
         id: "my_track" as const,
         label: t("hub.tabs.myTrack", "MY TRACK"),
         icon: Compass,
-        accentColor: "#C86D32",
+        accentColor: "#C5A059",
         count: !userTrack
           ? 10
           : userTrack === "explorer"
@@ -159,7 +159,7 @@ export const WorkshopHubScreen: React.FC = () => {
         id: "all" as const,
         label: t("hub.tabs.all", "ALL STATIONS"),
         icon: LayoutGrid,
-        accentColor: "#1E2227",
+        accentColor: "#252932",
         count: 10,
       },
     ],
@@ -650,16 +650,16 @@ export const WorkshopHubScreen: React.FC = () => {
   return (
     <div className="w-full flex-1 flex flex-col p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300 select-none">
       {/* ── Blueprint Hub Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1A1D20]/20 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.08] pb-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#1A1D20]/10 border border-[#1A1D20]/20 text-[#1A1D20] text-[10px] font-mono font-bold uppercase tracking-wider mb-1.5">
-            <Cpu size={12} className="text-[#1A1D20]/70" />
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#252932]/10 border border-[#252932]/20 text-[#252932] text-[10px] font-mono font-bold uppercase tracking-wider mb-1.5">
+            <Cpu size={12} className="text-slate-500" />
             <span>WORKBENCH HUB v2.0 • ENGINEERING WORKSHOP</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#1A1D20] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-obsidian tracking-tight">
             {t("hub.title", "Інженерний Хаб")}
           </h1>
-          <p className="text-xs sm:text-sm font-sans text-[#1A1D20]/70 max-w-2xl mt-0.5">
+          <p className="text-xs sm:text-sm font-sans text-slate-500 max-w-2xl mt-0.5">
             {t(
               "hub.subtitle",
               "Оберіть прилад для тренування архітектурних патернів, логіки та м'язової пам'яті коду"
@@ -669,23 +669,23 @@ export const WorkshopHubScreen: React.FC = () => {
 
         {/* ── Engineering Telemetry (XP & Stars only) ── */}
         <div className="flex items-center gap-2.5 sm:gap-3 self-start sm:self-auto shrink-0 select-none">
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs shrink-0 whitespace-nowrap">
-            <div className="w-6 h-6 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
-              <Zap size={13} className="fill-[#C86D32] text-[#C86D32]" />
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white border border-black/[0.08] shadow-2xs shrink-0 whitespace-nowrap">
+            <div className="w-6 h-6 rounded-lg bg-[#C5A059]/10 border border-[#C5A059]/30 flex items-center justify-center text-[#C5A059] shrink-0">
+              <Zap size={13} className="fill-[#C5A059] text-[#C5A059]" />
             </div>
             <div className="text-left leading-none">
-              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] whitespace-nowrap">
+              <div className="font-display font-bold text-xs sm:text-sm text-obsidian whitespace-nowrap">
                 XP: {xp}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white border border-[#1E2227]/15 shadow-xs shrink-0 whitespace-nowrap">
-            <div className="w-6 h-6 rounded-lg bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
-              <span className="text-xs font-bold leading-none text-amber-600">★</span>
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white border border-black/[0.08] shadow-2xs shrink-0 whitespace-nowrap">
+            <div className="w-6 h-6 rounded-lg bg-[#C5A059]/10 border border-[#C5A059]/30 flex items-center justify-center text-[#C5A059] shrink-0">
+              <span className="text-xs font-bold leading-none text-[#C5A059]">★</span>
             </div>
             <div className="text-left leading-none">
-              <div className="font-display font-bold text-xs sm:text-sm text-[#1E2227] whitespace-nowrap">
+              <div className="font-display font-bold text-xs sm:text-sm text-obsidian whitespace-nowrap">
                 ★ {totalStars} / {TOTAL_MAX_STARS}
               </div>
             </div>
@@ -697,17 +697,17 @@ export const WorkshopHubScreen: React.FC = () => {
       {completedTasksCount === 1 && !userTrack && (
         <div
           id="career-focus-onboarding-nudge"
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F5EDE6] via-white to-[#F5EDE6] border-2 border-[#C86D32] p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in slide-in-from-top duration-500"
+          className="relative overflow-hidden rounded-2xl bg-white border border-black/[0.08] shadow-luxury p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in slide-in-from-top duration-500"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/40 text-[#C86D32] flex items-center justify-center shrink-0 shadow-2xs">
-              <Sparkles size={20} className="text-[#C86D32] animate-pulse" />
+            <div className="w-10 h-10 rounded-xl bg-[#C5A059]/10 border border-[#C5A059]/30 text-[#C5A059] flex items-center justify-center shrink-0 shadow-2xs">
+              <Sparkles size={20} className="text-[#C5A059] animate-pulse" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase tracking-wider mb-1">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C5A059]/15 text-[#C5A059] uppercase tracking-wider mb-1">
                 <span>ONBOARDING NUDGE</span>
               </div>
-              <p className="text-xs sm:text-sm font-display font-extrabold text-[#1E2227] leading-snug">
+              <p className="text-xs sm:text-sm font-display font-extrabold text-obsidian leading-snug">
                 {t(
                   "onboarding.firstCircuitNudge",
                   "Перший контур замкнено! Обери свій кар'єрний фокус (Backend, AI або Cyber), щоб налаштувати тренажер під себе."
@@ -722,7 +722,7 @@ export const WorkshopHubScreen: React.FC = () => {
               audioFx.playRelayClick();
               setIsCareerModalOpen(true);
             }}
-            className="px-4 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#C86D32] hover:bg-[#B35E28] text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start sm:self-auto"
+            className="px-4 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#252932] hover:bg-[#1A1D24] text-white shadow-2xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start sm:self-auto"
           >
             <span>{t("career.chooseTrackBtn", "Обрати трек")}</span>
           </button>
@@ -731,25 +731,25 @@ export const WorkshopHubScreen: React.FC = () => {
 
       {/* ── Career Focus Banner (Directly under Hub Header, shown once cadet has graduated beyond 0 tasks) ── */}
       {!isNewUser && (!userTrack ? (
-        <div className="relative overflow-hidden rounded-2xl bg-white border border-[#1E2227]/15 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-black/[0.08] p-4 sm:p-5 shadow-luxury flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="absolute inset-0 bg-notebook-grid opacity-20 pointer-events-none" />
           <div className="flex items-start sm:items-center gap-3.5 relative z-10">
-            <div className="w-11 h-11 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
-              <Compass size={22} className="text-[#C86D32]" />
+            <div className="w-11 h-11 rounded-xl bg-[#C5A059]/10 border border-[#C5A059]/30 flex items-center justify-center text-[#C5A059] shrink-0">
+              <Compass size={22} className="text-[#C5A059]" />
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30 uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 uppercase tracking-wider">
                   {t("career.careerFocusBadge", "Кар'єрний фокус інженера")}
                 </span>
-                <span className="text-[11px] font-mono font-medium text-[#3E7A5E]">
+                <span className="text-[11px] font-mono font-medium text-emerald-700">
                   «{t("career.motto", "Неможливо програти, якщо це експеримент")}»
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-display font-bold text-[#1E2227] tracking-tight">
+              <h2 className="text-base sm:text-lg font-display font-bold text-obsidian tracking-tight">
                 {t("career.onboardingModalTitle", "Обери свій напрямок в IT (Backend, AI, Cyber або Спробувати все)")}
               </h2>
-              <p className="text-xs text-[#1E2227]/75 max-w-2xl leading-relaxed">
+              <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
                 {t(
                   "career.onboardingModalSubtitle",
                   "Інженерна гнучкість: кожен вибір розширює архітектурний кругозір, а напрямок можна адаптувати у будь-який момент в один клік."
@@ -765,25 +765,25 @@ export const WorkshopHubScreen: React.FC = () => {
               audioFx.playRelayClick();
               setIsCareerModalOpen(true);
             }}
-            className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#1E2227] hover:bg-black text-white shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
+            className="relative z-10 px-5 py-2.5 rounded-xl font-mono font-bold text-xs bg-[#252932] hover:bg-[#1A1D24] text-white shadow-2xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
             <Compass size={15} className="shrink-0" />
             <span>{t("career.chooseTrackBtn", "Обрати трек")}</span>
           </button>
         </div>
       ) : (
-        <div className="relative overflow-hidden rounded-2xl bg-white border border-[#1E2227]/15 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-black/[0.08] p-4 sm:p-5 shadow-luxury flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="absolute inset-0 bg-notebook-grid opacity-20 pointer-events-none" />
           <div className="flex items-start sm:items-center gap-3.5 relative z-10">
-            <div className="w-11 h-11 rounded-xl bg-[#F5EDE6] border border-[#C86D32]/30 flex items-center justify-center text-[#C86D32] shrink-0">
-              <Compass size={22} className="text-[#C86D32]" />
+            <div className="w-11 h-11 rounded-xl bg-[#C5A059]/10 border border-[#C5A059]/30 flex items-center justify-center text-[#C5A059] shrink-0">
+              <Compass size={22} className="text-[#C5A059]" />
             </div>
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F5EDE6] text-[#C86D32] border border-[#C86D32]/30 uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/30 uppercase tracking-wider">
                   {t("career.careerFocusBadge", "Кар'єрний фокус інженера")}
                 </span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1E2227]/5 text-[#1E2227] border border-[#1E2227]/15 uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-obsidian border border-black/[0.08] uppercase">
                   {userTrack === "explorer"
                     ? t("career.tracks.explorer.title", "Спробувати все (Explorer)")
                     : userTrack === "backend"
@@ -794,7 +794,7 @@ export const WorkshopHubScreen: React.FC = () => {
                     ? t("career.tracks.security.title", "Кібербезпека & SOC Analyst")
                     : t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
                 </span>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#3E7A5E]/10 text-[#3E7A5E] border border-[#3E7A5E]/30">
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
                   {t("career.trackProgressBadge", {
                     completed: trackStats.completedCount,
                     total: trackStats.totalCount,
@@ -802,15 +802,15 @@ export const WorkshopHubScreen: React.FC = () => {
                     defaultValue: `Пройдено ${trackStats.completedCount} з ${trackStats.totalCount} станцій фокусу (${trackStats.percent}%)`,
                   })}
                 </span>
-                <span className="text-[11px] font-mono font-medium text-[#3E7A5E]">
+                <span className="text-[11px] font-mono font-medium text-emerald-700">
                   «{t("career.motto", "Неможливо програти, якщо це експеримент")}»
                 </span>
               </div>
-              <h2 className="text-sm sm:text-base font-display font-bold text-[#1E2227] tracking-tight">
+              <h2 className="text-sm sm:text-base font-display font-bold text-obsidian tracking-tight">
                 {t(`career.tracks.${userTrack}.title`, "Кар'єрний трек")}
               </h2>
-              <div className="text-xs text-[#1E2227]/75 max-w-2xl leading-relaxed">
-                <span className="font-mono font-bold text-[10px] uppercase text-[#1E2227]/60 mr-1.5">
+              <div className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                <span className="font-mono font-bold text-[10px] uppercase text-slate-500 mr-1.5">
                   {t("career.targetRolesLabel", "Цільові вакансії:")}
                 </span>
                 <span>
@@ -819,9 +819,9 @@ export const WorkshopHubScreen: React.FC = () => {
               </div>
               {/* Dynamic Track Progress Bar */}
               <div className="w-full max-w-md pt-1">
-                <div className="w-full bg-[#1E2227]/10 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                   <div
-                    className="bg-[#3E7A5E] h-full rounded-full transition-all duration-500 ease-out"
+                    className="bg-emerald-600 h-full rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${trackStats.percent}%` }}
                   />
                 </div>
@@ -836,7 +836,7 @@ export const WorkshopHubScreen: React.FC = () => {
               audioFx.playRelayClick();
               setIsCareerModalOpen(true);
             }}
-            className="relative z-10 px-4 py-2 rounded-xl font-mono font-bold text-xs bg-white hover:bg-[#F0EDE6] text-[#1E2227] border border-[#1E2227]/20 shadow-xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
+            className="relative z-10 px-4 py-2 rounded-xl font-mono font-bold text-xs bg-white hover:bg-slate-50 text-obsidian border border-black/[0.08] shadow-2xs flex items-center justify-center gap-2 transition-all transform active:scale-95 shrink-0 cursor-pointer self-start md:self-auto"
           >
             <span>{t("career.changeTrackBtn", "Змінити")}</span>
           </button>
@@ -864,8 +864,8 @@ export const WorkshopHubScreen: React.FC = () => {
                 }}
                 className={`group flex items-center gap-2 px-3 py-2 rounded-xl font-mono uppercase text-xs tracking-wider transition-all duration-150 cursor-pointer active:scale-95 shrink-0 ${
                   isActive
-                    ? "bg-[#1E2227] text-white border border-[#1E2227] shadow-[inset_0_2px_4px_rgba(0,0,0,0.6),0_1px_3px_rgba(30,34,39,0.3)]"
-                    : "bg-white/85 hover:bg-white text-[#1E2227]/75 hover:text-[#1E2227] border border-[#1E2227]/15 hover:border-[#1E2227]/30 shadow-2xs"
+                    ? "bg-[#252932] text-white border border-[#252932] shadow-2xs"
+                    : "bg-white/85 hover:bg-white text-slate-600 hover:text-obsidian border border-black/[0.08] hover:border-black/[0.15] shadow-2xs"
                 }`}
               >
                 {/* Micro-indicator LED dot */}
@@ -886,7 +886,7 @@ export const WorkshopHubScreen: React.FC = () => {
                   className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold leading-none ${
                     isActive
                       ? "bg-white/20 text-white"
-                      : "bg-[#1E2227]/10 text-[#1E2227]/70 group-hover:text-[#1E2227]"
+                      : "bg-slate-100 text-slate-600 group-hover:text-obsidian"
                   }`}
                 >
                   {tab.count}
@@ -904,14 +904,14 @@ export const WorkshopHubScreen: React.FC = () => {
             audioFx.playRelayClick();
             setCurrentView("SPEED_DATING");
           }}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#C86D32]/10 via-[#C86D32]/15 to-[#C86D32]/20 hover:from-[#C86D32]/20 hover:to-[#C86D32]/30 border border-[#C86D32]/40 hover:border-[#C86D32] text-[#C86D32] font-mono uppercase text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0 ml-auto"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-black/[0.08] hover:border-black/[0.15] text-obsidian font-mono uppercase text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0 ml-auto"
           title={t("taster.catalogSubtitle", "Швидкий ознайомчий тур по IT-професіях")}
         >
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C86D32] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C86D32]" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C5A059] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C5A059]" />
           </span>
-          <Zap size={13} className="text-[#C86D32] fill-current" />
+          <Zap size={13} className="text-[#C5A059] fill-current" />
           <span>{t("taster.badge", "CAREER SPEED-DATING")}</span>
         </button>
       </div>
@@ -921,49 +921,49 @@ export const WorkshopHubScreen: React.FC = () => {
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* ── CARD A: Express Test-Drive (5 Mins) ── */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-[#FCFAF6] to-[#F5EDE6] border-2 border-[#C86D32]/80 p-5 sm:p-7 shadow-md flex flex-col justify-between group hover:border-[#C86D32] transition-all">
-              <div className="absolute top-0 right-0 w-36 h-36 bg-[#C86D32]/5 rounded-bl-full pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl bg-white border border-black/[0.08] hover:border-black/[0.15] p-5 sm:p-7 shadow-luxury flex flex-col justify-between group transition-all">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-[#C5A059]/5 rounded-bl-full pointer-events-none" />
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C86D32] opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C86D32]" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C5A059] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C5A059]" />
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C86D32]/15 text-[#C86D32] uppercase tracking-wider border border-[#C86D32]/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C5A059]/15 text-[#C5A059] uppercase tracking-wider border border-[#C5A059]/30">
                     {t("hub.starterCards.cardA.badge", "ЕКСПРЕС ТЕСТ-ДРАЙВ • 5 ХВИЛИН")}
                   </span>
                 </div>
 
-                <h3 className="font-display font-extrabold text-lg sm:text-xl text-[#1E2227] tracking-tight leading-snug">
+                <h3 className="font-display font-extrabold text-lg sm:text-xl text-obsidian tracking-tight leading-snug">
                   {t("hub.starterCards.cardA.title", "Експрес тест-драйв: Спробувати все (5 хвилин)")}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#1E2227]/75 mt-1.5 font-sans leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-sans leading-relaxed">
                   {t("hub.starterCards.cardA.subtitle", "Не знаєш з чого почати? Спробуй 3 ключові професії по черзі:")}
                 </p>
 
                 {/* 3 Step Badges */}
                 <div className="mt-4 space-y-2 font-mono text-xs">
-                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-[#C86D32]/20 shadow-2xs">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-black/[0.06] shadow-2xs">
                     <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0">
                       1
                     </span>
-                    <span className="font-bold text-[#1E2227]">
+                    <span className="font-bold text-obsidian">
                       {t("hub.starterCards.cardA.step1", "1. Оживи екран ТВ (Backend)")}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-[#C86D32]/20 shadow-2xs">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-black/[0.06] shadow-2xs">
                     <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold flex items-center justify-center shrink-0">
                       2
                     </span>
-                    <span className="font-bold text-[#1E2227]">
+                    <span className="font-bold text-obsidian">
                       {t("hub.starterCards.cardA.step2", "2. Наріж текст для ШІ (AI)")}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-[#C86D32]/20 shadow-2xs">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-black/[0.06] shadow-2xs">
                     <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center justify-center shrink-0">
                       3
                     </span>
-                    <span className="font-bold text-[#1E2227]">
+                    <span className="font-bold text-obsidian">
                       {t("hub.starterCards.cardA.step3", "3. Відбий атаку (Cyber)")}
                     </span>
                   </div>
@@ -979,7 +979,7 @@ export const WorkshopHubScreen: React.FC = () => {
                     audioFx.playRelayClick();
                     setCurrentView("SPEED_DATING");
                   }}
-                  className="w-full py-3.5 px-5 rounded-2xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full py-3.5 px-5 rounded-2xl bg-[#252932] hover:bg-[#1A1D24] active:scale-[0.98] text-white font-mono font-bold text-sm shadow-2xs flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Rocket size={17} />
                   <span>{t("hub.starterCards.cardA.button", "Розпочати тест-драйв →")}</span>
@@ -988,33 +988,33 @@ export const WorkshopHubScreen: React.FC = () => {
             </div>
 
             {/* ── CARD B: Choose Career Track ── */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-[#FAF8F5] to-[#EFEBE4] border-2 border-[#1E2227]/20 p-5 sm:p-7 shadow-md flex flex-col justify-between group hover:border-[#1E2227]/40 transition-all">
-              <div className="absolute top-0 right-0 w-36 h-36 bg-[#1E2227]/5 rounded-bl-full pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl bg-white border border-black/[0.08] hover:border-black/[0.15] p-5 sm:p-7 shadow-luxury flex flex-col justify-between group transition-all">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-slate-100/40 rounded-bl-full pointer-events-none" />
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#1E2227]/10 text-[#1E2227] uppercase tracking-wider border border-[#1E2227]/20">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 text-obsidian uppercase tracking-wider border border-black/[0.08]">
                     {t("hub.starterCards.cardB.badge", "КАР'ЄРНИЙ ФОКУС")}
                   </span>
                 </div>
 
-                <h3 className="font-display font-extrabold text-lg sm:text-xl text-[#1E2227] tracking-tight leading-snug">
+                <h3 className="font-display font-extrabold text-lg sm:text-xl text-obsidian tracking-tight leading-snug">
                   {t("hub.starterCards.cardB.title", "Обрати професійний трек")}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#1E2227]/75 mt-1.5 font-sans leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-sans leading-relaxed">
                   {t("hub.starterCards.cardB.subtitle", "Вже знаєш, чого хочеш? Обери один із 3 кар'єрних шляхів:")}
                 </p>
 
                 {/* 3 Career Options */}
                 <div className="mt-4 space-y-2 font-mono text-xs">
-                  <div className="p-2.5 rounded-xl bg-white border border-[#1E2227]/15 text-[#1E2227] font-bold shadow-2xs flex items-center gap-2">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-black/[0.06] text-obsidian font-bold shadow-2xs flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-600" />
                     <span>{t("hub.starterCards.cardB.item1", "• Backend & Systems (C# / Go)")}</span>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-[#1E2227]/15 text-[#1E2227] font-bold shadow-2xs flex items-center gap-2">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-black/[0.06] text-obsidian font-bold shadow-2xs flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-blue-600" />
                     <span>{t("hub.starterCards.cardB.item2", "• AI & Agents (Python)")}</span>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-[#1E2227]/15 text-[#1E2227] font-bold shadow-2xs flex items-center gap-2">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-black/[0.06] text-obsidian font-bold shadow-2xs flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-600" />
                     <span>{t("hub.starterCards.cardB.item3", "• Cybersecurity (SOC)")}</span>
                   </div>
@@ -1030,7 +1030,7 @@ export const WorkshopHubScreen: React.FC = () => {
                     audioFx.playRelayClick();
                     setIsCareerModalOpen(true);
                   }}
-                  className="w-full py-3.5 px-5 rounded-2xl bg-[#1E2227] hover:bg-black active:scale-[0.98] text-white font-mono font-bold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full py-3.5 px-5 rounded-2xl bg-[#252932] hover:bg-[#1A1D24] active:scale-[0.98] text-white font-mono font-bold text-sm shadow-2xs flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Compass size={17} />
                   <span>{t("hub.starterCards.cardB.button", "Обрати трек")}</span>

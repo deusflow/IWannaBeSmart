@@ -225,7 +225,7 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
                           <button
                             onClick={() => handleRemoveBlock(idx)}
                             disabled={isRunning}
-                            className="text-[#1A1D20]/40 hover:text-rose-600 transition-colors p-0.5"
+                            className="text-slate-400 hover:text-rose-600 transition-colors p-0.5"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -233,12 +233,12 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
                         <div className="font-bold text-[11px] leading-tight truncate">
                           {t(block?.nameKey || "", block?.defaultName || "")}
                         </div>
-                        <div className="text-[9px] font-mono text-[#1A1D20]/60 mt-1 truncate">
+                        <div className="text-[9px] font-mono text-slate-500 mt-1 truncate">
                           {block?.codePreview}
                         </div>
                       </div>
                       {idx < pipelineBlockIds.length - 1 && (
-                        <ArrowRight size={14} className="text-[#1A1D20]/30 shrink-0" />
+                        <ArrowRight size={14} className="text-slate-400 shrink-0" />
                       )}
                     </React.Fragment>
                   );
@@ -274,7 +274,7 @@ export const FirmwareLogicBuilderModal: React.FC<FirmwareLogicBuilderModalProps>
 
           {/* Palette Blocks */}
           <div className="space-y-2">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1A1D20]/70">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
               {t("labs.logic.paletteTitle", "Доступні модулі (клікніть для додавання):")}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

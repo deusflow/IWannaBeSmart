@@ -134,7 +134,7 @@ export const FeatureNudge: React.FC<FeatureNudgeProps> = ({
           <button
             type="button"
             onClick={handleDismiss}
-            className="p-1 rounded-lg hover:bg-[#1E2227]/10 text-[#1E2227]/60 hover:text-[#1E2227] transition-colors cursor-pointer"
+            className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-obsidian transition-colors cursor-pointer"
             title="Закрити підказку"
           >
             <X size={14} />
@@ -142,7 +142,7 @@ export const FeatureNudge: React.FC<FeatureNudgeProps> = ({
         </div>
 
         {/* Body Text */}
-        <p className="text-xs font-display font-semibold text-[#1E2227] leading-relaxed">
+        <p className="text-xs font-display font-semibold text-obsidian leading-relaxed">
           {text}
         </p>
 

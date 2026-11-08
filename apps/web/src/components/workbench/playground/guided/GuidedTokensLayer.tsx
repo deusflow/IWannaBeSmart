@@ -20,9 +20,9 @@ export const GuidedTokensLayer: React.FC<GuidedTokensLayerProps> = ({
 
   return (
     <div className="space-y-2.5">
-      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#1A1D20]/8 border border-[#1A1D20]/15">
-        <Layers size={11} className="text-[#1A1D20]/70" />
-        <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1A1D20]/70">
+      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-black/[0.08]">
+        <Layers size={11} className="text-slate-500" />
+        <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
           {t("theory.tokensTitle", "Анатомія по токенах (Token Breakdown)")}
         </span>
       </div>
@@ -37,11 +37,11 @@ export const GuidedTokensLayer: React.FC<GuidedTokensLayerProps> = ({
               <code className="px-1.5 py-0.2 rounded bg-[#181A1E] text-emerald-400 font-mono text-[11px] font-bold">
                 {tok.token}
               </code>
-              <span className="text-[9px] font-mono font-bold uppercase text-[#1A1D20]/60 truncate">
+              <span className="text-[9px] font-mono font-bold uppercase text-slate-500 truncate">
                 {tok.role}
               </span>
             </div>
-            <p className="text-[11px] font-sans text-[#1A1D20]/85 leading-snug">
+            <p className="text-[11px] font-sans text-obsidian leading-snug">
               {tok.explanation}
             </p>
           </div>

@@ -7,7 +7,7 @@
  *   Step 4: [  Анатомія токенів ] — syntax breakdown (why dot, parenthesis, semicolon, interface)
  *   Step 5: [  Карта архітектури ] — project files hierarchy & Architecture Canvas node wiring
  *
- * Design: Blueprint parchment (#EBE5D8 bg, #1A1D20 graphite text, elegant tactile borders)
+ * Design: Pure Porcelain (#FFFFFF / #F8F9FA bg, #0F141C obsidian text, hairline borders)
  */
 
 import React, { useState } from "react";
@@ -427,13 +427,13 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "simple" && (
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#1A1D20]/8 border border-[#1A1D20]/15">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-black/[0.08]">
                 <Lightbulb size={11} className="text-amber-800" />
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1A1D20]/70">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   {t("guide.simpleLabel", "Простими словами (Intuition Analogy)")}
                 </span>
               </div>
-              <p className="font-sans text-xs text-[#1A1D20] leading-relaxed">
+              <p className="font-sans text-xs text-obsidian leading-relaxed">
                 {simpleText}
               </p>
             </div>
@@ -444,13 +444,13 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
              ══════════════════════════════════════════════════════════════════ */}
           {activeLayer === "engineering" && (
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#1A1D20]/8 border border-[#1A1D20]/15">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 border border-black/[0.08]">
                 <Cpu size={11} className="text-emerald-800" />
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1A1D20]/70">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   {t("guide.engineeringLabel", "Інженерна суть (CS Architecture Definition)")}
                 </span>
               </div>
-              <p className="font-mono text-[11px] text-[#1A1D20] leading-relaxed whitespace-pre-wrap">
+              <p className="font-mono text-[11px] text-obsidian leading-relaxed whitespace-pre-wrap">
                 {engineeringText}
               </p>
             </div>
@@ -502,7 +502,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
             <button
               id="guided-step-bar-start-practice"
               onClick={handleStartPractice}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-display font-extrabold text-xs active:scale-95 transition-all cursor-pointer shadow-2xs"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 font-display font-extrabold text-xs active:scale-95 transition-all cursor-pointer shadow-2xs"
               title={t("guide.startPracticeTooltip", "Згорнути інструкцію та перейти до практики")}
             >
               <PenLine size={13} className="text-[#C5A059]" />

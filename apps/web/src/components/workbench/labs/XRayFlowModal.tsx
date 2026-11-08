@@ -298,7 +298,7 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
                   className={`w-full py-2 px-3 rounded-lg font-mono font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs ${
                     isLastStep
                       ? "bg-slate-100 border border-black/[0.04] text-slate-400 cursor-not-allowed"
-                      : "bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 cursor-pointer active:scale-95"
+                      : "bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 cursor-pointer active:scale-95"
                   }`}
                 >
                   <ArrowRight size={14} />
@@ -360,7 +360,7 @@ export const XRayFlowModal: React.FC<XRayFlowModalProps> = ({
           {/* Center Column: 3 Files in Parallel with SVG overlay */}
           <div
             ref={centerContainerRef}
-            className="relative lg:col-span-7 bg-[#212429] rounded-xl p-3 border border-[#1A1D20]/40 overflow-hidden shadow-inner flex flex-col justify-between"
+            className="relative lg:col-span-7 bg-[#212429] rounded-xl p-3 border border-white/[0.08] overflow-hidden shadow-inner flex flex-col justify-between"
           >
             {/* SVG Connecting Arrow Layer */}
             <svg

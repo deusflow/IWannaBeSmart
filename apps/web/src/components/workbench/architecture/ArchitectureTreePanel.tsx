@@ -154,7 +154,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("architecture.filterFiles", "Пошук сутності...")}
-            className="w-full bg-[#131416] border border-[#2A2B2F] rounded-lg pl-8 pr-2 py-1 text-[11px] font-mono text-gray-200 placeholder-gray-600 focus:outline-hidden focus:border-blue-500/60"
+            className="w-full bg-[#131416] border border-[#2A2B2F] rounded-lg pl-8 pr-2 py-1 text-[11px] font-mono text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500/60"
           />
         </div>
       </div>

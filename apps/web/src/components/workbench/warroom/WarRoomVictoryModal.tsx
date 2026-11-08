@@ -184,7 +184,7 @@ export const WarRoomVictoryModal: React.FC = () => {
             <button
               type="button"
               onClick={handleDownloadReport}
-              className="px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              className="px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export .md</span>
@@ -225,7 +225,7 @@ export const WarRoomVictoryModal: React.FC = () => {
                   setWarRoomVictoryModalOpen(false);
                   startIncidentDrill(nextIncident.id);
                 }}
-                className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-luxury active:scale-95"
+                className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-luxury active:scale-95"
               >
                 <span>Next Incident</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -237,7 +237,7 @@ export const WarRoomVictoryModal: React.FC = () => {
                   setWarRoomVictoryModalOpen(false);
                   setCurrentView("HUB");
                 }}
-                className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-luxury active:scale-95"
+                className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-mono font-bold rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-luxury active:scale-95"
               >
                 <span>Mastery Achieved</span>
               </button>

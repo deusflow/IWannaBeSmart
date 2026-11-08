@@ -126,7 +126,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={t("shortcuts.title", "Гарячі клавіші")}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           audioFx.playRelayClick();
@@ -136,19 +136,19 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
     >
       <div
         ref={modalRef}
-        className="w-full max-w-xl rounded-2xl bg-[#14161B]/95 border border-white/15 text-white shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]"
+        className="w-full max-w-xl rounded-2xl bg-white border border-black/[0.08] text-obsidian shadow-luxury overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-white/[0.02]">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/[0.06] bg-slate-50/70">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-accent-blue/20 border border-accent-blue/40 flex items-center justify-center text-accent-blue">
+            <div className="w-8 h-8 rounded-xl bg-slate-100 border border-black/[0.06] flex items-center justify-center text-[#252932] shadow-2xs">
               <Keyboard size={16} />
             </div>
             <div>
-              <h3 className="font-display font-bold text-sm text-white">
+              <h3 className="font-display font-bold text-sm text-obsidian">
                 {t("shortcuts.title", "Гарячі клавіші")}
               </h3>
-              <p className="font-sans text-[11px] text-gray-400 leading-tight">
+              <p className="font-sans text-[11px] text-slate-500 leading-tight">
                 {t("shortcuts.subtitle", "Швидка ергономічна взаємодія з верстаком")}
               </p>
             </div>
@@ -159,7 +159,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
               audioFx.playRelayClick();
               onClose();
             }}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-obsidian hover:bg-slate-100 transition-colors cursor-pointer"
             aria-label={t("common.close", "Закрити")}
           >
             <X size={15} />
@@ -170,7 +170,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
         <div className="p-5 overflow-y-auto space-y-4">
           {groups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-mono font-bold text-gray-300 uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">
                 {group.icon}
                 <span>{group.title}</span>
               </div>
@@ -179,20 +179,20 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
                 {group.shortcuts.map((sc, scIdx) => (
                   <div
                     key={scIdx}
-                    className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors"
+                    className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-slate-50/70 border border-black/[0.06] hover:border-black/[0.12] transition-colors shadow-2xs"
                   >
-                    <span className="font-sans text-xs text-gray-200">
+                    <span className="font-sans text-xs text-obsidian">
                       {sc.description}
                     </span>
 
                     <div className="flex items-center gap-1 shrink-0">
                       {sc.keys.map((k, kIdx) => (
                         <React.Fragment key={kIdx}>
-                          <kbd className="px-2 py-0.5 rounded-lg bg-white/10 border border-white/20 text-white font-mono text-[11px] font-bold shadow-xs">
+                          <kbd className="px-2 py-0.5 rounded-lg bg-white border border-black/[0.08] text-obsidian font-mono text-[11px] font-bold shadow-2xs">
                             {k}
                           </kbd>
                           {kIdx < sc.keys.length - 1 && (
-                            <span className="text-gray-500 text-xs font-mono">+</span>
+                            <span className="text-slate-400 text-xs font-mono">+</span>
                           )}
                         </React.Fragment>
                       ))}
@@ -205,9 +205,9 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-white/10 bg-white/[0.02] flex items-center justify-between text-[11px] font-mono text-gray-400">
+        <div className="px-5 py-3 border-t border-black/[0.06] bg-slate-50/70 flex items-center justify-between text-[11px] font-mono text-slate-500">
           <span>{t("shortcuts.footerHint", "Натисніть Esc для повернення до верстака")}</span>
-          <kbd className="px-2 py-0.5 rounded bg-white/10 border border-white/20 text-white text-[10px] font-bold">
+          <kbd className="px-2 py-0.5 rounded-lg bg-white border border-black/[0.08] text-obsidian text-[10px] font-bold shadow-2xs">
             Esc
           </kbd>
         </div>

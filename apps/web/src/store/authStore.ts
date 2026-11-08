@@ -144,7 +144,7 @@ export function generateGuestAvatarSvg(callsign: string): string {
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
   const bg = colors[hash % colors.length];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" rx="20" fill="${bg}"/><circle cx="50" cy="38" r="18" fill="#FAF8F2"/><rect x="25" y="62" width="50" height="28" rx="14" fill="#FAF8F2"/><text x="50" y="44" font-family="monospace" font-size="14" font-weight="bold" fill="${bg}" text-anchor="middle">${seed.slice(0, 2)}</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" rx="20" fill="${bg}"/><circle cx="50" cy="38" r="18" fill="#FFFFFF"/><rect x="25" y="62" width="50" height="28" rx="14" fill="#FFFFFF"/><text x="50" y="44" font-family="monospace" font-size="14" font-weight="bold" fill="${bg}" text-anchor="middle">${seed.slice(0, 2)}</text></svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 

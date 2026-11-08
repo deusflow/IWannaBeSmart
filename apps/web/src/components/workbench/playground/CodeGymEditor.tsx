@@ -229,16 +229,16 @@ export function CodeGymEditor<
   }, [codeLang, isWordWrap, fontSize, activeRound, currentTask.isBugfixTask]);
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden border border-[#2B2D33] shadow-lg bg-[#1E1E22] flex flex-col">
-      {/* ── Editor Top Bar ── */}
-      <div className="px-3.5 py-2 bg-[#18191C] border-b border-[#2B2D33] flex items-center justify-between flex-wrap gap-2 select-none">
+    <div className="w-full rounded-2xl overflow-hidden border border-black/[0.12] shadow-luxury bg-[#1A1D24] ring-1 ring-black/[0.04] flex flex-col">
+      {/* ── Editor Top Bar (Titanium Bezel) ── */}
+      <div className="px-3.5 py-2.5 bg-[#252932] border-b border-white/[0.08] flex items-center justify-between flex-wrap gap-2 select-none text-white shadow-2xs">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
 
           {/* Language Switcher */}
-          <div className="ml-2 flex items-center gap-1 bg-[#23252B] p-0.5 rounded-lg border border-[#343842]">
+          <div className="ml-2 flex items-center gap-1 bg-[#1A1D24] p-0.5 rounded-lg border border-white/[0.10]">
             {(
               availableLangs ??
               ([
@@ -250,10 +250,10 @@ export function CodeGymEditor<
                 key={lang.id}
                 type="button"
                 onClick={() => onChangeLang(lang.id)}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-colors cursor-pointer ${
+                className={`px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold transition-all cursor-pointer ${
                   codeLang === lang.id
-                    ? "bg-accent-blue text-white"
-                    : "text-gray-400 hover:text-white"
+                    ? "bg-white text-obsidian shadow-2xs"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 {lang.label}
@@ -261,47 +261,47 @@ export function CodeGymEditor<
             ))}
           </div>
 
-          <span className="text-[11px] font-mono text-gray-400 font-bold ml-1">
+          <span className="text-[11px] font-mono text-slate-300 font-bold ml-1">
             {fileName}
           </span>
 
           {/* Editor QoL: Font Size & Word Wrap */}
-          <div className="ml-2 flex items-center gap-1 bg-[#23252B] p-0.5 rounded-lg border border-[#343842] text-[10px] font-mono">
+          <div className="ml-2 flex items-center gap-1 bg-[#1A1D24] p-0.5 rounded-lg border border-white/[0.10] text-[10px] font-mono">
             <button
               type="button"
               onClick={() => setFontSize((f) => Math.max(11, f - 1))}
               disabled={fontSize <= 11}
-              className="px-1.5 py-0.5 rounded text-gray-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+              className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
               title="Decrease Font Size (A-)"
             >
               A-
             </button>
-            <span className="text-gray-400 font-bold px-0.5">{fontSize}px</span>
+            <span className="text-slate-300 font-bold px-0.5">{fontSize}px</span>
             <button
               type="button"
               onClick={() => setFontSize((f) => Math.min(18, f + 1))}
               disabled={fontSize >= 18}
-              className="px-1.5 py-0.5 rounded text-gray-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+              className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
               title="Increase Font Size (A+)"
             >
               A+
             </button>
-            <div className="w-px h-3 bg-[#343842]" />
+            <div className="w-px h-3 bg-white/[0.12]" />
             <button
               type="button"
               onClick={() => setIsWordWrap((w) => !w)}
               className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-                isWordWrap ? "text-cyan-400 font-bold bg-cyan-950/50" : "text-gray-400 hover:text-white"
+                isWordWrap ? "text-amber-300 font-bold bg-amber-500/20" : "text-slate-400 hover:text-white"
               }`}
               title={isWordWrap ? "Disable Line Wrap" : "Enable Line Wrap"}
             >
               Wrap
             </button>
-            <div className="w-px h-3 bg-[#343842]" />
+            <div className="w-px h-3 bg-white/[0.12]" />
             <button
               type="button"
               onClick={handleCopyCode}
-              className="px-1.5 py-0.5 rounded text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+              className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
               title={t("common.copy", "Копіювати код")}
             >
               <Copy size={11} />
@@ -346,7 +346,7 @@ export function CodeGymEditor<
       </div>
 
       {/* ── Mission Brief Card (Goal & Action) ── */}
-      <div className="px-4 py-2.5 bg-[#17191E] border-b border-[#2B2D33] text-xs font-mono space-y-1 select-none">
+      <div className="px-4 py-2.5 bg-[#1F232B] border-b border-white/[0.08] text-xs font-mono space-y-1 select-none">
         <div className="flex items-start gap-2">
           <span className="text-amber-400 font-bold shrink-0">
             {t("guide.missionGoalLabel", " Мета:")}
@@ -682,7 +682,7 @@ export function CodeGymEditor<
                 <button
                   type="button"
                   onClick={onNextTask}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 font-mono font-extrabold text-xs shadow-md transition-all cursor-pointer"
                 >
                   <span>
                     {t("codegym.nextTaskBtn", "Наступне завдання →") +

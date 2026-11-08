@@ -35,6 +35,8 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
   const { t } = useTranslation();
   const [isDossierExpanded, setIsDossierExpanded] = useState<boolean>(false);
   const dailyStreak = useWorkbenchStore((s) => s.dailyStreak);
+  const today = new Date().toISOString().slice(0, 10);
+  const isStreakAtRisk = dailyStreak.currentStreak > 0 && dailyStreak.lastActiveDate !== today && !dailyStreak.isStreakFrozenToday;
 
   return (
     <div className="rounded-2xl bg-white border border-black/[0.07] shadow-porcelain overflow-hidden transition-all duration-300">
@@ -68,6 +70,31 @@ export const EngineerDossierBar: React.FC<EngineerDossierBarProps> = ({
               </span>
             )}
           </div>
+
+          {isStreakAtRisk && (
+            <span
+              className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[9.5px] font-bold bg-rose-50 text-rose-700 border border-rose-200/80 animate-pulse shadow-2xs"
+              title={t("hub.streakRiskTooltip", "Виконайте завдання сьогодні, щоб зберегти серію!")}
+            >
+              ⚠️ {t("hub.streakRisk", "Згорить о 00:00")}
+            </span>
+          )}
+
+          {dailyStreak.isStreakFrozenToday && (
+            <span
+              className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[9.5px] font-bold bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs"
+            >
+              🛡️ {t("hub.streakFrozenBadge", "Захищено")}
+            </span>
+          )}
+
+          {dailyStreak.lastActiveDate === today && dailyStreak.currentStreak > 0 && (
+            <span
+              className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[9.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs"
+            >
+              ✓ {t("hub.streakSavedToday", "Сьогодні зараховано")}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-3">

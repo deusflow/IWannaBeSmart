@@ -25,39 +25,39 @@ export const RoutineStepCard: React.FC<RoutineStepCardProps> = ({
   return (
     <div
       id="express-routine-card"
-      className="max-w-2xl mx-auto w-full p-6 sm:p-8 rounded-3xl bg-white border border-[#1E2227]/15 shadow-xl space-y-6 animate-in fade-in duration-300 select-none"
+      className="max-w-2xl mx-auto w-full p-6 sm:p-8 rounded-3xl bg-white border border-black/[0.08] shadow-luxury space-y-6 animate-in fade-in duration-300 select-none"
     >
-      <div className="flex items-center justify-between border-b border-[#1E2227]/10 pb-4">
+      <div className="flex items-center justify-between border-b border-black/[0.06] pb-4">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-[#C86D32]/10 text-[#C86D32]">
+          <div className="p-2 rounded-xl bg-[#C5A059]/10 text-[#C5A059]">
             <Coffee size={20} />
           </div>
           <div>
-            <span className="text-[10px] font-mono font-bold text-[#C86D32] uppercase tracking-wider block">
+            <span className="text-[10px] font-mono font-bold text-[#C5A059] uppercase tracking-wider block">
               {t("taster.stepRoutineBadge", "КРОК 5: ЧЕСТНА РУТИНА")}
             </span>
-            <h3 className="font-display font-extrabold text-base text-[#1E2227]">
+            <h3 className="font-display font-extrabold text-base text-obsidian">
               {t(role.roleTitleKey)}
             </h3>
           </div>
         </div>
 
-        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-2xs">
           <CheckCircle2 size={12} />
           <span>Завдання пройдено</span>
         </span>
       </div>
 
       <div className="space-y-3">
-        <h4 className="font-display font-bold text-sm text-[#1E2227]/90">
+        <h4 className="font-display font-bold text-sm text-obsidian">
           {t("taster.routineHeader", "Непарадна рутина професії:")}
         </h4>
-        <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#1E2227]/10 text-sm font-sans text-[#1E2227]/85 leading-relaxed">
+        <div className="p-4 rounded-2xl bg-porcelain border border-black/[0.06] text-sm font-sans text-slate-700 leading-relaxed shadow-2xs">
           {t(role.routineFactKey)}
         </div>
       </div>
 
-      <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs font-sans text-[#1E2227]/75 flex items-start gap-2.5">
+      <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs font-sans text-slate-700 flex items-start gap-2.5">
         <ShieldCheck size={16} className="text-amber-700 shrink-0 mt-0.5" />
         <p>
           Тест-драйв показав лише концентроване ядро. Реальна кар'єра вимагає терпіння до рутинного читання документації, рев'ю коду та спокійного пошуку помилок.
@@ -68,7 +68,7 @@ export const RoutineStepCard: React.FC<RoutineStepCardProps> = ({
         <button
           type="button"
           onClick={onNext}
-          className="px-6 py-3 rounded-xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+          className="px-6 py-3 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center gap-2"
         >
           <span>
             {isLastRole

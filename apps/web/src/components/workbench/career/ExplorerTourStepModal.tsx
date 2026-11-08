@@ -145,7 +145,7 @@ export const ExplorerTourStepModal: React.FC = () => {
             type="button"
             id="btn-tour-step-next"
             onClick={nextExplorerStep}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-white font-mono font-bold text-xs sm:text-sm shadow-luxury transition-all cursor-pointer active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white font-mono font-bold text-xs sm:text-sm shadow-luxury transition-all cursor-pointer active:scale-95"
           >
             <span>{content.nextBtnLabel}</span>
             <ArrowRight size={15} />

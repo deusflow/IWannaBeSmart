@@ -64,7 +64,7 @@ export const CircuitEdge: React.FC<EdgeProps> = ({
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          stroke: isBroken ? "#A82D24" : "#1A1D20",
+          stroke: isBroken ? "#DC2626" : "#252932",
           strokeWidth: isBroken ? 2.5 : 2,
           strokeDasharray: isBroken ? "6 4" : undefined,
           transition: "stroke 0.2s ease, stroke-width 0.2s ease",

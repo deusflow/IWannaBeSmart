@@ -51,7 +51,7 @@ const getAuthorityBadgeStyles = (source: CuratedResourceAuthority) => {
     case "MIT OCW":
       return "bg-red-700/15 text-red-950 border-red-700/35";
     default:
-      return "bg-[#1A1D20]/10 text-[#1A1D20] border-[#1A1D20]/20";
+      return "bg-[#252932]/10 text-obsidian border-black/[0.08]";
   }
 };
 
@@ -157,7 +157,7 @@ export const GuidedDeepDiveCard: React.FC<GuidedDeepDiveCardProps> = ({
                       </span>
 
                       {/* Resource Type */}
-                      <span className="px-1.5 py-0.5 rounded-md bg-[#1A1D20]/8 text-[#1A1D20]/75 uppercase font-medium">
+                      <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase font-medium">
                         {res.type.replace("_", " ")}
                       </span>
 
@@ -173,7 +173,7 @@ export const GuidedDeepDiveCard: React.FC<GuidedDeepDiveCardProps> = ({
 
                     {/* Estimated reading time */}
                     {res.estimatedMinutes && (
-                      <span className="flex items-center gap-1 text-[#1A1D20]/60">
+                      <span className="flex items-center gap-1 text-slate-400">
                         <Clock size={11} />
                         <span>
                           ~{res.estimatedMinutes} {t("guide.estMinutes", "хв")}
@@ -187,7 +187,7 @@ export const GuidedDeepDiveCard: React.FC<GuidedDeepDiveCardProps> = ({
                     href={res.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-start justify-between gap-2 text-xs font-display font-extrabold text-[#1A1D20] hover:text-indigo-700 transition-colors group-hover/card:text-indigo-700 leading-snug cursor-pointer"
+                    className="flex items-start justify-between gap-2 text-xs font-display font-extrabold text-obsidian hover:text-indigo-700 transition-colors group-hover/card:text-indigo-700 leading-snug cursor-pointer"
                   >
                     <span>{res.title}</span>
                     <ExternalLink

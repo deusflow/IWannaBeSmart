@@ -374,7 +374,7 @@ export const WorkbenchScreen: React.FC = () => {
                 <ArrowLeft size={14} className="text-[#252932]" />
                 <span>{t("taster.exitToHub", "До верстака / Hub")}</span>
               </button>
-              <span className="hidden sm:inline-block font-mono text-xs font-bold text-[#C86D32] bg-[#F5EDE6] px-2 py-0.5 rounded border border-[#C86D32]/30">
+              <span className="hidden sm:inline-block font-mono text-xs font-bold text-obsidian bg-slate-100 px-2 py-0.5 rounded-md border border-black/[0.08] shadow-2xs">
                 CAREER SPEED-DATING
               </span>
             </div>

@@ -68,6 +68,11 @@ export default {
           DEFAULT: "#1E2229",
           muted: "#4A5260",
         },
+        obsidian: {
+          DEFAULT: "#0F141C", // Pure luxury obsidian black
+          light: "#1E2229",
+          muted: "#252932",
+        },
         ink: {
           DEFAULT: "#0F141C", // Obsidian Black text
           muted: "#525866", // Refined neutral slate
@@ -108,6 +113,8 @@ export default {
         },
       },
       boxShadow: {
+        "2xs": "0 1px 2px 0 rgba(15, 23, 42, 0.04)",
+        xs: "0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04)",
         "paper-sm": "0 1px 2px 0 rgba(15, 23, 42, 0.04)",
         paper:
           "0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03)",
@@ -119,6 +126,9 @@ export default {
           "0 10px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03)",
         "glow-gold": "0 0 16px rgba(197, 160, 89, 0.35)",
         "glow-emerald": "0 0 16px rgba(16, 185, 129, 0.35)",
+      },
+      backdropBlur: {
+        xs: "2px",
       },
       borderRadius: {
         sm: "6px",

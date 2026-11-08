@@ -269,7 +269,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                 <button
                   data-testid="poe-finish-btn"
                   onClick={handleNext}
-                  className="px-4 py-1.5 rounded-xl bg-[#252932] text-white text-xs font-mono font-bold flex items-center gap-1 hover:bg-[#1A1D20] transition-colors cursor-pointer shadow-2xs"
+                  className="px-4 py-1.5 rounded-xl bg-[#252932] text-white text-xs font-mono font-bold flex items-center gap-1 hover:bg-[#1A1D24] transition-colors cursor-pointer shadow-2xs"
                 >
                   <span>
                     {activeScenarioIndex < availableScenarios.length - 1
@@ -283,7 +283,7 @@ export const PredictObserveExplainModal: React.FC<PredictObserveExplainModalProp
                 data-testid="poe-simulate-btn"
                 onClick={handleRunSimulation}
                 disabled={!selectedOptionId || isSimulating}
-                className="px-4 py-2 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 text-xs font-mono font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="px-4 py-2 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 text-xs font-mono font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs active:scale-95"
               >
                 {isSimulating ? (
                   <>

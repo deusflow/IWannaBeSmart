@@ -370,7 +370,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           title: tk.title,
           subtitle: `${tk.stationName} • Task ${tk.order}`,
           icon: Terminal,
-          iconColor: "text-slate-300",
+          iconColor: "text-[#252932]",
           badge: tk.stationName.toUpperCase(),
           stars,
           onSelect: () => handleJumpTask(tk.stationId, tk.id),
@@ -424,13 +424,13 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 bg-black/80 backdrop-blur-md animate-in fade-in select-none">
-      <div className="relative w-full max-w-2xl bg-[#090D16] border border-slate-700/70 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.9),0_0_30px_rgba(59,130,246,0.15)] flex flex-col overflow-hidden text-slate-100 font-sans">
-        {/* Subtle grid texture */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 bg-black/40 backdrop-blur-xs animate-in fade-in select-none">
+      <div className="relative w-full max-w-2xl bg-white border border-black/[0.08] rounded-2xl shadow-luxury flex flex-col overflow-hidden text-obsidian font-sans">
+        {/* Subtle porcelain grid texture */}
+        <div className="absolute inset-0 bg-notebook-grid opacity-20 pointer-events-none" />
 
         {/* ── Search Input ── */}
-        <div className="relative z-10 flex items-center gap-3 px-4 py-3.5 border-b border-slate-800 bg-[#0E1422]/90">
+        <div className="relative z-10 flex items-center gap-3 px-4 py-3.5 border-b border-black/[0.06] bg-slate-50/70">
           <Search size={18} className="text-slate-400 shrink-0" />
           <input
             ref={inputRef}
@@ -441,7 +441,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
               setSelectedIndex(0);
             }}
             placeholder={t("cmdPalette.searchPlaceholder", "Search 73 tasks, stations, shortcuts... (e.g. 'git', 'rag', 'sql')")}
-            className="flex-1 bg-transparent text-sm text-white placeholder-slate-500 focus:outline-hidden font-sans"
+            className="flex-1 bg-transparent text-sm text-obsidian placeholder-slate-400 focus:outline-none font-sans"
           />
           {query && (
             <button
@@ -450,12 +450,12 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                 setSelectedIndex(0);
                 inputRef.current?.focus();
               }}
-              className="text-slate-500 hover:text-slate-300 p-1"
+              className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
             >
               <X size={14} />
             </button>
           )}
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-400">
+          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white border border-black/[0.08] text-[10px] font-mono font-bold text-slate-500 shadow-2xs">
             ESC
           </kbd>
         </div>
@@ -473,31 +473,31 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                   data-index={idx}
                   onClick={item.onSelect}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors text-xs ${
+                  className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all text-xs ${
                     isSelected
-                      ? "bg-blue-600/20 border border-blue-500/50 text-white shadow-sm"
-                      : "hover:bg-slate-800/60 text-slate-300 border border-transparent"
+                      ? "bg-slate-100 border border-black/[0.12] text-obsidian shadow-2xs"
+                      : "hover:bg-slate-50/80 text-slate-700 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                        isSelected ? "bg-blue-500/20" : "bg-slate-800/80"
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        isSelected ? "bg-[#252932] text-white" : "bg-slate-100 text-[#252932]"
                       }`}
                     >
-                      <IconComp className={item.iconColor || "text-slate-300"} size={16} />
+                      <IconComp className={isSelected ? "text-white" : item.iconColor || "text-[#252932]"} size={16} />
                     </div>
                     <div className="min-w-0">
-                      <div className="font-semibold text-white truncate flex items-center gap-2">
+                      <div className="font-bold text-obsidian truncate flex items-center gap-2">
                         <span>{item.title}</span>
                         {item.badge && (
-                          <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[9px] font-mono text-slate-400 border border-slate-700 uppercase">
+                          <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-[9px] font-mono font-bold text-slate-600 border border-black/[0.06] uppercase">
                             {item.badge}
                           </span>
                         )}
                       </div>
                       {item.subtitle && (
-                        <div className="text-[11px] text-slate-400 truncate">{item.subtitle}</div>
+                        <div className="text-[11px] text-slate-500 truncate">{item.subtitle}</div>
                       )}
                     </div>
                   </div>
@@ -511,43 +511,41 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                             size={11}
                             className={`${
                               s <= item.stars!
-                                ? s === 4
-                                  ? "text-cyan-400 fill-cyan-400"
-                                  : "text-amber-400 fill-amber-400"
-                                : "text-slate-700"
+                                ? "text-[#C5A059] fill-[#C5A059]"
+                                : "text-slate-200"
                             }`}
                           />
                         ))}
                       </div>
                     )}
                     {isSelected && (
-                      <CornerDownLeft size={13} className="text-blue-400" />
+                      <CornerDownLeft size={13} className="text-[#252932]" />
                     )}
                   </div>
                 </div>
               );
             })
           ) : (
-            <div className="p-8 text-center text-xs text-slate-500 font-mono">
+            <div className="p-8 text-center text-xs text-slate-400 font-mono">
               {t("cmdPalette.noResults", "No results found for")} "{query}"
             </div>
           )}
         </div>
 
         {/* ── Footer / Shortcuts Hint ── */}
-        <div className="relative z-10 flex items-center justify-between px-4 py-2.5 border-t border-slate-800/80 bg-[#0E1422]/90 text-[11px] font-mono text-slate-400">
+        <div className="relative z-10 flex items-center justify-between px-4 py-2.5 border-t border-black/[0.06] bg-slate-50/70 text-[11px] font-mono text-slate-500">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[9px] text-slate-300">↑↓</kbd>
+              <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-black/[0.08] text-[9px] font-bold text-slate-700 shadow-2xs">↑↓</kbd>
               <span>{t("cmdPalette.hintNavigate", "Navigate")}</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[9px] text-slate-300">↵</kbd>
+              <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-black/[0.08] text-[9px] font-bold text-slate-700 shadow-2xs">↵</kbd>
               <span>{t("cmdPalette.hintSelect", "Select")}</span>
             </span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-slate-500">
-            <span>IWannaBeSmart</span>
+          <div className="flex items-center gap-1 text-[10px] text-slate-400">
+            <span className="font-bold text-obsidian">IWannaBeSmart</span>
             <span>•</span>
             <span>{TOTAL_CURRICULUM_TASK_COUNT} Tasks</span>
           </div>

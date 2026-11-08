@@ -434,7 +434,7 @@ export const IotCodeGymRunner: React.FC = () => {
             {allIotTasksCompleted && (
               <button
                 onClick={() => setIotVictoryModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D20] text-[#C5A059] border border-[#C5A059]/40 font-display font-extrabold text-xs shadow-2xs transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 font-display font-extrabold text-xs shadow-2xs transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
                 <Trophy size={14} className="text-[#C5A059]" />
                 <span>{t("hub.stations.iot.certButton", "Certificate")}</span>

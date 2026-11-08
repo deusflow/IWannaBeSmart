@@ -63,7 +63,7 @@ export const GuidedArchitectureLayer: React.FC<GuidedArchitectureLayerProps> = (
         {onOpenArchitectureStudio && (
           <button
             onClick={onOpenArchitectureStudio}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#1A1D20] text-white font-display font-bold text-xs hover:bg-black transition-colors cursor-pointer shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white font-display font-bold text-xs transition-colors cursor-pointer shadow-2xs active:scale-95"
           >
             <Network size={13} />
             <span>{t("guide.switchStudioBtn", "Перейти до Architecture Studio")}</span>

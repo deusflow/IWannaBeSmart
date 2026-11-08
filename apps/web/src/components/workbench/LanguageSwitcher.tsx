@@ -22,11 +22,11 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
 
   return (
     <div
-      className={`flex items-center gap-0.5 bg-white p-0.5 rounded-xl border border-[#1E2227]/15 shadow-2xs select-none shrink-0 ${className}`}
+      className={`flex items-center gap-0.5 bg-white p-0.5 rounded-xl border border-black/[0.08] shadow-2xs select-none shrink-0 ${className}`}
       title="Зміна мови / Change language / Skift sprog"
     >
       {showIcon && !compact && (
-        <Languages size={13} className="text-[#1E2227]/50 ml-1 mr-0.5 hidden sm:inline" />
+        <Languages size={13} className="text-slate-400 ml-1 mr-0.5 hidden sm:inline" />
       )}
       {SUPPORTED_LOCALES.map((locale) => {
         const isActive = currentLang === locale;
@@ -48,8 +48,8 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             }}
             className={`px-2 py-0.5 rounded-lg text-[10.5px] font-mono font-bold uppercase transition-all duration-150 cursor-pointer ${
               isActive
-                ? "bg-[#1E2227] text-white shadow-2xs"
-                : "text-[#1E2227]/60 hover:text-[#1E2227] hover:bg-[#1E2227]/5"
+                ? "bg-[#252932] text-white shadow-2xs"
+                : "text-slate-500 hover:text-obsidian hover:bg-slate-100"
             }`}
             title={locale === "ua" ? "Українська" : locale === "da" ? "Dansk" : "English"}
           >

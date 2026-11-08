@@ -434,7 +434,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
         <button
           type="button"
           onClick={handleAdvanceSubStep}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#C86D32] hover:bg-[#B35E28] active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <span>{t("taster.nextStepBtn", "Далі ➔")}</span>
           <ArrowRight size={14} />
@@ -447,7 +447,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
         <button
           type="button"
           onClick={handleAdvanceSubStep}
-          className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 animate-in fade-in"
+          className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5 animate-in fade-in"
         >
           <CheckCircle2 size={14} />
           <span>{t("taster.nextStepBtn", "Успішно! Далі ➔")}</span>
@@ -471,7 +471,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <Play size={13} className="text-emerald-400" />
           <span>{t("taster.runAssertBtn", "Запустити Assertion")}</span>
@@ -506,7 +506,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
         >
           <Play size={13} className="text-emerald-400" />
           <span>{t("taster.runBackendTestsBtn", "Запустити тести ▶")}</span>
@@ -527,7 +527,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <span>Застосувати фільтр ➔</span>
         </button>
@@ -553,7 +553,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <Play size={13} className="text-emerald-400" />
           <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
@@ -578,7 +578,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <Play size={13} className="text-emerald-400" />
           <span>{t("taster.runVerifyBtn", "Запустити перевірку")}</span>
@@ -599,7 +599,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <span>Зафіксувати броню ➔</span>
         </button>
@@ -621,7 +621,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <Play size={13} className="text-purple-400" />
           <span>{t("taster.runSimBtn", "Запустити 100 боїв")}</span>
@@ -645,7 +645,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               audioFx.playErrorBuzz();
             }
           }}
-          className="w-full py-2.5 px-4 rounded-xl bg-[#1E2227] hover:bg-black active:scale-95 text-white font-mono font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#252932] hover:bg-[#1A1D24] active:scale-95 text-white font-mono font-bold text-xs shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
         >
           <Play size={13} className="text-purple-400" />
           <span>{t("taster.runMultiSimBtn", "Прогнати 500 боїв (3 Seed)")}</span>
@@ -659,7 +659,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
   // Render Step 5 (Honest Routine) full screen
   if (currentSubStepDef.id.includes("routine")) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none p-4 sm:p-8 justify-center">
+      <div className="min-h-screen bg-porcelain text-obsidian flex flex-col font-sans select-none p-4 sm:p-8 justify-center">
         <RoutineStepCard
           role={activeRole}
           isLastRole={activeRoleIndex + 1 >= selectedRoleIds.length}
@@ -670,9 +670,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#1E2227] flex flex-col font-sans select-none pb-8 relative">
+    <div className="min-h-screen bg-porcelain text-obsidian flex flex-col font-sans select-none pb-8 relative">
       {/* Top Header */}
-      <header className="border-b border-[#1E2227]/15 bg-white/80 backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between gap-3 sticky top-0 z-30">
+      <header className="border-b border-black/[0.08] bg-white/80 backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -682,20 +682,20 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
             <ArrowLeft size={14} className="text-[#252932]" />
             <span>{t("taster.exitToHub", "До верстака / Hub")}</span>
           </button>
-          <h2 className="font-display font-extrabold text-sm sm:text-base text-[#1E2227]">
+          <h2 className="font-display font-extrabold text-sm sm:text-base text-obsidian">
             {t(activeRole.roleTitleKey)}
           </h2>
         </div>
 
         {/* Step indicator */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-bold text-[#1E2227]/70">
+          <span className="text-xs font-mono font-bold text-slate-500">
             {t("taster.guidedStepLabel", {
               step: currentSubStepDef.stepNumber,
               total: currentSubStepDef.totalSubSteps,
             })}
           </span>
-          <div className="flex items-center gap-1 font-mono text-xs text-[#1E2227]/60 ml-2">
+          <div className="flex items-center gap-1 font-mono text-xs text-slate-400 ml-2">
             <Clock size={13} />
             <span>
               {Math.floor(timerSeconds / 60)}:
@@ -740,9 +740,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
             {/* We Do Typing Box */}
             <div
               id="express-backend-wedo-box"
-              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
+              className="p-4 rounded-2xl bg-white border border-black/[0.08] shadow-2xs space-y-3"
             >
-              <span className="text-xs font-mono font-bold text-[#1E2227]">
+              <span className="text-xs font-mono font-bold text-obsidian">
                 ShippingRule.cs (Правило доставки від 500 крон):
               </span>
               <div className="flex items-center gap-2 font-mono text-sm bg-[#0D1117] p-3 rounded-xl border border-zinc-700 text-stone-300">
@@ -761,9 +761,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
             {/* You Do Condition Box (Screen 4A) */}
             <div
               id="express-backend-youdo-cond-box"
-              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
+              className="p-4 rounded-2xl bg-white border border-black/[0.08] shadow-2xs space-y-3"
             >
-              <span className="text-xs font-mono font-bold text-[#1E2227]">
+              <span className="text-xs font-mono font-bold text-obsidian">
                 LoyaltyService.cs (Виправ правило VIP для межі 5):
               </span>
               <textarea
@@ -772,7 +772,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
                 spellCheck={false}
                 className="w-full min-h-[128px] p-3 rounded-xl bg-black border border-zinc-700 text-emerald-400 font-mono text-sm leading-6 focus:border-emerald-500 focus:outline-none [font-variant-ligatures:none]"
               />
-              <p className="text-[11px] text-[#1E2227]/65 font-mono">
+              <p className="text-[11px] text-slate-500 font-mono">
                 Пиши лише ASCII-оператори: <code>&gt;=</code> (не символ <code>≥</code>).
               </p>
             </div>
@@ -840,9 +840,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
             {/* You Do Box */}
             <div
               id="express-cyber-youdo-box"
-              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-3"
+              className="p-4 rounded-2xl bg-white border border-black/[0.08] shadow-2xs space-y-3"
             >
-              <span className="text-xs font-mono font-bold text-[#1E2227]">
+              <span className="text-xs font-mono font-bold text-obsidian">
                 Введи знайдений IP атакуючого для блокування:
               </span>
               <input
@@ -878,9 +878,9 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
             {/* We Do Armor Slider */}
             <div
               id="express-gd-armor-slider-box"
-              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-2"
+              className="p-4 rounded-2xl bg-white border border-black/[0.08] shadow-2xs space-y-2"
             >
-              <div className="flex justify-between items-center text-xs font-mono font-bold text-[#1E2227]">
+              <div className="flex justify-between items-center text-xs font-mono font-bold text-obsidian">
                 <span>Броня гравця (playerArmor):</span>
                 <span className="text-emerald-700 text-sm font-black">{gdArmor}</span>
               </div>
@@ -891,16 +891,16 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
                 max="30"
                 value={gdArmor}
                 onChange={(e) => setGdArmor(Number(e.target.value))}
-                className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#C86D32]"
+                className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#252932]"
               />
             </div>
 
             {/* We Do Run Sim Box */}
             <div
               id="express-gd-wedo-run-box"
-              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm text-center"
+              className="p-4 rounded-2xl bg-white border border-black/[0.08] shadow-2xs text-center"
             >
-              <span className="text-xs font-mono font-bold text-[#1E2227]">
+              <span className="text-xs font-mono font-bold text-obsidian">
                 Готово до перевірочної симуляції на 100 боїв
               </span>
             </div>
@@ -908,16 +908,16 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
             {/* You Do Duel Controls (Screen 4, Max 2 Controls) */}
             <div
               id="express-gd-youdo-box"
-              className="p-4 rounded-2xl bg-white border border-[#1E2227]/15 shadow-sm space-y-4"
+              className="p-4 rounded-2xl bg-white border border-black/[0.08] shadow-2xs space-y-4"
             >
-              <span className="text-xs font-mono font-bold text-[#1E2227] block">
+              <span className="text-xs font-mono font-bold text-obsidian block">
                 Налаштування балансу дуелі:
               </span>
 
               {/* Control 1: Boss Damage */}
               <div className="space-y-1">
                 <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="text-[#1E2227]/70">Шкода боса (bossDamage):</span>
+                  <span className="text-slate-500">Шкода боса (bossDamage):</span>
                   <span className="font-bold text-rose-700">{gdParams.bossDamage}</span>
                 </div>
                 <input
@@ -936,7 +936,7 @@ export const CareerSpeedDatingScreen: React.FC<CareerSpeedDatingScreenProps> = (
               {/* Control 2: Potion Count */}
               <div className="space-y-1">
                 <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="text-[#1E2227]/70">Кількість зіллів (potionCount):</span>
+                  <span className="text-slate-500">Кількість зіллів (potionCount):</span>
                   <span className="font-bold text-amber-700">{gdParams.potionCount}x</span>
                 </div>
                 <input

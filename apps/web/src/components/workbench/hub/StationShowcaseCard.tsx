@@ -60,7 +60,7 @@ export const StationShowcaseCard: React.FC<StationShowcaseCardProps> = ({
   isTrackStation = false,
   isSecondaryStation = false,
   trackBadgeText,
-  accentBorderClass = "hover:border-[#1A1D20]/50",
+  accentBorderClass = "hover:border-black/[0.18]",
   starColorClass = "text-amber-700",
   lockCriteria,
   onEnter,

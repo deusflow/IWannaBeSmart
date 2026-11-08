@@ -288,7 +288,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                   <div className="font-display font-bold text-xs uppercase tracking-wider text-amber-950">
                     {t("labs.diRace.missionTitle", "Термінове завдання від ліда")}
                   </div>
-                  <p className="text-xs text-[#1A1D20] leading-relaxed">
+                  <p className="text-xs text-obsidian leading-relaxed">
                     {t("labs.diRace.missionDesc", "Банк вимкнув старий шлюз! Потрібно терміново замінити LegacyPaymentGateway на StripePaymentGateway у 5 файлах одночасно.")}
                   </p>
                   <p className="font-mono text-[11px] font-bold text-rose-800">
@@ -313,7 +313,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#1A1D20] text-white">
+                <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#252932] text-white shadow-2xs">
                   <div className="flex items-center gap-2 font-mono text-xs">
                     <span>{t("labs.diRace.filesFixedLabel", "Виправлено:")}</span>
                     <span className="font-bold text-amber-400">
@@ -349,7 +349,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                     <span>{t("labs.diRace.failSummaryFiles", "файлів")}</span>
                   </p>
 
-                  <p className="text-xs text-[#1A1D20] leading-relaxed">
+                  <p className="text-xs text-obsidian leading-relaxed">
                     {t("labs.diRace.failLesson", "Без Dependency Injection компоненти жорстко привєднані до конкретних класів. Кожна зміна вимагає переписування всього проєкту.")}
                   </p>
 
@@ -459,14 +459,14 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                   <div className="font-display font-bold text-xs uppercase tracking-wider text-emerald-950">
                     {t("labs.diRace.withDiTitle", "Архітектура з Dependency Injection")}
                   </div>
-                  <p className="text-xs text-[#1A1D20] leading-relaxed">
+                  <p className="text-xs text-obsidian leading-relaxed">
                     {t("labs.diRace.withDiDesc", "Всі 5 файлів залежать лише від інтерфейсу IPaymentGateway. Щоб замінити весь шлюз для системи, змініть всього 1 рядок у точці конфігурації (Program.cs).")}
                   </p>
                 </div>
               </div>
 
               {/* Composition Root: Program.cs */}
-              <div className="p-4 rounded-xl bg-[#212429] border border-[#1A1D20]/40 text-gray-200 space-y-3 shadow-inner">
+              <div className="p-4 rounded-xl bg-[#212429] border border-white/[0.08] text-gray-200 space-y-3 shadow-inner">
                 <div className="flex items-center justify-between text-xs font-mono">
                   <span className="font-bold text-amber-400">Program.cs (Composition Root)</span>
                   <span className="text-gray-400 text-[10px]">DI Container Registration</span>
@@ -492,7 +492,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
                     className={`px-4 py-2 rounded-xl font-mono text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer ${
                       isDiSwapped
                         ? "bg-emerald-600 text-white cursor-default"
-                        : "bg-[#C86D32] hover:bg-[#B35E28] text-white active:scale-95"
+                        : "bg-[#252932] hover:bg-[#1A1D24] text-white shadow-2xs active:scale-95"
                     }`}
                   >
                     <Zap size={14} />
@@ -511,7 +511,7 @@ export const DiRaceModal: React.FC<DiRaceModalProps> = ({
 
               {/* 5 Consumers with staggered automatic update */}
               <div className="space-y-2">
-                <div className="font-mono text-xs font-bold text-[#1A1D20]/80">
+                <div className="font-mono text-xs font-bold text-slate-700">
                   {t("labs.diRace.consumersTitle", "5 споживачів сервісу (жодного рядка не змінено вручну):")}
                 </div>
 
