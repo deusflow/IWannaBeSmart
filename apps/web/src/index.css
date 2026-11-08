@@ -8,6 +8,9 @@
   font-weight: 400;
   color: #0F141C;
   background-color: #F8F9FA;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
@@ -19,6 +22,31 @@ body {
   color: #0F141C;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global Sleek Micro-Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 145, 155, 0.28) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 145, 155, 0.28);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 145, 155, 0.5);
 }
 
 /* ─── Keyframes (Root Level) ─────────────────────────────────────────── */
@@ -64,6 +92,71 @@ body {
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes shakeKeyframes {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-4px);
+  }
+  40%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes ir-beam-horizontal {
+  0% {
+    right: 0%;
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.15);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.15);
+  }
+  100% {
+    right: 100%;
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+  }
+}
+
+@keyframes ir-beam-vertical {
+  0% {
+    bottom: 0%;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.15);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.15);
+  }
+  100% {
+    bottom: 100%;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+  }
+}
+
+@keyframes error-pointer-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -123,6 +216,16 @@ body {
 /* ─── Utilities Layer ────────────────────────────────────────────────── */
 
 @layer utilities {
+  .bg-notebook-grid {
+    background-image: radial-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .bg-notebook-grid-dense {
+    background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+    background-size: 10px 10px;
+  }
+
   .bg-radial-vignette {
     background-image: radial-gradient(circle at center, transparent 0%, rgba(15, 20, 28, 0.04) 100%);
   }
@@ -144,7 +247,8 @@ body {
     box-shadow: 0 20px 40px -15px rgba(15, 20, 28, 0.05);
   }
 
-  .titanium-surface {
+  .titanium-surface,
+  .titanium-panel {
     background-color: #252932;
     color: #F8F9FA;
     border: 1px solid #323846;
@@ -171,6 +275,18 @@ body {
     animation: slideInFromRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
+  .animate-shake {
+    animation: shakeKeyframes 300ms ease-in-out;
+  }
+
+  .animate-ir-beam-horizontal {
+    animation: ir-beam-horizontal 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-ir-beam-vertical {
+    animation: ir-beam-vertical 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
   .animate-pulse-scale {
     animation: pulseScale 2s ease-in-out infinite;
   }
@@ -190,27 +306,54 @@ body {
     border-radius: 10px;
   }
 
-  .no-scrollbar::-webkit-scrollbar {
+  .error-pointer-container {
+    position: relative;
+  }
+
+  .error-pointer-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    animation: error-pointer-appear 200ms ease-out forwards;
+    white-space: nowrap;
+  }
+
+  .no-scrollbar::-webkit-scrollbar,
+  .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
-  .no-scrollbar {
+  .no-scrollbar,
+  .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
 
-  .custom-scrollbar::-webkit-scrollbar {
+  .custom-scrollbar::-webkit-scrollbar,
+  .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
-  .custom-scrollbar::-webkit-scrollbar-track {
+  .custom-scrollbar::-webkit-scrollbar-track,
+  .scrollbar-thin::-webkit-scrollbar-track {
     background: rgba(248, 249, 250, 0.8);
     border-radius: 4px;
   }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
+  .custom-scrollbar::-webkit-scrollbar-thumb,
+  .scrollbar-thin::-webkit-scrollbar-thumb {
     background: rgba(138, 144, 158, 0.35);
     border-radius: 4px;
   }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: rgba(82, 88, 102, 0.55);
   }
 }
@@ -221,13 +364,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .signal-flow-line,
-  .animate-in,
-  .animate-fadeIn,
-  .animate-fade-in,
-  .animate-pulse-scale,
-  .animate-pulse-glow,
-  .guide-spotlight {
-    animation: none !important;
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

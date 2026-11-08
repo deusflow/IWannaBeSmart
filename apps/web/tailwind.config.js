@@ -16,17 +16,6 @@ export default {
           "BlinkMacSystemFont",
           "sans-serif",
         ],
-        balsamiq: [
-          '"Plus Jakarta Sans"',
-          '"Inter Tight"',
-          "Inter",
-          "sans-serif",
-        ],
-        sniglet: [
-          '"Plus Jakarta Sans"',
-          "Inter",
-          "sans-serif",
-        ],
         sans: [
           '"Plus Jakarta Sans"',
           "Inter",

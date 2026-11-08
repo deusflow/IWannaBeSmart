@@ -125,7 +125,7 @@ export const ProfileAchievementsTab: React.FC<ProfileAchievementsTabProps> = ({
                 {/* Progress bar */}
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-linear-to-r from-[#252932] to-purple-600 rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-gradient-to-r from-[#252932] to-purple-600 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${careerRank.progressPercent}%` }}
                   />
                 </div>

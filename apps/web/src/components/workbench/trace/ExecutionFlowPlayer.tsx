@@ -856,7 +856,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
             <div className="flex items-center gap-1">
               <button
                 onClick={handleReset}
-                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-750 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
                 title={resetTooltip}
                 aria-label="Reset trace"
               >
@@ -865,7 +865,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
               <button
                 onClick={handleStepBackward}
                 disabled={playerState.currentStepIndex === 0}
-                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-750 text-slate-300 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title={stepBackTooltip}
                 aria-label="Step backward"
               >
@@ -891,7 +891,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                   playerState.currentStepIndex === timeline.totalSteps - 1 ||
                   playerState.isWaitingForPoe
                 }
-                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-750 text-slate-300 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title={stepForwardTooltip}
                 aria-label="Step forward"
               >
