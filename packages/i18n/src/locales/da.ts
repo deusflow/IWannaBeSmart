@@ -217,7 +217,7 @@ export const daTranslation = {
         tasksCount: "{{completed}} / {{total}} opgaver",
       },
       guide: {
-        title: "Architect's Guide",
+        title: "Arkitektens guide og reference",
         simpleTab: "Enkelt sprog",
         engineeringTab: "Ingeniørmæssig kerne",
         simpleLabel: "Enkelt sprog",
@@ -1515,6 +1515,13 @@ export const daTranslation = {
           tryAgain: "Prøv igen",
           next: "Næste →",
           finish: "Afslut",
+          helpTooltip: "Hvad bruges disse værktøjer til?",
+          tier1ToolsTitle: "Ingeniørlaboratorier låst op (Tier 1)",
+          tier1PoeDesc: "intuitionstræner: forudsig hardwarefejl før du kører koden.",
+          tier1XrayDesc: "enheds-røntgen: visuelt signalflow gennem hardwarebusser og hukommelsesregistre.",
+          tier2ToolsTitle: "Arkitekturværktøjer låst op (Tier 2)",
+          tier2DiRaceDesc: "tidsbegrænset refaktorering: oplev forskellen mellem stærk kobling og ren Dependency Injection.",
+          tier2CrashDesc: "certificeringstest: stresstest stationens stabilitet under uventede hændelser før eksamen.",
         },
         poe: {
           btnTooltip: "Live simulator: Hvad vil eksplodere? (Predict-Observe-Explain)",

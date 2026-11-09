@@ -217,7 +217,7 @@ export const enTranslation = {
         tasksCount: "{{completed}} / {{total}} tasks",
       },
       guide: {
-        title: "Architect's Guide",
+        title: "Architect's Guide & Sample",
         simpleTab: "Simple words",
         engineeringTab: "Engineering essence",
         simpleLabel: "Simple words",
@@ -1515,6 +1515,13 @@ export const enTranslation = {
           tryAgain: "Try again",
           next: "Next →",
           finish: "Finish",
+          helpTooltip: "What are these tools for?",
+          tier1ToolsTitle: "Engineering Labs Unlocked (Tier 1)",
+          tier1PoeDesc: "intuition trainer: predict the hardware impact of code defects before running the script.",
+          tier1XrayDesc: "device X-ray: step-by-step visual signal flow across hardware buses and memory registers.",
+          tier2ToolsTitle: "Architectural Tools Unlocked (Tier 2)",
+          tier2DiRaceDesc: "timed refactor drill: experience the pain of tight coupling versus clean Dependency Injection.",
+          tier2CrashDesc: "certification drill: stress-test station resilience under real incidents before receiving your diploma.",
         },
         poe: {
           btnTooltip: "Live Simulator: What will explode? (Predict-Observe-Explain)",

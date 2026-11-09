@@ -85,13 +85,19 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
       <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1.5 shadow-2xs">
         <div className="flex items-start gap-2">
           <Lightbulb size={13} className="text-amber-700 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
+          <div className="space-y-1 w-full min-w-0">
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
               {t("guide.introContextTitle", "1. Контекст і завдання:")}
             </span>
             <p className="font-sans text-xs text-obsidian font-medium leading-relaxed">
               {simpleText || didactic?.pacingLeading?.leading[currentLang] || t("guide.leadingDefault", "Виконайте команду для взаємодії з пристроєм.")}
             </p>
+            {didactic?.pacingLeading?.leading?.[currentLang] && simpleText && (
+              <div className="pt-1 border-t border-black/[0.04] text-[11px] text-slate-600 flex items-center gap-1.5 font-medium">
+                <span className="text-[#C5A059] font-bold">👉</span>
+                <span>{didactic.pacingLeading.leading[currentLang]}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -195,6 +201,12 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
           {didactic?.whyThisCode?.[codeLang] ||
             (workedExample ? getLocStr(workedExample.explanation) : t("guide.defaultTakeaway", "Крапка з комою завершує команду в C#, а круглі дужки виконують дію."))}
         </p>
+        {didactic?.primitiveMemoryNote?.[codeLang] && (
+          <div className="pt-1.5 border-t border-black/[0.04] text-[11px] text-slate-600 font-mono flex items-start gap-1">
+            <span className="text-indigo-600 font-bold shrink-0">🧠 Пам'ять:</span>
+            <span>{didactic.primitiveMemoryNote[codeLang]}</span>
+          </div>
+        )}
       </div>
     </div>
   );

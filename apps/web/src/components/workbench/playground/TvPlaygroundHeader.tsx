@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert, ScanLine, Timer, Target, Code2 } from "lucide-react";
+import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert, ScanLine, Timer, Target, Code2, HelpCircle } from "lucide-react";
 import type { CodingTask } from "@iw/sim-engine";
 import { audioFx } from "../../../utils/audioFx";
 import { GuidedStepBar } from "./GuidedStepBar";
@@ -80,6 +80,22 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const currentLocale = (i18n.language as "ua" | "en" | "da") || "ua";
+
+  const [dismissedTier1Tools, setDismissedTier1Tools] = React.useState(() => {
+    try {
+      return localStorage.getItem("iw_seen_tier1_tools") === "true";
+    } catch {
+      return false;
+    }
+  });
+  const [dismissedTier2Tools, setDismissedTier2Tools] = React.useState(() => {
+    try {
+      return localStorage.getItem("iw_seen_tier2_tools") === "true";
+    } catch {
+      return false;
+    }
+  });
+  const [showToolsHelp, setShowToolsHelp] = React.useState(false);
 
   return (
     <div className="p-4 rounded-2xl bg-white border border-black/[0.07] shadow-porcelain space-y-3.5">
@@ -343,6 +359,25 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
             </>
           )}
 
+          {/* Information / discovery toggle for tools */}
+          {selectedTier >= 1 && (
+            <button
+              onClick={() => {
+                audioFx.playRelayClick();
+                setShowToolsHelp((prev) => !prev);
+              }}
+              className={`w-7 h-7 rounded-xl border font-mono text-xs font-bold flex items-center justify-center cursor-pointer transition-all shadow-2xs ${
+                showToolsHelp
+                  ? "bg-[#252932] text-white border-black/[0.15]"
+                  : "bg-slate-50 hover:bg-slate-100 border-black/[0.08] text-slate-600"
+              }`}
+              title={t("labs.common.helpTooltip", "Що це за інструменти?")}
+              aria-label={t("labs.common.helpTooltip", "Що це за інструменти?")}
+            >
+              <HelpCircle size={13} className={showToolsHelp ? "text-[#C5A059]" : "text-slate-500"} />
+            </button>
+          )}
+
           {allTvTasksCompleted && (
             <button
               onClick={onOpenVictoryModal}
@@ -399,6 +434,86 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
             aria-label={t("common.close", "Закрити")}
           >
             <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* ── Tier 1 Tools Discovery Banner (When tools first unlock or ? clicked) ── */}
+      {selectedTier === 1 && (!dismissedTier1Tools || showToolsHelp) && (
+        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-obsidian text-xs animate-in fade-in flex items-start justify-between gap-3 shadow-2xs">
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-amber-500 text-black flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-2xs">
+              ⚡
+            </div>
+            <div className="space-y-1">
+              <div className="font-mono text-[11px] font-extrabold uppercase tracking-wide text-amber-950 flex items-center gap-1.5">
+                <span>{t("labs.common.tier1ToolsTitle", "Відкрито інженерні лабораторії (Tier 1)")}</span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-200/60 font-bold text-amber-900">NEW</span>
+              </div>
+              <div className="text-slate-700 text-xs leading-relaxed space-y-1">
+                <p>
+                  <strong className="text-obsidian font-mono text-[11px] bg-white/70 px-1 py-0.5 rounded border border-black/[0.06]">{t("labs.poe.btnLabel", "Що вибухне?")}</strong> — {t("labs.common.tier1PoeDesc", "тренажер інтуїції: спробуйте передбачити наслідок бага в схемі ще до запуску коду.")}
+                </p>
+                <p>
+                  <strong className="text-obsidian font-mono text-[11px] bg-white/70 px-1 py-0.5 rounded border border-black/[0.06]">{t("labs.xray.btnLabel", "X-Ray")}</strong> — {t("labs.common.tier1XrayDesc", "рентген приладу: візуальний потік сигналів та регістрів пам'яті телевізора.")}
+                </p>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              audioFx.playRelayClick();
+              setDismissedTier1Tools(true);
+              setShowToolsHelp(false);
+              try {
+                localStorage.setItem("iw_seen_tier1_tools", "true");
+              } catch {
+                // Ignore localStorage errors in private browsing
+              }
+            }}
+            className="px-3 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95 shrink-0 shadow-2xs"
+          >
+            {t("common.understood", "Зрозуміло")}
+          </button>
+        </div>
+      )}
+
+      {/* ── Tier 2 Tools Discovery Banner (When tools first unlock or ? clicked) ── */}
+      {selectedTier === 2 && (!dismissedTier2Tools || showToolsHelp) && (
+        <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-obsidian text-xs animate-in fade-in flex items-start justify-between gap-3 shadow-2xs">
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs shadow-2xs">
+              🏆
+            </div>
+            <div className="space-y-1">
+              <div className="font-mono text-[11px] font-extrabold uppercase tracking-wide text-indigo-950 flex items-center gap-1.5">
+                <span>{t("labs.common.tier2ToolsTitle", "Відкрито архітектурні інструменти (Tier 2)")}</span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-200/60 font-bold text-indigo-900">PRO</span>
+              </div>
+              <div className="text-slate-700 text-xs leading-relaxed space-y-1">
+                <p>
+                  <strong className="text-obsidian font-mono text-[11px] bg-white/70 px-1 py-0.5 rounded border border-black/[0.06]">{t("labs.diRace.btnLabel", "DI-гонка")}</strong> — {t("labs.common.tier2DiRaceDesc", "рефакторинг на час: порівняйте жорстке зв'язування з Dependency Injection на практиці.")}
+                </p>
+                <p>
+                  <strong className="text-obsidian font-mono text-[11px] bg-white/70 px-1 py-0.5 rounded border border-black/[0.06]">{t("labs.crash.btnLabel", "Краш-тест")}</strong> — {t("labs.common.tier2CrashDesc", "атестаційний іспит: симуляція збоїв станції під навантаженням перед отриманням сертифіката.")}
+                </p>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              audioFx.playRelayClick();
+              setDismissedTier2Tools(true);
+              setShowToolsHelp(false);
+              try {
+                localStorage.setItem("iw_seen_tier2_tools", "true");
+              } catch {
+                // Ignore localStorage errors in private browsing
+              }
+            }}
+            className="px-3 py-1.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-white text-[11px] font-mono font-bold transition-all cursor-pointer active:scale-95 shrink-0 shadow-2xs"
+          >
+            {t("common.understood", "Зрозуміло")}
           </button>
         </div>
       )}

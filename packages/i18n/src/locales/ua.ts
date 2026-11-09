@@ -217,7 +217,7 @@ export const uaTranslation = {
         tasksCount: "{{completed}} / {{total}} завдань",
       },
       guide: {
-        title: "Architect's Guide",
+        title: "Довідник інженера (Architect's Guide)",
         simpleTab: "Простими словами",
         engineeringTab: "Інженерна суть",
         simpleLabel: "Простими словами",
@@ -1515,6 +1515,13 @@ export const uaTranslation = {
           tryAgain: "Спробувати ще",
           next: "Далі →",
           finish: "Завершити",
+          helpTooltip: "Що це за інструменти?",
+          tier1ToolsTitle: "Відкрито інженерні лабораторії (Tier 1)",
+          tier1PoeDesc: "тренажер інтуїції: спробуйте передбачити наслідок бага в схемі ще до запуску коду.",
+          tier1XrayDesc: "рентген приладу: візуальний потік сигналів та регістрів пам'яті телевізора.",
+          tier2ToolsTitle: "Відкрито архітектурні інструменти (Tier 2)",
+          tier2DiRaceDesc: "рефакторинг на час: порівняйте жорстке зв'язування з Dependency Injection на практиці.",
+          tier2CrashDesc: "атестаційний іспит: симуляція збоїв станції під навантаженням перед отриманням сертифіката.",
         },
         poe: {
           btnTooltip: "Живий симулятор: Що вибухне? (Predict-Observe-Explain)",
