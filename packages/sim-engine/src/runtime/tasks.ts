@@ -217,89 +217,9 @@ export const CODING_TASKS: CodingTask[] = [
     },
   },
   {
-    id: "task-2-branching",
-    tier: 1,
-    order: 5,
-    titleKey: "playground.task2Title",
-    conceptKey: "playground.task2Concept",
-    descKey: "playground.task2Desc",
-    hintKey: "playground.task2Hint",
-    successKey: "playground.task2Success",
-    simpleExplanationKey: "playground.task2Simple",
-    engineeringKey: "playground.task2Engineering",
-    careerImpactKey: "playground.task2Career",
-    initialCode: {
-      csharp: `// Перемикач живлення через if / else
-if (tv.IsOn) {
-    tv.IsOn = false;
-} else {
-    tv.IsOn = true;
-}
-`,
-      go: `// Перемикач живлення через if / else
-if tv.IsOn {
-    tv.IsOn = false
-} else {
-    tv.IsOn = true
-}
-`,
-    },
-    targetCode: {
-      csharp: `if (tv.IsOn) {
-    tv.IsOn = false;
-} else {
-    tv.IsOn = true;
-}`,
-      go: `if tv.IsOn {
-    tv.IsOn = false
-} else {
-    tv.IsOn = true
-}`,
-    },
-    clozeTemplate: {
-      csharp: `if (tv.___) {
-    tv.IsOn = ___;
-} else {
-    tv.IsOn = ___;
-}`,
-      go: `if tv.___ {
-    tv.IsOn = ___
-} else {
-    tv.IsOn = ___
-}`,
-    },
-    sprintTimeLimit: 30,
-    transferVariant: {
-      prompt: {
-        ua: "Якщо телевізор увімкнений, встановіть гучність на 40, інакше увімкніть його (tv.IsOn = true;)",
-        en: "If TV is on, set volume to 40, otherwise turn it on (tv.IsOn = true;)",
-        da: "Hvis tv'et er tændt, sæt lydstyrken til 40, ellers tænd det (tv.IsOn = true;)",
-      },
-      hint: {
-        ua: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
-        en: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
-        da: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
-      },
-      targetSnippetExample: "if (tv.IsOn) {\n    tv.Volume = 40;\n} else {\n    tv.IsOn = true;\n}",
-      validate: (_before, after, rawCode) => {
-        const code = stripComments(rawCode || "");
-        return (after.volume === 40 || after.isOn) && /if\s*\(?tv\.IsOn/i.test(code);
-      },
-    },
-    validate: (before, after, result) => {
-      if (!result.success) {
-        return { passed: false, messageKey: "playground.errorSyntax" };
-      }
-      if (after.isOn !== before.isOn || result.mutationsCount > 0) {
-        return { passed: true, messageKey: "playground.task2Success" };
-      }
-      return { passed: false, messageKey: "playground.task2NoToggle" };
-    },
-  },
-  {
     id: "task-variable-mutation",
     tier: 1,
-    order: 6,
+    order: 5,
     titleKey: "playground.task3Title",
     conceptKey: "playground.task3Concept",
     descKey: "playground.task3Desc",
@@ -364,7 +284,7 @@ tv.Channel++
   {
     id: "task-boundary-guard",
     tier: 1,
-    order: 7,
+    order: 6,
     titleKey: "playground.task4Title",
     conceptKey: "playground.task4Concept",
     descKey: "playground.task4Desc",
@@ -448,9 +368,214 @@ if tv.Channel > 4 {
     },
   },
   {
-    id: "task-for-loop",
+    id: "task-debug-off-by-one-overflow",
+    tier: 1,
+    order: 7,
+    titleKey: "playground.taskDebugOverloadTitle",
+    conceptKey: "playground.taskDebugOverloadConcept",
+    descKey: "playground.taskDebugOverloadDesc",
+    hintKey: "playground.taskDebugOverloadHint",
+    successKey: "playground.taskDebugOverloadSuccess",
+    simpleExplanationKey: "playground.taskDebugOverloadSimple",
+    engineeringKey: "playground.taskDebugOverloadEngineering",
+    careerImpactKey: "playground.taskDebugOverloadCareer",
+    isBugfixTask: true,
+    initialBrokenCode: {
+      csharp: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт випромінювача: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100), щоб захистити катодну трубку від перевантаження.
+
+tv.PowerOn();
+int requestedBrightness = 101;
+
+// ЗАХИСТ ВІДСУТНІЙ — запобіжник перегорає:
+tv.SetBrightness(requestedBrightness);`,
+      go: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100).
+
+tv.PowerOn()
+requestedBrightness := 101
+
+// ЗАХИСТ ВІДСУТНІЙ:
+tv.SetBrightness(requestedBrightness)`,
+    },
+    initialCode: {
+      csharp: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт випромінювача: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100), щоб захистити катодну трубку від перевантаження.
+
+tv.PowerOn();
+int requestedBrightness = 101;
+
+// ЗАХИСТ ВІДСУТНІЙ — запобіжник перегорає:
+tv.SetBrightness(requestedBrightness);`,
+      go: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
+// Фізичний ліміт: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
+// Додайте захисну умову (if requestedBrightness <= 100).
+
+tv.PowerOn()
+requestedBrightness := 101
+
+// ЗАХИСТ ВІДСУТНІЙ:
+tv.SetBrightness(requestedBrightness)`,
+    },
+    targetCode: {
+      csharp: `tv.PowerOn();
+int requestedBrightness = 101;
+if (requestedBrightness <= 100)
+{
+    tv.SetBrightness(requestedBrightness);
+}`,
+      go: `tv.PowerOn()
+requestedBrightness := 101
+if requestedBrightness <= 100 {
+    tv.SetBrightness(requestedBrightness)
+}`,
+    },
+    clozeTemplate: {
+      csharp: `tv.PowerOn();
+int requestedBrightness = 101;
+if (___ <= 100)
+{
+    tv.SetBrightness(requestedBrightness);
+}`,
+      go: `tv.PowerOn()
+requestedBrightness := 101
+if ___ <= 100 {
+    tv.SetBrightness(requestedBrightness)
+}`,
+    },
+    sprintTimeLimit: 35,
+    defectDescription: {
+      ua: "Пряме встановлення яскравості понад 100% без перевірки меж (Boundary Check) спалює фізичний запобіжник катодної трубки (CATHODE_RAY_OVERLOAD). Необхідна захисна умова (Guard Clause).",
+      en: "Setting brightness above 100% without boundary validation blows the cathode safety fuse (CATHODE_RAY_OVERLOAD). A guard clause is required.",
+      da: "Indstilling af lysstyrke over 100% uden grænsekontrol sprænger katoderørets sikring (CATHODE_RAY_OVERLOAD). En sikkerhedsbetingelse er påkrævet.",
+    },
+    diagnosticLogs: [
+      "[HARDWARE ALARM] Overvoltage detected on cathode ray driver!",
+      "[FUSE TRIPPED] Critical hardware overload: requested 101% exceeds 100% limit",
+      "[ERROR] CATHODE_RAY_OVERLOAD: Safety fuse blown. Display disabled.",
+      "[STATUS] Device in FAULT state. Boundary check required before SetBrightness().",
+    ],
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (after.isFuseBlown) {
+        return { passed: false, messageKey: "playground.taskDebugOverloadFailed" };
+      }
+      const hasGuard = Boolean(
+        code &&
+          /if\s*\(?[^)]*(?:requestedBrightness|101|tv\.Brightness)[^)]*(?:<=|<|==)[^)]*\)?/i.test(
+            code
+          )
+      );
+      if (after.isOn && !after.isFuseBlown && hasGuard) {
+        return { passed: true, messageKey: "playground.taskDebugOverloadSuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskDebugOverloadHint" };
+    },
+    transferVariant: {
+      prompt: {
+        ua: "Перевірте безпечну яскравість 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        en: "Verify safe brightness 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        da: "Bekræft sikker lysstyrke 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+      },
+      hint: {
+        ua: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        en: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+        da: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
+      },
+      targetSnippetExample: "tv.PowerOn();\nint requestedBrightness = 80;\nif (requestedBrightness <= 100)\n{\n    tv.SetBrightness(requestedBrightness);\n}",
+      validate: (_before, after) => after.isOn && !after.isFuseBlown && after.brightness === 80,
+    },
+  },
+  {
+    id: "task-2-branching",
     tier: 1,
     order: 8,
+    titleKey: "playground.task2Title",
+    conceptKey: "playground.task2Concept",
+    descKey: "playground.task2Desc",
+    hintKey: "playground.task2Hint",
+    successKey: "playground.task2Success",
+    simpleExplanationKey: "playground.task2Simple",
+    engineeringKey: "playground.task2Engineering",
+    careerImpactKey: "playground.task2Career",
+    initialCode: {
+      csharp: `// Перемикач живлення через if / else
+if (tv.IsOn) {
+    tv.IsOn = false;
+} else {
+    tv.IsOn = true;
+}
+`,
+      go: `// Перемикач живлення через if / else
+if tv.IsOn {
+    tv.IsOn = false
+} else {
+    tv.IsOn = true
+}
+`,
+    },
+    targetCode: {
+      csharp: `if (tv.IsOn) {
+    tv.IsOn = false;
+} else {
+    tv.IsOn = true;
+}`,
+      go: `if tv.IsOn {
+    tv.IsOn = false
+} else {
+    tv.IsOn = true
+}`,
+    },
+    clozeTemplate: {
+      csharp: `if (tv.___) {
+    tv.IsOn = ___;
+} else {
+    tv.IsOn = ___;
+}`,
+      go: `if tv.___ {
+    tv.IsOn = ___
+} else {
+    tv.IsOn = ___
+}`,
+    },
+    sprintTimeLimit: 30,
+    transferVariant: {
+      prompt: {
+        ua: "Якщо телевізор увімкнений, встановіть гучність на 40, інакше увімкніть його (tv.IsOn = true;)",
+        en: "If TV is on, set volume to 40, otherwise turn it on (tv.IsOn = true;)",
+        da: "Hvis tv'et er tændt, sæt lydstyrken til 40, ellers tænd det (tv.IsOn = true;)",
+      },
+      hint: {
+        ua: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
+        en: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
+        da: "if (tv.IsOn) { tv.Volume = 40; } else { tv.IsOn = true; }",
+      },
+      targetSnippetExample: "if (tv.IsOn) {\n    tv.Volume = 40;\n} else {\n    tv.IsOn = true;\n}",
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        return (after.volume === 40 || after.isOn) && /if\s*\(?tv\.IsOn/i.test(code);
+      },
+    },
+    validate: (before, after, result) => {
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
+      }
+      if (after.isOn !== before.isOn || result.mutationsCount > 0) {
+        return { passed: true, messageKey: "playground.task2Success" };
+      }
+      return { passed: false, messageKey: "playground.task2NoToggle" };
+    },
+  },
+  {
+    id: "task-for-loop",
+    tier: 1,
+    order: 9,
     titleKey: "playground.task5Title",
     conceptKey: "playground.task5Concept",
     descKey: "playground.task5Desc",
@@ -521,74 +646,121 @@ for i := 1; i <= 4; i++ {
     },
   },
   {
-    id: "task-class-instance",
+    id: "task-debug-runaway-loop",
     tier: 1,
-    order: 9,
-    titleKey: "playground.taskBridgeATitle",
-    conceptKey: "playground.taskBridgeAConcept",
-    descKey: "playground.taskBridgeADesc",
-    hintKey: "playground.taskBridgeAHint",
-    successKey: "playground.taskBridgeASuccess",
-    simpleExplanationKey: "playground.taskBridgeASimple",
-    engineeringKey: "playground.taskBridgeAEngineering",
-    careerImpactKey: "playground.taskBridgeACareer",
+    order: 10,
+    titleKey: "playground.taskDebugRunawayTitle",
+    conceptKey: "playground.taskDebugRunawayConcept",
+    descKey: "playground.taskDebugRunawayDesc",
+    hintKey: "playground.taskDebugRunawayHint",
+    successKey: "playground.taskDebugRunawaySuccess",
+    simpleExplanationKey: "playground.taskDebugRunawaySimple",
+    engineeringKey: "playground.taskDebugRunawayEngineering",
+    careerImpactKey: "playground.taskDebugRunawayCareer",
+    isBugfixTask: true,
+    initialBrokenCode: {
+      csharp: `// ⚠️ ДЕФЕКТ: Спеціаліст сервісного центру повідомив, що тюнер зависає при скануванні.
+// Рантайм повертає помилку InfiniteLoopException від Watchdog Timer.
+// Знайдіть та виправте крок циклу, щоб тюнер просканував канали від 1 до 5.
+
+tv.PowerOn();
+for (int ch = 1; ch <= 5; ch--)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `// ⚠️ ДЕФЕКТ: Тюнер зависає під час автоматичного пошуку каналів.
+// Знайдіть та виправте логічну помилку в кроці циклу.
+
+tv.PowerOn()
+for ch := 1; ch <= 5; ch-- {
+    tv.SetChannel(ch)
+}`,
+    },
     initialCode: {
-      csharp: `// Створіть екземпляр телевізора за кресленням класу TV та увімкніть його
-TV myTv = new TV();
-myTv.PowerOn();
-`,
-      go: `// Створіть екземпляр телевізора за кресленням структури TV та увімкніть його
-myTv := TV{}
-myTv.PowerOn()
-`,
+      csharp: `// ⚠️ ДЕФЕКТ: Спеціаліст сервісного центру повідомив, що тюнер зависає при скануванні.
+// Рантайм повертає помилку InfiniteLoopException від Watchdog Timer.
+// Знайдіть та виправте крок циклу, щоб тюнер просканував канали від 1 до 5.
+
+tv.PowerOn();
+for (int ch = 1; ch <= 5; ch--)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `// ⚠️ ДЕФЕКТ: Тюнер зависає під час автоматичного пошуку каналів.
+// Знайдіть та виправте логічну помилку в кроці циклу.
+
+tv.PowerOn()
+for ch := 1; ch <= 5; ch-- {
+    tv.SetChannel(ch)
+}`,
     },
     targetCode: {
-      csharp: `TV myTv = new TV();
-myTv.PowerOn();`,
-      go: `myTv := TV{}
-myTv.PowerOn()`,
+      csharp: `tv.PowerOn();
+for (int ch = 1; ch <= 5; ch++)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `tv.PowerOn()
+for ch := 1; ch <= 5; ch++ {
+    tv.SetChannel(ch)
+}`,
     },
     clozeTemplate: {
-      csharp: `TV myTv = ___ TV();
-myTv.___();`,
-      go: `myTv := TV{}
-myTv.___()`,
+      csharp: `tv.PowerOn();
+for (int ch = 1; ch <= 5; ___)
+{
+    tv.SetChannel(ch);
+}`,
+      go: `tv.PowerOn()
+for ch := 1; ch <= 5; ___ {
+    tv.SetChannel(ch)
+}`,
     },
-    sprintTimeLimit: 25,
-    transferVariant: {
-      prompt: {
-        ua: "Створіть екземпляр телевізора з назвою livingRoomTv і перемкніть його на 3-й канал: livingRoomTv.SetChannel(3);",
-        en: "Create a TV instance named livingRoomTv and tune it to channel 3: livingRoomTv.SetChannel(3);",
-        da: "Opret en TV-forekomst ved navn livingRoomTv og skift til kanal 3: livingRoomTv.SetChannel(3);",
-      },
-      hint: {
-        ua: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
-        en: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
-        da: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
-      },
-      targetSnippetExample: "TV livingRoomTv = new TV();\nlivingRoomTv.SetChannel(3);",
-      validate: (_before, after, rawCode) => {
-        const code = stripComments(rawCode || "");
-        const hasName = /livingRoomTv/i.test(code);
-        const hasInst = /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code);
-        return Boolean(hasName && hasInst && after.channel === 3);
-      },
+    sprintTimeLimit: 30,
+    defectDescription: {
+      ua: "Тюнер зависає під час автоматичного сканування каналів через декремент 'ch--' замість інкременту 'ch++'. Змінна прямує до від'ємних чисел, умова ch <= 5 ніколи не стає false, тому спрацьовує Watchdog Timer.",
+      en: "Tuner hangs indefinitely during automated scanning due to decrement 'ch--' instead of increment 'ch++'. Variable decreases toward negative infinity, condition ch <= 5 is never false, triggering Watchdog Timer.",
+      da: "Tuner fryser under automatisk scanning pga. dekrement 'ch--' i stedet for inkrement 'ch++'. Variablen bevæger sig mod negative tal, betingelsen ch <= 5 er altid sand, hvilket udløser Watchdog Timeren.",
     },
+    diagnosticLogs: [
+      "[FAULT] Watchdog: Core thread unresponsive for >500ms",
+      "[FAULT] InfiniteLoopException: Iteration limit 50 reached in tuner loop",
+      "[DIAGNOSTIC] Variable ch is decreasing (1, 0, -1...) -> (ch <= 5) invariant never breaks",
+      "[STATUS] TV Hardware Freeze: REPAIR REQUIRED",
+    ],
     validate: (_before, after, result, rawCode) => {
       const code = stripComments(rawCode || "");
-      if (!result.success) return { passed: false, messageKey: "playground.errorSyntax" };
-      const hasInst = Boolean(code && /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code));
-      const hasCall = Boolean(code && /(?:myTv|[a-zA-Z_]\w*)\.PowerOn\s*\(\s*\)/i.test(code));
-      if (after.isOn && hasInst && hasCall) {
-        return { passed: true, messageKey: "playground.taskBridgeASuccess" };
+      if (!result.success) {
+        return { passed: false, messageKey: "playground.errorSyntax" };
       }
-      return { passed: false, messageKey: "playground.taskBridgeAHint" };
+      const hasDecreasingLoop = Boolean(code && /ch\s*--/i.test(code));
+      if (hasDecreasingLoop) {
+        return { passed: false, messageKey: "playground.taskDebugRunawayHint" };
+      }
+      if (after.isOn && after.channel === 5) {
+        return { passed: true, messageKey: "playground.taskDebugRunawaySuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskDebugRunawayHint" };
+    },
+    transferVariant: {
+      prompt: {
+        ua: "Виправте сканування діапазону з 10 до 15 каналу за допомогою інкременту ch++.",
+        en: "Fix channel range scan from 10 to 15 using increment ch++.",
+        da: "Ret kanalscanning fra 10 til 15 med inkrement ch++.",
+      },
+      hint: {
+        ua: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
+        en: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
+        da: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
+      },
+      targetSnippetExample: "tv.PowerOn();\nfor (int ch = 10; ch <= 15; ch++)\n{\n    tv.SetChannel(ch);\n}",
+      validate: (_before, after) => after.isOn && after.channel === 15,
     },
   },
   {
     id: "task-method-return",
     tier: 1,
-    order: 10,
+    order: 11,
     titleKey: "playground.taskBridgeBTitle",
     conceptKey: "playground.taskBridgeBConcept",
     descKey: "playground.taskBridgeBDesc",
@@ -651,9 +823,74 @@ tv.SetVolume(___ + 10)`,
     },
   },
   {
+    id: "task-class-instance",
+    tier: 1,
+    order: 12,
+    titleKey: "playground.taskBridgeATitle",
+    conceptKey: "playground.taskBridgeAConcept",
+    descKey: "playground.taskBridgeADesc",
+    hintKey: "playground.taskBridgeAHint",
+    successKey: "playground.taskBridgeASuccess",
+    simpleExplanationKey: "playground.taskBridgeASimple",
+    engineeringKey: "playground.taskBridgeAEngineering",
+    careerImpactKey: "playground.taskBridgeACareer",
+    initialCode: {
+      csharp: `// Створіть екземпляр телевізора за кресленням класу TV та увімкніть його
+TV myTv = new TV();
+myTv.PowerOn();
+`,
+      go: `// Створіть екземпляр телевізора за кресленням структури TV та увімкніть його
+myTv := TV{}
+myTv.PowerOn()
+`,
+    },
+    targetCode: {
+      csharp: `TV myTv = new TV();
+myTv.PowerOn();`,
+      go: `myTv := TV{}
+myTv.PowerOn()`,
+    },
+    clozeTemplate: {
+      csharp: `TV myTv = ___ TV();
+myTv.___();`,
+      go: `myTv := TV{}
+myTv.___()`,
+    },
+    sprintTimeLimit: 25,
+    transferVariant: {
+      prompt: {
+        ua: "Створіть екземпляр телевізора з назвою livingRoomTv і перемкніть його на 3-й канал: livingRoomTv.SetChannel(3);",
+        en: "Create a TV instance named livingRoomTv and tune it to channel 3: livingRoomTv.SetChannel(3);",
+        da: "Opret en TV-forekomst ved navn livingRoomTv og skift til kanal 3: livingRoomTv.SetChannel(3);",
+      },
+      hint: {
+        ua: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
+        en: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
+        da: "C#: TV livingRoomTv = new TV(); livingRoomTv.SetChannel(3); | Go: livingRoomTv := TV{}; livingRoomTv.SetChannel(3)",
+      },
+      targetSnippetExample: "TV livingRoomTv = new TV();\nlivingRoomTv.SetChannel(3);",
+      validate: (_before, after, rawCode) => {
+        const code = stripComments(rawCode || "");
+        const hasName = /livingRoomTv/i.test(code);
+        const hasInst = /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code);
+        return Boolean(hasName && hasInst && after.channel === 3);
+      },
+    },
+    validate: (_before, after, result, rawCode) => {
+      const code = stripComments(rawCode || "");
+      if (!result.success) return { passed: false, messageKey: "playground.errorSyntax" };
+      const hasInst = Boolean(code && /(?:new\s+TV\s*\(\s*\)|&?TV\s*\{\s*\})/i.test(code));
+      const hasCall = Boolean(code && /(?:myTv|[a-zA-Z_]\w*)\.PowerOn\s*\(\s*\)/i.test(code));
+      if (after.isOn && hasInst && hasCall) {
+        return { passed: true, messageKey: "playground.taskBridgeASuccess" };
+      }
+      return { passed: false, messageKey: "playground.taskBridgeAHint" };
+    },
+  },
+  {
     id: "task-null-reference",
     tier: 1,
-    order: 11,
+    order: 13,
     titleKey: "playground.taskBridgeCTitle",
     conceptKey: "playground.taskBridgeCConcept",
     descKey: "playground.taskBridgeCDesc",
@@ -735,7 +972,7 @@ if broken != ___ {
   {
     id: "task-function-encapsulation",
     tier: 2,
-    order: 12,
+    order: 14,
     titleKey: "playground.task6Title",
     conceptKey: "playground.task6Concept",
     descKey: "playground.task6Desc",
@@ -822,7 +1059,7 @@ ___()`,
   {
     id: "task-antipattern-god-object",
     tier: 2,
-    order: 13,
+    order: 15,
     titleKey: "playground.task7Title",
     conceptKey: "playground.task7Concept",
     descKey: "playground.task7Desc",
@@ -949,7 +1186,7 @@ case "___":
   {
     id: "task-interface-polymorphism",
     tier: 2,
-    order: 14,
+    order: 16,
     titleKey: "playground.task8Title",
     conceptKey: "playground.task8Concept",
     descKey: "playground.task8Desc",
@@ -1018,7 +1255,7 @@ command.___()`,
   {
     id: "task-di-container",
     tier: 2,
-    order: 15,
+    order: 17,
     titleKey: "playground.task9Title",
     conceptKey: "playground.task9Concept",
     descKey: "playground.task9Desc",
@@ -1087,7 +1324,7 @@ container.Register("calc", NewCalcCommand())
   {
     id: "task-command-registry",
     tier: 2,
-    order: 16,
+    order: 18,
     titleKey: "playground.task10Title",
     conceptKey: "playground.task10Concept",
     descKey: "playground.task10Desc",
@@ -1166,244 +1403,7 @@ registry[___].Execute()`,
       }
       return { passed: false, messageKey: "playground.task10Failed" };
     },
-  },
-  {
-    id: "task-debug-runaway-loop",
-    tier: 1,
-    order: 17,
-    titleKey: "playground.taskDebugRunawayTitle",
-    conceptKey: "playground.taskDebugRunawayConcept",
-    descKey: "playground.taskDebugRunawayDesc",
-    hintKey: "playground.taskDebugRunawayHint",
-    successKey: "playground.taskDebugRunawaySuccess",
-    simpleExplanationKey: "playground.taskDebugRunawaySimple",
-    engineeringKey: "playground.taskDebugRunawayEngineering",
-    careerImpactKey: "playground.taskDebugRunawayCareer",
-    isBugfixTask: true,
-    initialBrokenCode: {
-      csharp: `// ⚠️ ДЕФЕКТ: Спеціаліст сервісного центру повідомив, що тюнер зависає при скануванні.
-// Рантайм повертає помилку InfiniteLoopException від Watchdog Timer.
-// Знайдіть та виправте крок циклу, щоб тюнер просканував канали від 1 до 5.
-
-tv.PowerOn();
-for (int ch = 1; ch <= 5; ch--)
-{
-    tv.SetChannel(ch);
-}`,
-      go: `// ⚠️ ДЕФЕКТ: Тюнер зависає під час автоматичного пошуку каналів.
-// Знайдіть та виправте логічну помилку в кроці циклу.
-
-tv.PowerOn()
-for ch := 1; ch <= 5; ch-- {
-    tv.SetChannel(ch)
-}`,
-    },
-    initialCode: {
-      csharp: `// ⚠️ ДЕФЕКТ: Спеціаліст сервісного центру повідомив, що тюнер зависає при скануванні.
-// Рантайм повертає помилку InfiniteLoopException від Watchdog Timer.
-// Знайдіть та виправте крок циклу, щоб тюнер просканував канали від 1 до 5.
-
-tv.PowerOn();
-for (int ch = 1; ch <= 5; ch--)
-{
-    tv.SetChannel(ch);
-}`,
-      go: `// ⚠️ ДЕФЕКТ: Тюнер зависає під час автоматичного пошуку каналів.
-// Знайдіть та виправте логічну помилку в кроці циклу.
-
-tv.PowerOn()
-for ch := 1; ch <= 5; ch-- {
-    tv.SetChannel(ch)
-}`,
-    },
-    targetCode: {
-      csharp: `tv.PowerOn();
-for (int ch = 1; ch <= 5; ch++)
-{
-    tv.SetChannel(ch);
-}`,
-      go: `tv.PowerOn()
-for ch := 1; ch <= 5; ch++ {
-    tv.SetChannel(ch)
-}`,
-    },
-    clozeTemplate: {
-      csharp: `tv.PowerOn();
-for (int ch = 1; ch <= 5; ___)
-{
-    tv.SetChannel(ch);
-}`,
-      go: `tv.PowerOn()
-for ch := 1; ch <= 5; ___ {
-    tv.SetChannel(ch)
-}`,
-    },
-    sprintTimeLimit: 30,
-    defectDescription: {
-      ua: "Тюнер зависає під час автоматичного сканування каналів через декремент 'ch--' замість інкременту 'ch++'. Змінна прямує до від'ємних чисел, умова ch <= 5 ніколи не стає false, тому спрацьовує Watchdog Timer.",
-      en: "Tuner hangs indefinitely during automated scanning due to decrement 'ch--' instead of increment 'ch++'. Variable decreases toward negative infinity, condition ch <= 5 is never false, triggering Watchdog Timer.",
-      da: "Tuner fryser under automatisk scanning pga. dekrement 'ch--' i stedet for inkrement 'ch++'. Variablen bevæger sig mod negative tal, betingelsen ch <= 5 er altid sand, hvilket udløser Watchdog Timeren.",
-    },
-    diagnosticLogs: [
-      "[FAULT] Watchdog: Core thread unresponsive for >500ms",
-      "[FAULT] InfiniteLoopException: Iteration limit 50 reached in tuner loop",
-      "[DIAGNOSTIC] Variable ch is decreasing (1, 0, -1...) -> (ch <= 5) invariant never breaks",
-      "[STATUS] TV Hardware Freeze: REPAIR REQUIRED",
-    ],
-    validate: (_before, after, result, rawCode) => {
-      const code = stripComments(rawCode || "");
-      if (!result.success) {
-        return { passed: false, messageKey: "playground.errorSyntax" };
-      }
-      const hasDecreasingLoop = Boolean(code && /ch\s*--/i.test(code));
-      if (hasDecreasingLoop) {
-        return { passed: false, messageKey: "playground.taskDebugRunawayHint" };
-      }
-      if (after.isOn && after.channel === 5) {
-        return { passed: true, messageKey: "playground.taskDebugRunawaySuccess" };
-      }
-      return { passed: false, messageKey: "playground.taskDebugRunawayHint" };
-    },
-    transferVariant: {
-      prompt: {
-        ua: "Виправте сканування діапазону з 10 до 15 каналу за допомогою інкременту ch++.",
-        en: "Fix channel range scan from 10 to 15 using increment ch++.",
-        da: "Ret kanalscanning fra 10 til 15 med inkrement ch++.",
-      },
-      hint: {
-        ua: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
-        en: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
-        da: "for (int ch = 10; ch <= 15; ch++) { tv.SetChannel(ch); }",
-      },
-      targetSnippetExample: "tv.PowerOn();\nfor (int ch = 10; ch <= 15; ch++)\n{\n    tv.SetChannel(ch);\n}",
-      validate: (_before, after) => after.isOn && after.channel === 15,
-    },
-  },
-  {
-    id: "task-debug-off-by-one-overflow",
-    tier: 1,
-    order: 18,
-    titleKey: "playground.taskDebugOverloadTitle",
-    conceptKey: "playground.taskDebugOverloadConcept",
-    descKey: "playground.taskDebugOverloadDesc",
-    hintKey: "playground.taskDebugOverloadHint",
-    successKey: "playground.taskDebugOverloadSuccess",
-    simpleExplanationKey: "playground.taskDebugOverloadSimple",
-    engineeringKey: "playground.taskDebugOverloadEngineering",
-    careerImpactKey: "playground.taskDebugOverloadCareer",
-    isBugfixTask: true,
-    initialBrokenCode: {
-      csharp: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
-// Фізичний ліміт випромінювача: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
-// Додайте захисну умову (if requestedBrightness <= 100), щоб захистити катодну трубку від перевантаження.
-
-tv.PowerOn();
-int requestedBrightness = 101;
-
-// ЗАХИСТ ВІДСУТНІЙ — запобіжник перегорає:
-tv.SetBrightness(requestedBrightness);`,
-      go: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
-// Фізичний ліміт: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
-// Додайте захисну умову (if requestedBrightness <= 100).
-
-tv.PowerOn()
-requestedBrightness := 101
-
-// ЗАХИСТ ВІДСУТНІЙ:
-tv.SetBrightness(requestedBrightness)`,
-    },
-    initialCode: {
-      csharp: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
-// Фізичний ліміт випромінювача: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
-// Додайте захисну умову (if requestedBrightness <= 100), щоб захистити катодну трубку від перевантаження.
-
-tv.PowerOn();
-int requestedBrightness = 101;
-
-// ЗАХИСТ ВІДСУТНІЙ — запобіжник перегорає:
-tv.SetBrightness(requestedBrightness);`,
-      go: `// ⚠️ ДЕФЕКТ: Спроба встановити пікову яскравість 101% спалила захисний запобіжник!
-// Фізичний ліміт: 100%. Будь-яке значення > 100 спричиняє CATHODE_RAY_OVERLOAD.
-// Додайте захисну умову (if requestedBrightness <= 100).
-
-tv.PowerOn()
-requestedBrightness := 101
-
-// ЗАХИСТ ВІДСУТНІЙ:
-tv.SetBrightness(requestedBrightness)`,
-    },
-    targetCode: {
-      csharp: `tv.PowerOn();
-int requestedBrightness = 101;
-if (requestedBrightness <= 100)
-{
-    tv.SetBrightness(requestedBrightness);
-}`,
-      go: `tv.PowerOn()
-requestedBrightness := 101
-if requestedBrightness <= 100 {
-    tv.SetBrightness(requestedBrightness)
-}`,
-    },
-    clozeTemplate: {
-      csharp: `tv.PowerOn();
-int requestedBrightness = 101;
-if (___ <= 100)
-{
-    tv.SetBrightness(requestedBrightness);
-}`,
-      go: `tv.PowerOn()
-requestedBrightness := 101
-if ___ <= 100 {
-    tv.SetBrightness(requestedBrightness)
-}`,
-    },
-    sprintTimeLimit: 35,
-    defectDescription: {
-      ua: "Пряме встановлення яскравості понад 100% без перевірки меж (Boundary Check) спалює фізичний запобіжник катодної трубки (CATHODE_RAY_OVERLOAD). Необхідна захисна умова (Guard Clause).",
-      en: "Setting brightness above 100% without boundary validation blows the cathode safety fuse (CATHODE_RAY_OVERLOAD). A guard clause is required.",
-      da: "Indstilling af lysstyrke over 100% uden grænsekontrol sprænger katoderørets sikring (CATHODE_RAY_OVERLOAD). En sikkerhedsbetingelse er påkrævet.",
-    },
-    diagnosticLogs: [
-      "[HARDWARE ALARM] Overvoltage detected on cathode ray driver!",
-      "[FUSE TRIPPED] Critical hardware overload: requested 101% exceeds 100% limit",
-      "[ERROR] CATHODE_RAY_OVERLOAD: Safety fuse blown. Display disabled.",
-      "[STATUS] Device in FAULT state. Boundary check required before SetBrightness().",
-    ],
-    validate: (_before, after, result, rawCode) => {
-      const code = stripComments(rawCode || "");
-      if (!result.success) {
-        return { passed: false, messageKey: "playground.errorSyntax" };
-      }
-      if (after.isFuseBlown) {
-        return { passed: false, messageKey: "playground.taskDebugOverloadFailed" };
-      }
-      const hasGuard = Boolean(
-        code &&
-          /if\s*\(?[^)]*(?:requestedBrightness|101|tv\.Brightness)[^)]*(?:<=|<|==)[^)]*\)?/i.test(
-            code
-          )
-      );
-      if (after.isOn && !after.isFuseBlown && hasGuard) {
-        return { passed: true, messageKey: "playground.taskDebugOverloadSuccess" };
-      }
-      return { passed: false, messageKey: "playground.taskDebugOverloadHint" };
-    },
-    transferVariant: {
-      prompt: {
-        ua: "Перевірте безпечну яскравість 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
-        en: "Verify safe brightness 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
-        da: "Bekræft sikker lysstyrke 80%: int requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
-      },
-      hint: {
-        ua: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
-        en: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
-        da: "requestedBrightness = 80; if (requestedBrightness <= 100) { tv.SetBrightness(requestedBrightness); }",
-      },
-      targetSnippetExample: "tv.PowerOn();\nint requestedBrightness = 80;\nif (requestedBrightness <= 100)\n{\n    tv.SetBrightness(requestedBrightness);\n}",
-      validate: (_before, after) => after.isOn && !after.isFuseBlown && after.brightness === 80,
-    },
-  },
+  }
 ];
 
 // Attach authentic Gradual Release of Responsibility (GRR) worked examples

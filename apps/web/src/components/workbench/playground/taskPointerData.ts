@@ -129,37 +129,13 @@ export const TASK_POINTER_METADATA: Record<string, TaskPointerMetadata> = {
       da: "Egenskaben tv.IsOn modtog boolesk true. Enhedens tilstand ændrede sig direkte via tildelingsoperatoren (=)!",
     },
   },
-  "task-2-branching": {
-    id: "task-2-branching",
-    tier: 1,
-    shortLabel: {
-      ua: "2. Умови if/else",
-      en: "2. If / Else",
-      da: "2. Betingelser",
-    },
-    goal: {
-      ua: "Створити розумний перемикач: якщо телевізор увімкнено — вимкнути, інакше — увімкнути.",
-      en: "Build a smart toggle: if TV is on — turn off, otherwise — turn on.",
-      da: "Byg en smart kontakt: hvis tv er tændt — sluk, ellers — tænd.",
-    },
-    ahaTitle: {
-      ua: "Вау! Розгалуження if/else спрацювало!",
-      en: "Wow! Branching if/else worked!",
-      da: "Wow! Forgrening if/else virkede!",
-    },
-    ahaDesc: {
-      ua: "Процесор перевірив поточний стан і обрав правильну гілку. Це основа інтелекту будь-якої програми!",
-      en: "The processor evaluated current state and selected the correct branch. That is the core of software logic!",
-      da: "Processoren evaluerede den aktuelle tilstand og valgte den rigtige gren. Det er kernen i al softwarelogik!",
-    },
-  },
   "task-variable-mutation": {
     id: "task-variable-mutation",
     tier: 1,
     shortLabel: {
-      ua: "3. Інкремент ++",
-      en: "3. Increment ++",
-      da: "3. Inkrement ++",
+      ua: "2. Інкремент ++",
+      en: "2. Increment ++",
+      da: "2. Inkrement ++",
     },
     goal: {
       ua: "Збільшити поточний номер каналу на 1 за допомогою оператора інкременту ++.",
@@ -181,9 +157,9 @@ export const TASK_POINTER_METADATA: Record<string, TaskPointerMetadata> = {
     id: "task-boundary-guard",
     tier: 1,
     shortLabel: {
-      ua: "4. Захист меж",
-      en: "4. Guard Clause",
-      da: "4. Grænsekontrol",
+      ua: "3. Захист меж",
+      en: "3. Guard Clause",
+      da: "3. Grænsekontrol",
     },
     goal: {
       ua: "Захистити систему: якщо номер каналу перевищує 4 (tv.Channel > 4), скинути його на 1.",
@@ -201,13 +177,61 @@ export const TASK_POINTER_METADATA: Record<string, TaskPointerMetadata> = {
       da: "Sikkerhedsbetingelsen forhindrede drifting ind i ugyldige støjkanaler. Modstandsdygtigt mod brugerfejl!",
     },
   },
+  "task-debug-off-by-one-overflow": {
+    id: "task-debug-off-by-one-overflow",
+    tier: 1,
+    shortLabel: {
+      ua: "4. Дебаг меж",
+      en: "4. Bounds Debug",
+      da: "4. Grænsedebug",
+    },
+    goal: {
+      ua: "Виправити баг Off-by-one: захистити яскравість телевізора умовою <= 100%, щоб не спалити матрицю.",
+      en: "Fix Off-by-one defect: guard TV brightness with <= 100% condition to prevent matrix damage.",
+      da: "Løs Off-by-one fejl: beskyt tv-lysstyrken med <= 100% betingelse for at forhindre matrixskade.",
+    },
+    ahaTitle: {
+      ua: "Вау! Переповнення 101% заблоковано!",
+      en: "Wow! 101% overflow prevented!",
+      da: "Wow! 101% overløb blokeret!",
+    },
+    ahaDesc: {
+      ua: "Оператор <= замість < усунув зсув на одиницю. Значення яскравості ніколи не перевищить апаратний максимум!",
+      en: "Operator <= eliminated off-by-one edge error. Brightness will never exceed hardware physical limits!",
+      da: "Operatoren <= eliminerede fejlen. Lysstyrken vil aldrig overstige hardwarens fysiske maksimum!",
+    },
+  },
+  "task-2-branching": {
+    id: "task-2-branching",
+    tier: 1,
+    shortLabel: {
+      ua: "5. Умови if/else",
+      en: "5. If / Else",
+      da: "5. Betingelser",
+    },
+    goal: {
+      ua: "Створити розумний перемикач: якщо телевізор увімкнено — вимкнути, інакше — увімкнути.",
+      en: "Build a smart toggle: if TV is on — turn off, otherwise — turn on.",
+      da: "Byg en smart kontakt: hvis tv er tændt — sluk, ellers — tænd.",
+    },
+    ahaTitle: {
+      ua: "Вау! Розгалуження if/else спрацювало!",
+      en: "Wow! Branching if/else worked!",
+      da: "Wow! Forgrening if/else virkede!",
+    },
+    ahaDesc: {
+      ua: "Процесор перевірив поточний стан і обрав правильну гілку. Це основа інтелекту будь-якої програми!",
+      en: "The processor evaluated current state and selected the correct branch. That is the core of software logic!",
+      da: "Processoren evaluerede den aktuelle tilstand og valgte den rigtige gren. Det er kernen i al softwarelogik!",
+    },
+  },
   "task-for-loop": {
     id: "task-for-loop",
     tier: 1,
     shortLabel: {
-      ua: "5. Цикл for",
-      en: "5. For Loop",
-      da: "5. For-løkke",
+      ua: "6. Цикл for",
+      en: "6. For Loop",
+      da: "6. For-løkke",
     },
     goal: {
       ua: "Запустити цикл автопошуку for від каналу 1 до 4, щоб телевізор послідовно показав кожен екран.",
@@ -225,85 +249,13 @@ export const TASK_POINTER_METADATA: Record<string, TaskPointerMetadata> = {
       da: "Processoren gentog handlingen 4 gange automatisk. Løkker behandler millioner af poster uden kodegentagelse!",
     },
   },
-  "task-class-instance": {
-    id: "task-class-instance",
-    tier: 1,
-    shortLabel: {
-      ua: "6. Об'єкт new",
-      en: "6. Object new",
-      da: "6. Objekt new",
-    },
-    goal: {
-      ua: "Створити новий екземпляр телевізора за кресленням класу TV (new TV()) та увімкнути його.",
-      en: "Instantiate a new TV object from TV class blueprint (new TV()) and power it on.",
-      da: "Opret en ny TV-instans fra TV-klasseopskriften (new TV()) og tænd den.",
-    },
-    ahaTitle: {
-      ua: "Вау! Об'єкт ожив у купі (Heap)!",
-      en: "Wow! Object created in Heap!",
-      da: "Wow! Objekt oprettet i Heap!",
-    },
-    ahaDesc: {
-      ua: "Оператор new виділив область пам'яті під реальний апаратний об'єкт. Ви перейшли від креслення до живого екземпляра!",
-      en: "The new operator allocated dynamic heap memory for a real device object. You advanced from blueprint to a live instance!",
-      da: "New-operatoren tildelte dynamisk heap-hukommelse til et virkeligt enhedsobjekt. Du gik fra tegning til levende instans!",
-    },
-  },
-  "task-method-return": {
-    id: "task-method-return",
-    tier: 1,
-    shortLabel: {
-      ua: "7. Запити CQS",
-      en: "7. Queries CQS",
-      da: "7. CQS forespørgsel",
-    },
-    goal: {
-      ua: "Зчитати гучність методом GetVolume() і збільшити її на 10 одиниць через метод SetVolume().",
-      en: "Read volume using GetVolume() query and increase it by 10 units via SetVolume() command.",
-      da: "Aflæs lydstyrke med GetVolume() og forøg den med 10 enheder via SetVolume().",
-    },
-    ahaTitle: {
-      ua: "Вау! Принцип CQS реалізовано!",
-      en: "Wow! CQS pattern implemented!",
-      da: "Wow! CQS-princippet implementeret!",
-    },
-    ahaDesc: {
-      ua: "Запит GetVolume() повернув число зі стека без сайд-ефектів, а SetVolume() змінив стан. Читання й запис розділені!",
-      en: "Query GetVolume() read stack value with no side-effects, while SetVolume() applied mutation. Read and write are cleanly decoupled!",
-      da: "Forespørgslen GetVolume() returnerede tallet uden bivirkninger, mens SetVolume() ændrede tilstanden. Læsning og skrivning er adskilt!",
-    },
-  },
-  "task-null-reference": {
-    id: "task-null-reference",
-    tier: 1,
-    shortLabel: {
-      ua: "8. Null Guard",
-      en: "8. Null Guard",
-      da: "8. Null Guard",
-    },
-    goal: {
-      ua: "Захистити код перевіркою if (broken != null), щоб уникнути фатального краху NullReferenceException.",
-      en: "Protect code with if (broken != null) guard to avoid fatal NullReferenceException crash.",
-      da: "Beskyt koden med if (broken != null) kontrol for at undgå fatalt NullReferenceException-nedbrud.",
-    },
-    ahaTitle: {
-      ua: "Вау! Крах NullReference відвернено!",
-      en: "Wow! NullReference crash prevented!",
-      da: "Wow! NullReference-nedbrud afværget!",
-    },
-    ahaDesc: {
-      ua: "Захисний бар'єр перевірив адресу в пам'яті й не дав процесору звернутися до порожнечі 0x00000000. Продакшн врятовано!",
-      en: "The guard verified memory address and prevented dereferencing 0x00000000. Production is saved!",
-      da: "Sikkerhedskontrollen verificerede hukommelsesadressen og forhindrede dereferencering af 0x00000000. Produktionen er reddet!",
-    },
-  },
   "task-debug-runaway-loop": {
     id: "task-debug-runaway-loop",
     tier: 1,
     shortLabel: {
-      ua: "9. Дебаг циклу",
-      en: "9. Loop Debug",
-      da: "9. Løkkedebug",
+      ua: "7. Дебаг циклу",
+      en: "7. Loop Debug",
+      da: "7. Løkkedebug",
     },
     goal: {
       ua: "Усунути нескінченне зависання циклу: обмежити верхню межу автопошуку 5 каналами.",
@@ -321,28 +273,76 @@ export const TASK_POINTER_METADATA: Record<string, TaskPointerMetadata> = {
       da: "Du fandt fejlen i for-betingelsen og reddede CPU'en fra 100% låsning og overophedning. Ægte fejlfinding!",
     },
   },
-  "task-debug-off-by-one-overflow": {
-    id: "task-debug-off-by-one-overflow",
+  "task-method-return": {
+    id: "task-method-return",
     tier: 1,
     shortLabel: {
-      ua: "10. Дебаг меж",
-      en: "10. Bounds Debug",
-      da: "10. Grænsedebug",
+      ua: "8. Запити CQS",
+      en: "8. Queries CQS",
+      da: "8. CQS forespørgsel",
     },
     goal: {
-      ua: "Виправити баг Off-by-one: захистити яскравість телевізора умовою <= 100%, щоб не спалити матрицю.",
-      en: "Fix Off-by-one defect: guard TV brightness with <= 100% condition to prevent matrix damage.",
-      da: "Løs Off-by-one fejl: beskyt tv-lysstyrken med <= 100% betingelse for at forhindre matrixskade.",
+      ua: "Зчитати гучність методом GetVolume() і збільшити її на 10 одиниць через метод SetVolume().",
+      en: "Read volume using GetVolume() query and increase it by 10 units via SetVolume() command.",
+      da: "Aflæs lydstyrke med GetVolume() og forøg den med 10 enheder via SetVolume().",
     },
     ahaTitle: {
-      ua: "Вау! Переповнення 101% заблоковано!",
-      en: "Wow! 101% overflow prevented!",
-      da: "Wow! 101% overløb blokeret!",
+      ua: "Вау! Принцип CQS реалізовано!",
+      en: "Wow! CQS pattern implemented!",
+      da: "Wow! CQS-princippet implementeret!",
     },
     ahaDesc: {
-      ua: "Оператор <= замість < усунув зсув на одиницю. Значення яскравості ніколи не перевищить апаратний максимум!",
-      en: "Operator <= eliminated off-by-one edge error. Brightness will never exceed hardware physical limits!",
-      da: "Operatoren <= eliminerede fejlen. Lysstyrken vil aldrig overstige hardwarens fysiske maksimum!",
+      ua: "Запит GetVolume() повернув число зі стека без сайд-ефектів, а SetVolume() змінив стан. Читання й запис розділені!",
+      en: "Query GetVolume() read stack value with no side-effects, while SetVolume() applied mutation. Read and write are cleanly decoupled!",
+      da: "Forespørgslen GetVolume() returnerede tallet uden bivirkninger, mens SetVolume() ændrede tilstanden. Læsning og skrivning er adskilt!",
+    },
+  },
+  "task-class-instance": {
+    id: "task-class-instance",
+    tier: 1,
+    shortLabel: {
+      ua: "9. Об'єкт new",
+      en: "9. Object new",
+      da: "9. Objekt new",
+    },
+    goal: {
+      ua: "Створити новий екземпляр телевізора за кресленням класу TV (new TV()) та увімкнути його.",
+      en: "Instantiate a new TV object from TV class blueprint (new TV()) and power it on.",
+      da: "Opret en ny TV-instans fra TV-klasseopskriften (new TV()) og tænd den.",
+    },
+    ahaTitle: {
+      ua: "Вау! Об'єкт ожив у купі (Heap)!",
+      en: "Wow! Object created in Heap!",
+      da: "Wow! Objekt oprettet i Heap!",
+    },
+    ahaDesc: {
+      ua: "Оператор new виділив область пам'яті під реальний апаратний об'єкт. Ви перейшли від креслення до живого екземпляра!",
+      en: "The new operator allocated dynamic heap memory for a real device object. You advanced from blueprint to a live instance!",
+      da: "New-operatoren tildelte dynamisk heap-hukommelse til et virkeligt enhedsobjekt. Du gik fra tegning til levende instans!",
+    },
+  },
+  "task-null-reference": {
+    id: "task-null-reference",
+    tier: 1,
+    shortLabel: {
+      ua: "10. Null Guard",
+      en: "10. Null Guard",
+      da: "10. Null Guard",
+    },
+    goal: {
+      ua: "Захистити код перевіркою if (broken != null), щоб уникнути фатального краху NullReferenceException.",
+      en: "Protect code with if (broken != null) guard to avoid fatal NullReferenceException crash.",
+      da: "Beskyt koden med if (broken != null) kontrol for at undgå fatalt NullReferenceException-nedbrud.",
+    },
+    ahaTitle: {
+      ua: "Вау! Крах NullReference відвернено!",
+      en: "Wow! NullReference crash prevented!",
+      da: "Wow! NullReference-nedbrud afværget!",
+    },
+    ahaDesc: {
+      ua: "Захисний бар'єр перевірив адресу в пам'яті й не дав процесору звернутися до порожнечі 0x00000000. Продакшн врятовано!",
+      en: "The guard verified memory address and prevented dereferencing 0x00000000. Production is saved!",
+      da: "Sikkerhedskontrollen verificerede hukommelsesadressen og forhindrede dereferencering af 0x00000000. Produktionen er reddet!",
     },
   },
 
