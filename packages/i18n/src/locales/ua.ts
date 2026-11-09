@@ -1424,6 +1424,7 @@ export const uaTranslation = {
         syntaxNewline: "новий рядок",
         syntaxSemicolon: "завершення команди",
         round1PromptPowerOn: "Повторіть для ввімкнення: tv.PowerOn();",
+        round1PromptPrefix: "Повторіть для:",
         round1PromptTypes: "Повторіть команди для налаштування каналу",
         round1PromptSequential: "Повторіть послідовність команд",
         round1PromptDefault: "Повторіть за зразком",

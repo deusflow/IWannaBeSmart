@@ -28,6 +28,7 @@ import {
 import { PreciseErrorPointer } from "./PreciseErrorPointer";
 import type { CodeGymTaskLike } from "./useCodeGymSession";
 import { audioFx } from "../../../utils/audioFx";
+import { getTaskPointerMeta } from "./taskPointerData";
 import { toast } from "../../../store/toastStore";
 
 interface CodeGymEditorProps<
@@ -319,11 +320,9 @@ export function CodeGymEditor<
               <span className="text-gray-200 font-medium truncate">
                 {currentTask.id === "task-0-1-power-on"
                   ? t("codegym.round1PromptPowerOn", "Повторіть для ввімкнення: tv.PowerOn();")
-                  : currentTask.id === "task-0-2-types"
-                  ? t("codegym.round1PromptTypes", "Повторіть команди для налаштування каналу")
-                  : currentTask.id === "task-0-3-sequential"
-                  ? t("codegym.round1PromptSequential", "Повторіть послідовність команд")
-                  : t("codegym.round1PromptDefault", "Повторіть за зразком")}
+                  : `${t("codegym.round1PromptPrefix", "Повторіть для:")} ${
+                      getTaskPointerMeta(currentTask.id, (i18n.language as "ua" | "en" | "da") || "ua").shortLabel
+                    }`}
               </span>
             </div>
             <span className="text-[10px] font-mono text-slate-400 shrink-0">

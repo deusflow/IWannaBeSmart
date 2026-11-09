@@ -172,8 +172,8 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   const [pointerStep, setPointerStep] = useState<1 | 2 | 3 | null>(() => {
     if (typeof window === "undefined") return null;
     try {
-      const isDismissed = localStorage.getItem("iw_pointer_dismissed_task-0-1-power-on");
-      const hasStars = (taskMasteryStars["task-0-1-power-on"] || 0) >= 1;
+      const isDismissed = localStorage.getItem(`iw_pointer_dismissed_${currentTask.id}`);
+      const hasStars = (taskMasteryStars[currentTask.id] || 0) >= 1;
       return !isDismissed && !hasStars ? 1 : null;
     } catch {
       return null;
@@ -312,7 +312,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         addXp((targetStars - currentStars) * 15);
       }
       await runTvExecution(code);
-      if ((currentTask.tier ?? 0) === 0 && round === 1) {
+      if (round === 1) {
         try {
           const alreadySeen = localStorage.getItem(`iw_pointer_aha_seen_${currentTask.id}`);
           if (!alreadySeen) {
@@ -381,7 +381,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     try {
       const isDismissed = localStorage.getItem(`iw_pointer_dismissed_${taskId}`);
       const hasStars = (taskMasteryStars[taskId] || 0) >= 1;
-      setPointerStep(nextTier === 0 && !isDismissed && !hasStars ? 1 : null);
+      setPointerStep(!isDismissed && !hasStars ? 1 : null);
     } catch {
       setPointerStep(null);
     }
@@ -411,7 +411,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     try {
       const isDismissed = localStorage.getItem(`iw_pointer_dismissed_${firstTask.id}`);
       const hasStars = (taskMasteryStars[firstTask.id] || 0) >= 1;
-      setPointerStep(tier === 0 && !isDismissed && !hasStars ? 1 : null);
+      setPointerStep(!isDismissed && !hasStars ? 1 : null);
     } catch {
       setPointerStep(null);
     }
@@ -700,9 +700,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     });
 
     // 5. Restore pointer guide to step 1
-    if (selectedTier === 0) {
-      setPointerStep(1);
-    }
+    setPointerStep(1);
     setShowAhaMoment(false);
 
     // 6. Reset TV hardware state back to standby

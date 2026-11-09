@@ -1424,6 +1424,7 @@ export const enTranslation = {
         syntaxNewline: "new line",
         syntaxSemicolon: "statement termination",
         round1PromptPowerOn: "Repeat to power on: tv.PowerOn();",
+        round1PromptPrefix: "Repeat for:",
         round1PromptTypes: "Repeat commands to configure channel",
         round1PromptSequential: "Repeat sequence of commands",
         round1PromptDefault: "Repeat according to sample",

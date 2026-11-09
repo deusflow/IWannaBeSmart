@@ -1424,6 +1424,7 @@ export const daTranslation = {
         syntaxNewline: "ny linje",
         syntaxSemicolon: "instruktionsafslutning",
         round1PromptPowerOn: "Gentag for at tænde: tv.PowerOn();",
+        round1PromptPrefix: "Gentag for:",
         round1PromptTypes: "Gentag kommandoer for at konfigurere kanal",
         round1PromptSequential: "Gentag sekvens af kommandoer",
         round1PromptDefault: "Gentag ifølge eksemplet",
