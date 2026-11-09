@@ -110,7 +110,7 @@ export const VertexBlueprintDevice: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 text-slate-100 p-3 sm:p-4 rounded-xl border border-sky-900/40 shadow-2xl font-mono overflow-y-auto space-y-4">
+    <div className="flex flex-col h-full bg-[#1A1D24] text-slate-100 p-3 sm:p-4 rounded-xl border border-sky-900/40 shadow-2xl font-mono overflow-y-auto space-y-4">
       {/* ── Top Header Bar ────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-900/40 pb-3">
         <div className="flex items-center gap-3">
@@ -134,13 +134,13 @@ export const VertexBlueprintDevice: React.FC = () => {
 
         {/* Live System State Chips */}
         <div className="flex items-center gap-2 text-xs">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#252932] border border-[#323846] text-slate-300">
             <Activity className="w-3.5 h-3.5 text-emerald-400" />
             <span className="text-[10px] text-slate-500">STATUS:</span>
             <span className="font-bold uppercase text-sky-300">{vertexState.pipelineStatus}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#252932] border border-[#323846] text-slate-300">
             <DollarSign className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-[10px] text-slate-500">COST:</span>
             <span className="font-bold text-amber-300">${vertexState.costPerHour.toFixed(2)}/hr</span>
@@ -148,7 +148,7 @@ export const VertexBlueprintDevice: React.FC = () => {
 
           <button
             onClick={() => resetVertexState()}
-            className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 transition"
+            className="p-1.5 rounded hover:bg-[#2E333F] text-slate-400 hover:text-slate-200 border border-[#323846] transition"
             title="Reset Simulation"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -181,7 +181,7 @@ export const VertexBlueprintDevice: React.FC = () => {
           className={`p-2.5 rounded-lg border transition ${
             vertexState.gcsBucket
               ? "bg-sky-950/40 border-sky-500/50 text-sky-200 shadow-[0_0_10px_rgba(14,165,233,0.15)]"
-              : "bg-slate-900/40 border-slate-800 text-slate-400"
+              : "bg-[#252932]/40 border-[#323846] text-slate-400"
           }`}
         >
           <div className="flex items-center justify-between mb-1">
@@ -201,7 +201,7 @@ export const VertexBlueprintDevice: React.FC = () => {
           className={`p-2.5 rounded-lg border transition ${
             vertexState.preprocessingStep !== "none"
               ? "bg-sky-950/40 border-sky-500/50 text-sky-200 shadow-[0_0_10px_rgba(14,165,233,0.15)]"
-              : "bg-slate-900/40 border-slate-800 text-slate-400"
+              : "bg-[#252932]/40 border-[#323846] text-slate-400"
           }`}
         >
           <div className="flex items-center justify-between mb-1">
@@ -217,7 +217,7 @@ export const VertexBlueprintDevice: React.FC = () => {
           className={`p-2.5 rounded-lg border transition ${
             vertexState.modelVersion > 0
               ? "bg-purple-950/40 border-purple-500/50 text-purple-200 shadow-[0_0_10px_rgba(168,85,247,0.15)]"
-              : "bg-slate-900/40 border-slate-800 text-slate-400"
+              : "bg-[#252932]/40 border-[#323846] text-slate-400"
           }`}
         >
           <div className="flex items-center justify-between mb-1">
@@ -235,7 +235,7 @@ export const VertexBlueprintDevice: React.FC = () => {
           className={`p-2.5 rounded-lg border transition ${
             vertexState.pipelineStatus === "serving"
               ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.15)]"
-              : "bg-slate-900/40 border-slate-800 text-slate-400"
+              : "bg-[#252932]/40 border-[#323846] text-slate-400"
           }`}
         >
           <div className="flex items-center justify-between mb-1">
@@ -253,7 +253,7 @@ export const VertexBlueprintDevice: React.FC = () => {
           className={`p-2.5 rounded-lg border transition ${
             vertexState.alerts.length > 0
               ? "bg-amber-950/40 border-amber-500/50 text-amber-200 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-              : "bg-slate-900/40 border-slate-800 text-slate-400"
+              : "bg-[#252932]/40 border-[#323846] text-slate-400"
           }`}
         >
           <div className="flex items-center justify-between mb-1">
@@ -271,8 +271,8 @@ export const VertexBlueprintDevice: React.FC = () => {
       {/* ── Main Interactive Cockpit Panels ───────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 flex-1 min-h-[360px]">
         {/* Panel 1: Data & Training Controls */}
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3 flex flex-col space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div className="bg-[#252932]/70 border border-[#323846] rounded-lg p-3 flex flex-col space-y-3">
+          <div className="flex items-center justify-between border-b border-[#323846] pb-2">
             <span className="text-xs font-bold text-sky-400 flex items-center gap-1.5">
               <Database className="w-3.5 h-3.5" />
               STAGE 1 & 2 // INGEST & TRAIN
@@ -288,7 +288,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                 value={bucketInput}
                 onChange={(e) => setBucketInput(e.target.value)}
                 placeholder="gs://..."
-                className="flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-xs text-sky-300 focus:outline-none focus:border-sky-500 font-mono"
+                className="flex-1 bg-[#1A1D24] border border-[#323846] rounded px-2.5 py-1 text-xs text-sky-300 focus:outline-none focus:border-sky-500 font-mono"
               />
               <button
                 type="submit"
@@ -310,7 +310,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                   className={`px-2 py-1 text-xs rounded border capitalize transition ${
                     vertexState.preprocessingStep === step
                       ? "bg-sky-950 border-sky-500 text-sky-300"
-                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                      : "bg-[#1A1D24] border-[#323846] text-slate-400 hover:border-[#323846]"
                   }`}
                 >
                   {step}
@@ -337,7 +337,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                   className={`p-1.5 text-left rounded border transition ${
                     selectedHardware === hw.id
                       ? "bg-sky-950 border-sky-500 text-sky-300"
-                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                      : "bg-[#1A1D24] border-[#323846] text-slate-400 hover:border-[#323846]"
                   }`}
                 >
                   <div className="text-[11px] font-bold">{hw.label}</div>
@@ -355,7 +355,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                 type="number"
                 value={batchSize}
                 onChange={(e) => setBatchSize(Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-0.5 font-mono text-xs text-slate-200"
+                className="w-full bg-[#1A1D24] border border-[#323846] rounded px-2 py-0.5 font-mono text-xs text-slate-200"
               />
             </div>
             <div>
@@ -365,7 +365,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                 step="0.00005"
                 value={learningRate}
                 onChange={(e) => setLearningRate(Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-700 rounded px-2 py-0.5 font-mono text-xs text-slate-200"
+                className="w-full bg-[#1A1D24] border border-[#323846] rounded px-2 py-0.5 font-mono text-xs text-slate-200"
               />
             </div>
           </div>
@@ -381,8 +381,8 @@ export const VertexBlueprintDevice: React.FC = () => {
         </div>
 
         {/* Panel 2: Endpoint Serving & Networking Controls */}
-        <div className="bg-slate-900/70 border border-slate-800 rounded-lg p-3 flex flex-col space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div className="bg-[#252932]/70 border border-[#323846] rounded-lg p-3 flex flex-col space-y-3">
+          <div className="flex items-center justify-between border-b border-[#323846] pb-2">
             <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
               <Server className="w-3.5 h-3.5" />
               STAGE 3 & 4 // SERVING & INFRA
@@ -399,7 +399,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                 min={1}
                 max={10}
                 onChange={(e) => setMinReplicas(Number(e.target.value))}
-                className="w-20 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 font-mono text-center"
+                className="w-20 bg-[#1A1D24] border border-[#323846] rounded px-2 py-1 text-xs text-slate-200 font-mono text-center"
               />
               <span className="text-slate-500">—</span>
               <input
@@ -408,7 +408,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                 min={1}
                 max={20}
                 onChange={(e) => setMaxReplicas(Number(e.target.value))}
-                className="w-20 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 font-mono text-center"
+                className="w-20 bg-[#1A1D24] border border-[#323846] rounded px-2 py-1 text-xs text-slate-200 font-mono text-center"
               />
               <span className="text-[10px] text-slate-500">instances</span>
             </div>
@@ -426,12 +426,12 @@ export const VertexBlueprintDevice: React.FC = () => {
               max={100}
               value={trafficSplit}
               onChange={(e) => setTrafficSplit(Number(e.target.value))}
-              className="w-full accent-emerald-500 bg-slate-800"
+              className="w-full accent-emerald-500 bg-[#2E333F]"
             />
           </div>
 
           {/* VPC Peering & Security */}
-          <div className="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-2">
+          <div className="p-2.5 rounded bg-[#1A1D24] border border-[#323846] space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-300 flex items-center gap-1.5">
                 <Shield className="w-3.5 h-3.5 text-sky-400" />
@@ -442,7 +442,7 @@ export const VertexBlueprintDevice: React.FC = () => {
                 className={`px-2 py-0.5 text-[10px] font-bold rounded ${
                   vertexState.iamConfig.vpcPeeringEnabled
                     ? "bg-emerald-900 text-emerald-300 border border-emerald-700"
-                    : "bg-slate-800 text-slate-400 border border-slate-700"
+                    : "bg-[#2E333F] text-slate-400 border border-[#323846]"
                 }`}
               >
                 {vertexState.iamConfig.vpcPeeringEnabled ? "PEERED (mTLS)" : "PUBLIC IP"}
@@ -465,7 +465,7 @@ export const VertexBlueprintDevice: React.FC = () => {
           {/* Drift Check CTA */}
           <button
             onClick={handleRunMonitoring}
-            className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded transition flex items-center justify-center gap-1.5 border border-slate-700"
+            className="w-full py-1.5 bg-[#2E333F] hover:bg-[#323846] text-slate-200 font-bold text-xs rounded transition flex items-center justify-center gap-1.5 border border-[#323846]"
           >
             <Activity className="w-3.5 h-3.5 text-amber-400" />
             Trigger Drift Sentinel Scan
@@ -473,8 +473,8 @@ export const VertexBlueprintDevice: React.FC = () => {
         </div>
 
         {/* Panel 3: Cloud Deployment Log Stream */}
-        <div className="bg-slate-950 border border-slate-800 rounded-lg p-3 flex flex-col min-h-[220px]">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+        <div className="bg-[#1A1D24] border border-[#323846] rounded-lg p-3 flex flex-col min-h-[220px]">
+          <div className="flex items-center justify-between border-b border-[#323846] pb-2 mb-2">
             <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
               <Terminal className="w-3.5 h-3.5 text-sky-400" />
               CLOUD OPERATIONS LOGS

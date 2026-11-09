@@ -96,7 +96,7 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
     return (
       <div
         onClick={toggleExpand}
-        className="flex items-center justify-between px-4 py-2 bg-[#1A1B1E]/95 border-t border-[#2F3136] backdrop-blur-md cursor-pointer hover:bg-[#222428] transition-colors select-none"
+        className="flex items-center justify-between px-4 py-2 bg-[#252932]/95 border-t border-[#323846] backdrop-blur-md cursor-pointer hover:bg-[#2E333F] transition-colors select-none"
       >
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 rounded-lg bg-purple-600/30 border border-purple-500/50 flex items-center justify-center text-purple-300 shadow-xs">
@@ -135,15 +135,15 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
 
   // ── Expanded View ────────────────────────────────────────────
   return (
-    <div className="flex flex-col bg-[#1A1B1E]/95 border-t border-[#2F3136] backdrop-blur-md transition-all select-none">
+    <div className="flex flex-col bg-[#252932]/95 border-t border-[#323846] backdrop-blur-md transition-all select-none">
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[#2A2C30]">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[#323846]">
         <div className="flex items-center gap-2.5">
           <div className="relative">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
               <GraduationCap size={15} />
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#1A1B1E] animate-pulse" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#323846] animate-pulse" />
           </div>
 
           <div>
@@ -198,7 +198,7 @@ export const MentorBar: React.FC<MentorBarProps> = ({ onGoToTv }) => {
 
       {/* Expandable Architectural "Why not new?" callout */}
       {showTheory && (
-        <div className="px-4 py-2.5 bg-[#22242A] border-b border-[#2F3136] flex items-start gap-2.5 animate-fadeIn">
+        <div className="px-4 py-2.5 bg-[#2E333F] border-b border-[#323846] flex items-start gap-2.5 animate-fadeIn">
           <Info size={15} className="text-amber-400 shrink-0 mt-0.5" />
           <div className="text-xs text-[#E5E7EB] leading-relaxed">
             <span className="font-bold text-amber-300 block mb-0.5">

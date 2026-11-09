@@ -110,6 +110,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       const task = CODING_TASKS.find((t) => t.id === targetTaskId);
       if (task) {
         const nextTier = (task.tier ?? 0) as 0 | 1 | 2;
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs one-shot navigation request from the external store
         setSelectedTier(nextTier);
         setSelectedTaskId(task.id);
         setTargetTaskId(null);
@@ -330,6 +331,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   useEffect(() => {
     const tierMatch = visibleTasks.some((task) => task.id === selectedTaskId);
     if (!tierMatch && visibleTasks[0]) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional state reset on prop/round change
       setSelectedTaskId(visibleTasks[0].id);
       setSelectedTier(visibleTasks[0].tier ?? 0);
     }

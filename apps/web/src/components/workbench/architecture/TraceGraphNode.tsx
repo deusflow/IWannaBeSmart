@@ -106,10 +106,10 @@ export const TraceGraphNode: React.FC<TraceGraphNodeProps> = memo(({ id, data })
     <div
       className={`relative rounded-xl border transition-all select-none w-[260px] text-gray-200 overflow-hidden ${
         isBypassed
-          ? "bg-[#18191C]/90 border-dashed border-red-500/50 opacity-80"
+          ? "bg-[#1A1D24]/90 border-dashed border-red-500/50 opacity-80"
           : isBroken
-          ? "bg-[#201518]/95 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
-          : `bg-[#1C1D21]/95 ${config.borderActive} ${config.glow}`
+          ? "bg-[#1A1D24]/95 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
+          : `bg-[#252932]/95 ${config.borderActive} ${config.glow}`
       }`}
     >
       {/* ReactFlow Handles */}
@@ -117,13 +117,13 @@ export const TraceGraphNode: React.FC<TraceGraphNodeProps> = memo(({ id, data })
         type="target"
         position={Position.Left}
         id="in"
-        className="!w-3 !h-3 !bg-[#26272C] !border-2 !border-gray-400 hover:!border-white transition-colors"
+        className="!w-3 !h-3 !bg-[#2E333F] !border-2 !border-gray-400 hover:!border-white transition-colors"
       />
       <Handle
         type="source"
         position={Position.Right}
         id="out"
-        className="!w-3 !h-3 !bg-[#26272C] !border-2 !border-gray-400 hover:!border-white transition-colors"
+        className="!w-3 !h-3 !bg-[#2E333F] !border-2 !border-gray-400 hover:!border-white transition-colors"
       />
 
       {/* Card Header */}

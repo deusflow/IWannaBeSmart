@@ -167,6 +167,7 @@ export const RagAgentCodeGymRunner: React.FC = () => {
     if (targetTaskId) {
       const task = RAG_TASKS.find((t) => t.id === targetTaskId);
       if (task) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs one-shot navigation request from the external store
         setSelectedTaskId(task.id);
         setActiveRound(1);
         setTargetTaskId(null);

@@ -176,6 +176,7 @@ export const VertexCodeGymRunner: React.FC = () => {
     if (targetTaskId) {
       const exists = VERTEX_TASKS.some((t) => t.id === targetTaskId);
       if (exists) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs one-shot navigation request from the external store
         handleSelectTask(targetTaskId);
         setTargetTaskId(null);
       }

@@ -175,9 +175,9 @@ export const GitBlueprintDevice: React.FC = () => {
     "// Empty file";
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#0D1117] text-[#C9D1D9] border-2 border-[#30363D] rounded-2xl overflow-hidden shadow-2xl select-none">
+    <div className="w-full h-full flex flex-col bg-[#252932] text-[#C9D1D9] border-2 border-[#323846] rounded-2xl overflow-hidden shadow-2xl select-none">
       {/* ── Top Hardware Control Header ─────────────────────────────── */}
-      <div className="flex items-center justify-between px-5 py-3 bg-[#161B22] border-b border-[#30363D]">
+      <div className="flex items-center justify-between px-5 py-3 bg-[#2E333F] border-b border-[#323846]">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse shadow-[0_0_8px_#A855F7]" />
           <div>
@@ -193,7 +193,7 @@ export const GitBlueprintDevice: React.FC = () => {
 
         {/* Status Indicators & Reset */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0D1117] border border-[#30363D] text-[11px] font-mono">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#252932] border border-[#323846] text-[11px] font-mono">
             <span className="text-stone-400">HEAD:</span>
             <span
               className={`font-bold px-1.5 py-0.5 rounded ${
@@ -210,7 +210,7 @@ export const GitBlueprintDevice: React.FC = () => {
 
           <button
             onClick={() => resetGitRepo()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#21262D] hover:bg-[#30363D] text-stone-300 text-xs font-mono transition-colors border border-[#30363D] cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2E333F] hover:bg-[#323846] text-stone-300 text-xs font-mono transition-colors border border-[#323846] cursor-pointer"
             title={t("git.resetRepo", "Reset repository to genesis commit")}
           >
             <RotateCcw size={13} />
@@ -222,8 +222,8 @@ export const GitBlueprintDevice: React.FC = () => {
       {/* ── Main 3-Column Studio Body ───────────────────────────────── */}
       <div className="flex-1 grid grid-cols-12 gap-0 overflow-hidden">
         {/* ── Left Column: Interactive UNIX Git Terminal (4 cols) ────── */}
-        <div className="col-span-4 flex flex-col bg-[#0D1117] border-r border-[#30363D] p-3 space-y-3 overflow-hidden">
-          <div className="flex items-center justify-between pb-2 border-b border-[#21262D]">
+        <div className="col-span-4 flex flex-col bg-[#252932] border-r border-[#323846] p-3 space-y-3 overflow-hidden">
+          <div className="flex items-center justify-between pb-2 border-b border-[#323846]">
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-stone-300">
               <Terminal size={14} className="text-purple-400" />
               <span>{t("git.terminalTitle", "Git CLI Terminal")}</span>
@@ -239,49 +239,49 @@ export const GitBlueprintDevice: React.FC = () => {
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => handlePresetCommand("git status")}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-purple-900/30 border border-[#30363D] hover:border-purple-500/50 text-[10px] font-mono text-stone-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-purple-900/30 border border-[#323846] hover:border-purple-500/50 text-[10px] font-mono text-stone-300 cursor-pointer transition-colors"
               >
                 status
               </button>
               <button
                 onClick={() => handlePresetCommand("git log")}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-purple-900/30 border border-[#30363D] hover:border-purple-500/50 text-[10px] font-mono text-stone-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-purple-900/30 border border-[#323846] hover:border-purple-500/50 text-[10px] font-mono text-stone-300 cursor-pointer transition-colors"
               >
                 log
               </button>
               <button
                 onClick={() => handlePresetCommand('git commit -m "feat: add sensor"')}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-emerald-900/30 border border-[#30363D] hover:border-emerald-500/50 text-[10px] font-mono text-emerald-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-emerald-900/30 border border-[#323846] hover:border-emerald-500/50 text-[10px] font-mono text-emerald-300 cursor-pointer transition-colors"
               >
                 commit
               </button>
               <button
                 onClick={() => handlePresetCommand("git checkout -b feature/ir")}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-cyan-900/30 border border-[#30363D] hover:border-cyan-500/50 text-[10px] font-mono text-cyan-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-cyan-900/30 border border-[#323846] hover:border-cyan-500/50 text-[10px] font-mono text-cyan-300 cursor-pointer transition-colors"
               >
                 branch -b
               </button>
               <button
                 onClick={() => handlePresetCommand("git checkout main")}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-blue-900/30 border border-[#30363D] hover:border-blue-500/50 text-[10px] font-mono text-blue-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-blue-900/30 border border-[#323846] hover:border-blue-500/50 text-[10px] font-mono text-blue-300 cursor-pointer transition-colors"
               >
                 checkout main
               </button>
               <button
                 onClick={() => handlePresetCommand("git merge feature/ir")}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-purple-900/30 border border-[#30363D] hover:border-purple-500/50 text-[10px] font-mono text-purple-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-purple-900/30 border border-[#323846] hover:border-purple-500/50 text-[10px] font-mono text-purple-300 cursor-pointer transition-colors"
               >
                 merge
               </button>
               <button
                 onClick={() => handlePresetCommand("git rebase main")}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-amber-900/30 border border-[#30363D] hover:border-amber-500/50 text-[10px] font-mono text-amber-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-amber-900/30 border border-[#323846] hover:border-amber-500/50 text-[10px] font-mono text-amber-300 cursor-pointer transition-colors"
               >
                 rebase
               </button>
               <button
                 onClick={() => handlePresetCommand("git reset HEAD~1")}
-                className="px-2 py-1 rounded bg-[#161B22] hover:bg-rose-900/30 border border-[#30363D] hover:border-rose-500/50 text-[10px] font-mono text-rose-300 cursor-pointer transition-colors"
+                className="px-2 py-1 rounded bg-[#2E333F] hover:bg-rose-900/30 border border-[#323846] hover:border-rose-500/50 text-[10px] font-mono text-rose-300 cursor-pointer transition-colors"
               >
                 reset ~1
               </button>
@@ -289,7 +289,7 @@ export const GitBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Terminal Console Viewport */}
-          <div className="flex-1 bg-[#090D13] border border-[#21262D] rounded-xl p-3 font-mono text-[11px] overflow-y-auto space-y-2">
+          <div className="flex-1 bg-[#1A1D24] border border-[#323846] rounded-xl p-3 font-mono text-[11px] overflow-y-auto space-y-2">
             {gitTerminalLogs.map((log, idx) => (
               <div key={idx} className="whitespace-pre-wrap leading-relaxed">
                 {log.startsWith(">") ? (
@@ -314,7 +314,7 @@ export const GitBlueprintDevice: React.FC = () => {
               value={gitCliInput}
               onChange={(e) => setGitCliInput(e.target.value)}
               placeholder='e.g. git commit -m "feat: sensor"'
-              className="flex-1 px-3 py-2 rounded-lg bg-[#161B22] border border-[#30363D] focus:border-purple-500 text-xs font-mono text-stone-100 placeholder-stone-500 outline-none transition-colors"
+              className="flex-1 px-3 py-2 rounded-lg bg-[#2E333F] border border-[#323846] focus:border-purple-500 text-xs font-mono text-stone-100 placeholder-stone-500 outline-none transition-colors"
             />
             <button
               type="submit"
@@ -326,8 +326,8 @@ export const GitBlueprintDevice: React.FC = () => {
         </div>
 
         {/* ── Center Column: SVG Interactive DAG Commit Graph (5 cols) ─ */}
-        <div className="col-span-5 flex flex-col bg-[#161B22] p-4 border-r border-[#30363D] overflow-hidden">
-          <div className="flex items-center justify-between pb-3 border-b border-[#30363D]/60">
+        <div className="col-span-5 flex flex-col bg-[#2E333F] p-4 border-r border-[#323846] overflow-hidden">
+          <div className="flex items-center justify-between pb-3 border-b border-[#323846]/60">
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-stone-300">
               <GitCommitIcon size={16} className="text-emerald-400" />
               <span>{t("git.dagGraphTitle", "DAG Commit Graph (Visual History)")}</span>
@@ -418,7 +418,7 @@ export const GitBlueprintDevice: React.FC = () => {
                       cx={x}
                       cy={y}
                       r="14"
-                      fill="#0D1117"
+                      fill="#252932"
                       stroke={
                         isHead
                           ? "#10B981"
@@ -509,7 +509,7 @@ export const GitBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Bottom Commit Info Strip */}
-          <div className="p-2.5 rounded-xl bg-[#0D1117] border border-[#30363D] flex items-center justify-between text-[11px] font-mono">
+          <div className="p-2.5 rounded-xl bg-[#252932] border border-[#323846] flex items-center justify-between text-[11px] font-mono">
             <div className="flex items-center gap-2 truncate">
               <span className="text-purple-400 font-bold">{activeCommit.id}:</span>
               <span className="text-stone-300 truncate">{activeCommit.message}</span>
@@ -521,9 +521,9 @@ export const GitBlueprintDevice: React.FC = () => {
         </div>
 
         {/* ── Right Column: File Inspector & Conflict Resolver (3 cols) ─ */}
-        <div className="col-span-3 flex flex-col bg-[#0D1117] p-3 space-y-3 overflow-hidden">
+        <div className="col-span-3 flex flex-col bg-[#252932] p-3 space-y-3 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2 border-b border-[#21262D]">
+          <div className="flex items-center justify-between pb-2 border-b border-[#323846]">
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-stone-300">
               <FileCode size={15} className="text-cyan-400" />
               <span>
@@ -579,7 +579,7 @@ export const GitBlueprintDevice: React.FC = () => {
               </div>
 
               {/* File Content Preview */}
-              <div className="flex-1 bg-[#090D13] border border-rose-800/40 rounded-xl p-2.5 font-mono text-[10px] text-stone-200 overflow-y-auto whitespace-pre leading-relaxed">
+              <div className="flex-1 bg-[#1A1D24] border border-rose-800/40 rounded-xl p-2.5 font-mono text-[10px] text-stone-200 overflow-y-auto whitespace-pre leading-relaxed">
                 {activeFileContent}
               </div>
             </div>
@@ -595,7 +595,7 @@ export const GitBlueprintDevice: React.FC = () => {
                     className={`px-2 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
                       selectedFile === file
                         ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
-                        : "bg-[#161B22] text-stone-400 hover:text-stone-200 border border-[#30363D]"
+                        : "bg-[#2E333F] text-stone-400 hover:text-stone-200 border border-[#323846]"
                     }`}
                   >
                     {file}
@@ -604,12 +604,12 @@ export const GitBlueprintDevice: React.FC = () => {
               </div>
 
               {/* Code Viewer */}
-              <div className="flex-1 bg-[#090D13] border border-[#21262D] rounded-xl p-3 font-mono text-[10px] text-stone-300 overflow-y-auto whitespace-pre leading-relaxed">
+              <div className="flex-1 bg-[#1A1D24] border border-[#323846] rounded-xl p-3 font-mono text-[10px] text-stone-300 overflow-y-auto whitespace-pre leading-relaxed">
                 {activeFileContent}
               </div>
 
               {/* Snapshot Metadata */}
-              <div className="p-2 rounded-lg bg-[#161B22] border border-[#21262D] text-[10px] font-mono text-stone-400 space-y-0.5">
+              <div className="p-2 rounded-lg bg-[#2E333F] border border-[#323846] text-[10px] font-mono text-stone-400 space-y-0.5">
                 <div>Author: {activeCommit?.author || "Engineer"}</div>
                 <div>Parents: {activeCommit?.parents.join(", ") || "none (root)"}</div>
               </div>

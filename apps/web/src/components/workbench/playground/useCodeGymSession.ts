@@ -117,7 +117,7 @@ export function useCodeGymSession<
 >({
   currentTask,
   initialLang,
-  starsEarned = 0,
+  starsEarned: _starsEarned = 0,
   stationId,
   onRoundComplete,
 }: UseCodeGymSessionOptions<TTask, TLang>) {
@@ -127,11 +127,8 @@ export function useCodeGymSession<
     return stationId ? getStationCheckpoint(stationId) : null;
   }, [stationId]);
 
+  // Practice is always unlocked (Action-First): theory never blocks the editor.
   const [isTheoryUnlocked, setIsTheoryUnlocked] = useState<boolean>(true);
-
-  useEffect(() => {
-    setIsTheoryUnlocked(true);
-  }, [currentTask.id, starsEarned]);
 
   const unlockPractice = useCallback(() => {
     setIsTheoryUnlocked(true);
@@ -237,6 +234,7 @@ export function useCodeGymSession<
 
   // Reset or setup editor when round, language, or task changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional state reset on prop/round change
     setRoundCompleted(false);
     setFeedback(null);
     setHasError(false);

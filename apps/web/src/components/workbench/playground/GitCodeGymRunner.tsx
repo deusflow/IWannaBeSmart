@@ -177,6 +177,7 @@ export const GitCodeGymRunner: React.FC = () => {
   // Auto-switch task if requested from profile analytics
   useEffect(() => {
     if (targetTaskId && GIT_TASKS.some((t) => t.id === targetTaskId)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs one-shot navigation request from the external store
       handleSelectTask(targetTaskId);
       setTargetTaskId(null);
     }

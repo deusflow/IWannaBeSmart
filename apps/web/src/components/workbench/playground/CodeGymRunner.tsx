@@ -197,6 +197,7 @@ export const CodeGymRunner: React.FC = () => {
     if (targetTaskId) {
       const exists = FINTECH_TASKS.some((t) => t.id === targetTaskId);
       if (exists) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs one-shot navigation request from the external store
         handleSelectTask(targetTaskId);
         setTargetTaskId(null);
       }

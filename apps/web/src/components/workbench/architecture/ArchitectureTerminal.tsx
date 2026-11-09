@@ -139,7 +139,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
       <div
         onClick={toggle}
         title={t("architecture.expandJournal", "Розгорнути журнал")}
-        className="absolute bottom-0 left-0 right-0 z-30 h-8 flex items-center justify-between px-4 cursor-pointer select-none transition-colors group bg-[#151617]/95 hover:bg-[#1A1C20] border-t border-[#2A2B2F] hover:border-emerald-500/40 backdrop-blur-xs"
+        className="absolute bottom-0 left-0 right-0 z-30 h-8 flex items-center justify-between px-4 cursor-pointer select-none transition-colors group bg-[#1A1D24]/95 hover:bg-[#252932] border-t border-[#323846] hover:border-[#C5A059]/40 backdrop-blur-xs"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-1.5 shrink-0">
@@ -172,7 +172,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
               e.stopPropagation();
               setIsExpanded(true);
             }}
-            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#252830] group-hover:bg-emerald-600/20 text-gray-300 group-hover:text-emerald-300 border border-white/[0.08] group-hover:border-emerald-500/40 text-[10px] font-mono font-semibold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#2E333F] group-hover:bg-emerald-600/20 text-gray-300 group-hover:text-emerald-300 border border-white/[0.08] group-hover:border-[#C5A059]/40 text-[10px] font-mono font-semibold transition-all cursor-pointer"
           >
             <Terminal size={11} className="text-emerald-400" />
             <span>{t("architecture.expandJournal", "Розгорнути журнал")}</span>
@@ -190,15 +190,15 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
       style={{
         maxHeight: "44%",
         minHeight: "160px",
-        background: "#101113",
-        borderTop: "1px solid #282A30",
+        background: "#1A1D24",
+        borderTop: "1px solid #2E333F",
         boxShadow: "0 -6px 28px rgba(0,0,0,0.6)",
       }}
     >
       {/* Header */}
       <div
         className="flex items-center justify-between px-3 py-1.5 shrink-0 border-b flex-wrap gap-2"
-        style={{ borderColor: "#202226" }}
+        style={{ borderColor: "#323846" }}
       >
         {/* Tabs & Subsystem Filter */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -209,12 +209,12 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center rounded border border-[#303035] overflow-hidden">
+          <div className="flex items-center rounded border border-[#323846] overflow-hidden">
             {(["log", "theory", "code"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-2 py-0.5 text-[9.5px] font-mono font-bold transition-colors cursor-pointer border-r border-[#303035] last:border-r-0 ${
+                className={`px-2 py-0.5 text-[9.5px] font-mono font-bold transition-colors cursor-pointer border-r border-[#323846] last:border-r-0 ${
                   activeTab === tab
                     ? tab === "log"
                       ? "bg-emerald-500/15 text-emerald-300"
@@ -243,7 +243,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
 
           {/* Subsystem Filters (Log Tab) */}
           {activeTab === "log" && (
-            <div className="hidden sm:flex items-center gap-1 bg-[#16181B] p-0.5 rounded border border-[#2B2D33] text-[8.5px] font-mono">
+            <div className="hidden sm:flex items-center gap-1 bg-[#1A1D24] p-0.5 rounded border border-[#323846] text-[8.5px] font-mono">
               <span className="text-gray-500 px-1 flex items-center gap-0.5">
                 <Filter size={9} />
               </span>
@@ -267,12 +267,12 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
         {/* Right actions */}
         <div className="flex items-center gap-1">
           {activeTab === "code" && (
-            <div className="flex items-center rounded border border-[#303035] overflow-hidden mr-2">
+            <div className="flex items-center rounded border border-[#323846] overflow-hidden mr-2">
               {(["csharp", "go"] as const).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setCodeLang(lang)}
-                  className={`px-2 py-0.5 text-[9px] font-mono font-bold cursor-pointer transition-colors border-r border-[#303035] last:border-r-0 ${
+                  className={`px-2 py-0.5 text-[9px] font-mono font-bold cursor-pointer transition-colors border-r border-[#323846] last:border-r-0 ${
                     codeLang === lang
                       ? lang === "csharp"
                         ? "bg-purple-500/15 text-purple-300"
@@ -288,14 +288,14 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
           <button
             onClick={onClearLogs}
             title={t("architecture.clearLog")}
-            className="p-1 rounded hover:bg-[#252628] text-gray-500 hover:text-gray-300 cursor-pointer transition-colors"
+            className="p-1 rounded hover:bg-[#2E333F] text-gray-500 hover:text-gray-300 cursor-pointer transition-colors"
           >
             <Trash2 size={11} />
           </button>
           <button
             onClick={toggle}
             title={t("architecture.collapseJournal", "Згорнути журнал")}
-            className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#222428] hover:bg-[#2B2D33] text-gray-400 hover:text-gray-200 border border-white/[0.06] text-[9.5px] font-mono cursor-pointer transition-colors"
+            className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#2E333F] hover:bg-[#2E333F] text-gray-400 hover:text-gray-200 border border-white/[0.06] text-[9.5px] font-mono cursor-pointer transition-colors"
           >
             <ChevronDown size={12} />
             <span>{t("architecture.collapseJournal", "Згорнути журнал")}</span>
@@ -434,7 +434,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
                 </p>
                 <pre
                   className="text-[8.5px] font-mono text-emerald-300 px-2 py-1.5 rounded overflow-x-auto whitespace-pre-wrap"
-                  style={{ background: "#0B0C0D", border: "1px solid #252628" }}
+                  style={{ background: "#1A1D24", border: "1px solid #2E333F" }}
                 >
                   {step.code}
                 </pre>
@@ -454,7 +454,7 @@ export const ArchitectureTerminal: React.FC<ArchitectureTerminalProps> = ({
             </div>
             <pre
               className="text-[9.5px] font-mono text-gray-300 px-3 py-2.5 rounded-lg overflow-x-auto whitespace-pre-wrap leading-relaxed min-h-[80px]"
-              style={{ background: "#0B0C0D", border: "1px solid #252628" }}
+              style={{ background: "#1A1D24", border: "1px solid #2E333F" }}
             >
               {codePreview
                 ? codeLang === "csharp"

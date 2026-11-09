@@ -143,7 +143,7 @@ export const BanditBlueprintDevice: React.FC = () => {
       : 1;
 
   return (
-    <div className="w-full bg-[#070B12] rounded-xl border border-emerald-950/60 p-4 shadow-2xl space-y-4 font-mono select-none">
+    <div className="w-full bg-[#1A1D24] rounded-xl border border-emerald-950/60 p-4 shadow-2xl space-y-4 font-mono select-none">
       {/* ── Top Header Toolbar ───────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-900/40 pb-3">
         <div className="flex items-center gap-3">
@@ -166,7 +166,7 @@ export const BanditBlueprintDevice: React.FC = () => {
         </div>
 
         {/* Level Selector Bar */}
-        <div className="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-lg border border-slate-800">
+        <div className="flex items-center gap-1.5 bg-[#252932]/80 p-1 rounded-lg border border-[#323846]">
           <span className="text-[11px] text-slate-400 px-2 font-bold flex items-center gap-1">
             <Flag className="w-3.5 h-3.5 text-emerald-400" />
             LEVELS:
@@ -183,7 +183,7 @@ export const BanditBlueprintDevice: React.FC = () => {
                     ? "bg-emerald-600 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]"
                     : isCaptured
                     ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 hover:bg-emerald-900/40"
-                    : "bg-slate-800/80 text-slate-400 hover:text-slate-200"
+                    : "bg-[#2E333F]/80 text-slate-400 hover:text-slate-200"
                 }`}
               >
                 <span>L{lvl}</span>
@@ -201,7 +201,7 @@ export const BanditBlueprintDevice: React.FC = () => {
               value={directFlagInput}
               onChange={(e) => setDirectFlagInput(e.target.value)}
               placeholder="bandit{...}"
-              className="bg-slate-950 border border-emerald-900/60 rounded-md px-2.5 py-1 text-xs text-emerald-400 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 w-44 font-mono"
+              className="bg-[#1A1D24] border border-emerald-900/60 rounded-md px-2.5 py-1 text-xs text-emerald-400 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 w-44 font-mono"
             />
           </div>
           <button
@@ -235,7 +235,7 @@ export const BanditBlueprintDevice: React.FC = () => {
       {/* ── 3-Panel Main Layout ───────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* ── LEFT CHASSIS: Virtual UNIX Terminal (4 cols) ──────────── */}
-        <div className="lg:col-span-4 bg-slate-950/90 rounded-lg border border-emerald-900/40 p-3 flex flex-col h-[560px] shadow-inner">
+        <div className="lg:col-span-4 bg-[#1A1D24]/90 rounded-lg border border-emerald-900/40 p-3 flex flex-col h-[560px] shadow-inner">
           <div className="flex items-center justify-between border-b border-emerald-950 pb-2 mb-2">
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
               <Terminal className="w-4 h-4" />
@@ -261,7 +261,7 @@ export const BanditBlueprintDevice: React.FC = () => {
                   setBanditCliInput(cmd);
                   runBanditCommand(cmd);
                 }}
-                className="px-2 py-0.5 bg-slate-900 hover:bg-emerald-950/80 border border-slate-800 hover:border-emerald-700/60 text-[11px] text-emerald-300/80 rounded transition-colors"
+                className="px-2 py-0.5 bg-[#252932] hover:bg-emerald-950/80 border border-[#323846] hover:border-emerald-700/60 text-[11px] text-emerald-300/80 rounded transition-colors"
               >
                 {cmd}
               </button>
@@ -269,7 +269,7 @@ export const BanditBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Terminal Console Output Screen */}
-          <div className="flex-1 bg-[#05080E] rounded p-2.5 overflow-y-auto font-mono text-[11px] text-emerald-400/90 space-y-1 border border-emerald-950 shadow-inner">
+          <div className="flex-1 bg-[#1A1D24] rounded p-2.5 overflow-y-auto font-mono text-[11px] text-emerald-400/90 space-y-1 border border-emerald-950 shadow-inner">
             {banditState.cliOutput.map((line, idx) => (
               <div
                 key={idx}
@@ -297,7 +297,7 @@ export const BanditBlueprintDevice: React.FC = () => {
               value={banditCliInput}
               onChange={(e) => setBanditCliInput(e.target.value)}
               placeholder="type command (e.g. ls -la, cat ...)"
-              className="flex-1 bg-slate-900/90 border border-emerald-950 rounded px-2 py-1 text-xs text-emerald-300 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 font-mono"
+              className="flex-1 bg-[#252932]/90 border border-emerald-950 rounded px-2 py-1 text-xs text-emerald-300 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 font-mono"
             />
             <button
               type="submit"
@@ -309,7 +309,7 @@ export const BanditBlueprintDevice: React.FC = () => {
         </div>
 
         {/* ── CENTER CHASSIS: Wire Tap & Packet Tampering (4 cols) ───── */}
-        <div className="lg:col-span-4 bg-slate-950/90 rounded-lg border border-cyan-900/40 p-3 flex flex-col h-[560px] shadow-inner space-y-3">
+        <div className="lg:col-span-4 bg-[#1A1D24]/90 rounded-lg border border-cyan-900/40 p-3 flex flex-col h-[560px] shadow-inner space-y-3">
           <div className="flex items-center justify-between border-b border-cyan-950 pb-2">
             <div className="flex items-center gap-2 text-xs font-bold text-cyan-400">
               <Radio className="w-4 h-4 text-cyan-400" />
@@ -322,7 +322,7 @@ export const BanditBlueprintDevice: React.FC = () => {
 
           {/* Transit Packet Card */}
           {banditState.transitPacket && (
-            <div className="bg-slate-900/70 border border-slate-800 rounded-md p-2.5 text-xs space-y-1.5">
+            <div className="bg-[#252932]/70 border border-[#323846] rounded-md p-2.5 text-xs space-y-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-cyan-600 text-slate-950">
@@ -353,19 +353,19 @@ export const BanditBlueprintDevice: React.FC = () => {
             <div className="grid grid-cols-3 gap-1">
               <button
                 onClick={() => handleTamperPreset("price")}
-                className="px-2 py-1 bg-slate-900 hover:bg-cyan-950/80 border border-slate-800 text-[10px] text-cyan-300 rounded text-center transition-colors"
+                className="px-2 py-1 bg-[#252932] hover:bg-cyan-950/80 border border-[#323846] text-[10px] text-cyan-300 rounded text-center transition-colors"
               >
                 Price -&gt; $1
               </button>
               <button
                 onClick={() => handleTamperPreset("role")}
-                className="px-2 py-1 bg-slate-900 hover:bg-cyan-950/80 border border-slate-800 text-[10px] text-cyan-300 rounded text-center transition-colors"
+                className="px-2 py-1 bg-[#252932] hover:bg-cyan-950/80 border border-[#323846] text-[10px] text-cyan-300 rounded text-center transition-colors"
               >
                 Role -&gt; Admin
               </button>
               <button
                 onClick={() => handleTamperPreset("admin")}
-                className="px-2 py-1 bg-slate-900 hover:bg-cyan-950/80 border border-slate-800 text-[10px] text-cyan-300 rounded text-center transition-colors"
+                className="px-2 py-1 bg-[#252932] hover:bg-cyan-950/80 border border-[#323846] text-[10px] text-cyan-300 rounded text-center transition-colors"
               >
                 Root Hijack
               </button>
@@ -385,7 +385,7 @@ export const BanditBlueprintDevice: React.FC = () => {
             <textarea
               value={banditState.tamperBuffer}
               onChange={(e) => setTamperJson(e.target.value)}
-              className="flex-1 bg-[#05080E] border border-cyan-950 rounded p-2 text-xs font-mono text-cyan-300 resize-none focus:outline-none focus:border-cyan-500 shadow-inner"
+              className="flex-1 bg-[#1A1D24] border border-cyan-950 rounded p-2 text-xs font-mono text-cyan-300 resize-none focus:outline-none focus:border-cyan-500 shadow-inner"
             />
           </div>
 
@@ -408,7 +408,7 @@ export const BanditBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Quick Base64 Tool */}
-          <div className="border-t border-slate-800/80 pt-2 space-y-1">
+          <div className="border-t border-[#323846]/80 pt-2 space-y-1">
             <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
               <Binary className="w-3 h-3 text-cyan-400" />
               INSTANT BASE64 DECODER:
@@ -419,17 +419,17 @@ export const BanditBlueprintDevice: React.FC = () => {
                 value={decoderInput}
                 onChange={(e) => setDecoderInput(e.target.value)}
                 placeholder="Paste base64 string..."
-                className="flex-1 bg-slate-900 border border-slate-800 rounded px-2 py-0.5 text-[10px] text-slate-300 focus:outline-none"
+                className="flex-1 bg-[#252932] border border-[#323846] rounded px-2 py-0.5 text-[10px] text-slate-300 focus:outline-none"
               />
             </div>
-            <div className="bg-[#05080E] border border-slate-900 rounded p-1 text-[10px] text-emerald-400 font-mono truncate">
+            <div className="bg-[#1A1D24] border border-[#1A1D24] rounded p-1 text-[10px] text-emerald-400 font-mono truncate">
               -&gt; {decoderResult}
             </div>
           </div>
         </div>
 
         {/* ── RIGHT CHASSIS: Blue Team SOC & Defense Inspector (4 cols) ─ */}
-        <div className="lg:col-span-4 bg-slate-950/90 rounded-lg border border-purple-900/40 p-3 flex flex-col h-[560px] shadow-inner space-y-3">
+        <div className="lg:col-span-4 bg-[#1A1D24]/90 rounded-lg border border-purple-900/40 p-3 flex flex-col h-[560px] shadow-inner space-y-3">
           <div className="flex items-center justify-between border-b border-purple-950 pb-2">
             <div className="flex items-center gap-2 text-xs font-bold text-purple-400">
               <Shield className="w-4 h-4 text-purple-400" />
@@ -449,7 +449,7 @@ export const BanditBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Defense Shield Toggle Switches */}
-          <div className="space-y-1.5 bg-slate-900/60 p-2 rounded-md border border-slate-800">
+          <div className="space-y-1.5 bg-[#252932]/60 p-2 rounded-md border border-[#323846]">
             {[
               {
                 key: "tlsEnabled" as keyof DefenseStatus,
@@ -480,7 +480,7 @@ export const BanditBlueprintDevice: React.FC = () => {
                   className={`w-full px-2.5 py-1.5 rounded text-xs flex items-center justify-between transition-colors border ${
                     active
                       ? "bg-emerald-950/40 border-emerald-700/60 text-emerald-300"
-                      : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                      : "bg-[#252932] border-[#323846] text-slate-400 hover:text-slate-200"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -489,7 +489,7 @@ export const BanditBlueprintDevice: React.FC = () => {
                   </div>
                   <span
                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                      active ? "bg-emerald-800 text-white" : "bg-slate-800 text-slate-500"
+                      active ? "bg-emerald-800 text-white" : "bg-[#2E333F] text-slate-500"
                     }`}
                   >
                     {active ? "ACTIVE" : "DISABLED"}
@@ -500,7 +500,7 @@ export const BanditBlueprintDevice: React.FC = () => {
           </div>
 
           {/* SQL Injection Sandbox Tester */}
-          <div className="bg-slate-900/70 border border-slate-800 rounded p-2 space-y-1.5">
+          <div className="bg-[#252932]/70 border border-[#323846] rounded p-2 space-y-1.5">
             <span className="text-[10px] text-purple-400 font-bold flex items-center gap-1">
               <Database className="w-3 h-3" />
               SQL INJECTION SIMULATOR:
@@ -511,7 +511,7 @@ export const BanditBlueprintDevice: React.FC = () => {
                 value={sqlQueryInput}
                 onChange={(e) => setSqlQueryInput(e.target.value)}
                 placeholder="' OR 1=1 --"
-                className="flex-1 bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-xs text-purple-300 focus:outline-none"
+                className="flex-1 bg-[#1A1D24] border border-[#323846] rounded px-2 py-0.5 text-xs text-purple-300 focus:outline-none"
               />
               <button
                 onClick={() => runSqlQueryAction(sqlQueryInput)}
@@ -534,7 +534,7 @@ export const BanditBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Rate Limiting Brute Force Sandbox */}
-          <div className="bg-slate-900/70 border border-slate-800 rounded p-2 space-y-1.5">
+          <div className="bg-[#252932]/70 border border-[#323846] rounded p-2 space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-cyan-400 font-bold flex items-center gap-1">
                 <Sliders className="w-3 h-3" />
@@ -547,7 +547,7 @@ export const BanditBlueprintDevice: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => simulateRateLimitAction()}
-                className="flex-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded transition-colors"
+                className="flex-1 px-2 py-1 bg-[#2E333F] hover:bg-[#323846] text-slate-200 text-xs rounded transition-colors"
               >
                 Send 1 Request
               </button>
@@ -574,7 +574,7 @@ export const BanditBlueprintDevice: React.FC = () => {
           {/* Live Security Log Stream */}
           <div className="flex-1 flex flex-col min-h-0 space-y-1">
             <span className="text-[10px] text-slate-400 font-bold">LIVE SOC EVENT STREAM:</span>
-            <div className="flex-1 bg-[#05080E] border border-purple-950 rounded p-2 overflow-y-auto space-y-1 text-[10px] font-mono shadow-inner">
+            <div className="flex-1 bg-[#1A1D24] border border-purple-950 rounded p-2 overflow-y-auto space-y-1 text-[10px] font-mono shadow-inner">
               {banditState.securityLogs.map((log) => (
                 <div
                   key={log.id}

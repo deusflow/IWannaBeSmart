@@ -74,9 +74,9 @@ export const RagAgentBlueprintDevice: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col bg-slate-950/95 border border-cyan-500/30 rounded-2xl p-5 shadow-2xl backdrop-blur-xl text-slate-100 overflow-hidden font-sans">
+    <div className="flex flex-col bg-[#1A1D24]/95 border border-cyan-500/30 rounded-2xl p-5 shadow-2xl backdrop-blur-xl text-slate-100 overflow-hidden font-sans">
       {/* ── Top Header & Telemetry Bar ── */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#323846]/80">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 via-blue-500/20 to-purple-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
             <Cpu size={22} className="animate-pulse" />
@@ -99,12 +99,12 @@ export const RagAgentBlueprintDevice: React.FC = () => {
 
         {/* Global Stats */}
         <div className="flex items-center gap-4 text-xs font-mono">
-          <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
+          <div className="bg-[#252932]/80 px-3 py-1.5 rounded-lg border border-[#323846] flex items-center gap-2">
             <Layers size={14} className="text-cyan-400" />
             <span className="text-slate-400">{t("rag.blueprint.chunksLabel", "Чанків:")}</span>
             <span className="font-bold text-white">{ragActiveChunks.length}</span>
           </div>
-          <div className="bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
+          <div className="bg-[#252932]/80 px-3 py-1.5 rounded-lg border border-[#323846] flex items-center gap-2">
             <Sparkles size={14} className="text-purple-400" />
             <span className="text-slate-400">{t("rag.blueprint.vectorsLabel", "Векторів:")}</span>
             <span className="font-bold text-white">{ragActiveChunks.length} (R⁸)</span>
@@ -113,13 +113,13 @@ export const RagAgentBlueprintDevice: React.FC = () => {
       </div>
 
       {/* ── Navigation Tabs ── */}
-      <div className="flex items-center gap-2 mt-4 pb-3 border-b border-slate-800/60">
+      <div className="flex items-center gap-2 mt-4 pb-3 border-b border-[#323846]/60">
         <button
           onClick={() => setRagActiveTabAction("chunking")}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all ${
             ragActiveTab === "chunking"
               ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent"
+              : "text-slate-400 hover:text-slate-200 hover:bg-[#252932] border border-transparent"
           }`}
         >
           <Sliders size={14} />
@@ -130,7 +130,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all ${
             ragActiveTab === "react"
               ? "bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent"
+              : "text-slate-400 hover:text-slate-200 hover:bg-[#252932] border border-transparent"
           }`}
         >
           <Workflow size={14} />
@@ -141,7 +141,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all ${
             ragActiveTab === "ragas"
               ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent"
+              : "text-slate-400 hover:text-slate-200 hover:bg-[#252932] border border-transparent"
           }`}
         >
           <Target size={14} />
@@ -161,7 +161,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
       {ragActiveTab === "chunking" && (
         <div className="flex flex-col gap-4 mt-4">
           {/* Sliders Control Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#252932]/60 p-4 rounded-xl border border-[#323846]">
             <div>
               <div className="flex justify-between text-xs font-mono mb-1.5">
                 <span className="text-slate-300">{t("rag.blueprint.chunkSizeLabel", "Розмір чанка (Chunk Size):")}</span>
@@ -174,7 +174,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                 step="32"
                 value={ragChunkSize}
                 onChange={(e) => setRagChunkConfig(Number(e.target.value), ragChunkOverlap)}
-                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-[#2E333F] rounded-lg"
               />
             </div>
             <div>
@@ -189,7 +189,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                 step="16"
                 value={ragChunkOverlap}
                 onChange={(e) => setRagChunkConfig(ragChunkSize, Number(e.target.value))}
-                className="w-full accent-purple-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                className="w-full accent-purple-400 cursor-pointer h-1.5 bg-[#2E333F] rounded-lg"
               />
             </div>
           </div>
@@ -205,7 +205,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                   onChange={(e) => setRagQueryInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && executeRagQueryAction(ragQueryInput)}
                   placeholder={t("rag.blueprint.queryPlaceholder", "Введіть запит для гібридного векторного пошуку...")}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+                  className="w-full bg-[#252932] border border-[#323846] rounded-xl pl-9 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
                 />
               </div>
               <button
@@ -227,7 +227,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                     setRagQueryInput(q);
                     executeRagQueryAction(q);
                   }}
-                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-cyan-300 border border-slate-800 transition-colors"
+                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#252932] hover:bg-[#2E333F] text-slate-400 hover:text-cyan-300 border border-[#323846] transition-colors"
                 >
                   {q.slice(0, 32)}...
                 </button>
@@ -238,7 +238,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           {/* Visual 2D Vector & Chunks Display */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Left: Live Chunks Inspector */}
-            <div className="flex flex-col bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 h-[280px] overflow-y-auto">
+            <div className="flex flex-col bg-[#252932]/60 p-3.5 rounded-xl border border-[#323846] h-[280px] overflow-y-auto">
               <div className="text-xs font-bold text-slate-300 flex items-center justify-between mb-2">
                 <span>{t("rag.blueprint.chunksInspectorTitle", "Зрізи Документів (Chunks Slices)")}</span>
                 <span className="text-[10px] font-mono text-cyan-400 font-normal">{t("rag.blueprint.windowSize", { size: ragChunkSize })}</span>
@@ -247,7 +247,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                 {ragActiveChunks.slice(0, 5).map((chunk) => (
                   <div
                     key={chunk.id}
-                    className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 text-xs font-mono relative group hover:border-cyan-500/50 transition-colors"
+                    className="p-2.5 rounded-lg bg-[#1A1D24]/70 border border-[#323846] text-xs font-mono relative group hover:border-cyan-500/50 transition-colors"
                   >
                     <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
                       <span className="text-cyan-400 font-bold">[{chunk.id}]</span>
@@ -262,7 +262,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
             </div>
 
             {/* Right: Hybrid Search (RRF) Ranked Results */}
-            <div className="flex flex-col bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 h-[280px] overflow-y-auto">
+            <div className="flex flex-col bg-[#252932]/60 p-3.5 rounded-xl border border-[#323846] h-[280px] overflow-y-auto">
               <div className="text-xs font-bold text-slate-300 flex items-center justify-between mb-2">
                 <span>{t("rag.blueprint.searchResultsTitle", "Результати Пошуку (Dense + BM25 RRF)")}</span>
                 <span className="text-[10px] font-mono text-purple-400 font-normal">RRF k=60</span>
@@ -277,7 +277,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                   {ragSearchResults.map((res, i) => (
                     <div
                       key={res.id}
-                      className="p-2.5 rounded-lg bg-slate-950/90 border border-cyan-900/50 text-xs font-mono hover:border-cyan-500 transition-colors"
+                      className="p-2.5 rounded-lg bg-[#1A1D24]/90 border border-cyan-900/50 text-xs font-mono hover:border-cyan-500 transition-colors"
                     >
                       <div className="flex items-center justify-between text-[10px] mb-1">
                         <span className="text-emerald-400 font-bold"># {i + 1} • {res.id}</span>
@@ -304,7 +304,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
       {/* ── TAB 2: ReAct StateGraph Canvas ── */}
       {ragActiveTab === "react" && (
         <div className="flex flex-col gap-4 mt-4">
-          <div className="flex items-center justify-between bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div className="flex items-center justify-between bg-[#252932]/60 p-3 rounded-xl border border-[#323846]">
             <div className="text-xs text-slate-300">
               <span className="font-bold text-purple-400">ReAct Loop: </span>
               Reasoning (Thought) $\rightarrow$ Tool Invocation (Action) $\rightarrow$ Tool Output (Observation) $\rightarrow$ Synthesis.
@@ -320,7 +320,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
               </button>
               <button
                 onClick={resetReActAgentAction}
-                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1"
+                className="px-2.5 py-1.5 bg-[#2E333F] hover:bg-[#323846] text-slate-300 rounded-lg text-xs flex items-center gap-1"
               >
                 <RotateCcw size={13} />
                 {t("rag.blueprint.resetBtn", "Скинути")}
@@ -329,7 +329,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Stepper Timeline Graph */}
-          <div className="flex flex-col bg-slate-900/60 p-4 rounded-xl border border-slate-800 min-h-[300px] overflow-y-auto space-y-3">
+          <div className="flex flex-col bg-[#252932]/60 p-4 rounded-xl border border-[#323846] min-h-[300px] overflow-y-auto space-y-3">
             {reActSteps.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs font-mono text-center py-12">
                 <Workflow size={28} className="mb-2 opacity-40 text-purple-400" />
@@ -351,7 +351,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
                 return (
                   <div
                     key={step.stepIndex}
-                    className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col gap-1.5 font-mono text-xs animate-fadeIn"
+                    className="p-3 rounded-xl bg-[#1A1D24]/80 border border-[#323846] flex flex-col gap-1.5 font-mono text-xs animate-fadeIn"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -393,13 +393,13 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           {/* Gauges Panel */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Faithfulness */}
-            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center text-center">
+            <div className="bg-[#252932]/60 p-4 rounded-xl border border-[#323846] flex flex-col items-center text-center">
               <div className="text-xs font-bold text-slate-300 mb-1">{t("rag.blueprint.faithfulnessLabel", "Faithfulness (Вірність Джерелам)")}</div>
               <div className="text-[10px] text-slate-500 mb-3">{t("rag.blueprint.faithfulnessDesc", "Захист від галюцинацій моделі")}</div>
               <div className="text-2xl font-bold font-mono text-emerald-400">
                 {ragasEvaluation ? `${Math.round(ragasEvaluation.faithfulnessScore * 100)}%` : "—"}
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
+              <div className="w-full bg-[#2E333F] h-2 rounded-full overflow-hidden mt-2">
                 <div
                   className="bg-emerald-500 h-full transition-all duration-500"
                   style={{ width: `${(ragasEvaluation?.faithfulnessScore || 0) * 100}%` }}
@@ -408,13 +408,13 @@ export const RagAgentBlueprintDevice: React.FC = () => {
             </div>
 
             {/* Answer Relevance */}
-            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center text-center">
+            <div className="bg-[#252932]/60 p-4 rounded-xl border border-[#323846] flex flex-col items-center text-center">
               <div className="text-xs font-bold text-slate-300 mb-1">{t("rag.blueprint.answerRelevanceLabel", "Answer Relevance (Релевантність)")}</div>
               <div className="text-[10px] text-slate-500 mb-3">{t("rag.blueprint.answerRelevanceDesc", "Відповідність наміру користувача")}</div>
               <div className="text-2xl font-bold font-mono text-cyan-400">
                 {ragasEvaluation ? `${Math.round(ragasEvaluation.answerRelevanceScore * 100)}%` : "—"}
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
+              <div className="w-full bg-[#2E333F] h-2 rounded-full overflow-hidden mt-2">
                 <div
                   className="bg-cyan-500 h-full transition-all duration-500"
                   style={{ width: `${(ragasEvaluation?.answerRelevanceScore || 0) * 100}%` }}
@@ -423,13 +423,13 @@ export const RagAgentBlueprintDevice: React.FC = () => {
             </div>
 
             {/* Context Precision */}
-            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center text-center">
+            <div className="bg-[#252932]/60 p-4 rounded-xl border border-[#323846] flex flex-col items-center text-center">
               <div className="text-xs font-bold text-slate-300 mb-1">{t("rag.blueprint.contextPrecisionLabel", "Context Precision (Точність Вибірки)")}</div>
               <div className="text-[10px] text-slate-500 mb-3">{t("rag.blueprint.contextPrecisionDesc", "Співвідношення корисного сигналу до шуму")}</div>
               <div className="text-2xl font-bold font-mono text-purple-400">
                 {ragasEvaluation ? `${Math.round(ragasEvaluation.contextPrecisionScore * 100)}%` : "—"}
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-2">
+              <div className="w-full bg-[#2E333F] h-2 rounded-full overflow-hidden mt-2">
                 <div
                   className="bg-purple-500 h-full transition-all duration-500"
                   style={{ width: `${(ragasEvaluation?.contextPrecisionScore || 0) * 100}%` }}
@@ -439,7 +439,7 @@ export const RagAgentBlueprintDevice: React.FC = () => {
           </div>
 
           {/* Hallucination Sentinel Status */}
-          <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#252932]/80 border border-[#323846] flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-3 h-3 rounded-full ${ragasEvaluation?.isHallucinationDetected ? "bg-red-400 animate-ping" : "bg-emerald-400"}`} />
               <div>

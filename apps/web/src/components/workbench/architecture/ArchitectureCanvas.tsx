@@ -326,7 +326,7 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
   return (
     <div
       className="flex flex-col w-full h-full overflow-hidden"
-      style={{ background: "#1E1E22" }}
+      style={{ background: "#252932" }}
     >
       <MissionBar
         canvasMode={canvasMode}
@@ -376,13 +376,13 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
 
         <div
           className="flex-1 relative min-w-0 flex flex-col h-full"
-          style={{ background: "#1E1E22" }}
+          style={{ background: "#252932" }}
           onDragOver={onDragOver}
           onDrop={onDrop}
         >
           <div className="flex-1 relative min-h-0 w-full h-full">
             {(isTracing || currentTraceStep > 0) && (
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-[#141518]/95 border border-amber-500/40 rounded-full px-3 py-1 shadow-2xl backdrop-blur-md flex items-center gap-2 select-none pointer-events-none animate-fadeIn max-w-[95%] overflow-x-auto">
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-[#1A1D24]/95 border border-amber-500/40 rounded-full px-3 py-1 shadow-2xl backdrop-blur-md flex items-center gap-2 select-none pointer-events-none animate-fadeIn max-w-[95%] overflow-x-auto">
                 <div className="flex items-center gap-1.5 pr-2 border-r border-white/10 shrink-0">
                   <Zap size={11} className="text-amber-400 animate-spin" />
                   <span className="font-mono text-[9px] font-bold text-amber-300">
@@ -429,18 +429,18 @@ const InnerArchitectureCanvas: React.FC<ArchitectureCanvasProps> = ({ onBackToTv
               maxZoom={2}
               connectionLineStyle={{ stroke: "#FBBF24", strokeWidth: 2 }}
               proOptions={{ hideAttribution: true }}
-              style={{ background: "#1E1E22" }}
+              style={{ background: "#252932" }}
               onPaneClick={cancelPendingConnection}
             >
               <Background
                 variant={BackgroundVariant.Dots}
-                color="#3E3F47"
+                color="#323846"
                 gap={22}
                 size={1.2}
               />
               <Controls
                 showInteractive={false}
-                className="!bg-[#26272C] !border-[#3A3B42] !rounded-xl !shadow-lg [&>button]:!bg-[#26272C] [&>button]:!border-[#3A3B42] [&>button]:!text-gray-500 hover:[&>button]:!text-gray-100 [&>button]:!fill-gray-500 hover:[&>button]:!fill-gray-100"
+                className="!bg-[#2E333F] !border-[#323846] !rounded-xl !shadow-lg [&>button]:!bg-[#2E333F] [&>button]:!border-[#323846] [&>button]:!text-gray-500 hover:[&>button]:!text-gray-100 [&>button]:!fill-gray-500 hover:[&>button]:!fill-gray-100"
               />
             </ReactFlow>
 

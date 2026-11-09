@@ -104,12 +104,12 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
     return (
       <div
         className="w-10 flex flex-col items-center py-3 select-none shrink-0 h-full border-r transition-all"
-        style={{ background: "#1A1B1D", borderColor: "#2A2B2F" }}
+        style={{ background: "#252932", borderColor: "#323846" }}
       >
         <button
           onClick={() => setIsCollapsed(false)}
           title={t("architecture.projectTree", "Дерево проєкту")}
-          className="p-1.5 rounded-lg hover:bg-[#2A2B2F] text-gray-400 hover:text-gray-200 cursor-pointer border border-[#2A2B2F]"
+          className="p-1.5 rounded-lg hover:bg-[#2E333F] text-gray-400 hover:text-gray-200 cursor-pointer border border-[#323846]"
         >
           <PanelLeftOpen size={16} />
         </button>
@@ -123,12 +123,12 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
   return (
     <div
       className="w-64 sm:w-72 flex flex-col select-none shrink-0 overflow-hidden h-full border-r z-10"
-      style={{ background: "#1A1B1D", borderColor: "#2A2B2F" }}
+      style={{ background: "#252932", borderColor: "#323846" }}
     >
       {/* Header */}
       <div
         className="px-3 py-2.5 border-b flex items-center justify-between gap-2"
-        style={{ background: "#17181A", borderColor: "#2A2B2F" }}
+        style={{ background: "#1A1D24", borderColor: "#323846" }}
       >
         <div className="flex items-center gap-1.5 min-w-0">
           <FolderTree size={15} className="text-blue-400 shrink-0" />
@@ -139,14 +139,14 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
         <button
           onClick={() => setIsCollapsed(true)}
           title={t("architecture.collapsePanel", "Згорнути панель")}
-          className="p-1 rounded-md hover:bg-[#2A2B2F] text-gray-500 hover:text-gray-300 cursor-pointer"
+          className="p-1 rounded-md hover:bg-[#2E333F] text-gray-500 hover:text-gray-300 cursor-pointer"
         >
           <PanelLeftClose size={14} />
         </button>
       </div>
 
       {/* Quick Search Input */}
-      <div className="p-2 border-b" style={{ borderColor: "#2A2B2F" }}>
+      <div className="p-2 border-b" style={{ borderColor: "#323846" }}>
         <div className="relative flex items-center">
           <Search size={13} className="absolute left-2.5 text-gray-500 pointer-events-none" />
           <input
@@ -154,13 +154,13 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("architecture.filterFiles", "Пошук сутності...")}
-            className="w-full bg-[#131416] border border-[#2A2B2F] rounded-lg pl-8 pr-2 py-1 text-[11px] font-mono text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500/60"
+            className="w-full bg-[#1A1D24] border border-[#323846] rounded-lg pl-8 pr-2 py-1 text-[11px] font-mono text-gray-200 placeholder-gray-600 focus:outline-none focus:border-[#C5A059]/60"
           />
         </div>
       </div>
 
       {/* Autonomy Bias Route Selector (Freedom of Engineering Assembly) */}
-      <div className="p-2 border-b bg-[#141517] space-y-1.5" style={{ borderColor: "#2A2B2F" }}>
+      <div className="p-2 border-b bg-[#323846] space-y-1.5" style={{ borderColor: "#323846" }}>
         <div className="flex items-center justify-between text-[9px] font-mono font-bold uppercase tracking-wider text-gray-400">
           <span>Свобода вибору інженера</span>
           <span className="text-emerald-400">2 ШЛЯХИ</span>
@@ -203,7 +203,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
               {/* Folder Node (Solid containment header) */}
               <div
                 onClick={() => toggleFolder(folderKey)}
-                className="flex items-center justify-between px-2 py-1 rounded-md hover:bg-[#25262B] text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
+                className="flex items-center justify-between px-2 py-1 rounded-md hover:bg-[#2E333F] text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
               >
                 <div className="flex items-center gap-1.5 min-w-0">
                   {isOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
@@ -242,7 +242,7 @@ export const ArchitectureTreePanel: React.FC<ArchitectureTreePanelProps> = ({
                         className={`p-1.5 rounded-lg border transition-all cursor-grab active:cursor-grabbing flex flex-col gap-1 group/file ${
                           isSelected
                             ? "bg-blue-950/40 border-blue-500/60 shadow-[0_0_12px_rgba(59,130,246,0.2)]"
-                            : "bg-[#1E2024]/60 border-white/[0.04] hover:bg-[#252830] hover:border-white/10"
+                            : "bg-[#252932]/60 border-white/[0.04] hover:bg-[#2E333F] hover:border-white/10"
                         }`}
                         title={t("architecture.dragOrClickToAdd", {
                           name: file.name,

@@ -51,8 +51,8 @@ export const MissionBar: React.FC<MissionBarProps> = ({
       <div
         className={`px-4 py-2 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-2 select-none shrink-0 transition-colors duration-200 ${
           isAnyCommandWired
-            ? "bg-[#1A1E1C] border-emerald-900/40"
-            : "bg-[#1B1C20] border-white/[0.06]"
+            ? "bg-[#252932] border-emerald-900/40"
+            : "bg-[#252932] border-white/[0.06]"
         }`}
       >
         {/* Left: Mission status */}
@@ -130,7 +130,7 @@ export const MissionBar: React.FC<MissionBarProps> = ({
         {/* Right: Actions */}
         <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
           {/* Canvas View Mode Toggle (Trace-Chain vs Freeform Wiring) */}
-          <div className="flex items-center bg-[#151619] p-0.5 rounded-lg border border-white/[0.08]">
+          <div className="flex items-center bg-[#1A1D24] p-0.5 rounded-lg border border-white/[0.08]">
             <button
               onClick={() => onSetCanvasMode("TRACE")}
               className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
@@ -153,7 +153,7 @@ export const MissionBar: React.FC<MissionBarProps> = ({
             </button>
           </div>
           {/* DI Mode Toggle */}
-          <div className="flex items-center bg-[#151619] p-0.5 rounded-lg border border-white/[0.08]">
+          <div className="flex items-center bg-[#1A1D24] p-0.5 rounded-lg border border-white/[0.08]">
             <button
               onClick={() => onToggleDiMode("WITH_DI")}
               className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
@@ -232,7 +232,7 @@ export const MissionBar: React.FC<MissionBarProps> = ({
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-semibold transition-all cursor-pointer active:scale-95 ${
                 isFaultSimulationOpen
                   ? "bg-red-500/25 border-red-500/60 text-red-200 shadow-[0_0_12px_rgba(239,68,68,0.3)]"
-                  : "bg-[#27282D] hover:bg-[#32333A] border-white/[0.06] text-gray-300 hover:text-gray-100"
+                  : "bg-[#2E333F] hover:bg-[#2E333F] border-white/[0.06] text-gray-300 hover:text-gray-100"
               }`}
               title={t("architecture.faultSimulationBtn", "Перевірка відмовостійкості (Bypass)")}
             >
@@ -244,7 +244,7 @@ export const MissionBar: React.FC<MissionBarProps> = ({
           {/* Auto-wire */}
           <button
             onClick={onAutoWire}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#27282D] hover:bg-[#32333A] border border-white/[0.06] text-gray-300 text-[11px] font-mono transition-all cursor-pointer active:scale-95"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#2E333F] hover:bg-[#2E333F] border border-white/[0.06] text-gray-300 text-[11px] font-mono transition-all cursor-pointer active:scale-95"
             title={t("architecture.autoWire")}
           >
             <Sparkles size={12} className="text-blue-400" />
@@ -254,7 +254,7 @@ export const MissionBar: React.FC<MissionBarProps> = ({
           {/* Reset */}
           <button
             onClick={onReset}
-            className="p-1.5 rounded-lg bg-[#27282D] hover:bg-[#32333A] border border-white/[0.06] text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
+            className="p-1.5 rounded-lg bg-[#2E333F] hover:bg-[#2E333F] border border-white/[0.06] text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
             title={t("architecture.reset")}
           >
             <RotateCcw size={12} />
@@ -264,7 +264,7 @@ export const MissionBar: React.FC<MissionBarProps> = ({
           <button
             onClick={onFitView}
             title={t("architecture.centerView")}
-            className="p-1.5 rounded-lg bg-[#27282D] hover:bg-[#32333A] border border-white/[0.06] text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
+            className="p-1.5 rounded-lg bg-[#2E333F] hover:bg-[#2E333F] border border-white/[0.06] text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
           >
             <Maximize2 size={12} />
           </button>

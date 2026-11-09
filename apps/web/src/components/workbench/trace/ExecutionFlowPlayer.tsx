@@ -89,31 +89,28 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
   const [hasCompleted, setHasCompleted] = useState(false);
   const awardedRef = React.useRef(false);
 
+  // Reset completion state when the trace timeline itself changes (adjust state during render).
+  const [prevTimelineId, setPrevTimelineId] = useState(timeline.id);
+  if (prevTimelineId !== timeline.id) {
+    setPrevTimelineId(timeline.id);
+    setHasCompleted(false);
+  }
+
   useEffect(() => {
-    const unsubscribe = controller.subscribe((s) => setPlayerState(s));
+    awardedRef.current = false;
+    const unsubscribe = controller.subscribe((s) => {
+      // Returning to the first step starts a fresh run: allow a new XP award.
+      if (s.currentStepIndex === 0) {
+        awardedRef.current = false;
+        setHasCompleted(false);
+      }
+      setPlayerState(s);
+    });
     return () => {
       controller.dispose();
       unsubscribe();
     };
   }, [controller]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      awardedRef.current = false;
-      setHasCompleted(false);
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [timeline.id]);
-
-  useEffect(() => {
-    if (isOpen && playerState.currentStepIndex === 0) {
-      const timer = setTimeout(() => {
-        awardedRef.current = false;
-        setHasCompleted(false);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, playerState.currentStepIndex]);
 
   useEffect(() => {
     if (playerState.currentStepIndex === timeline.steps.length - 1 && !awardedRef.current) {
@@ -393,8 +390,8 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
     <div
       className={
         isDock
-          ? `fixed bottom-3 right-3 sm:right-6 left-3 sm:left-auto sm:w-[720px] max-h-[82vh] z-40 flex flex-col rounded-2xl border-2 border-blue-500/60 bg-[#070A10]/95 backdrop-blur-xl text-slate-100 shadow-[0_10px_50px_rgba(0,0,0,0.85)] overflow-hidden animate-fadeIn ${className}`
-          : `fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 bg-black/80 backdrop-blur-md animate-fadeIn ${className}`
+          ? `fixed bottom-3 right-3 sm:right-6 left-3 sm:left-auto sm:w-[720px] max-h-[82vh] z-40 flex flex-col rounded-2xl border border-[#E4E7EC] bg-white/95 backdrop-blur-xl text-[#0F141C] shadow-luxury overflow-hidden animate-fadeIn ${className}`
+          : `fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 bg-[#0F141C]/60 backdrop-blur-md animate-fadeIn ${className}`
       }
       data-testid="execution-flow-player-modal"
     >
@@ -402,29 +399,29 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
         className={
           isDock
             ? "flex flex-col w-full h-full overflow-hidden"
-            : "relative w-full max-w-6xl max-h-[92vh] flex flex-col rounded-2xl border border-slate-700/80 bg-[#070A10] text-slate-100 shadow-2xl overflow-hidden"
+            : "relative w-full max-w-6xl max-h-[92vh] flex flex-col rounded-2xl border border-[#E4E7EC] bg-white text-[#0F141C] shadow-luxury overflow-hidden"
         }
       >
         {/* ── Top Header ── */}
-        <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#0C111B] border-b border-slate-800 shrink-0">
+        <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#F8F9FA] border-b border-[#E4E7EC] shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-[#252932] border border-[#252932] flex items-center justify-center text-[#C5A059] shrink-0">
               <Sparkles className="w-3.5 h-3.5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <h3 className="font-semibold text-xs sm:text-sm text-white tracking-wide truncate">
+                <h3 className="font-semibold text-xs sm:text-sm text-[#0F141C] tracking-wide truncate">
                   {titleText}
                 </h3>
-                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-blue-950/80 text-blue-300 border border-blue-700/50 uppercase shrink-0">
+                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-[#252932] text-[#C5A059] border border-[#252932] uppercase shrink-0">
                   {timeline.language}
                 </span>
-                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono bg-slate-800 text-slate-300 border border-slate-700 uppercase shrink-0">
+                <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono bg-[#F1F3F5] text-[#525866] border border-[#E4E7EC] uppercase shrink-0">
                   Station: {stationId}
                 </span>
               </div>
               {!isDock && (
-                <p className="text-xs text-slate-400 truncate max-w-xl">{descText}</p>
+                <p className="text-xs text-[#525866] truncate max-w-xl">{descText}</p>
               )}
             </div>
           </div>
@@ -435,8 +432,8 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
               onClick={handleTogglePoe}
               className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium transition-all border cursor-pointer ${
                 enablePoe
-                  ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-                  : "bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-300"
+                  ? "bg-amber-50 border-amber-300 text-amber-800"
+                  : "bg-[#F8F9FA] border-[#E4E7EC] text-[#525866] hover:text-[#0F141C]"
               }`}
               title={poeTooltip}
             >
@@ -451,7 +448,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                 audioFx.playRelayClick();
                 setDisplayMode(isDock ? "modal" : "dock");
               }}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[#525866] hover:text-[#0F141C] hover:bg-[#F1F3F5] transition-colors cursor-pointer"
               title={displayModeTooltip}
               aria-label="Toggle display mode"
             >
@@ -461,7 +458,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[#525866] hover:text-[#0F141C] hover:bg-[#F1F3F5] transition-colors cursor-pointer"
               aria-label={closeAriaLabel}
             >
               <X className="w-3.5 h-3.5" />
@@ -478,13 +475,13 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
 
         {/* ── Dock View Switcher (Tabs when in In-Situ Dock HUD) ── */}
         {isDock && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0A0E17] border-b border-slate-800 text-[11px] font-mono shrink-0">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F8F9FA] border-b border-[#E4E7EC] text-[11px] font-mono shrink-0">
             <button
               onClick={() => setDockTab("code")}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 dockTab === "code"
-                  ? "bg-blue-600 text-white font-bold shadow-sm"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-[#252932] text-[#F8F9FA] font-bold shadow-sm"
+                  : "text-[#525866] hover:text-[#0F141C] hover:bg-[#F1F3F5]"
               }`}
             >
               <Code2 className="w-3.5 h-3.5" />
@@ -495,8 +492,8 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
               onClick={() => setDockTab("tree")}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 dockTab === "tree"
-                  ? "bg-blue-600 text-white font-bold shadow-sm"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                  ? "bg-[#252932] text-[#F8F9FA] font-bold shadow-sm"
+                  : "text-[#525866] hover:text-[#0F141C] hover:bg-[#F1F3F5]"
               }`}
             >
               <FolderTree className="w-3.5 h-3.5" />
@@ -509,10 +506,10 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
         )}
 
         {/* ── Main Workspace ── */}
-        <div className={`grid ${isDock ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"} flex-1 overflow-hidden min-h-0 bg-[#080C14]`}>
+        <div className={`grid ${isDock ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"} flex-1 overflow-hidden min-h-0 bg-white`}>
           {/* Left Column: Solution Explorer & Stack (Shown in Full Studio mode or when Dock Tab is 'tree') */}
           {(!isDock || dockTab === "tree") && (
-            <div className={`${isDock ? "col-span-1" : "lg:col-span-4 border-r border-slate-800/80"} p-3 flex flex-col gap-3 overflow-y-auto scrollbar-thin`}>
+            <div className={`${isDock ? "col-span-1" : "lg:col-span-4 border-r border-[#E4E7EC]"} p-3 flex flex-col gap-3 overflow-y-auto scrollbar-thin`}>
               <SyncedProjectFolderTree
                 files={projectFiles}
                 activeFileId={currentStep?.location.fileId || ""}
@@ -563,8 +560,8 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
           {(!isDock || dockTab === "code") && (
             <div className={`${isDock ? "col-span-1" : "lg:col-span-8"} p-3 flex flex-col gap-2.5 overflow-y-auto scrollbar-thin`}>
               {/* Active Code Frame with Folder -> File -> Line -> Symbol Signaling */}
-              <div className="rounded-xl border border-slate-800 bg-[#0A0E17] overflow-hidden flex flex-col shadow-inner">
-                <div className="flex items-center justify-between px-3 py-1.5 bg-[#0E131E] border-b border-slate-800/80 text-xs font-mono">
+              <div className="rounded-xl border border-[#323846] bg-[#252932] overflow-hidden flex flex-col shadow-titanium">
+                <div className="flex items-center justify-between px-3 py-1.5 bg-[#1E222A] border-b border-[#323846] text-xs font-mono">
                   <div className="flex items-center gap-1.5 truncate text-slate-300">
                     <Folder className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                     <span className="text-amber-300 font-semibold">{currentStep?.location.folderName || "Root"}</span>
@@ -601,7 +598,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                 </div>
 
                 <div
-                  className={`font-mono text-xs text-slate-300 bg-[#06080D] overflow-x-auto overflow-y-auto leading-relaxed divide-y divide-slate-900/60 ${
+                  className={`font-mono text-xs text-slate-200 bg-[#252932] overflow-x-auto overflow-y-auto leading-relaxed divide-y divide-[#323846]/50 ${
                     isDock ? "max-h-[140px]" : "max-h-[220px]"
                   }`}
                 >
@@ -615,22 +612,22 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                           key={idx}
                           className={`flex items-center px-2 py-0.5 transition-colors group ${
                             isTargetLine
-                              ? "bg-blue-600/20 text-blue-100 font-medium border-l-2 border-cyan-400"
-                              : "hover:bg-slate-900/40 text-slate-300"
+                              ? "bg-[#C5A059]/15 text-[#F8F9FA] font-medium border-l-2 border-[#C5A059]"
+                              : "hover:bg-white/5 text-slate-300"
                           }`}
                         >
                           <span
                             className={`w-8 text-right pr-2 text-[10px] select-none shrink-0 font-mono ${
-                              isTargetLine ? "text-cyan-400 font-bold" : "text-slate-600"
+                              isTargetLine ? "text-[#C5A059] font-bold" : "text-slate-500"
                             }`}
                           >
                             {lineNum}
                           </span>
                           <span className="w-4 text-center pr-1 text-[10px] shrink-0 select-none">
                             {isTargetLine ? (
-                              <span className="text-cyan-400 animate-pulse font-bold">→</span>
+                              <span className="text-[#C5A059] animate-pulse font-bold">→</span>
                             ) : (
-                              <span className="text-slate-700">·</span>
+                              <span className="text-slate-500">·</span>
                             )}
                           </span>
                           <span className="whitespace-pre font-mono selection:bg-blue-600/40 text-[11px]">
@@ -644,20 +641,20 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
 
               {/* Completion & Gamification Mastery Banner */}
               {hasCompleted && (
-                <div className="p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/30 flex items-center justify-between text-xs text-emerald-200 shadow-sm animate-in fade-in duration-300">
+                <div className="p-3 rounded-xl border border-emerald-300 bg-emerald-50 flex items-center justify-between text-xs text-emerald-900 shadow-sm animate-in fade-in duration-300">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shrink-0">
                       <Trophy className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold block text-emerald-300">
+                      <span className="font-bold block text-emerald-800">
                         {currentLang === "en"
                           ? "Execution Flow Mastered!"
                           : currentLang === "da"
                           ? "Eksekvering fuldført!"
                           : "Ланцюг виконання опановано!"}
                       </span>
-                      <span className="text-[11px] text-emerald-400/90">
+                      <span className="text-[11px] text-emerald-700">
                         {enablePoe
                           ? `${
                               currentLang === "en"
@@ -678,7 +675,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                   </div>
                   <button
                     onClick={handleReset}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-[11px] font-mono transition-all cursor-pointer shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] font-mono transition-all cursor-pointer shrink-0"
                   >
                     {currentLang === "en" ? "Replay Flow" : currentLang === "da" ? "Genspil" : "Повторити"}
                   </button>
@@ -686,15 +683,15 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
               )}
 
               {/* Didactic Step Explanation */}
-              <div className="p-2.5 rounded-xl border border-blue-900/40 bg-blue-950/15 text-xs text-blue-100 flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-md bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="p-2.5 rounded-xl border border-[#E4E7EC] bg-[#F8F9FA] text-xs text-[#0F141C] flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-md bg-[#252932] text-[#C5A059] flex items-center justify-center shrink-0 mt-0.5">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
-                  <span className="font-semibold uppercase tracking-wider text-[10px] text-blue-300 block">
+                  <span className="font-semibold uppercase tracking-wider text-[10px] text-[#525866] block">
                     {didacticFocusLabel}
                   </span>
-                  <p className="text-slate-300 leading-relaxed text-[11px] sm:text-xs">{explanationText}</p>
+                  <p className="text-[#525866] leading-relaxed text-[11px] sm:text-xs">{explanationText}</p>
                 </div>
               </div>
 
@@ -714,22 +711,22 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                 <div
                   className={`p-3 rounded-xl border transition-all ${
                     playerState.isWaitingForPoe
-                      ? "border-amber-500/60 bg-gradient-to-br from-amber-950/30 to-[#0F141E] shadow-lg shadow-amber-950/20 ring-1 ring-amber-500/30"
+                      ? "border-amber-300 bg-amber-50 shadow-luxury ring-1 ring-amber-200"
                       : playerState.poeResult?.isCorrect
-                      ? "border-emerald-600/40 bg-emerald-950/20"
-                      : "border-slate-800 bg-[#0B0F17]"
+                      ? "border-emerald-300 bg-emerald-50"
+                      : "border-[#E4E7EC] bg-white"
                   }`}
                   data-testid="poe-checkpoint-card"
                 >
                   <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-5 h-5 rounded-md bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shrink-0">
+                    <div className="w-5 h-5 rounded-md bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0">
                       <HelpCircle className="w-3.5 h-3.5" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold block">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-amber-700 font-bold block">
                         {poeCardBadge}
                       </span>
-                      <h4 className="text-xs font-semibold text-white">
+                      <h4 className="text-xs font-semibold text-[#0F141C]">
                         {typeof currentStep.poeQuestion.prompt === "string"
                           ? currentStep.poeQuestion.prompt
                           : currentStep.poeQuestion.prompt[currentLang] || currentStep.poeQuestion.prompt.ua}
@@ -753,13 +750,13 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                           onClick={() => handleAnswerPoe(option.id)}
                           className={`w-full text-left p-2 rounded-lg border text-xs transition-all flex items-start gap-2 cursor-pointer ${
                             isSelected && option.isCorrect
-                              ? "bg-emerald-950/50 border-emerald-500 text-emerald-200 font-semibold"
+                              ? "bg-emerald-50 border-emerald-500 text-emerald-900 font-semibold"
                               : isSelected && !option.isCorrect
-                              ? "bg-rose-950/50 border-rose-500 text-rose-200"
-                              : "bg-slate-900/60 hover:bg-slate-800/80 border-slate-700/70 text-slate-300 hover:text-white"
+                              ? "bg-rose-50 border-rose-500 text-rose-900"
+                              : "bg-white hover:bg-[#F1F3F5] border-[#E4E7EC] text-[#525866] hover:text-[#0F141C]"
                           }`}
                         >
-                          <div className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center shrink-0 mt-0.5">
+                          <div className="w-3.5 h-3.5 rounded-full border border-[#C9CED8] flex items-center justify-center shrink-0 mt-0.5">
                             {isSelected && option.isCorrect ? (
                               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                             ) : isSelected && !option.isCorrect ? (
@@ -778,7 +775,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                   {isDock && playerState.isWaitingForPoe && (
                     <button
                       onClick={() => setDockTab("tree")}
-                      className="mt-2 w-full py-1.5 px-2.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/60 border border-amber-600/40 text-amber-200 text-[11px] font-mono flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      className="mt-2 w-full py-1.5 px-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-mono flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <FolderTree className="w-3.5 h-3.5 text-amber-400" />
                       <span>{exploreInTreeText}</span>
@@ -790,8 +787,8 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                     <div
                       className={`mt-2 p-2.5 rounded-lg border text-xs leading-relaxed flex items-start gap-2 ${
                         playerState.poeResult.isCorrect
-                          ? "bg-emerald-950/40 border-emerald-600/40 text-emerald-200"
-                          : "bg-rose-950/40 border-rose-600/40 text-rose-200"
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-900"
+                          : "bg-rose-50 border-rose-300 text-rose-900"
                       }`}
                     >
                       {playerState.poeResult.isCorrect ? (
@@ -816,7 +813,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                   {playerState.poeResult?.isCorrect && (
                     <button
                       onClick={handleStepForward}
-                      className="mt-2 w-full py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40 transition-all cursor-pointer"
+                      className="mt-2 w-full py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
                     >
                       <span>{continueButtonText}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -829,10 +826,10 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
         </div>
 
         {/* ── Bottom Control Deck (Scrubber, Steps, Speed) ── */}
-        <div className="px-3.5 py-2.5 bg-[#0B0F19] border-t border-slate-800 flex flex-col gap-1.5 shrink-0">
+        <div className="px-3.5 py-2.5 bg-[#F8F9FA] border-t border-[#E4E7EC] flex flex-col gap-1.5 shrink-0">
           {/* Time Scrubber Slider */}
           <div className="flex items-center gap-2.5">
-            <span className="text-[10px] font-mono text-slate-400 w-16 text-right shrink-0">
+            <span className="text-[10px] font-mono text-[#525866] w-16 text-right shrink-0">
               Step {playerState.currentStepIndex + 1}/{timeline.totalSteps}
             </span>
             <input
@@ -841,11 +838,11 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
               max={timeline.totalSteps - 1}
               value={playerState.currentStepIndex}
               onChange={(e) => handleSeek(Number(e.target.value))}
-              className="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+              className="flex-1 h-1.5 bg-[#E4E7EC] rounded-lg appearance-none cursor-pointer accent-[#252932]"
               aria-label="Timeline scrubber"
             />
             {playerState.poeScore.total > 0 && (
-              <span className="text-[10px] font-mono text-emerald-400 shrink-0">
+              <span className="text-[10px] font-mono text-emerald-700 shrink-0">
                 Score: {playerState.poeScore.correct}/{playerState.poeScore.total}
               </span>
             )}
@@ -856,7 +853,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
             <div className="flex items-center gap-1">
               <button
                 onClick={handleReset}
-                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg bg-[#F1F3F5] hover:bg-[#E4E7EC] text-[#252932] hover:text-[#0F141C] transition-colors cursor-pointer"
                 title={resetTooltip}
                 aria-label="Reset trace"
               >
@@ -865,7 +862,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
               <button
                 onClick={handleStepBackward}
                 disabled={playerState.currentStepIndex === 0}
-                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="p-1.5 rounded-lg bg-[#F1F3F5] hover:bg-[#E4E7EC] text-[#252932] hover:text-[#0F141C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title={stepBackTooltip}
                 aria-label="Step backward"
               >
@@ -876,8 +873,8 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                 disabled={playerState.isWaitingForPoe}
                 className={`px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                   playerState.isPlaying
-                    ? "bg-amber-600 hover:bg-amber-500 text-white"
-                    : "bg-blue-600 hover:bg-blue-500 text-white"
+                    ? "bg-[#C5A059] hover:bg-[#B28D44] text-[#0F141C]"
+                    : "bg-[#252932] hover:bg-[#1A1D24] text-white"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
                 title="Play/Pause [Space]"
                 aria-label={playerState.isPlaying ? "Pause trace" : "Play trace"}
@@ -891,7 +888,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
                   playerState.currentStepIndex === timeline.totalSteps - 1 ||
                   playerState.isWaitingForPoe
                 }
-                className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="p-1.5 rounded-lg bg-[#F1F3F5] hover:bg-[#E4E7EC] text-[#252932] hover:text-[#0F141C] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title={stepForwardTooltip}
                 aria-label="Step forward"
               >
@@ -900,16 +897,16 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
             </div>
 
             {/* Speed selector */}
-            <div className="flex items-center gap-0.5 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono">
-              <Gauge className="w-3 h-3 text-slate-400 ml-1 mr-0.5" />
+            <div className="flex items-center gap-0.5 bg-[#F1F3F5] p-0.5 rounded-lg border border-[#E4E7EC] text-[10px] font-mono">
+              <Gauge className="w-3 h-3 text-[#525866] ml-1 mr-0.5" />
               {[0.5, 1, 2].map((s) => (
                 <button
                   key={s}
                   onClick={() => handleSpeedChange(s)}
                   className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
                     playerState.playbackSpeed === s
-                      ? "bg-blue-600 text-white font-bold"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-[#252932] text-[#F8F9FA] font-bold"
+                      : "text-[#525866] hover:text-[#0F141C]"
                   }`}
                 >
                   {s}x
@@ -917,7 +914,7 @@ export const ExecutionFlowPlayer: React.FC<ExecutionFlowPlayerProps> = ({
               ))}
             </div>
 
-            <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
+            <span className="text-[10px] text-[#8A909E] font-mono hidden sm:inline">
               [Space] Play • [←/→] Step
             </span>
           </div>

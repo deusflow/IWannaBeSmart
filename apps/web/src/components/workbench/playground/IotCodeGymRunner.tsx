@@ -178,6 +178,7 @@ export const IotCodeGymRunner: React.FC = () => {
   // Auto-switch task if requested from profile analytics
   useEffect(() => {
     if (targetTaskId && IOT_TASKS.some((t) => t.id === targetTaskId)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- syncs one-shot navigation request from the external store
       handleSelectTask(targetTaskId);
       setTargetTaskId(null);
     }

@@ -91,6 +91,7 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
   // Progressive disclosure: adapt default active layer to round
   useEffect(() => {
     if (activeRound === 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional state reset on prop/round change
       setActiveLayer("tokens");
     } else if (activeRound === 1) {
       setActiveLayer("solution");
