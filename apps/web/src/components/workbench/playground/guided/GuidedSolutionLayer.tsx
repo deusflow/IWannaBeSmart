@@ -81,13 +81,13 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
 }) => {
   return (
     <div className="space-y-3">
-      {/* Clean Intuition Briefing */}
+      {/* ── 1. Вступ і контекст ── */}
       <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1.5 shadow-2xs">
         <div className="flex items-start gap-2">
           <Lightbulb size={13} className="text-amber-700 shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              {t("guide.simpleLabel", "Суть завдання")}:
+              {t("guide.introContextTitle", "1. Контекст і завдання:")}
             </span>
             <p className="font-sans text-xs text-obsidian font-medium leading-relaxed">
               {simpleText || didactic?.pacingLeading?.leading[currentLang] || t("guide.leadingDefault", "Виконайте команду для взаємодії з пристроєм.")}
@@ -96,12 +96,12 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
         </div>
       </div>
 
-      {/* Ready Working Code Box with ▶ Демонстрація button */}
+      {/* ── 2. Еталонний код та демонстрація ── */}
       <div>
         <div className="flex items-center justify-between text-[10px] font-mono font-extrabold uppercase tracking-wider text-slate-600 mb-1.5 flex-wrap gap-2">
           <span className="flex items-center gap-1.5">
             <CheckCircle2 size={13} className="text-emerald-700" />
-            <span>{t("guide.readyCodeTitle", "Еталонний зразок:")}</span>
+            <span>{t("guide.section2Title", "2. Еталонний код та демонстрація:")}</span>
           </span>
           <div className="flex items-center gap-2">
             {workedExample && (
@@ -144,10 +144,9 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
         </div>
       </div>
 
-      {/* Physical Hardware Effect & Terminal Demonstration Logs */}
+      {/* Hardware Effect & Telemetry */}
       {workedExample && (
-        <div className="space-y-2.5">
-          {/* Hardware effect alert */}
+        <div className="space-y-2">
           <div
             className={`p-3 rounded-xl border transition-all duration-300 ${
               isDemoRunning
@@ -166,9 +165,8 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
             </p>
           </div>
 
-          {/* Terminal telemetry log bus */}
-          <div className="rounded-xl bg-[#0F141C] border border-[#1F2937] p-3 shadow-inner font-mono text-[11px] text-gray-200 space-y-1">
-            <div className="flex items-center justify-between text-[10px] text-gray-400 border-b border-gray-800 pb-1 mb-1.5">
+          <div className="rounded-xl bg-[#0F141C] border border-[#1F2937] p-2.5 shadow-inner font-mono text-[11px] text-gray-200 space-y-1">
+            <div className="flex items-center justify-between text-[10px] text-gray-400 border-b border-gray-800 pb-1 mb-1">
               <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
                 <Terminal size={12} />
                 <span>{t("guide.terminalTitle", "Системна телеметрія:")}</span>
@@ -184,32 +182,20 @@ export const GuidedSolutionLayer: React.FC<GuidedSolutionLayerProps> = ({
               ))}
             </div>
           </div>
-
-          {/* Teacher Step-by-Step Explanation */}
-          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
-            <div className="text-[10px] font-mono font-bold uppercase text-slate-500 flex items-center gap-1">
-              <Lightbulb size={11} className="text-amber-700 shrink-0" />
-              <span>{t("guide.teacherCardTitle", "Пояснення вчителя:")}</span>
-            </div>
-            <p className="font-sans text-xs text-obsidian leading-relaxed">
-              {getLocStr(workedExample.explanation)}
-            </p>
-          </div>
         </div>
       )}
 
-      {/* Didactic explanation: why this syntax */}
-      {didactic?.whyThisCode && (
-        <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1 shadow-2xs">
-          <div className="text-[10px] font-mono font-bold uppercase text-slate-500 flex items-center gap-1">
-            <Lightbulb size={11} className="text-amber-700" />
-            <span>{t("guide.whySyntaxTitle", "Чому саме такий синтаксис:")}</span>
-          </div>
-          <p className="font-sans text-xs text-obsidian leading-relaxed">
-            {didactic.whyThisCode[codeLang]}
-          </p>
+      {/* ── 3. Підсумок і правило інженера ── */}
+      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-black/[0.06] space-y-1.5 shadow-2xs">
+        <div className="text-[10px] font-mono font-bold uppercase text-slate-500 flex items-center gap-1">
+          <Lightbulb size={11} className="text-amber-700" />
+          <span>{t("guide.conclusionTitle", "3. Головний висновок (Запам'ятайте):")}</span>
         </div>
-      )}
+        <p className="font-sans text-xs text-obsidian leading-relaxed">
+          {didactic?.whyThisCode?.[codeLang] ||
+            (workedExample ? getLocStr(workedExample.explanation) : t("guide.defaultTakeaway", "Крапка з комою завершує команду в C#, а круглі дужки виконують дію."))}
+        </p>
+      </div>
     </div>
   );
 };

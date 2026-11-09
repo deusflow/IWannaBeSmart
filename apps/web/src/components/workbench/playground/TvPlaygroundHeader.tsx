@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert, ScanLine, Timer } from "lucide-react";
+import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert, ScanLine, Timer, Target, Code2 } from "lucide-react";
 import type { CodingTask } from "@iw/sim-engine";
 import { audioFx } from "../../../utils/audioFx";
 import { GuidedStepBar } from "./GuidedStepBar";
@@ -180,37 +180,55 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
             ? simpleStepLabels[task.id]
             : `#${idx + 1}`;
 
+          const isLocked = idx > 0 && (taskMasteryStars[visibleTasks[idx - 1].id] || 0) < 1;
+
           return (
             <button
               key={task.id}
-              onClick={() => onSelectTask(task.id)}
-              className={`p-2 rounded-xl text-center border transition-all cursor-pointer ${
-                isCurrent
-                  ? "bg-[#252932] border-[#252932] text-white shadow-sm"
-                  : "bg-white hover:bg-slate-50 border-black/[0.06] text-obsidian hover:border-black/[0.14] shadow-2xs"
+              disabled={isLocked}
+              onClick={() => {
+                if (!isLocked) onSelectTask(task.id);
+              }}
+              className={`p-2 rounded-xl text-center border transition-all ${
+                isLocked
+                  ? "opacity-55 cursor-not-allowed bg-slate-100/60 border-dashed border-black/[0.08] text-slate-400"
+                  : isCurrent
+                  ? "bg-[#252932] border-[#252932] text-white shadow-sm cursor-pointer"
+                  : "bg-white hover:bg-slate-50 border-black/[0.06] text-obsidian hover:border-black/[0.14] shadow-2xs cursor-pointer"
               }`}
-              title={`${t(task.titleKey)} (${taskStars}/4 ★)`}
+              title={
+                isLocked
+                  ? t("codegym.completePreviousTask", "Спочатку виконайте Завдання {{num}}", { num: idx })
+                  : `${t(task.titleKey)} (${taskStars}/4 ★)`
+              }
             >
-              <div className="text-[11px] font-mono font-bold uppercase truncate">
-                <span className={isCurrent ? "text-[#C5A059]" : "text-slate-500"}>
+              <div className="text-[11px] font-mono font-bold uppercase truncate flex items-center justify-center gap-1">
+                {isLocked && <Lock size={10} className="text-slate-400 shrink-0" />}
+                <span className={isLocked ? "text-slate-400" : isCurrent ? "text-[#C5A059]" : "text-slate-500"}>
                   {stepLabel}
                 </span>
               </div>
               <div className="flex items-center justify-center gap-0.5 text-[9px] mt-0.5">
-                {[1, 2, 3, 4].map((s) => (
-                  <span
-                    key={s}
-                    className={
-                      taskStars >= s
-                        ? s === 4
-                          ? "text-cyan-400 font-bold"
-                          : "text-[#C5A059]"
-                        : "text-slate-300 opacity-40"
-                    }
-                  >
-                    ★
+                {isLocked ? (
+                  <span className="text-[9px] font-mono font-semibold text-slate-400">
+                    {t("codegym.locked", "Заблоковано")}
                   </span>
-                ))}
+                ) : (
+                  [1, 2, 3, 4].map((s) => (
+                    <span
+                      key={s}
+                      className={
+                        taskStars >= s
+                          ? s === 4
+                            ? "text-cyan-400 font-bold"
+                            : "text-[#C5A059]"
+                          : "text-slate-300 opacity-40"
+                      }
+                    >
+                      ★
+                    </span>
+                  ))
+                )}
               </div>
             </button>
           );
@@ -247,69 +265,74 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
-          {onOpenXRayModal && (
-            <button
-              onClick={onOpenXRayModal}
-              data-testid="lab-xray-btn"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title={t("labs.xray.btnTooltip", "X-Ray: Живий потік виконання крізь файли")}
-            >
-              <ScanLine size={13} className="text-slate-600" />
-              <span className="hidden sm:inline">{t("labs.xray.btnLabel", "X-Ray")}</span>
-            </button>
-          )}
-
-          {onOpenDiRaceModal && (
-            <button
-              onClick={onOpenDiRaceModal}
-              data-testid="lab-di-race-btn"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title={t("labs.diRace.btnTooltip", "DI-гонка: Заміна сервісу на час")}
-            >
-              <Timer size={13} className="text-slate-600" />
-              <span className="hidden sm:inline">{t("labs.diRace.btnLabel", "DI-гонка")}</span>
-            </button>
-          )}
-
-          {onOpenPoeModal && (
-            <button
-              onClick={onOpenPoeModal}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
-              title={t("labs.poe.btnTooltip", "Живий симулятор: Що вибухне? (Predict-Observe-Explain)")}
-            >
-              <Flame size={13} className="text-amber-600" />
-              <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
-            </button>
-          )}
-
-          {onOpenCrashGate && (
-            <button
-              onClick={() => {
-                if (!allTvTasksCompleted) {
-                  audioFx.playErrorBuzz();
-                  return;
-                }
-                onOpenCrashGate();
-              }}
-              disabled={!allTvTasksCompleted}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
-                allTvTasksCompleted
-                  ? "bg-[#252932] hover:bg-[#1A1D24] text-white border-black/[0.12] cursor-pointer active:scale-95"
-                  : "bg-slate-100/70 border-black/[0.06] text-slate-400 cursor-not-allowed opacity-60"
-              }`}
-              title={
-                allTvTasksCompleted
-                  ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
-                  : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
-              }
-            >
-              {allTvTasksCompleted ? (
-                <ShieldAlert size={13} className="text-[#C5A059]" />
-              ) : (
-                <Lock size={13} className="text-slate-400" />
+          {selectedTier > 0 && (
+            <>
+              {onOpenXRayModal && (
+                <button
+                  onClick={onOpenXRayModal}
+                  data-testid="lab-xray-btn"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+                  title={t("labs.xray.btnTooltip", "X-Ray: Рентген заліза — потік сигналу крізь плату")}
+                >
+                  <ScanLine size={13} className="text-slate-600" />
+                  <span className="hidden sm:inline">{t("labs.xray.btnLabel", "X-Ray")}</span>
+                </button>
               )}
-              <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
-            </button>
+
+              {onOpenDiRaceModal && (
+                <button
+                  onClick={onOpenDiRaceModal}
+                  data-testid="lab-di-race-btn"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+                  title={t("labs.diRace.btnTooltip", "DI-гонка: Порівняння прямого зв'язування з Dependency Injection")}
+                >
+                  <Timer size={13} className="text-amber-600" />
+                  <span className="hidden sm:inline">{t("labs.diRace.btnLabel", "DI-гонка")}</span>
+                </button>
+              )}
+
+              {onOpenPoeModal && (
+                <button
+                  onClick={onOpenPoeModal}
+                  data-testid="lab-poe-btn"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-black/[0.08] text-slate-700 font-mono text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+                  title={t("labs.poe.btnTooltip", "Що вибухне? Тренажер помилок: здогадайтеся, що станеться з залізом")}
+                >
+                  <Flame size={13} className="text-amber-600" />
+                  <span className="hidden sm:inline">{t("labs.poe.btnLabel", "Що вибухне?")}</span>
+                </button>
+              )}
+
+              {onOpenCrashGate && (
+                <button
+                  onClick={() => {
+                    if (!allTvTasksCompleted) {
+                      audioFx.playErrorBuzz();
+                      return;
+                    }
+                    onOpenCrashGate();
+                  }}
+                  disabled={!allTvTasksCompleted}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-2xs ${
+                    allTvTasksCompleted
+                      ? "bg-[#252932] hover:bg-[#1A1D24] text-white border-black/[0.12] cursor-pointer active:scale-95"
+                      : "bg-slate-100/70 border-black/[0.06] text-slate-400 cursor-not-allowed opacity-60"
+                  }`}
+                  title={
+                    allTvTasksCompleted
+                      ? t("labs.crash.btnTooltip", "Атестаційний краш-тест станції (Certification Drill)")
+                      : t("labs.crash.btnLockedTooltip", "Краш-тест заблоковано: спочатку вирішіть усі завдання станції")
+                  }
+                >
+                  {allTvTasksCompleted ? (
+                    <ShieldAlert size={13} className="text-[#C5A059]" />
+                  ) : (
+                    <Lock size={13} className="text-slate-400" />
+                  )}
+                  <span className="hidden sm:inline">{t("labs.crash.btnLabel", "Краш-тест")}</span>
+                </button>
+              )}
+            </>
           )}
 
           {allTvTasksCompleted && (
@@ -369,6 +392,89 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
           >
             <X size={14} />
           </button>
+        </div>
+      )}
+
+      {/* ── Tier 0 Mission & Syntax Intro Card ── */}
+      {selectedTier === 0 && (
+        <div className="p-3.5 rounded-2xl bg-white border border-black/[0.08] shadow-porcelain space-y-2.5">
+          <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-obsidian">
+                {t("codegym.missionTitle", "Місія завдання")}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-black/[0.05]">
+              <span>{t("codegym.deviceLabel", "Прилад:")}</span>
+              <span className="font-bold text-obsidian">Smart TV 65"</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+            {/* Goal */}
+            <div className="flex items-start gap-2 bg-slate-50/70 p-2.5 rounded-xl border border-black/[0.04]">
+              <Target size={14} className="text-amber-600 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <span className="font-mono text-[10px] font-bold uppercase text-slate-500">
+                  {t("codegym.missionGoalLabel", "Ціль:")}
+                </span>
+                <p className="text-obsidian font-medium leading-snug">
+                  {currentTask.id === "task-0-1-power-on"
+                    ? t("codegym.goalPowerOn", "Подати живлення на процесор телевізора і вивести його з режиму очікування.")
+                    : currentTask.id === "task-0-2-types"
+                    ? t("codegym.goalTypes", "Перемкнути канал на число 1 та встановити текстову мітку каналу.")
+                    : t("codegym.goalSequential", "Виконати ланцюжок інструкцій послідовно зверху вниз.")}
+                </p>
+              </div>
+            </div>
+
+            {/* Target Command */}
+            <div className="flex items-start gap-2 bg-[#181C24] p-2.5 rounded-xl border border-white/[0.08] text-white">
+              <Code2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+              <div className="space-y-0.5 w-full">
+                <div className="flex items-center justify-between text-[10px] font-mono text-gray-400 uppercase">
+                  <span>{t("codegym.missionTargetCommand", "Команда для вводу:")}</span>
+                  <span className="text-[9px] text-[#C5A059] font-bold">{codeLang === "go" ? "Go" : "C#"}</span>
+                </div>
+                <div className="font-mono text-xs font-bold text-emerald-300">
+                  {currentTask.id === "task-0-1-power-on"
+                    ? (codeLang === "go" ? "tv.PowerOn()" : "tv.PowerOn();")
+                    : currentTask.id === "task-0-2-types"
+                    ? (codeLang === "go" ? 'tv.SetChannel(1)\ntv.SetLabel("NEWS")' : 'tv.SetChannel(1);\ntv.SetLabel("NEWS");')
+                    : (codeLang === "go" ? "tv.PowerOn()\ntv.SetVolume(15)" : "tv.PowerOn();\ntv.SetVolume(15);")}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Syntax anatomy strip */}
+          <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-mono bg-slate-50/90 p-2 rounded-xl border border-black/[0.04]">
+            <span className="text-[10px] font-bold uppercase text-slate-500 mr-1">
+              {t("codegym.syntaxAnatomy", "Анатомія:")}
+            </span>
+            <span className="px-1.5 py-0.2 rounded bg-white border border-black/[0.08] text-obsidian font-bold">tv</span>
+            <span className="text-slate-400">→</span>
+            <span className="text-slate-600 text-[10px]">{t("codegym.syntaxObject", "прилад")}</span>
+            <span className="text-slate-400">•</span>
+            <span className="px-1.5 py-0.2 rounded bg-white border border-black/[0.08] text-obsidian font-bold">.</span>
+            <span className="text-slate-400">→</span>
+            <span className="text-slate-600 text-[10px]">{t("codegym.syntaxDot", "звернення")}</span>
+            <span className="text-slate-400">•</span>
+            <span className="px-1.5 py-0.2 rounded bg-white border border-black/[0.08] text-obsidian font-bold">
+              {currentTask.id === "task-0-2-types" ? "SetChannel(1)" : currentTask.id === "task-0-3-sequential" ? "SetVolume(15)" : "PowerOn()"}
+            </span>
+            <span className="text-slate-400">→</span>
+            <span className="text-slate-600 text-[10px]">{t("codegym.syntaxAction", "дія")}</span>
+            <span className="text-slate-400">•</span>
+            <span className="px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-900 border border-amber-600/20 font-bold">
+              {codeLang === "go" ? "\\n" : ";"}
+            </span>
+            <span className="text-slate-400">→</span>
+            <span className="text-slate-600 text-[10px]">
+              {codeLang === "go" ? t("codegym.syntaxNewline", "новий рядок") : t("codegym.syntaxSemicolon", "завершення команди")}
+            </span>
+          </div>
         </div>
       )}
 

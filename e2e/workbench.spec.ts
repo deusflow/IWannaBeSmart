@@ -172,6 +172,19 @@ test.describe("Interactive Workbench E2E", () => {
   });
 
   test("Flow 6: X-Ray Code Flow Visualizer across multi-file architecture", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("iw_checkpoint_tv", JSON.stringify({ tier: 2, taskId: "task-di-container" }));
+      localStorage.setItem("iw_mastery_stars", JSON.stringify({
+        "task-0-1-power-on": 4,
+        "task-0-2-types": 4,
+        "task-0-3-sequential": 4,
+        "task-boundary-guard": 4,
+        "task-function-encapsulation": 4,
+        "task-loop-volume": 4,
+        "task-array-channels": 4,
+        "task-di-container": 4,
+      }));
+    });
     await page.goto("./");
 
     // Enter Station 01 (TV)
@@ -211,6 +224,19 @@ test.describe("Interactive Workbench E2E", () => {
   });
 
   test("Flow 7: DI Survival Race drill (Without DI failure -> With DI 1-line victory)", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("iw_checkpoint_tv", JSON.stringify({ tier: 2, taskId: "task-di-container" }));
+      localStorage.setItem("iw_mastery_stars", JSON.stringify({
+        "task-0-1-power-on": 4,
+        "task-0-2-types": 4,
+        "task-0-3-sequential": 4,
+        "task-boundary-guard": 4,
+        "task-function-encapsulation": 4,
+        "task-loop-volume": 4,
+        "task-array-channels": 4,
+        "task-di-container": 4,
+      }));
+    });
     await page.goto("./");
 
     // Enter Station 01 (TV)

@@ -284,12 +284,32 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [unlockPractice]);
 
+  const isTaskUnlocked = useCallback(
+    (taskId: string) => {
+      const task = CODING_TASKS.find((item) => item.id === taskId);
+      if (!task) return false;
+      const tier = (task.tier ?? 0) as 0 | 1 | 2;
+      if (tier > 0 && !isTierUnlocked(tier)) return false;
+
+      const tierTasks = CODING_TASKS.filter((item) => (item.tier ?? 0) === tier);
+      const indexInTier = tierTasks.findIndex((item) => item.id === taskId);
+      if (indexInTier <= 0) return true;
+
+      const prevTask = tierTasks[indexInTier - 1];
+      const prevStars = taskMasteryStars[prevTask.id] || 0;
+      const isPrevCompleted = Boolean(completedCodingTasks[prevTask.id]);
+      return prevStars >= 1 || isPrevCompleted;
+    },
+    [isTierUnlocked, taskMasteryStars, completedCodingTasks]
+  );
+
   // Handle task switching
   const handleSelectTask = useCallback((taskId: string) => {
     const task = CODING_TASKS.find((item) => item.id === taskId);
     if (!task) return;
     const nextTier = (task.tier ?? 0) as 0 | 1 | 2;
     if (nextTier > 0 && !isTierUnlocked(nextTier)) return;
+    if (!isTaskUnlocked(taskId)) return;
     if (taskId === selectedTaskId) return;
     audioFx.playRelayClick();
     setSelectedTier(nextTier);
@@ -307,7 +327,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     if (task.isBugfixTask) {
       audioFx.playAlarmSound();
     }
-  }, [selectedTaskId, isTierUnlocked, channel, volume, applyCodeExecution, setActiveRound, setShowTheory, setShowTooltip]);
+  }, [selectedTaskId, isTierUnlocked, isTaskUnlocked, channel, volume, applyCodeExecution, setActiveRound, setShowTheory, setShowTooltip]);
 
   const handleSelectTier = useCallback((tier: 0 | 1 | 2) => {
     if (!isTierUnlocked(tier)) return;

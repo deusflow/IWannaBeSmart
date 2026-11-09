@@ -317,7 +317,13 @@ export function CodeGymEditor<
                 {t("codegym.round1Badge", "Раунд 1")}
               </span>
               <span className="text-gray-200 font-medium truncate">
-                {t((currentTask as unknown as { simpleExplanationKey?: string }).simpleExplanationKey || currentTask.descKey)}
+                {currentTask.id === "task-0-1-power-on"
+                  ? t("codegym.round1PromptPowerOn", "Повторіть для ввімкнення: tv.PowerOn();")
+                  : currentTask.id === "task-0-2-types"
+                  ? t("codegym.round1PromptTypes", "Повторіть команди для налаштування каналу")
+                  : currentTask.id === "task-0-3-sequential"
+                  ? t("codegym.round1PromptSequential", "Повторіть послідовність команд")
+                  : t("codegym.round1PromptDefault", "Повторіть за зразком")}
               </span>
             </div>
             <span className="text-[10px] font-mono text-slate-400 shrink-0">
