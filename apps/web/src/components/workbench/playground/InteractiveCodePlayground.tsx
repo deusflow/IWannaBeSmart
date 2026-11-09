@@ -20,6 +20,7 @@ import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { TvPlaygroundHeader } from "./TvPlaygroundHeader";
 import { BeginnerPointerGuide } from "./BeginnerPointerGuide";
+import { getTaskPointerMeta } from "./taskPointerData";
 import { getStationCheckpoint, saveStationCheckpoint } from "../../../utils/checkpointManager";
 import {
   PredictObserveExplainModal,
@@ -35,7 +36,7 @@ export interface InteractiveCodePlaygroundProps {
 export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps> = ({
   onOpenArchitectureStudio,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     power,
     channel,
@@ -157,7 +158,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     (tier: 0 | 1 | 2) => {
       if (tier === 0) return true;
       if (tier === 1) return tierStarTotals[0] >= 3;
-      return tierStarTotals[1] >= 12;
+      return tierStarTotals[1] >= 10;
     },
     [tierStarTotals]
   );
@@ -204,6 +205,16 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     }
   }, [currentTask.id]);
 
+  const handleReplayPointer = useCallback(() => {
+    audioFx.playRelayClick();
+    setPointerStep(1);
+    try {
+      localStorage.removeItem(`iw_pointer_dismissed_${currentTask.id}`);
+    } catch {
+      // ignore
+    }
+  }, [currentTask.id]);
+
   const handleCloseAhaMoment = useCallback(() => {
     setShowAhaMoment(false);
     setPointerStep(null);
@@ -221,6 +232,19 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       ? CODING_TASKS[currentTaskIndex + 1]
       : null;
   const isNextTaskUnlocked = nextTask ? isTierUnlocked((nextTask.tier ?? 0) as 0 | 1 | 2) : false;
+
+  const currentTierTasks = useMemo(
+    () => CODING_TASKS.filter((t) => (t.tier ?? 0) === selectedTier),
+    [selectedTier]
+  );
+  const isTierFinalTask =
+    currentTierTasks.length > 0 &&
+    currentTierTasks[currentTierTasks.length - 1].id === currentTask.id;
+
+  const currentLocale = (i18n.language as "ua" | "en" | "da") || "ua";
+  const nextTaskMeta = useMemo(() => {
+    return nextTask ? getTaskPointerMeta(nextTask.id, currentLocale) : null;
+  }, [nextTask, currentLocale]);
 
   useGuideSpotlight(currentTask.id);
 
@@ -396,6 +420,30 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       audioFx.playAlarmSound();
     }
   }, [selectedTaskId, isTierUnlocked, isTaskUnlocked, taskMasteryStars, channel, volume, applyCodeExecution, setActiveRound, setShowTheory, setShowTooltip]);
+
+  const handleAhaNextTask = useCallback(() => {
+    setShowAhaMoment(false);
+    setPointerStep(null);
+    try {
+      localStorage.setItem(`iw_pointer_aha_seen_${currentTask.id}`, "true");
+    } catch {
+      // ignore
+    }
+    if (nextTask && isNextTaskUnlocked) {
+      handleSelectTask(nextTask.id);
+    }
+  }, [currentTask.id, nextTask, isNextTaskUnlocked, handleSelectTask]);
+
+  const handleAhaPracticeRound = useCallback(() => {
+    setShowAhaMoment(false);
+    setPointerStep(null);
+    try {
+      localStorage.setItem(`iw_pointer_aha_seen_${currentTask.id}`, "true");
+    } catch {
+      // ignore
+    }
+    setActiveRound(2);
+  }, [currentTask.id, setActiveRound]);
 
   const handleSelectTier = useCallback((tier: 0 | 1 | 2) => {
     if (!isTierUnlocked(tier)) return;
@@ -803,6 +851,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         pointerStep={pointerStep}
         onAdvancePointerStep={handleAdvancePointerStep}
         onDismissPointer={handleDismissPointer}
+        onReplayPointer={handleReplayPointer}
       />
 
       {/* Project Explorer Bar - progressively revealed in Tier 2 (Architecture) */}
@@ -825,6 +874,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         onDismissPointer={handleDismissPointer}
         showAhaMoment={showAhaMoment}
         onCloseAhaMoment={handleCloseAhaMoment}
+        onNextTask={handleAhaNextTask}
+        onPracticeRound={handleAhaPracticeRound}
+        hasNextTask={Boolean(nextTask && isNextTaskUnlocked)}
+        nextTaskLabel={nextTaskMeta?.shortLabel}
+        isTierFinalTask={isTierFinalTask}
       />
 
       {/* Unified CodeGymEditor Component */}

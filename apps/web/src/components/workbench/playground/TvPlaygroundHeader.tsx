@@ -6,7 +6,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Star, Trophy, Zap, Lock, X, Flame, ShieldAlert, ScanLine, Timer, Target, Code2, HelpCircle } from "lucide-react";
-import type { CodingTask } from "@iw/sim-engine";
+import { type CodingTask, CODING_TASKS } from "@iw/sim-engine";
 import { audioFx } from "../../../utils/audioFx";
 import { GuidedStepBar } from "./GuidedStepBar";
 import { getTaskPointerMeta, getSyntaxAnatomy } from "./taskPointerData";
@@ -44,6 +44,7 @@ export interface TvPlaygroundHeaderProps {
   pointerStep?: 1 | 2 | 3 | null;
   onAdvancePointerStep?: () => void;
   onDismissPointer?: () => void;
+  onReplayPointer?: () => void;
 }
 
 export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
@@ -77,6 +78,7 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
   pointerStep,
   onAdvancePointerStep,
   onDismissPointer,
+  onReplayPointer,
 }) => {
   const { t, i18n } = useTranslation();
   const currentLocale = (i18n.language as "ua" | "en" | "da") || "ua";
@@ -97,6 +99,15 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
   });
   const [showToolsHelp, setShowToolsHelp] = React.useState(false);
 
+  const tierTasksMap = React.useMemo(() => {
+    return tierKeys.reduce((acc, tier) => {
+      const tasks = CODING_TASKS.filter((t) => (t.tier ?? 0) === tier);
+      const completed = tasks.filter((t) => (taskMasteryStars[t.id] || 0) >= 1).length;
+      acc[tier] = { tasks, completed };
+      return acc;
+    }, {} as Record<0 | 1 | 2, { tasks: CodingTask[]; completed: number }>);
+  }, [tierKeys, taskMasteryStars]);
+
   return (
     <div className="p-4 rounded-2xl bg-white border border-black/[0.07] shadow-porcelain space-y-3.5">
       {/* Tier Selector: In Tier 0, show a clean, focused beginner header */}
@@ -111,7 +122,9 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-600 shrink-0">
-            <span className="text-[#C5A059] font-extrabold">{tierStarTotals[0] || 0}/{tierMeta[0].maxStars} ★</span>
+            <span className="text-[#C5A059] font-extrabold">
+              {tierTasksMap[0]?.completed || 0}/{tierTasksMap[0]?.tasks.length || 3} {t("codegym.tasksFull", "завдань")} • {tierStarTotals[0] || 0}/{tierMeta[0].maxStars} ★
+            </span>
             {isTierUnlocked(1) && (
               <button
                 onClick={() => onSelectTier(1)}
@@ -160,7 +173,7 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
                       isCurrent ? "text-[#C5A059]" : "text-slate-500"
                     }`}
                   >
-                    {currentTierStars}/{maxStars} ★
+                    {tierTasksMap[tier]?.completed || 0}/{tierTasksMap[tier]?.tasks.length || 0} {t("codegym.tasksShort", "завд.")} • {currentTierStars}/{maxStars} ★
                   </span>
                 </div>
                 {!isUnlocked ? (
@@ -535,9 +548,21 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
                   {t("codegym.missionTitle", "Місія завдання")} • {tierMeta[selectedTier].label}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-black/[0.05]">
-                <span>{t("codegym.deviceLabel", "Прилад:")}</span>
-                <span className="font-bold text-obsidian">Smart TV 65"</span>
+              <div className="flex items-center gap-2">
+                {onReplayPointer && pointerStep === null && (
+                  <button
+                    onClick={onReplayPointer}
+                    className="flex items-center gap-1 text-[10px] font-mono font-bold text-amber-700 bg-amber-50 hover:bg-amber-100/80 px-2 py-0.5 rounded-md border border-amber-500/20 transition-colors cursor-pointer active:scale-95 shadow-2xs"
+                    title={t("codegym.pointer.replayStepsTooltip", "Показати покроковий орієнтир для новачка")}
+                  >
+                    <span>🎓</span>
+                    <span>{t("codegym.pointer.replayStepsBtn", "Підказка")}</span>
+                  </button>
+                )}
+                <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-black/[0.05]">
+                  <span>{t("codegym.deviceLabel", "Прилад:")}</span>
+                  <span className="font-bold text-obsidian">Smart TV 65"</span>
+                </div>
               </div>
             </div>
 

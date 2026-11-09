@@ -19,6 +19,11 @@ export interface BeginnerPointerGuideProps {
   onDismissPointer: () => void;
   showAhaMoment: boolean;
   onCloseAhaMoment: () => void;
+  onNextTask?: () => void;
+  onPracticeRound?: () => void;
+  hasNextTask?: boolean;
+  nextTaskLabel?: string;
+  isTierFinalTask?: boolean;
 }
 
 export const BeginnerPointerGuide: React.FC<BeginnerPointerGuideProps> = ({
@@ -29,6 +34,11 @@ export const BeginnerPointerGuide: React.FC<BeginnerPointerGuideProps> = ({
   onDismissPointer,
   showAhaMoment,
   onCloseAhaMoment,
+  onNextTask,
+  onPracticeRound,
+  hasNextTask,
+  nextTaskLabel,
+  isTierFinalTask,
 }) => {
   const { t, i18n } = useTranslation();
   const locale = (i18n.language as "ua" | "en" | "da") || "ua";
@@ -110,16 +120,54 @@ export const BeginnerPointerGuide: React.FC<BeginnerPointerGuideProps> = ({
               </p>
             </div>
 
-            <button
-              data-testid="aha-moment-close-btn"
-              onClick={() => {
-                audioFx.playSuccessFanfare();
-                onCloseAhaMoment();
-              }}
-              className="w-full py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
-            >
-              {t("codegym.pointer.ahaBtn", "Чудово, закріпимо результат! ⭐")}
-            </button>
+            <div className="space-y-2 pt-1">
+              {hasNextTask && onNextTask ? (
+                <button
+                  data-testid="aha-moment-next-btn"
+                  onClick={() => {
+                    audioFx.playRelayClick();
+                    onNextTask();
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] border border-[#C5A059]/40 font-mono font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>
+                    {isTierFinalTask
+                      ? t("codegym.pointer.ahaFinishTierBtn", "Завершити ранг та перейти далі →")
+                      : t("codegym.pointer.ahaNextTaskBtn", "До наступного завдання →")}
+                  </span>
+                  {nextTaskLabel && (
+                    <span className="text-[10px] text-gray-300 font-normal">
+                      ({nextTaskLabel})
+                    </span>
+                  )}
+                </button>
+              ) : null}
+
+              {onPracticeRound && (
+                <button
+                  data-testid="aha-moment-practice-btn"
+                  onClick={() => {
+                    audioFx.playRelayClick();
+                    onPracticeRound();
+                  }}
+                  className="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-obsidian border border-black/[0.08] font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1"
+                >
+                  <span>{t("codegym.pointer.ahaPracticeRoundBtn", "Закріпити (Раунд 2: Прогалини)")}</span>
+                  <span className="text-[#C5A059]">★</span>
+                </button>
+              )}
+
+              <button
+                data-testid="aha-moment-close-btn"
+                onClick={() => {
+                  audioFx.playRelayClick();
+                  onCloseAhaMoment();
+                }}
+                className="w-full py-1.5 text-center text-slate-400 hover:text-slate-600 font-mono text-[11px] transition-colors cursor-pointer"
+              >
+                {t("codegym.pointer.ahaStayBtn", "Залишитися в цьому завданні")}
+              </button>
+            </div>
           </div>
         </div>
       )}
