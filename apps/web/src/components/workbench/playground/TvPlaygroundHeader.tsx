@@ -40,6 +40,9 @@ export interface TvPlaygroundHeaderProps {
   onOpenCrashGate?: () => void;
   onOpenXRayModal?: () => void;
   onOpenDiRaceModal?: () => void;
+  pointerStep?: 1 | 2 | 3 | null;
+  onAdvancePointerStep?: () => void;
+  onDismissPointer?: () => void;
 }
 
 export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
@@ -70,6 +73,9 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
   onOpenCrashGate,
   onOpenXRayModal,
   onOpenDiRaceModal,
+  pointerStep,
+  onAdvancePointerStep,
+  onDismissPointer,
 }) => {
   const { t } = useTranslation();
 
@@ -413,38 +419,118 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
             {/* Goal */}
-            <div className="flex items-start gap-2 bg-slate-50/70 p-2.5 rounded-xl border border-black/[0.04]">
-              <Target size={14} className="text-amber-600 shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <span className="font-mono text-[10px] font-bold uppercase text-slate-500">
-                  {t("codegym.missionGoalLabel", "Ціль:")}
-                </span>
-                <p className="text-obsidian font-medium leading-snug">
-                  {currentTask.id === "task-0-1-power-on"
-                    ? t("codegym.goalPowerOn", "Подати живлення на процесор телевізора і вивести його з режиму очікування.")
-                    : currentTask.id === "task-0-2-types"
-                    ? t("codegym.goalTypes", "Перемкнути канал на число 1 та встановити текстову мітку каналу.")
-                    : t("codegym.goalSequential", "Виконати ланцюжок інструкцій послідовно зверху вниз.")}
-                </p>
+            <div
+              id="guide-step-goal"
+              className={`flex flex-col justify-between p-2.5 rounded-xl border transition-all duration-300 ${
+                pointerStep === 1
+                  ? "ring-2 ring-[#C5A059] shadow-[0_0_20px_rgba(197,160,89,0.35)] bg-amber-500/5 border-amber-500/40"
+                  : "bg-slate-50/70 border-black/[0.04]"
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                <Target size={14} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-mono text-[10px] font-bold uppercase text-slate-500">
+                    {t("codegym.missionGoalLabel", "Ціль:")}
+                  </span>
+                  <p className="text-obsidian font-medium leading-snug">
+                    {currentTask.id === "task-0-1-power-on"
+                      ? t("codegym.goalPowerOn", "Подати живлення на процесор телевізора і вивести його з режиму очікування.")
+                      : currentTask.id === "task-0-2-types"
+                      ? t("codegym.goalTypes", "Перемкнути канал на число 1 та встановити текстову мітку каналу.")
+                      : t("codegym.goalSequential", "Виконати ланцюжок інструкцій послідовно зверху вниз.")}
+                  </p>
+                </div>
               </div>
+
+              {/* Step 1 Pointer Bubble */}
+              {pointerStep === 1 && (
+                <div className="mt-2.5 pt-2 border-t border-amber-500/20 flex items-center justify-between gap-2 animate-in fade-in">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="px-1.5 py-0.2 rounded bg-[#C5A059] text-black font-mono text-[9px] font-extrabold uppercase shrink-0">
+                      {t("codegym.pointer.step1Badge", "Крок 1 із 3")}
+                    </span>
+                    <span className="text-[11px] font-medium text-slate-700 truncate">
+                      {t("codegym.pointer.step1Title", "Подивіться на місію")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={onAdvancePointerStep}
+                      className="px-2.5 py-1 rounded-lg bg-[#252932] hover:bg-[#1A1D24] text-[#C5A059] text-[10px] font-mono font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+                    >
+                      {t("codegym.pointer.step1Btn", "Яка команда потрібна? →")}
+                    </button>
+                    {onDismissPointer && (
+                      <button
+                        onClick={onDismissPointer}
+                        className="text-[10px] font-mono text-slate-400 hover:text-slate-600 px-1 py-0.5 rounded cursor-pointer"
+                        title={t("codegym.pointer.skip", "Пропустити підказки")}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Target Command */}
-            <div className="flex items-start gap-2 bg-[#181C24] p-2.5 rounded-xl border border-white/[0.08] text-white">
-              <Code2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
-              <div className="space-y-0.5 w-full">
-                <div className="flex items-center justify-between text-[10px] font-mono text-gray-400 uppercase">
-                  <span>{t("codegym.missionTargetCommand", "Команда для вводу:")}</span>
-                  <span className="text-[9px] text-[#C5A059] font-bold">{codeLang === "go" ? "Go" : "C#"}</span>
-                </div>
-                <div className="font-mono text-xs font-bold text-emerald-300">
-                  {currentTask.id === "task-0-1-power-on"
-                    ? (codeLang === "go" ? "tv.PowerOn()" : "tv.PowerOn();")
-                    : currentTask.id === "task-0-2-types"
-                    ? (codeLang === "go" ? 'tv.SetChannel(1)\ntv.SetLabel("NEWS")' : 'tv.SetChannel(1);\ntv.SetLabel("NEWS");')
-                    : (codeLang === "go" ? "tv.PowerOn()\ntv.SetVolume(15)" : "tv.PowerOn();\ntv.SetVolume(15);")}
+            <div
+              id="guide-step-command"
+              className={`flex flex-col justify-between p-2.5 rounded-xl border transition-all duration-300 ${
+                pointerStep === 2
+                  ? "ring-2 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.35)] bg-[#141820] border-emerald-500/60"
+                  : "bg-[#181C24] border-white/[0.08]"
+              } text-white`}
+            >
+              <div className="flex items-start gap-2">
+                <Code2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5 w-full">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-gray-400 uppercase">
+                    <span>{t("codegym.missionTargetCommand", "Команда для вводу:")}</span>
+                    <span className="text-[9px] text-[#C5A059] font-bold">{codeLang === "go" ? "Go" : "C#"}</span>
+                  </div>
+                  <div className="font-mono text-xs font-bold text-emerald-300">
+                    {currentTask.id === "task-0-1-power-on"
+                      ? (codeLang === "go" ? "tv.PowerOn()" : "tv.PowerOn();")
+                      : currentTask.id === "task-0-2-types"
+                      ? (codeLang === "go" ? 'tv.SetChannel(1)\ntv.SetLabel("NEWS")' : 'tv.SetChannel(1);\ntv.SetLabel("NEWS");')
+                      : (codeLang === "go" ? "tv.PowerOn()\ntv.SetVolume(15)" : "tv.PowerOn();\ntv.SetVolume(15);")}
+                  </div>
                 </div>
               </div>
+
+              {/* Step 2 Pointer Bubble */}
+              {pointerStep === 2 && (
+                <div className="mt-2.5 pt-2 border-t border-emerald-500/20 flex items-center justify-between gap-2 animate-in fade-in">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="px-1.5 py-0.2 rounded bg-emerald-400 text-black font-mono text-[9px] font-extrabold uppercase shrink-0">
+                      {t("codegym.pointer.step2Badge", "Крок 2 із 3")}
+                    </span>
+                    <span className="text-[11px] font-medium text-emerald-200 truncate">
+                      {t("codegym.pointer.step2Title", "Команда для заліза")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={onAdvancePointerStep}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-black text-[10px] font-mono font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+                    >
+                      {t("codegym.pointer.step2Btn", "Куди вводити? →")}
+                    </button>
+                    {onDismissPointer && (
+                      <button
+                        onClick={onDismissPointer}
+                        className="text-[10px] font-mono text-gray-400 hover:text-white px-1 py-0.5 rounded cursor-pointer"
+                        title={t("codegym.pointer.skip", "Пропустити підказки")}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -19,6 +19,7 @@ import { ProjectExplorerBar } from "./ProjectExplorerBar";
 import { useCodeGymSession } from "./useCodeGymSession";
 import { CodeGymEditor } from "./CodeGymEditor";
 import { TvPlaygroundHeader } from "./TvPlaygroundHeader";
+import { BeginnerPointerGuide } from "./BeginnerPointerGuide";
 import { getStationCheckpoint, saveStationCheckpoint } from "../../../utils/checkpointManager";
 import {
   PredictObserveExplainModal,
@@ -165,6 +166,52 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   const [isXRayModalOpen, setIsXRayModalOpen] = useState(false);
   const [isDiRaceModalOpen, setIsDiRaceModalOpen] = useState(false);
 
+  // Guided beginner pointer ladder & Aha moment celebration
+  const [pointerStep, setPointerStep] = useState<1 | 2 | 3 | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const isDismissed = localStorage.getItem("iw_pointer_dismissed_task-0-1-power-on");
+      const hasStars = (taskMasteryStars["task-0-1-power-on"] || 0) >= 1;
+      return !isDismissed && !hasStars ? 1 : null;
+    } catch {
+      return null;
+    }
+  });
+  const [showAhaMoment, setShowAhaMoment] = useState(false);
+
+  const handleAdvancePointerStep = useCallback(() => {
+    audioFx.playRelayClick();
+    setPointerStep((prev) => {
+      if (prev === 1) return 2;
+      if (prev === 2) {
+        const el = document.getElementById("guide-step-editor");
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return 3;
+      }
+      return null;
+    });
+  }, []);
+
+  const handleDismissPointer = useCallback(() => {
+    audioFx.playRelayClick();
+    setPointerStep(null);
+    try {
+      localStorage.setItem(`iw_pointer_dismissed_${currentTask.id}`, "true");
+    } catch {
+      // ignore
+    }
+  }, [currentTask.id]);
+
+  const handleCloseAhaMoment = useCallback(() => {
+    setShowAhaMoment(false);
+    setPointerStep(null);
+    try {
+      localStorage.setItem(`iw_pointer_aha_seen_${currentTask.id}`, "true");
+    } catch {
+      // ignore
+    }
+  }, [currentTask.id]);
+
   // Next task calculation
   const currentTaskIndex = CODING_TASKS.findIndex((t) => t.id === currentTask.id);
   const nextTask =
@@ -263,6 +310,17 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         addXp((targetStars - currentStars) * 15);
       }
       await runTvExecution(code);
+      if ((currentTask.tier ?? 0) === 0 && round === 1) {
+        try {
+          const alreadySeen = localStorage.getItem(`iw_pointer_aha_seen_${currentTask.id}`);
+          if (!alreadySeen) {
+            setShowAhaMoment(true);
+            audioFx.playSuccessFanfare();
+          }
+        } catch {
+          setShowAhaMoment(true);
+        }
+      }
       const allCompleted = CODING_TASKS.every(
         (task) =>
           task.id === currentTask.id || (taskMasteryStars[task.id] || 0) >= 1 || completedCodingTasks[task.id]
@@ -318,6 +376,14 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     setShowTheory(false);
     setShowTooltip(false);
 
+    try {
+      const isDismissed = localStorage.getItem(`iw_pointer_dismissed_${taskId}`);
+      const hasStars = (taskMasteryStars[taskId] || 0) >= 1;
+      setPointerStep(nextTier === 0 && !isDismissed && !hasStars ? 1 : null);
+    } catch {
+      setPointerStep(null);
+    }
+
     if (taskId === "task-boundary-guard" && channel <= 4) {
       applyCodeExecution({ channel: 5 });
     }
@@ -327,7 +393,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     if (task.isBugfixTask) {
       audioFx.playAlarmSound();
     }
-  }, [selectedTaskId, isTierUnlocked, isTaskUnlocked, channel, volume, applyCodeExecution, setActiveRound, setShowTheory, setShowTooltip]);
+  }, [selectedTaskId, isTierUnlocked, isTaskUnlocked, taskMasteryStars, channel, volume, applyCodeExecution, setActiveRound, setShowTheory, setShowTooltip]);
 
   const handleSelectTier = useCallback((tier: 0 | 1 | 2) => {
     if (!isTierUnlocked(tier)) return;
@@ -340,13 +406,21 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     setShowTheory(false);
     setShowTooltip(false);
 
+    try {
+      const isDismissed = localStorage.getItem(`iw_pointer_dismissed_${firstTask.id}`);
+      const hasStars = (taskMasteryStars[firstTask.id] || 0) >= 1;
+      setPointerStep(tier === 0 && !isDismissed && !hasStars ? 1 : null);
+    } catch {
+      setPointerStep(null);
+    }
+
     if (firstTask.id === "task-boundary-guard" && channel <= 4) {
       applyCodeExecution({ channel: 5 });
     }
     if (firstTask.id === "task-function-encapsulation" && volume === 0) {
       applyCodeExecution({ volume: 50 });
     }
-  }, [isTierUnlocked, channel, volume, applyCodeExecution, setActiveRound, setShowTheory, setShowTooltip]);
+  }, [isTierUnlocked, taskMasteryStars, channel, volume, applyCodeExecution, setActiveRound, setShowTheory, setShowTooltip]);
 
   useEffect(() => {
     const tierMatch = visibleTasks.some((task) => task.id === selectedTaskId);
@@ -677,6 +751,9 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           audioFx.playWarRoomSiren();
           setIsCrashGateOpen(true);
         }}
+        pointerStep={pointerStep}
+        onAdvancePointerStep={handleAdvancePointerStep}
+        onDismissPointer={handleDismissPointer}
       />
 
       {/* Project Explorer Bar - progressively revealed in Tier 2 (Architecture) */}
@@ -688,6 +765,18 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
           stationId="tv"
         />
       )}
+
+      {/* ── Guided Didactic Pointer & Aha Moment Celebration ── */}
+      <BeginnerPointerGuide
+        taskId={currentTask.id}
+        codeLang={codeLang}
+        targetCode={targetCode}
+        pointerStep={pointerStep}
+        onAdvancePointerStep={handleAdvancePointerStep}
+        onDismissPointer={handleDismissPointer}
+        showAhaMoment={showAhaMoment}
+        onCloseAhaMoment={handleCloseAhaMoment}
+      />
 
       {/* Unified CodeGymEditor Component */}
       <CodeGymEditor

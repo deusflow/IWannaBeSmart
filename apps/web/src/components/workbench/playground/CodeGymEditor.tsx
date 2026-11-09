@@ -309,7 +309,7 @@ export function CodeGymEditor<
       </div>
 
       {/* ── Single Consolidated Mission Bar (Progressive by Round) ── */}
-      <div className="px-4 py-2 bg-[#181C24] border-b border-white/[0.08] text-xs font-mono select-none">
+      <div id="guide-step-editor" className="px-4 py-2 bg-[#181C24] border-b border-white/[0.08] text-xs font-mono select-none">
         {activeRound === 1 && !currentTask.isBugfixTask && (
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
