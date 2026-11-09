@@ -77,7 +77,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     const countTasks = (tier: 0 | 1 | 2) => CODING_TASKS.filter((t) => (t.tier ?? 0) === tier).length;
     return {
       0: { label: t("codegym.tier0Label", "РАНГ 0: СТАРТ"), maxStars: countTasks(0) * 4, unlockAt: 0 },
-      1: { label: t("codegym.tier1Label", "РАНГ 1: ЛОГІКА"), maxStars: countTasks(1) * 4, unlockAt: 6 },
+      1: { label: t("codegym.tier1Label", "РАНГ 1: ЛОГІКА"), maxStars: countTasks(1) * 4, unlockAt: 3 },
       2: { label: t("codegym.tier2Label", "РАНГ 2: АРХІТЕКТУРА"), maxStars: countTasks(2) * 4, unlockAt: 12 },
     };
   }, [t]);
@@ -153,7 +153,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
   const isTierUnlocked = useCallback(
     (tier: 0 | 1 | 2) => {
       if (tier === 0) return true;
-      if (tier === 1) return tierStarTotals[0] >= 6;
+      if (tier === 1) return tierStarTotals[0] >= 3;
       return tierStarTotals[1] >= 12;
     },
     [tierStarTotals]
@@ -659,13 +659,15 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         }}
       />
 
-      {/* Project Explorer Bar */}
-      <ProjectExplorerBar
-        currentCode={typedCode || targetCode}
-        codeLang={codeLang}
-        isFintech={false}
-        stationId="tv"
-      />
+      {/* Project Explorer Bar - progressively revealed in Tier 2 (Architecture) */}
+      {selectedTier >= 2 && (
+        <ProjectExplorerBar
+          currentCode={typedCode || targetCode}
+          codeLang={codeLang}
+          isFintech={false}
+          stationId="tv"
+        />
+      )}
 
       {/* Unified CodeGymEditor Component */}
       <CodeGymEditor

@@ -75,92 +75,125 @@ export const TvPlaygroundHeader: React.FC<TvPlaygroundHeaderProps> = ({
 
   return (
     <div className="p-4 rounded-2xl bg-white border border-black/[0.07] shadow-porcelain space-y-3.5">
-      {/* Tier Selector */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 border-b border-black/[0.06] pb-3">
-        {tierKeys.map((tier) => {
-          const isUnlocked = isTierUnlocked(tier);
-          const isCurrent = selectedTier === tier;
-          const maxStars = tierMeta[tier].maxStars;
-          const currentTierStars = tierStarTotals[tier] || 0;
+      {/* Tier Selector: In Tier 0, show a clean, focused beginner header */}
+      {selectedTier === 0 ? (
+        <div className="flex items-center justify-between gap-3 border-b border-black/[0.06] pb-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-mono text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-lg bg-[#252932] text-white shadow-2xs shrink-0">
+              {tierMeta[0].label}
+            </span>
+            <span className="text-xs font-sans text-slate-500 truncate">
+              {t("codegym.tier0Subtitle", "Базове знайомство з мовою коду (3 завдання)")}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-600 shrink-0">
+            <span className="text-[#C5A059] font-extrabold">{tierStarTotals[0] || 0}/{tierMeta[0].maxStars} ★</span>
+            {isTierUnlocked(1) && (
+              <button
+                onClick={() => onSelectTier(1)}
+                className="text-[11px] text-[#252932] hover:text-[#C5A059] cursor-pointer flex items-center gap-1 font-bold ml-1 transition-colors"
+              >
+                Ранг 1 →
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 border-b border-black/[0.06] pb-3">
+          {tierKeys.map((tier) => {
+            const isUnlocked = isTierUnlocked(tier);
+            const isCurrent = selectedTier === tier;
+            const maxStars = tierMeta[tier].maxStars;
+            const currentTierStars = tierStarTotals[tier] || 0;
 
-          return (
-            <button
-              key={tier}
-              disabled={!isUnlocked}
-              onClick={() => onSelectTier(tier)}
-              className={`p-2.5 rounded-xl border text-left transition-all ${
-                isCurrent
-                  ? "bg-[#252932] border-[#252932] text-white shadow-sm"
-                  : isUnlocked
-                  ? "bg-slate-50 hover:bg-slate-100/70 border-black/[0.06] text-obsidian hover:border-black/[0.14] shadow-2xs cursor-pointer"
-                  : "bg-slate-50/40 border-black/[0.04] text-slate-400 cursor-not-allowed opacity-60"
-              }`}
-              title={
-                !isUnlocked
-                  ? tier === 1
-                    ? t("codegym.tier1Locked", " Потрібно 6 ★ у Ранзі 0")
-                    : t("codegym.tier2Locked", " Пройдіть Ранг 1 (≥10 ★)")
-                  : `${tierMeta[tier].label} (${currentTierStars}/${maxStars} ★)`
-              }
-            >
-              <div className="flex items-center justify-between gap-1">
-                <div className="font-mono text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1 min-w-0">
-                  {!isUnlocked && <Lock size={11} className="text-slate-400 shrink-0" />}
-                  <span className="truncate">{tierMeta[tier].label}</span>
+            return (
+              <button
+                key={tier}
+                disabled={!isUnlocked}
+                onClick={() => onSelectTier(tier)}
+                className={`p-2.5 rounded-xl border text-left transition-all ${
+                  isCurrent
+                    ? "bg-[#252932] border-[#252932] text-white shadow-sm"
+                    : isUnlocked
+                    ? "bg-slate-50 hover:bg-slate-100/70 border-black/[0.06] text-obsidian hover:border-black/[0.14] shadow-2xs cursor-pointer"
+                    : "bg-slate-50/40 border-black/[0.04] text-slate-400 cursor-not-allowed opacity-60"
+                }`}
+                title={
+                  !isUnlocked
+                    ? tier === 1
+                      ? t("codegym.tier1Locked", " Потрібно 3 ★ у Ранзі 0")
+                      : t("codegym.tier2Locked", " Пройдіть Ранг 1 (≥10 ★)")
+                    : `${tierMeta[tier].label} (${currentTierStars}/${maxStars} ★)`
+                }
+              >
+                <div className="flex items-center justify-between gap-1">
+                  <div className="font-mono text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1 min-w-0">
+                    {!isUnlocked && <Lock size={11} className="text-slate-400 shrink-0" />}
+                    <span className="truncate">{tierMeta[tier].label}</span>
+                  </div>
+                  <span
+                    className={`font-mono text-[10px] font-bold shrink-0 ${
+                      isCurrent ? "text-[#C5A059]" : "text-slate-500"
+                    }`}
+                  >
+                    {currentTierStars}/{maxStars} ★
+                  </span>
                 </div>
-                <span
-                  className={`font-mono text-[10px] font-bold shrink-0 ${
-                    isCurrent ? "text-[#C5A059]" : "text-slate-500"
-                  }`}
-                >
-                  {currentTierStars}/{maxStars} ★
-                </span>
-              </div>
-              {!isUnlocked ? (
-                <div className="mt-1 text-[9px] font-mono text-amber-800 font-semibold truncate">
-                  {tier === 1
-                    ? t("codegym.tier1Locked", " Потрібно 6 ★ у Ранзі 0")
-                    : t("codegym.tier2Locked", " Пройдіть Ранг 1 (≥10 ★)")}
-                </div>
-              ) : (
-                <div className="mt-1 flex items-center gap-1 text-[9px]">
-                  {Array.from({ length: 3 }).map((_, starIdx) => {
-                    const threshold = Math.round(((starIdx + 1) * maxStars) / 3);
-                    return (
-                      <span
-                        key={starIdx}
-                        className={currentTierStars >= threshold ? "text-[#C5A059]" : "text-slate-300 opacity-40"}
-                      >
-                        ★
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
+                {!isUnlocked ? (
+                  <div className="mt-1 text-[9px] font-mono text-amber-800 font-semibold truncate">
+                    {tier === 1
+                      ? t("codegym.tier1Locked", " Потрібно 3 ★ у Ранзі 0")
+                      : t("codegym.tier2Locked", " Пройдіть Ранг 1 (≥10 ★)")}
+                  </div>
+                ) : (
+                  <div className="mt-1 flex items-center gap-1 text-[9px]">
+                    {Array.from({ length: 3 }).map((_, starIdx) => {
+                      const threshold = Math.round(((starIdx + 1) * maxStars) / 3);
+                      return (
+                        <span
+                          key={starIdx}
+                          className={currentTierStars >= threshold ? "text-[#C5A059]" : "text-slate-300 opacity-40"}
+                        >
+                          ★
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Task Cards for active tier */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 pt-1">
+      <div className={`grid gap-2 pt-1 ${selectedTier === 0 ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"}`}>
         {visibleTasks.map((task, idx) => {
           const isCurrent = task.id === currentTaskId;
           const taskStars = taskMasteryStars[task.id] || 0;
+          const simpleStepLabels: Record<string, string> = {
+            "task-0-1-power-on": "1. Увімкнення",
+            "task-0-2-types": "2. Типи даних",
+            "task-0-3-sequential": "3. Послідовність",
+          };
+          const stepLabel = selectedTier === 0 && simpleStepLabels[task.id]
+            ? simpleStepLabels[task.id]
+            : `#${idx + 1}`;
+
           return (
             <button
               key={task.id}
               onClick={() => onSelectTask(task.id)}
-              className={`p-1.5 rounded-xl text-center border transition-all cursor-pointer ${
+              className={`p-2 rounded-xl text-center border transition-all cursor-pointer ${
                 isCurrent
                   ? "bg-[#252932] border-[#252932] text-white shadow-sm"
                   : "bg-white hover:bg-slate-50 border-black/[0.06] text-obsidian hover:border-black/[0.14] shadow-2xs"
               }`}
               title={`${t(task.titleKey)} (${taskStars}/4 ★)`}
             >
-              <div className="text-[10px] font-mono font-bold uppercase">
+              <div className="text-[11px] font-mono font-bold uppercase truncate">
                 <span className={isCurrent ? "text-[#C5A059]" : "text-slate-500"}>
-                  #{idx + 1}
+                  {stepLabel}
                 </span>
               </div>
               <div className="flex items-center justify-center gap-0.5 text-[9px] mt-0.5">

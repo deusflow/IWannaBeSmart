@@ -87,11 +87,15 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
             )}
           </div>
           <h2 className="text-lg sm:text-xl font-bold tracking-tight text-obsidian font-display truncate">
-            {t("level.level1Title", { defaultValue: level.title })}
+            {activeTab === "code"
+              ? t("workbench.drawerTabs.codeTitle", "Тренажер коду: Smart TV")
+              : t("level.level1Title", { defaultValue: level.title })}
           </h2>
-          <p className="text-xs text-slate-600 leading-relaxed font-sans line-clamp-2">
-            {t("level.level1Briefing", { defaultValue: level.briefing })}
-          </p>
+          {activeTab === "hardware" && (
+            <p className="text-xs text-slate-600 leading-relaxed font-sans line-clamp-2">
+              {t("level.level1Briefing", { defaultValue: level.briefing })}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-1 shrink-0 pt-0.5">
@@ -139,44 +143,46 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
 
       {/* Content Area with Vellum Grid */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-notebook-grid space-y-4">
-        {/* Objective Callout with Accordion Disclosure */}
-        <div className="rounded-2xl bg-white border border-black/[0.08] shadow-2xs overflow-hidden transition-all duration-200">
-          <button
-            onClick={() => setIsObjectiveExpanded((p) => !p)}
-            className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-slate-50 transition-colors"
-            title={isObjectiveExpanded ? t("common.collapse", "Згорнути") : t("common.expand", "Розгорнути")}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-display font-bold text-[#252932] flex items-center gap-1.5 text-xs shrink-0">
-                <Terminal size={13} strokeWidth={2} />
-                {t("drawer.objectiveTitle", "Інженерне завдання:")}
-              </span>
-              <span className="text-slate-500 text-xs font-sans truncate">
-                {t("level.level1Objective", { defaultValue: level.objective })}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-slate-400 text-[11px] font-mono shrink-0">
-              <span>{isObjectiveExpanded ? t("common.collapse", "Згорнути") : t("common.details", "Деталі")}</span>
-              {isObjectiveExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-            </div>
-          </button>
+        {/* Objective Callout with Accordion Disclosure - only for hardware schematic tab */}
+        {activeTab === "hardware" && (
+          <div className="rounded-2xl bg-white border border-black/[0.08] shadow-2xs overflow-hidden transition-all duration-200">
+            <button
+              onClick={() => setIsObjectiveExpanded((p) => !p)}
+              className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-slate-50 transition-colors"
+              title={isObjectiveExpanded ? t("common.collapse", "Згорнути") : t("common.expand", "Розгорнути")}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-display font-bold text-[#252932] flex items-center gap-1.5 text-xs shrink-0">
+                  <Terminal size={13} strokeWidth={2} />
+                  {t("drawer.objectiveTitle", "Інженерне завдання:")}
+                </span>
+                <span className="text-slate-500 text-xs font-sans truncate">
+                  {t("level.level1Objective", { defaultValue: level.objective })}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-slate-400 text-[11px] font-mono shrink-0">
+                <span>{isObjectiveExpanded ? t("common.collapse", "Згорнути") : t("common.details", "Деталі")}</span>
+                {isObjectiveExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              </div>
+            </button>
 
-          {isObjectiveExpanded && (
-            <div className="px-3.5 pb-3.5 pt-1 border-t border-black/[0.06] text-xs text-obsidian leading-relaxed font-sans animate-in fade-in space-y-2">
-              <p className="font-medium text-obsidian">
-                {t("level.level1Objective", { defaultValue: level.objective })}
-              </p>
-              {level.briefing && (
-                <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-black/[0.06] leading-normal">
-                  <span className="font-bold text-slate-400 uppercase text-[9px] block mb-0.5">
-                    {t("level.briefingLabel", "Брифінг:")}
-                  </span>
-                  {t("level.level1Briefing", { defaultValue: level.briefing })}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            {isObjectiveExpanded && (
+              <div className="px-3.5 pb-3.5 pt-1 border-t border-black/[0.06] text-xs text-obsidian leading-relaxed font-sans animate-in fade-in space-y-2">
+                <p className="font-medium text-obsidian">
+                  {t("level.level1Objective", { defaultValue: level.objective })}
+                </p>
+                {level.briefing && (
+                  <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-black/[0.06] leading-normal">
+                    <span className="font-bold text-slate-400 uppercase text-[9px] block mb-0.5">
+                      {t("level.briefingLabel", "Брифінг:")}
+                    </span>
+                    {t("level.level1Briefing", { defaultValue: level.briefing })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* TAB 1: INTERACTIVE LIVE CODING PLAYGROUND */}
         {activeTab === "code" && (

@@ -279,23 +279,25 @@ export const GuidedStepBar: React.FC<GuidedStepBarProps> = ({
               <span>{t("guide.tokensTab", "Розбір коду")}</span>
             </button>
 
-            {/* Level 3: Under the Hood (PRO) */}
-            <button
-              id="guided-step-tab-deepdive"
-              onClick={(e) => {
-                e.stopPropagation();
-                selectLayer("deepdive");
-              }}
-              className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
-                activeLayer === "deepdive" && isExpanded
-                  ? "bg-[#252932] text-white shadow-2xs"
-                  : "text-slate-600 hover:text-obsidian"
-              }`}
-            >
-              <Cpu size={11} className={activeLayer === "deepdive" && isExpanded ? "text-indigo-400" : ""} />
-              <span>{t("guide.deepDiveTab", "Під капотом")}</span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/15 text-amber-900 border border-amber-600/30 font-extrabold">PRO</span>
-            </button>
+            {/* Level 3: Under the Hood (PRO) - progressively revealed in Tier 1+ */}
+            {data.tier !== 0 && (
+              <button
+                id="guided-step-tab-deepdive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  selectLayer("deepdive");
+                }}
+                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                  activeLayer === "deepdive" && isExpanded
+                    ? "bg-[#252932] text-white shadow-2xs"
+                    : "text-slate-600 hover:text-obsidian"
+                }`}
+              >
+                <Cpu size={11} className={activeLayer === "deepdive" && isExpanded ? "text-indigo-400" : ""} />
+                <span>{t("guide.deepDiveTab", "Під капотом")}</span>
+                <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/15 text-amber-900 border border-amber-600/30 font-extrabold">PRO</span>
+              </button>
+            )}
           </div>
 
           {!persistent && (
