@@ -1502,7 +1502,7 @@ export const enTranslation = {
         timeExpiredPrompt: "⏰ Time expired! Click 'Reset' and try again.",
         projectExplorer: "Project Explorer",
         projectArchitectureTitle: "Project Architecture & Files",
-        resetPrompt: "Reset entered code (Esc)",
+        resetPrompt: "Start over: reset task progress and replay with hints (Esc)",
         theoryLockedTitle: "Practice locked until theory review",
         theoryLockedDesc: "Review teacher sample and intuition analogy above to understand the concept before typing.",
         openTheoryBtn: "Open teacher explanation",

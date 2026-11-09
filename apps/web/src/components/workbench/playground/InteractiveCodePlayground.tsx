@@ -51,6 +51,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     addXp,
     setStationVictoryModalOpen,
     resetBypasses,
+    resetTasksMastery,
     targetTaskId,
     setTargetTaskId,
   } = useWorkbenchStore(
@@ -69,6 +70,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       addXp: s.addXp,
       setStationVictoryModalOpen: s.setStationVictoryModalOpen,
       resetBypasses: s.resetBypasses,
+      resetTasksMastery: s.resetTasksMastery,
       targetTaskId: s.targetTaskId,
       setTargetTaskId: s.setTargetTaskId,
     }))
@@ -671,6 +673,55 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     }
   }, [currentTask.isBugfixTask, activeRound, isTimerRunning, handleVerifyBugfix, handleVerifyCloze, handleStartSprint, handleRunSprint, handleRunTransfer]);
 
+  const handleResetTaskBranch = useCallback(() => {
+    audioFx.playRelayClick();
+
+    // 1. Reset round & editor draft
+    handleResetRound();
+    setActiveRound(1);
+
+    // 2. Identify all tasks in this tier starting from current task onward
+    const tierTasks = CODING_TASKS.filter((t) => (t.tier ?? 0) === selectedTier);
+    const currentIdx = tierTasks.findIndex((t) => t.id === currentTask.id);
+    const tasksToReset = currentIdx >= 0 ? tierTasks.slice(currentIdx) : [currentTask];
+    const taskIdsToReset = tasksToReset.map((t) => t.id);
+
+    // 3. Reset progress in store & localStorage
+    resetTasksMastery(taskIdsToReset);
+
+    // 4. Clear pointer guide flags for these tasks so student can re-experience them
+    tasksToReset.forEach((t) => {
+      try {
+        localStorage.removeItem(`iw_pointer_dismissed_${t.id}`);
+        localStorage.removeItem(`iw_pointer_aha_seen_${t.id}`);
+      } catch {
+        // ignore
+      }
+    });
+
+    // 5. Restore pointer guide to step 1
+    if (selectedTier === 0) {
+      setPointerStep(1);
+    }
+    setShowAhaMoment(false);
+
+    // 6. Reset TV hardware state back to standby
+    applyCodeExecution({
+      power: false,
+      channel: 1,
+      volume: 10,
+      osdMessage: undefined,
+      label: undefined,
+    });
+  }, [
+    handleResetRound,
+    setActiveRound,
+    selectedTier,
+    currentTask,
+    resetTasksMastery,
+    applyCodeExecution,
+  ]);
+
   // Hotkey listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -692,13 +743,13 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
 
       if (e.key === "Escape") {
         e.preventDefault();
-        handleResetRound();
+        handleResetTaskBranch();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [roundCompleted, activeRound, nextTask, isNextTaskUnlocked, handleVerify, handleSelectTask, handleResetRound, setActiveRound]);
+  }, [roundCompleted, activeRound, nextTask, isNextTaskUnlocked, handleVerify, handleSelectTask, handleResetTaskBranch, setActiveRound]);
 
   return (
     <div className="w-full flex flex-col gap-4 font-sans select-none max-w-4xl mx-auto">
@@ -800,7 +851,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
         editorContainerRef={editorContainerRef}
         showTransferHint={showTransferHint}
         onToggleTransferHint={() => setShowTransferHint((prev) => !prev)}
-        onResetRound={handleResetRound}
+        onResetRound={handleResetTaskBranch}
         onStartSprint={handleStartSprint}
         onVerify={handleVerify}
         onAdvanceRound={() => {

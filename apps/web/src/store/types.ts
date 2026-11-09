@@ -144,6 +144,7 @@ export interface MentorSlice {
   getTaskMastery: (taskId: string) => number;
   syncCloudProgress: (userId: string) => Promise<void>;
   resetUserProgress: () => void;
+  resetTasksMastery: (taskIds: string[]) => void;
   currentStationId: string;
   setCurrentStationId: (id: string) => void;
   currentView: "HUB" | "STATION" | "WAR_ROOM" | "SPEED_DATING";

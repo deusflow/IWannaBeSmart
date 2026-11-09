@@ -1502,7 +1502,7 @@ export const daTranslation = {
         timeExpiredPrompt: "⏰ Tiden er udløbet! Tryk på 'Nulstil' og prøv igen.",
         projectExplorer: "Projektstifinder",
         projectArchitectureTitle: "Projektarkitektur og filer",
-        resetPrompt: "Nulstil indtastet kode (Esc)",
+        resetPrompt: "Start forfra: nulstil opgavefremskridt og gennemspil med tips (Esc)",
         theoryLockedTitle: "Praksis låst indtil teorien er gennemgået",
         theoryLockedDesc: "Gennemgå lærerens eksempel og analogi ovenfor for at forstå konceptet før indtastning.",
         openTheoryBtn: "Åbn lærerens forklaring",

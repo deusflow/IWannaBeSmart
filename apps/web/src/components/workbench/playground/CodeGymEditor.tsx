@@ -581,11 +581,12 @@ export function CodeGymEditor<
         <button
           type="button"
           onClick={onResetRound}
+          data-testid="codegym-reset-btn"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 font-mono text-xs cursor-pointer transition-colors shadow-2xs"
-          title={t("codegym.resetPrompt", "Скинути введений код (Esc)")}
+          title={t("codegym.resetPrompt", "Почати заново: скинути прогрес і підказки (Esc)")}
         >
           <RotateCcw size={13} />
-          <span>{t("codegym.resetBtn", "Скинути (Esc)")}</span>
+          <span>{t("codegym.resetBtn", "Почати заново")}</span>
         </button>
 
         <div className="flex items-center gap-2">

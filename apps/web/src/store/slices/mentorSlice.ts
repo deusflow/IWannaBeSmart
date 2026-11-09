@@ -761,6 +761,35 @@ export const createMentorSlice: StateCreator<
       // Safe catch
     }
   },
+
+  resetTasksMastery: (taskIds: string[]) => {
+    const nextMastery = { ...get().taskMasteryStars };
+    const nextCompleted = { ...get().completedCodingTasks };
+    const nextWpm = { ...get().taskBestWpm };
+
+    taskIds.forEach((id) => {
+      delete nextMastery[id];
+      delete nextCompleted[id];
+      delete nextWpm[id];
+    });
+
+    set({
+      taskMasteryStars: nextMastery,
+      completedCodingTasks: nextCompleted,
+      taskBestWpm: nextWpm,
+      isStationVictoryModalOpen: false,
+    });
+
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("iw_mastery_stars", JSON.stringify(nextMastery));
+        localStorage.setItem("iw_completed_tasks", JSON.stringify(nextCompleted));
+        localStorage.setItem("iw_task_best_wpm", JSON.stringify(nextWpm));
+      }
+    } catch {
+      // Safe catch
+    }
+  },
   };
 };
 

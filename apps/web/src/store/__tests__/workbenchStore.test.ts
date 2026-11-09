@@ -187,6 +187,25 @@ describe("WorkbenchStore Slices", () => {
       getStore().saveTaskProgress("task-0-1-power-on", 3, 50);
       expect(getStore().taskBestWpm["task-0-1-power-on"]).toBe(78);
     });
+
+    it("should reset tasks mastery, completion, and wpm via resetTasksMastery", () => {
+      getStore().setTaskMastery("task-0-1-power-on", 4, 80);
+      getStore().setTaskMastery("task-0-2-signal-verify", 3, 70);
+      getStore().completeCodingTask("task-0-1-power-on");
+      getStore().completeCodingTask("task-0-2-signal-verify");
+
+      expect(getStore().getTaskMastery("task-0-1-power-on")).toBe(4);
+      expect(getStore().isCodingTaskCompleted("task-0-1-power-on")).toBe(true);
+      expect(getStore().getTaskMastery("task-0-2-signal-verify")).toBe(3);
+
+      getStore().resetTasksMastery(["task-0-1-power-on", "task-0-2-signal-verify"]);
+
+      expect(getStore().getTaskMastery("task-0-1-power-on")).toBe(0);
+      expect(getStore().isCodingTaskCompleted("task-0-1-power-on")).toBe(false);
+      expect(getStore().taskBestWpm["task-0-1-power-on"]).toBeUndefined();
+      expect(getStore().getTaskMastery("task-0-2-signal-verify")).toBe(0);
+      expect(getStore().isCodingTaskCompleted("task-0-2-signal-verify")).toBe(false);
+    });
   });
 
   describe("apiForgeSlice (Station 04: Client & Server Simulation)", () => {
