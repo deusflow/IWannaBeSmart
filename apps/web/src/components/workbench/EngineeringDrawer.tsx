@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import type { StationLevel } from "@iw/sim-engine";
 import { Badge, Tabs, type TabItem } from "@iw/ui";
 import { InteractiveCodePlayground } from "./playground/InteractiveCodePlayground";
 import { CircuitCanvas } from "./circuit/CircuitCanvas";
+import { useWorkbenchStore } from "../../store/workbenchStore";
+import { audioFx } from "../../utils/audioFx";
 import {
   X,
   Terminal,
@@ -38,24 +40,43 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
   const [activeTab, setActiveTab] = useState("code");
   const [isObjectiveExpanded, setIsObjectiveExpanded] = useState<boolean>(false);
 
+  const taskMasteryStars = useWorkbenchStore((s) => s.taskMasteryStars);
+  const isTier0Active = (taskMasteryStars["task-0-3-sequential"] || 0) < 1;
+
   const drawerTabs: TabItem[] = React.useMemo(
     () => [
       { id: "code", label: t("workbench.drawerTabs.code", "Код (C# / Go)") },
-      { id: "hardware", label: t("workbench.drawerTabs.hardware", "Апаратні вузли") },
+      {
+        id: "hardware",
+        label: isTier0Active
+          ? t("workbench.drawerTabs.hardwareLocked", "Апаратні вузли (🔒 з Рівня 2)")
+          : t("workbench.drawerTabs.hardware", "Апаратні вузли"),
+      },
     ],
-    [t]
+    [t, isTier0Active]
+  );
+
+  const handleTabChange = useCallback(
+    (tabId: string) => {
+      if (tabId === "hardware" && isTier0Active) {
+        audioFx.playRelayClick();
+        return;
+      }
+      setActiveTab(tabId);
+    },
+    [isTier0Active]
   );
 
   // Handle ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !isPinned) {
+      if (e.key === "Escape" && isOpen && !isPinned && !isTier0Active) {
         onClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isPinned, onClose]);
+  }, [isOpen, isPinned, isTier0Active, onClose]);
 
   if (!isOpen) return null;
 
@@ -98,37 +119,39 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1 shrink-0 pt-0.5">
-          {/* Pin / Dock Toggle Button */}
-          <button
-            onClick={onTogglePin}
-            title={
-              isPinned
-                ? t("drawer.unpin", "Unpin Drawer (Floating Overlay)")
-                : t("drawer.pin", "Pin Drawer (Side-by-side Dock)")
-            }
-            className={`p-1.5 rounded-lg border transition-all duration-150 cursor-pointer outline-none ${
-              isPinned
-                ? "bg-[#252932] text-white border-[#252932] shadow-2xs"
-                : "bg-slate-100 text-slate-600 hover:text-obsidian border-black/[0.06] hover:bg-slate-200"
-            }`}
-          >
-            {isPinned ? (
-              <PinOff size={15} strokeWidth={1.75} />
-            ) : (
-              <Pin size={15} strokeWidth={1.75} />
-            )}
-          </button>
+        {!isTier0Active && (
+          <div className="flex items-center gap-1 shrink-0 pt-0.5">
+            {/* Pin / Dock Toggle Button */}
+            <button
+              onClick={onTogglePin}
+              title={
+                isPinned
+                  ? t("drawer.unpin", "Unpin Drawer (Floating Overlay)")
+                  : t("drawer.pin", "Pin Drawer (Side-by-side Dock)")
+              }
+              className={`p-1.5 rounded-lg border transition-all duration-150 cursor-pointer outline-none ${
+                isPinned
+                  ? "bg-[#252932] text-white border-[#252932] shadow-2xs"
+                  : "bg-slate-100 text-slate-600 hover:text-obsidian border-black/[0.06] hover:bg-slate-200"
+              }`}
+            >
+              {isPinned ? (
+                <PinOff size={15} strokeWidth={1.75} />
+              ) : (
+                <Pin size={15} strokeWidth={1.75} />
+              )}
+            </button>
 
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            title={t("drawer.close", "Close Drawer (ESC)")}
-            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-obsidian transition-colors cursor-pointer border border-black/[0.06]"
-          >
-            <X size={15} strokeWidth={1.75} />
-          </button>
-        </div>
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              title={t("drawer.close", "Close Drawer (ESC)")}
+              className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-obsidian transition-colors cursor-pointer border border-black/[0.06]"
+            >
+              <X size={15} strokeWidth={1.75} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tab Navigation */}
@@ -136,7 +159,7 @@ export const EngineeringDrawer: React.FC<EngineeringDrawerProps> = ({
         <Tabs
           tabs={drawerTabs}
           activeTab={activeTab}
-          onChange={setActiveTab}
+          onChange={handleTabChange}
           variant="line"
         />
       </div>

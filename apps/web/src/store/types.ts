@@ -187,8 +187,10 @@ export interface TVStateSlice {
   osdMessage: string;
   irSignalPulse: boolean;
   screenReactionPulse: boolean;
+  codeGymLang: "csharp" | "go";
 
   // Direct Programmatic Actions with FSM Guards (Blocked when !power)
+  setCodeGymLang: (lang: "csharp" | "go") => void;
   setVolume: (vol: number) => void;
   changeVolume: (delta: number) => void;
   setChannel: (channel: number) => void;

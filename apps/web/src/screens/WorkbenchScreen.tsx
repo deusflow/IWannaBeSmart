@@ -182,6 +182,7 @@ export const WorkbenchScreen: React.FC = () => {
     setCurrentView,
     isOnboardingOpen,
     setIsOnboardingOpen,
+    codeGymLang,
   } = useWorkbenchStore(
     useShallow((s) => ({
       power: s.power,
@@ -219,8 +220,12 @@ export const WorkbenchScreen: React.FC = () => {
       setCurrentView: s.setCurrentView,
       isOnboardingOpen: s.isOnboardingOpen,
       setIsOnboardingOpen: s.setIsOnboardingOpen,
+      codeGymLang: s.codeGymLang,
     }))
   );
+
+  const isGo = codeGymLang === "go";
+  const tvStandbyCmd = isGo ? "tv.PowerOn()" : "tv.PowerOn();";
 
   const completedTasksCount = useMemo(() => {
     const ids = new Set([
@@ -451,10 +456,11 @@ export const WorkbenchScreen: React.FC = () => {
             <button
               id="btn-incident-war-room"
               onClick={() => {
-                audioFx.playWarRoomSiren();
                 if (isNewUser) {
+                  audioFx.playRelayClick();
                   setIsWarRoomLockedModalOpen(true);
                 } else {
+                  audioFx.playWarRoomSiren();
                   setCurrentView(currentView === "WAR_ROOM" ? "HUB" : "WAR_ROOM");
                 }
               }}
@@ -463,10 +469,16 @@ export const WorkbenchScreen: React.FC = () => {
                   ? "bg-rose-600 text-white shadow-rose-900/30 border border-rose-500"
                   : "bg-rose-50/80 hover:bg-rose-100 text-rose-800 border border-rose-200"
               }`}
-              title="Incident War Room (SEV-1 Production Outage Drills)"
+              title={
+                isNewUser
+                  ? t("workbench.warRoomLockedTooltip", "Військова кімната інцидентів (доступно після перших завдань)")
+                  : "Incident War Room (SEV-1 Production Outage Drills)"
+              }
             >
               <span className="relative flex h-2 w-2 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                {!isNewUser && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                )}
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
               </span>
               <span className="hidden sm:inline tracking-tight">WAR ROOM</span>
@@ -840,7 +852,10 @@ export const WorkbenchScreen: React.FC = () => {
                       ? t("workbench.tvPlayingHint", { channel, channelName: channelNames[channel], volume })
                       : mentorPhase === "VERIFY"
                       ? t("workbench.tvVerifyHint")
-                      : t("workbench.tvStandbyHint")}
+                      : t("workbench.tvStandbyHint", {
+                          cmd: tvStandbyCmd,
+                          defaultValue: `Введіть команду ${tvStandbyCmd} у вікні коду справа для запуску`,
+                        })}
                   </span>
                 </div>
               </div>

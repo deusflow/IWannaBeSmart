@@ -26,6 +26,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
     chassisPrevChannel,
     isEdgeBroken,
     mentorPhase,
+    codeGymLang,
     calcDisplay,
     calcPrevValue,
     calcOperation,
@@ -48,6 +49,7 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
       chassisPrevChannel: s.chassisPrevChannel,
       isEdgeBroken: s.isEdgeBroken,
       mentorPhase: s.mentorPhase,
+      codeGymLang: s.codeGymLang,
       calcDisplay: s.calcDisplay,
       calcPrevValue: s.calcPrevValue,
       calcOperation: s.calcOperation,
@@ -60,6 +62,9 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
 
   const isPsuMcuBroken = isEdgeBroken("edge-psu-mcu");
   const isDisplayBroken = isEdgeBroken("edge-mcu-display");
+
+  const isGo = codeGymLang === "go";
+  const standbyCmd = isGo ? "tv.PowerOn()" : "tv.PowerOn();";
 
   const currentChannelName = channelNames[channel] || t("tvDevice.channelNotTuned", "Канал не налаштований");
 
@@ -349,7 +354,10 @@ export const TVBlueprintDevice: React.FC<TVBlueprintDeviceProps> = ({
                     ? t("tvDevice.restorePsuHint", "Відновіть зв'язок PSU -> MCU у вкладці Hardware")
                     : mentorPhase === "VERIFY"
                     ? t("workbench.tvVerifyHint")
-                    : t("workbench.tvStandbyHint")}
+                    : t("workbench.tvStandbyHint", {
+                        cmd: standbyCmd,
+                        defaultValue: `Введіть команду ${standbyCmd} у вікні коду справа для запуску`,
+                      })}
                 </span>
               </div>
             )}

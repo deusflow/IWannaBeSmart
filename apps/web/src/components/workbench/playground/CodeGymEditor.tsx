@@ -229,49 +229,51 @@ export function CodeGymEditor<
             {fileName}
           </span>
 
-          {/* Editor QoL: Font Size & Word Wrap */}
-          <div className="ml-2 flex items-center gap-1 bg-[#1A1D24] p-0.5 rounded-lg border border-white/[0.10] text-[10px] font-mono">
-            <button
-              type="button"
-              onClick={() => setFontSize((f) => Math.max(11, f - 1))}
-              disabled={fontSize <= 11}
-              className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
-              title="Decrease Font Size (A-)"
-            >
-              A-
-            </button>
-            <span className="text-slate-300 font-bold px-0.5">{fontSize}px</span>
-            <button
-              type="button"
-              onClick={() => setFontSize((f) => Math.min(18, f + 1))}
-              disabled={fontSize >= 18}
-              className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
-              title="Increase Font Size (A+)"
-            >
-              A+
-            </button>
-            <div className="w-px h-3 bg-white/[0.12]" />
-            <button
-              type="button"
-              onClick={() => setIsWordWrap((w) => !w)}
-              className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-                isWordWrap ? "text-amber-300 font-bold bg-amber-500/20" : "text-slate-400 hover:text-white"
-              }`}
-              title={isWordWrap ? "Disable Line Wrap" : "Enable Line Wrap"}
-            >
-              Wrap
-            </button>
-            <div className="w-px h-3 bg-white/[0.12]" />
-            <button
-              type="button"
-              onClick={handleCopyCode}
-              className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
-              title={t("common.copy", "Копіювати код")}
-            >
-              <Copy size={11} />
-              <span>Copy</span>
-            </button>
-          </div>
+          {/* Editor QoL: Font Size & Word Wrap (Revealed in Tier 1+ to keep Tier 0 distraction-free) */}
+          {(currentTask.tier ?? 0) > 0 && (
+            <div className="ml-2 flex items-center gap-1 bg-[#1A1D24] p-0.5 rounded-lg border border-white/[0.10] text-[10px] font-mono">
+              <button
+                type="button"
+                onClick={() => setFontSize((f) => Math.max(11, f - 1))}
+                disabled={fontSize <= 11}
+                className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+                title="Decrease Font Size (A-)"
+              >
+                A-
+              </button>
+              <span className="text-slate-300 font-bold px-0.5">{fontSize}px</span>
+              <button
+                type="button"
+                onClick={() => setFontSize((f) => Math.min(18, f + 1))}
+                disabled={fontSize >= 18}
+                className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+                title="Increase Font Size (A+)"
+              >
+                A+
+              </button>
+              <div className="w-px h-3 bg-white/[0.12]" />
+              <button
+                type="button"
+                onClick={() => setIsWordWrap((w) => !w)}
+                className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+                  isWordWrap ? "text-amber-300 font-bold bg-amber-500/20" : "text-slate-400 hover:text-white"
+                }`}
+                title={isWordWrap ? "Disable Line Wrap" : "Enable Line Wrap"}
+              >
+                Wrap
+              </button>
+              <div className="w-px h-3 bg-white/[0.12]" />
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="px-1.5 py-0.5 rounded text-slate-400 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                title={t("common.copy", "Копіювати код")}
+              >
+                <Copy size={11} />
+                <span>Copy</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Round-specific status display & stats */}
@@ -512,12 +514,28 @@ export function CodeGymEditor<
           </div>
         )}
 
+        {/* Pulsing prompt for beginners to start typing on first character */}
+        {activeRound === 1 && typedCode.length === 0 && !currentTask.isBugfixTask && (
+          <div
+            className="absolute top-2 z-20 pointer-events-none animate-in fade-in flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[11px] font-bold shadow-lg animate-pulse"
+            style={{ left: `${gutterWidth + 12}px` }}
+          >
+            <span>👉</span>
+            <span>
+              {t("codegym.startTypingPrompt", "Почніть друкувати з клавіатури: '{{firstChar}}'", {
+                firstChar: targetCode.trim().charAt(0) || "t",
+              })}
+            </span>
+          </div>
+        )}
+
         <CodeMirror
           value={typedCode}
           theme={oneDark}
           extensions={extensions}
           onChange={onChangeCode}
           editable={isTheoryUnlocked}
+          autoFocus={true}
           height="auto"
           minHeight="160px"
           basicSetup={{
@@ -625,7 +643,12 @@ export function CodeGymEditor<
             </>
           ) : (
             <>
-              {currentTask.isBugfixTask && activeRound === 1 ? (
+              {activeRound === 1 && !currentTask.isBugfixTask ? (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-400 font-mono text-[11px]">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span>{t("codegym.autoRunNotice", "Друкуйте символ у символ — прилад запуститься автоматично")}</span>
+                </div>
+              ) : currentTask.isBugfixTask && activeRound === 1 ? (
                 <button
                   type="button"
                   onClick={onVerify}

@@ -29,6 +29,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
 }) => {
   const { t } = useTranslation();
   const {
+    power,
     isIrEmitting,
     osdMessage,
     pressPower,
@@ -40,6 +41,7 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
     pressSelectChannel,
   } = useWorkbenchStore(
     useShallow((s) => ({
+      power: s.power,
       isIrEmitting: s.isIrEmitting,
       osdMessage: s.osdMessage,
       pressPower: s.pressPower,
@@ -76,7 +78,11 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
         </div>
 
         {/* Horizontal Remote Enclosure */}
-        <div className="w-full bg-[#181B1E] rounded-2xl border-2 border-[#101214] p-3 shadow-[0_12px_32px_rgba(26,29,32,0.16)] relative flex flex-col select-none shrink-0">
+        <div
+          className={`w-full bg-[#181B1E] rounded-2xl border-2 border-[#101214] p-3 shadow-[0_12px_32px_rgba(26,29,32,0.16)] relative flex flex-col select-none shrink-0 transition-opacity duration-300 ${
+            !power ? "opacity-60 hover:opacity-90" : "opacity-100"
+          }`}
+        >
           {/* Top IR Diode Emitter Dome - directly points straight up towards the TV! */}
           <div className="absolute -top-3 left-1/2 -translate-x-1/2">
             <div
@@ -97,7 +103,11 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
 
           {/* Sub-header inside chassis */}
           <div className="w-full flex items-center justify-between border-b border-[#292D33] pb-1.5 mb-2 text-[9px] font-mono text-[#858D94]">
-            <span className="tracking-wider font-bold">SMART REMOTE CONTROLLER</span>
+            <span className={`tracking-wider font-bold ${!power ? "text-amber-400" : ""}`}>
+              {!power
+                ? t("remoteDevice.standbyHint", "⚡ ПУЛЬТ СПИТЬ • ПОДАЙТЕ tv.PowerOn() У КОДІ")
+                : "SMART REMOTE CONTROLLER"}
+            </span>
             <div className="flex items-center gap-1">
               <Radio
                 size={11}
@@ -114,7 +124,14 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
               <div className="grid grid-cols-2 gap-1.5">
                 <button
                   onClick={pressPower}
-                  title={t("remoteDevice.power", "Живлення (Power)")}
+                  title={
+                    !power
+                      ? t(
+                          "remoteDevice.standbyPwrTooltip",
+                          "Пульт спить: спочатку увімкніть живлення через код tv.PowerOn()"
+                        )
+                      : t("remoteDevice.power", "Живлення (Power)")
+                  }
                   data-guide="remote-pwr"
                   className="py-1.5 rounded-xl bg-accent-break hover:bg-accent-break-hover active:scale-95 text-white flex items-center justify-center gap-1 transition-all duration-100 shadow-sm border border-red-600/70 cursor-pointer outline-none"
                 >
@@ -348,7 +365,11 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
       </div>
 
       {/* Vertical Handset Body */}
-      <div className="w-44 h-[470px] bg-[#181B1E] rounded-3xl border-2 border-[#101214] p-3 shadow-[0_16px_40px_rgba(26,29,32,0.16)] relative flex flex-col items-center select-none shrink-0">
+      <div
+        className={`w-44 h-[470px] bg-[#181B1E] rounded-3xl border-2 border-[#101214] p-3 shadow-[0_16px_40px_rgba(26,29,32,0.16)] relative flex flex-col items-center select-none shrink-0 transition-opacity duration-300 ${
+          !power ? "opacity-60 hover:opacity-90" : "opacity-100"
+        }`}
+      >
         {/* Top Infrared Diode Emitter Dome */}
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <div
@@ -369,7 +390,9 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
 
         {/* Brand Stamp & TX indicator */}
         <div className="w-full flex items-center justify-between border-b border-[#292D33] pb-1.5 mb-2.5 pt-0.5 text-[9px] font-mono font-medium text-[#858D94]">
-          <span className="tracking-wider font-bold">BN59-01315Q</span>
+          <span className={`tracking-wider font-bold ${!power ? "text-amber-400" : ""}`}>
+            {!power ? t("remoteDevice.standbyShort", "ПУЛЬТ СПИТЬ") : "BN59-01315Q"}
+          </span>
           <div className="flex items-center gap-1">
             <Radio
               size={11}
@@ -383,7 +406,14 @@ export const RemoteBlueprintDevice: React.FC<RemoteBlueprintDeviceProps> = ({
         <div className="w-full grid grid-cols-2 gap-1.5 mb-2.5">
           <button
             onClick={pressPower}
-            title={t("remoteDevice.power", "Живлення (Power)")}
+            title={
+              !power
+                ? t(
+                    "remoteDevice.standbyPwrTooltip",
+                    "Пульт спить: спочатку увімкніть живлення через код tv.PowerOn()"
+                  )
+                : t("remoteDevice.power", "Живлення (Power)")
+            }
             className="py-1.5 rounded-xl bg-accent-break hover:bg-accent-break-hover active:scale-95 text-white flex items-center justify-center gap-1 transition-all duration-100 shadow-sm border border-red-600/70 cursor-pointer outline-none"
           >
             <Power size={12} strokeWidth={2.4} />

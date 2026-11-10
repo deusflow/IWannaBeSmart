@@ -17,6 +17,7 @@ import {
 
 export interface CodeGymTaskLike {
   id: string;
+  tier?: number;
   targetCode: Record<string, string>;
   clozeTemplate?: Record<string, string> | string;
   workedExample?: WorkedExample;

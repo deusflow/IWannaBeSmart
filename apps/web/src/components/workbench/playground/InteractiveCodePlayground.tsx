@@ -55,6 +55,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     resetTasksMastery,
     targetTaskId,
     setTargetTaskId,
+    setCodeGymLang,
   } = useWorkbenchStore(
     useShallow((s) => ({
       power: s.power,
@@ -74,6 +75,7 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
       resetTasksMastery: s.resetTasksMastery,
       targetTaskId: s.targetTaskId,
       setTargetTaskId: s.setTargetTaskId,
+      setCodeGymLang: s.setCodeGymLang,
     }))
   );
 
@@ -386,6 +388,11 @@ export const InteractiveCodePlayground: React.FC<InteractiveCodePlaygroundProps>
     },
     [isTierUnlocked, taskMasteryStars, completedCodingTasks]
   );
+
+  // Sync active code language to workbench store for TV screen standby hint
+  useEffect(() => {
+    setCodeGymLang(codeLang as "csharp" | "go");
+  }, [codeLang, setCodeGymLang]);
 
   // Handle task switching
   const handleSelectTask = useCallback((taskId: string) => {

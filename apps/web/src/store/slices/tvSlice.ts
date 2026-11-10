@@ -6,6 +6,7 @@
 import type { StateCreator } from "zustand";
 import { i18n } from "@iw/i18n";
 import { audioFx } from "../../utils/audioFx";
+import { getStationCheckpoint } from "../../utils/checkpointManager";
 import type {
   WorkbenchStore,
   TVStateSlice,
@@ -42,6 +43,11 @@ export const createTvSlice: StateCreator<
   osdMessage: i18n.t("workbench.tvStandby", "Телевізор у режимі очікування"),
   irSignalPulse: false,
   screenReactionPulse: false,
+  codeGymLang: ((typeof window !== "undefined" && getStationCheckpoint("tv")?.lang) || "csharp") as "csharp" | "go",
+
+  setCodeGymLang: (lang: "csharp" | "go") => {
+    set({ codeGymLang: lang });
+  },
 
   setVolume: (vol: number) => {
     if (!get().power) return;
